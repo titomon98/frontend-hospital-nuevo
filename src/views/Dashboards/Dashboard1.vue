@@ -4,7 +4,7 @@
       <b-col sm="12">
         <iq-card class-name="iq-card-block iq-card-stretch iq-card-height">
           <template v-slot:headerTitle>
-            <h4 class="card-title">Este es el sistema de Zapateria</h4>
+            <h4 class="card-title">Este es el sistema de hospital</h4>
           </template>
           <template v-slot:body>
               <Slick :option="slickOptions" id="doster-list-slide">
@@ -110,12 +110,12 @@ export default {
         prevArrow: '<a href="#" class="ri-arrow-right-s-line right"></a>'
       },
       doctorList: [
-        { name: 'Aquí si entienden castellano', img: require('../../assets/images/user/05.jpg'), position: 'No son unos mancos', worksAt: 'Zapatería el Centro' },
-        { name: 'Aquí si entienden castellano', img: require('../../assets/images/user/06.jpg'), position: 'No son unos mancos', worksAt: 'Zapatería el Centro' },
-        { name: 'Aquí si entienden castellano', img: require('../../assets/images/user/07.jpg'), position: 'No son unos mancos', worksAt: 'Zapatería el Centro' },
-        { name: 'Aquí si entienden castellano', img: require('../../assets/images/user/08.jpg'), position: 'No son unos mancos', worksAt: 'Zapatería el Centro' },
-        { name: 'Aquí si entienden castellano', img: require('../../assets/images/user/09.jpg'), position: 'No son unos mancos', worksAt: 'Zapatería el Centro' },
-        { name: 'Aquí si entienden castellano', img: require('../../assets/images/user/10.jpg'), position: 'No son unos mancos', worksAt: 'Zapatería el Centro' }
+        { name: 'Datos de prueba', img: require('../../assets/images/user/05.jpg'), position: 'Para limpieza', worksAt: 'Zapatería el Centro' },
+        { name: 'Datos de prueba', img: require('../../assets/images/user/06.jpg'), position: 'Para limpieza', worksAt: 'Zapatería el Centro' },
+        { name: 'Datos de prueba', img: require('../../assets/images/user/07.jpg'), position: 'Para limpieza', worksAt: 'Zapatería el Centro' },
+        { name: 'Datos de prueba', img: require('../../assets/images/user/08.jpg'), position: 'Para limpieza', worksAt: 'Zapatería el Centro' },
+        { name: 'Datos de prueba', img: require('../../assets/images/user/09.jpg'), position: 'Para limpieza', worksAt: 'Zapatería el Centro' },
+        { name: 'Datos de prueba', img: require('../../assets/images/user/10.jpg'), position: 'Para limpieza', worksAt: 'Zapatería el Centro' }
       ]
     }
   },

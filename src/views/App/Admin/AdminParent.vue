@@ -19,10 +19,6 @@
           <template v-slot:body>
             <b-tabs>
               <b-tab title="Usuarios" active><Users/></b-tab>
-              <b-tab title="Gastos operativos" lazy><Gastos/></b-tab>
-              <b-tab title="Ingresos" lazy><Ingresos/></b-tab>
-              <b-tab title="Planilla de salarios" lazy><PlanillaSalario/></b-tab>
-              <b-tab title="Vauchers" lazy><Vauchers/></b-tab>
             </b-tabs>
           </template>
         </iq-card>
@@ -34,19 +30,11 @@
 import { xray } from '../../../config/pluginInit'
 import axios from 'axios'
 import { apiUrl } from '../../../config/constant'
-import Gastos from './GastosOperativos.vue'
-import Ingresos from './Ingresos.vue'
-import PlanillaSalario from './PlanillaSalario.vue'
-import Vauchers from './Vauchers.vue'
 import Users from './Users.vue'
 
 export default {
   name: 'AdminParent',
   components: {
-    Gastos,
-    Ingresos,
-    PlanillaSalario,
-    Vauchers,
     Users
   },
   data () {

@@ -88,15 +88,34 @@ import DragDropDemo from '../views/Plugins/DragDropDemo'
 import AppTreeView from '../views/Plugins/AppTreeView'
 
 // App views
-// admin
-import Users from '../views/App/Admin/Users'
+// gerencia
 import AdminParent from '../views/App/Admin/AdminParent'
+import Users from '../views/App/Admin/Users'
 
-// Services
-import ServicesParent from '../views/App/Services/ServicesParent'
-import Services from '../views/App/Services/Services'
-import Zapato from '../views/App/Services/Zapato'
-import Tiendas from '../views/App/Services/Tiendas'
+// caja
+import ContratosParent from '../views/App/Caja/Contratos/ContratosParent'
+import CortesParent from '../views/App/Caja/Cortes/CortesParent'
+import CuentasParent from '../views/App/Caja/Cuentas/CuentasParent'
+import EgresosParent from '../views/App/Caja/Egresos/EgresosParent'
+
+// enfermeria
+import EmergenciasParent from '../views/App/Enfermeria/Emergencias/EmergenciasParent'
+import HospitalizacionParent from '../views/App/Enfermeria/Hospitalizacion/HospitalizacionParent'
+import IntensivoParent from '../views/App/Enfermeria/Intensivo/IntensivoParent'
+import QuirofanoParent from '../views/App/Enfermeria/Quirofano/QuirofanoParent'
+
+// farmacia
+import ComunParent from '../views/App/Farmacia/Comun/ComunParent'
+import EquiposParent from '../views/App/Farmacia/Equipos/EquiposParent'
+import MedicamentosParent from '../views/App/Farmacia/Medicamentos/MedicamentosParent'
+import MuestrasParent from '../views/App/Farmacia/Muestras/MuestrasParent'
+import QuirurgicoParent from '../views/App/Farmacia/Quirurgico/QuirurgicoParent'
+
+// medicos
+import MedicosParent from '../views/App/Medicos/MedicosParent'
+import Medicos from '../views/App/Medicos/Medicos'
+import Especialidad from '../views/App/Medicos/Especialidad'
+import Socios from '../views/App/Medicos/Socios'
 
 Vue.use(VueRouter)
 
@@ -115,30 +134,117 @@ const AdminRoutes = (prop, mode) => [
   }
 ]
 
-const ServicesRoutes = (prop, mode) => [
+const CajaRoutes = (prop, mode) => [
   {
-    path: 'services',
-    name: prop + '.services',
-    meta: { dark: mode, auth: true, name: 'ServicesParent' },
-    component: ServicesParent
+    path: 'contratos',
+    name: prop + '.contratos',
+    meta: { dark: mode, auth: true, name: 'contratos' },
+    component: ContratosParent
   },
   {
-    path: 'services',
-    name: prop + '.services',
-    meta: { dark: mode, auth: true, name: 'Services' },
-    component: Services
+    path: 'cortes',
+    name: prop + '.cortes',
+    meta: { dark: mode, auth: true, name: 'cortes' },
+    component: CortesParent
   },
   {
-    path: 'services',
-    name: prop + '.tiendas',
-    meta: { dark: mode, auth: true, name: 'Tiendas' },
-    component: Tiendas
+    path: 'cuentas',
+    name: prop + '.cuentas',
+    meta: { dark: mode, auth: true, name: 'cuentas' },
+    component: CuentasParent
   },
   {
-    path: 'services',
-    name: prop + '.zapatos',
-    meta: { dark: mode, auth: true, name: 'Zapatos' },
-    component: Zapato
+    path: 'egresos',
+    name: prop + '.egresos',
+    meta: { dark: mode, auth: true, name: 'egresos' },
+    component: EgresosParent
+  }
+]
+
+const EnfermeriaRoutes = (prop, mode) => [
+  {
+    path: 'emergencias',
+    name: prop + '.emergencias',
+    meta: { dark: mode, auth: true, name: 'emergencias' },
+    component: EmergenciasParent
+  },
+  {
+    path: 'hospitalizacion',
+    name: prop + '.hospitalizacion',
+    meta: { dark: mode, auth: true, name: 'hospitalizacion' },
+    component: HospitalizacionParent
+  },
+  {
+    path: 'intensivo',
+    name: prop + '.intensivo',
+    meta: { dark: mode, auth: true, name: 'intensivo' },
+    component: IntensivoParent
+  },
+  {
+    path: 'quirofano',
+    name: prop + '.quirofano',
+    meta: { dark: mode, auth: true, name: 'quirofano' },
+    component: QuirofanoParent
+  }
+]
+
+const FarmaciaRoutes = (prop, mode) => [
+  {
+    path: 'comun',
+    name: prop + '.comun',
+    meta: { dark: mode, auth: true, name: 'comun' },
+    component: ComunParent
+  },
+  {
+    path: 'equipos',
+    name: prop + '.equipos',
+    meta: { dark: mode, auth: true, name: 'equipos' },
+    component: EquiposParent
+  },
+  {
+    path: 'medicamentos',
+    name: prop + '.medicamentos',
+    meta: { dark: mode, auth: true, name: 'medicamentos' },
+    component: MedicamentosParent
+  },
+  {
+    path: 'muestras',
+    name: prop + '.muestras',
+    meta: { dark: mode, auth: true, name: 'muestras' },
+    component: MuestrasParent
+  },
+  {
+    path: 'quirurgico',
+    name: prop + '.quirurgico',
+    meta: { dark: mode, auth: true, name: 'quirurgico' },
+    component: QuirurgicoParent
+  }
+]
+
+const MedicosRoutes = (prop, mode) => [
+  {
+    path: 'medicos',
+    name: prop + '.medicos',
+    meta: { dark: mode, auth: true, name: 'medicos' },
+    component: Medicos
+  },
+  {
+    path: 'especialidad',
+    name: prop + '.especialidad',
+    meta: { dark: mode, auth: true, name: 'especialidad' },
+    component: Especialidad
+  },
+  {
+    path: 'socios',
+    name: prop + '.socios',
+    meta: { dark: mode, auth: true, name: 'socios' },
+    component: Socios
+  },
+  {
+    path: 'medicosparent',
+    name: prop + '.medicosparent',
+    meta: { dark: mode, auth: true, name: 'medicosparent' },
+    component: MedicosParent
   }
 ]
 
@@ -609,18 +715,39 @@ const pluginsChildRoute = (prop, mode = false) => [
 
 const routes = [
   {
-    path: '/admin',
-    name: 'admin',
+    path: '/gerencia',
+    name: 'gerencia',
     component: Layout1,
     meta: { auth: true },
-    children: AdminRoutes('admin')
+    children: AdminRoutes('gerencia')
   },
   {
-    path: '/services',
-    name: 'services',
+    path: '/caja',
+    name: 'caja',
     component: Layout1,
     meta: { auth: true },
-    children: ServicesRoutes('services')
+    children: CajaRoutes('caja')
+  },
+  {
+    path: '/enfermeria',
+    name: 'enfermeria',
+    component: Layout1,
+    meta: { auth: true },
+    children: EnfermeriaRoutes('enfermeria')
+  },
+  {
+    path: '/farmacia',
+    name: 'farmacia',
+    component: Layout1,
+    meta: { auth: true },
+    children: FarmaciaRoutes('farmacia')
+  },
+  {
+    path: '/medicos',
+    name: 'medicos',
+    component: Layout1,
+    meta: { auth: true },
+    children: MedicosRoutes('medicos')
   },
   {
     path: '/',

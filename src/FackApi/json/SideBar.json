@@ -21,15 +21,253 @@
     "icon": "ri-home-8-fill"
   },
   {
-    "title": "Productos",
-    "name": "Productos",
+    "title": "Gerencia",
+    "name": "Gerencia",
+    "is_heading": false,
+    "is_active": false,
+    "class_name": "",
+    "is_icon_class": true,
+    "icon": "ri-file-list-fill",
+    "children": [
+      {
+        "title": "Cuartos y servicios",
+        "name": "Cuartos y servicios",
+        "is_active": false,
+        "link": {
+          "name" : "gerencia.cuartos"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-shopping-cart-fill"
+      },
+      {
+        "title": "Asuetos",
+        "name": "Asuetos",
+        "is_active": false,
+        "link": {
+          "name" : "gerencia.asuetos"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-shopping-cart-fill"
+      },
+      {
+        "title": "Usuarios",
+        "name": "Usuarios",
+        "is_active": false,
+        "link": {
+          "name" : "gerencia.usuarios"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-shopping-cart-fill"
+      }
+    ]
+  },
+  {
+    "title": "Caja",
+    "name": "Caja",
     "is_heading": false,
     "is_active": false,
     "link": {
-      "name": "services.services"
     },
     "class_name": "",
     "is_icon_class": true,
-    "icon": "ri-file-list-fill"
+    "icon": "ri-briefcase-4-fill",
+    "children": [
+      {
+        "title": "Cortes",
+        "name": "Cortes",
+        "is_active": false,
+        "link": {
+          "name" : "caja.cortes"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-shopping-cart-fill"
+      },
+      {
+        "title": "Expedientes",
+        "name": "Expedientes",
+        "is_active": false,
+        "link": {
+          "name" : "caja.expedientes"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-shopping-cart-fill"
+      },
+      {
+        "title": "Contratos",
+        "name": "Contratos",
+        "is_active": false,
+        "link": {
+          "name" : "caja.contratos"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-shopping-cart-fill"
+      },
+      {
+        "title": "Egresos",
+        "name": "Egresos",
+        "is_active": false,
+        "link": {
+          "name" : "caja.egresos"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-shopping-cart-fill"
+      },
+      {
+        "title": "Cuentas por cobrar",
+        "name": "Cuentas por cobrar",
+        "is_active": false,
+        "link": {
+          "name" : "caja.cuentas"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-shopping-cart-fill"
+      }
+    ]
+  },
+  {
+    "title": "Enfermería",
+    "name": "Enfermería",
+    "is_heading": false,
+    "is_active": false,
+    "class_name": "",
+    "is_icon_class": true,
+    "icon": "ri-briefcase-4-fill",
+    "children": [
+      {
+        "title": "Quirófano",
+        "name": "Quirófano",
+        "is_active": false,
+        "link": {
+          "name" : "enfermeria.quirofano"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-shopping-cart-fill"
+      },
+      {
+        "title": "Hospitalización",
+        "name": "Hospitalización",
+        "is_active": false,
+        "link": {
+          "name" : "enfermeria.hospitalizacion"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-shopping-cart-fill"
+      },
+      {
+        "title": "Intensivo",
+        "name": "Intensivo",
+        "is_active": false,
+        "link": {
+          "name" : "enfermeria.intensivo"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-shopping-cart-fill"
+      },
+      {
+        "title": "Emergencia",
+        "name": "Emergencia",
+        "is_active": false,
+        "link": {
+          "name" : "enfermeria.emergencia"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-shopping-cart-fill"
+      }
+    ]
+  },
+  {
+    "title": "Farmacia",
+    "name": "Farmacia",
+    "is_heading": false,
+    "is_active": false,
+    "link": {
+    },
+    "class_name": "",
+    "is_icon_class": true,
+    "icon": "ri-briefcase-4-fill",
+    "children": [
+      {
+        "title": "Medicamentos",
+        "name": "Medicamentos",
+        "is_active": false,
+        "link": {
+          "name" : "farmacia.medicamentos"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-shopping-cart-fill"
+      },
+      {
+        "title": "Material quirúrgico",
+        "name": "Material quirúrgico",
+        "is_active": false,
+        "link": {
+          "name" : "enfermeria.quirurgico"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-shopping-cart-fill"
+      },
+      {
+        "title": "Material común",
+        "name": "Material común",
+        "is_active": false,
+        "link": {
+          "name" : "enfermeria.comun"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-shopping-cart-fill"
+      }
+      ,
+      {
+        "title": "Muestras médicas",
+        "name": "Muestras médicas",
+        "is_active": false,
+        "link": {
+          "name" : "enfermeria.muestras"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-shopping-cart-fill"
+      },
+      {
+        "title": "Equipos médicos",
+        "name": "Equipos médicos",
+        "is_active": false,
+        "link": {
+          "name" : "enfermeria.equipos"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-shopping-cart-fill"
+      }
+    ]
+  },
+  {
+    "title": "Médicos",
+    "name": "Médicos",
+    "is_heading": false,
+    "is_active": false,
+    "link": {
+      "link": {
+        "name" : "medicos.medicosparent"
+      }
+    },
+    "class_name": "",
+    "is_icon_class": true,
+    "icon": "ri-briefcase-4-fill"
   }
 ]

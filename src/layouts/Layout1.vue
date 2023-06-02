@@ -79,9 +79,7 @@ export default {
     // this.verticalMenu = PatientSideBar
     var today = new Date()
     this.year = today.getFullYear()
-    if (this.currentUser.user_type === 1) {
-      this.verticalMenu = SideBarItems
-    }
+    this.verticalMenu = SideBarItems
   },
   computed: {
     ...mapGetters({
