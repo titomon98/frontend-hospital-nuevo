@@ -232,9 +232,7 @@
     "is_heading": false,
     "is_active": false,
     "link": {
-      "link": {
-        "name" : "medicos.medicosparent"
-      }
+      "name" : "medicos.medicosparent"
     },
     "class_name": "",
     "is_icon_class": true,
