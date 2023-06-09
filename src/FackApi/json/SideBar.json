@@ -184,7 +184,7 @@
         "name": "Material quirúrgico",
         "is_active": false,
         "link": {
-          "name" : "enfermeria.quirurgico"
+          "name" : "farmacia.quirurgico"
         },
         "class_name": "",
         "is_icon_class": true,
@@ -195,7 +195,7 @@
         "name": "Material común",
         "is_active": false,
         "link": {
-          "name" : "enfermeria.comun"
+          "name" : "farmacia.comun"
         },
         "class_name": "",
         "is_icon_class": true,
@@ -207,7 +207,7 @@
         "name": "Muestras médicas",
         "is_active": false,
         "link": {
-          "name" : "enfermeria.muestras"
+          "name" : "farmacia.muestras"
         },
         "class_name": "",
         "is_icon_class": true,
@@ -218,7 +218,7 @@
         "name": "Equipos médicos",
         "is_active": false,
         "link": {
-          "name" : "enfermeria.equipos"
+          "name" : "farmacia.equipos"
         },
         "class_name": "",
         "is_icon_class": true,
