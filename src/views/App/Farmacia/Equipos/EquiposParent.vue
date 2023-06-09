@@ -20,6 +20,7 @@
             <b-tabs>
               <b-tab title="Equipos" active><Equipos/></b-tab>
               <b-tab title="Movimientos equipos" lazy><MovimientosEquipos/></b-tab>
+              <b-tab title="Mantenimientos equipos" lazy><MantenimientosEquipos/></b-tab>
             </b-tabs>
           </template>
         </iq-card>
@@ -33,12 +34,14 @@ import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
 import Equipos from './Equipos.vue'
 import MovimientosEquipos from './MovimientosEquipos.vue'
+import MantenimientosEquipos from './MantenimientosEquipos.vue'
 
 export default {
   name: 'EquiposParent',
   components: {
     Equipos,
-    MovimientosEquipos
+    MovimientosEquipos,
+    MantenimientosEquipos
   },
   data () {
     return {

@@ -112,6 +112,17 @@
     },
     "children": [
       {
+        "title": "Pedidos a farmacia",
+        "name": "Pedidos a farmacia",
+        "is_active": false,
+        "link": {
+          "name" : "enfermeria.pedidos"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-shopping-cart-fill"
+      },
+      {
         "title": "Quirófano",
         "name": "Quirófano",
         "is_active": false,
@@ -168,6 +179,17 @@
     "is_icon_class": true,
     "icon": "ri-briefcase-4-fill",
     "children": [
+      {
+        "title": "Pedidos pendientes",
+        "name": "Pedidos pendientes",
+        "is_active": false,
+        "link": {
+          "name" : "farmacia.pendientes"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-shopping-cart-fill"
+      },
       {
         "title": "Medicamentos",
         "name": "Medicamentos",

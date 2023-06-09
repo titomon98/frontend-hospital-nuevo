@@ -19,6 +19,7 @@
           <template v-slot:body>
             <b-tabs>
               <b-tab title="Usuarios" active><Users/></b-tab>
+              <b-tab title="Personal" active><Users/></b-tab>
               <b-tab title="Cuartos" active><Users/></b-tab>
               <b-tab title="Asuetos" active><Users/></b-tab>
             </b-tabs>
