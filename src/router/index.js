@@ -101,17 +101,21 @@ import CuentasParent from '../views/App/Caja/Cuentas/CuentasParent'
 import EgresosParent from '../views/App/Caja/Egresos/EgresosParent'
 
 // enfermeria
+import PedidosFarmaciaParent from '../views/App/Enfermeria/Pedidos/PedidosFarmaciaParent'
 import EmergenciasParent from '../views/App/Enfermeria/Emergencias/EmergenciasParent'
 import HospitalizacionParent from '../views/App/Enfermeria/Hospitalizacion/HospitalizacionParent'
 import IntensivoParent from '../views/App/Enfermeria/Intensivo/IntensivoParent'
 import QuirofanoParent from '../views/App/Enfermeria/Quirofano/QuirofanoParent'
 
 // farmacia
+import PedidosPendientesParent from '../views/App/Farmacia/Pedidos/PedidosPendientesParent'
 import ComunParent from '../views/App/Farmacia/Comun/ComunParent'
 import EquiposParent from '../views/App/Farmacia/Equipos/EquiposParent'
+import AlimentosParent from '../views/App/Farmacia/Alimentacion/AlimentosParent'
 import MedicamentosParent from '../views/App/Farmacia/Medicamentos/MedicamentosParent'
 import MuestrasParent from '../views/App/Farmacia/Muestras/MuestrasParent'
 import QuirurgicoParent from '../views/App/Farmacia/Quirurgico/QuirurgicoParent'
+import DatosParent from '../views/App/Farmacia/Datos/DatosParent'
 
 // medicos
 import MedicosParent from '../views/App/Medicos/MedicosParent'
@@ -177,6 +181,12 @@ const CajaRoutes = (prop, mode) => [
 
 const EnfermeriaRoutes = (prop, mode) => [
   {
+    path: 'pedidos',
+    name: prop + '.pedidos',
+    meta: { dark: mode, auth: true, name: 'pedidos' },
+    component: PedidosFarmaciaParent
+  },
+  {
     path: 'emergencias',
     name: prop + '.emergencias',
     meta: { dark: mode, auth: true, name: 'emergencias' },
@@ -204,10 +214,22 @@ const EnfermeriaRoutes = (prop, mode) => [
 
 const FarmaciaRoutes = (prop, mode) => [
   {
+    path: 'pendientes',
+    name: prop + '.pendientes',
+    meta: { dark: mode, auth: true, name: 'pendientes' },
+    component: PedidosPendientesParent
+  },
+  {
     path: 'comun',
     name: prop + '.comun',
     meta: { dark: mode, auth: true, name: 'comun' },
     component: ComunParent
+  },
+  {
+    path: 'alimentos',
+    name: prop + '.alimentos',
+    meta: { dark: mode, auth: true, name: 'alimentos' },
+    component: AlimentosParent
   },
   {
     path: 'equipos',
@@ -232,6 +254,12 @@ const FarmaciaRoutes = (prop, mode) => [
     name: prop + '.quirurgico',
     meta: { dark: mode, auth: true, name: 'quirurgico' },
     component: QuirurgicoParent
+  },
+  {
+    path: 'datos',
+    name: prop + '.datos',
+    meta: { dark: mode, auth: true, name: 'datos' },
+    component: DatosParent
   }
 ]
 

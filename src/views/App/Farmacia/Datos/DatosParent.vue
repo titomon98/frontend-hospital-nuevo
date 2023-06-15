@@ -4,7 +4,7 @@
       <b-col md="12">
         <iq-card>
           <template v-slot:headerTitle>
-            <h4 class="card-title mt-3">Cuentas</h4>
+            <h4 class="card-title mt-3">Datos</h4>
             <div class="iq-search-bar mt-2">
               <div class="row">
                 <div class="col-sm">
@@ -18,7 +18,10 @@
           </template>
           <template v-slot:body>
             <b-tabs>
-              <b-tab title="Cuentas por cobrar seguro" active><Cuentas/></b-tab>
+              <b-tab title="Casa médica" active><CasaMedica/></b-tab>
+              <b-tab title="Marca" lazy><Marca/></b-tab>
+              <b-tab title="Presentacion" lazy><Presentacion/></b-tab>
+              <b-tab title="Proveedor" lazy><Proveedor/></b-tab>
             </b-tabs>
           </template>
         </iq-card>
@@ -30,12 +33,18 @@
 import { xray } from '../../../../config/pluginInit'
 import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
-import Cuentas from './Cuentas.vue'
+import CasaMedica from './CasaMedica.vue'
+import Marca from './Marca.vue'
+import Presentacion from './Presentacion.vue'
+import Proveedor from './Proveedor.vue'
 
 export default {
-  name: 'CuentasParent',
+  name: 'DatosParent',
   components: {
-    Cuentas
+    CasaMedica,
+    Marca,
+    Presentacion,
+    Proveedor
   },
   data () {
     return {

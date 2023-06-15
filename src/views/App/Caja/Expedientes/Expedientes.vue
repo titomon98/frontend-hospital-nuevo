@@ -1,57 +1,39 @@
 <template>
   <b-container fluid>
-    <b-modal id="modal-1" ref="modal-1" title="Agregar usuario">
-      <form>
-        <div class="col-md-12 mb-3">
-          <label for="user">Usuario</label>
-          <input
-            required
-            type="text"
-            class="form-control"
-            id="user"
-            v-model.trim="$v.form.user.$model"
-            :state="!$v.form.user.$error"
-            placeholder="Ingresar usuario"
-          >
-          <div class="valid-feedback">
-            Looks good!
+    <b-alert
+      :variant="alertVariant"
+      :show="alertCountDown"
+      dismissible
+      fade
+      @dismissed="alertCountDown=0"
+      class="bg-white"
+    >
+      <div class="iq-alert-text">{{ alertText }}</div>
+    </b-alert>
+    <b-modal id="modal-1-bank" ref="modal-1-bank" title="Agregar banco">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <b-form @submit="$event.preventDefault()">
+        <b-form-group label="Nombre:">
+          <b-form-input
+            v-model.trim="$v.form.name.$model"
+            :state="!$v.form.name.$error"
+            placeholder="Ingresar nombre del banco"
+          ></b-form-input>
+          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
+            Debe ingresar el nombre
           </div>
-          <div class="invalid-feedback">Example invalid feedback text</div>
-        </div>
-        <div class="col-md-12 mb-3">
-          <label for="password">Contraseña</label>
-          <input
-            required
-            type="password"
-            class="form-control"
-            id="password"
-            v-model.trim="$v.form.password.$model"
-            :state="!$v.form.password.$error"
-            placeholder="Ingresar contraseña"
-          >
-          <div class="valid-feedback">
-            Looks good!
-          </div>
-          <div class="invalid-feedback">Example invalid feedback text</div>
-        </div>
-        <div class="col-md-12 mb-3">
-          <label for="type">Tipo de usuario</label>
-          <v-select
-            name="type"
-            v-model="$v.form.userType.$model"
-            :state="!$v.form.userType.$error"
-            :options="typeOptions"
-            label="nombre"
-            placeholder="Seleccione tipo de usuario"
-          />
-          <div class="valid-feedback">
-            Looks good!
-          </div>
-          <div class="invalid-feedback">Example invalid feedback text</div>
-        </div>
-      </form>
+        </b-form-group>
+      </b-form>
       <template #modal-footer="{}">
-        <b-button  variant="primary" @click="onValidate('save')"
+        <b-button variant="primary" @click="onValidate('save')"
           >Guardar</b-button
         >
         <b-button variant="danger" @click="closeModal('save')"
@@ -59,58 +41,30 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-2" ref="modal-2" title="Editar especialidad">
-      <form>
-        <div class="col-md-12 mb-3">
-          <label for="user">Usuario</label>
-          <input
-            required
-            type="text"
-            class="form-control"
-            id="user"
-            v-model.trim="$v.form.user.$model"
-            :state="!$v.form.user.$error"
-            placeholder="Ingresar usuario"
-          >
-          <div class="valid-feedback">
-            Looks good!
+    <b-modal id="modal-2-bank" ref="modal-2-bank" title="Editar banco">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <b-form @submit="$event.preventDefault()">
+        <b-form-group label="Nombre:">
+          <b-form-input
+            v-model.trim="$v.form.name.$model"
+            :state="!$v.form.name.$error"
+            placeholder="Ingresar nombre de banco"
+          ></b-form-input>
+          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
+            Debe ingresar el nombre
           </div>
-          <div class="invalid-feedback">Example invalid feedback text</div>
-        </div>
-        <div class="col-md-12 mb-3">
-          <label for="password">Contraseña</label>
-          <input
-            required
-            type="text"
-            class="form-control"
-            id="password"
-            v-model.trim="$v.form.password.$model"
-            :state="!$v.form.password.$error"
-            placeholder="Ingresar contraseña"
-          >
-          <div class="valid-feedback">
-            Looks good!
-          </div>
-          <div class="invalid-feedback">Example invalid feedback text</div>
-        </div>
-        <div class="col-md-12 mb-3">
-          <label for="type">Tipo de usuario</label>
-          <v-select
-            name="type"
-            v-model="$v.form.userType.$model"
-            :state="!$v.form.userType.$error"
-            :options="typeOptions"
-            label="nombre"
-            placeholder="Seleccione tipo de usuario"
-          />
-          <div class="valid-feedback">
-            Looks good!
-          </div>
-          <div class="invalid-feedback">Example invalid feedback text</div>
-        </div>
-      </form>
+        </b-form-group>
+      </b-form>
       <template #modal-footer="{}">
-        <b-button  variant="primary" @click="onValidate('update')"
+        <b-button variant="primary" @click="onValidate('update')"
           >Guardar</b-button
         >
         <b-button variant="danger" @click="closeModal('update')"
@@ -118,36 +72,54 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-3" ref="modal-3" title="Desactivar especialidad">
+    <b-modal id="modal-3-bank" ref="modal-3-bank" title="Desactivar banco">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
       <h6 class="my-4">
-        ¿Desea desactivar el usuario: {{ form.user }} ?
+        ¿Desea desactivar el banco: {{ form.name }} ?
       </h6>
       <template #modal-footer="{}">
         <b-button
           type="submit"
           variant="primary"
           @click="onState()
-                  $bvModal.hide('modal-3')"
+                  $bvModal.hide('modal-3-bank')"
           >Desactivar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-3')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-3-bank')"
           >Cancelar</b-button
         >
       </template>
     </b-modal>
-    <b-modal id="modal-4" ref="modal-4" title="Activar especialidad">
+    <b-modal id="modal-4-bank" ref="modal-4-bank" title="Activar banco">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
       <h6 class="my-4">
-        ¿Desea activar el usuario: {{ form.user }} ?
+        ¿Desea activar al banco: {{ form.name }} ?
       </h6>
       <template #modal-footer="{}">
         <b-button
           type="submit"
           variant="primary"
           @click="onState()
-                  $bvModal.hide('modal-4')"
+                  $bvModal.hide('modal-4-bank')"
           >Activar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-4')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-4-bank')"
           >Cancelar</b-button
         >
       </template>
@@ -156,36 +128,16 @@
       <b-col md="12">
         <iq-card>
             <template v-slot:headerTitle>
-              <h4 class="card-title mt-3">Cuartos</h4>
-              <div class="iq-search-bar mt-2">
-                <div class="row">
-                  <div class="col-sm">
-                    <b-form action="#" class="searchbox">
-                        <b-input id="search" placeholder="Buscar..." @input="(val) => searchChange(val)" />
-                        <a class="search-link" href="#"><i class="ri-search-line"></i></a>
-                    </b-form>
-                  </div>
-                  <div class="col-sm">
-                    <b-dropdown
-                      id="ddown1"
-                      :text="columna.nombre"
-                      variant="outline-dark"
-                      class="mr-1 float-md-left btn-group"
-                      size="xs"
-                    >
-                      <b-dropdown-item
-                        v-for="(search, index) in options"
-                        :key="index"
-                        @click="changeTypeSearch(search)"
-                        >{{ search.nombre }}</b-dropdown-item
-                      >
-                    </b-dropdown>
-                  </div>
-                </div>
+              <h4 class="card-title mt-3">Expedientes</h4>
+               <div class="iq-search-bar mt-2">
+                <b-form action="#" class="searchbox">
+                    <b-input id="search" placeholder="Buscar..." @input="(val) => searchChange(val)" />
+                    <a class="search-link" href="#"><i class="ri-search-line"></i></a>
+                </b-form>
               </div>
             </template>
             <template v-slot:headerAction>
-            <b-button variant="primary"  v-b-modal.modal-1>AGREGAR NUEVO</b-button>
+            <b-button variant="primary"  v-b-modal.modal-1-bank>AGREGAR NUEVO</b-button>
           </template>
           <template v-slot:body>
             <datatable-heading
@@ -227,7 +179,7 @@
                   <b-button
                     v-b-tooltip.top="'Editar'"
                     @click="setData(props.rowData)"
-                    v-b-modal.modal-2
+                    v-b-modal.modal-2-bank
                     class="mb-2"
                     size="sm"
                     variant="outline-warning"
@@ -239,8 +191,8 @@
                     @click="
                       setData(props.rowData);
                       props.rowData.estado == 1
-                        ? $bvModal.show('modal-3')
-                        : $bvModal.show('modal-4');
+                        ? $bvModal.show('modal-3-bank')
+                        : $bvModal.show('modal-4-bank');
                     "
                     class="mb-2"
                     size="sm"
@@ -267,32 +219,27 @@
   </b-container>
 </template>
 <script>
-import { xray } from '../../../config/pluginInit'
-import DatatableHeading from '../../Tables/DatatableHeading'
+import { xray } from '../../../../config/pluginInit'
+import DatatableHeading from '../../../Tables/DatatableHeading'
 import Vuetable from 'vuetable-2/src/components/Vuetable'
-import VuetablePaginationBootstrap from '../../../components/common/VuetablePaginationBootstrap'
-// import VuetablePagination from 'vuetable-2/src/components/VuetablePagination.vue'
+import VuetablePaginationBootstrap from '../../../../components/common/VuetablePaginationBootstrap'
 import useVuelidate from '@vuelidate/core'
 import { required } from '@vuelidate/validators'
 import axios from 'axios'
-import { apiUrl } from '../../../config/constant'
+import { apiUrl } from '../../../../config/constant'
 
 export default {
-  name: 'Users',
+  name: 'Bank',
   components: {
     vuetable: Vuetable,
     'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
     'datatable-heading': DatatableHeading
-    // 'vuetablePagination': VuetablePagination
   },
   setup () {
     return { $v: useVuelidate() }
   },
   mounted () {
     xray.index()
-    axios.get(apiUrl + '/type/get').then((response) => {
-      this.typeOptions = response.data
-    })
   },
   data () {
     return {
@@ -303,36 +250,27 @@ export default {
       search: '',
       form: {
         id: 0,
-        user: '',
-        password: '',
-        userType: [],
+        name: '',
         state: 1
       },
-      apiBase: apiUrl + '/user/list',
-      typeOptions: [],
-      options: [
-        { value: '1', nombre: 'Usuario' },
-        { value: '2', nombre: 'Tipo usuario' }
-      ],
-      columna: { value: '1', nombre: 'Usuario' },
+      alertSecs: 5,
+      alertCountDown: 0,
+      alertCountDownError: 0,
+      alertText: '',
+      alertErrorText: '',
+      alertVariant: '',
+      apiBase: apiUrl + '/banco/list',
       fields: [
         {
           name: '__slot:actions',
           title: 'Acciones',
           titleClass: '',
           dataClass: 'text-muted'
-          // width: "15%",
         },
         {
-          name: 'user',
-          sortField: 'user',
-          title: 'Usuario',
-          dataClass: 'list-item-heading'
-        },
-        {
-          name: 'tipo_usuario.nombre',
-          sortField: 'user',
-          title: 'Tipo de usuario',
+          name: 'nombre',
+          sortField: 'name',
+          title: 'Nombre',
           dataClass: 'list-item-heading'
         },
         {
@@ -348,9 +286,7 @@ export default {
   validations () {
     return {
       form: {
-        user: { required },
-        password: { required },
-        userType: { required }
+        name: { required }
       }
     }
   },
@@ -360,9 +296,7 @@ export default {
         case 'save': {
           this.$v.$reset()
           this.form.id = 0
-          this.form.user = ''
-          this.form.password = ''
-          this.form.userType = []
+          this.form.name = ''
           this.form.state = 1
           break
         }
@@ -372,21 +306,17 @@ export default {
       switch (action) {
         case 'save': {
           this.$v.$reset()
-          this.$refs['modal-1'].hide()
+          this.$refs['modal-1-bank'].hide()
           this.form.id = 0
-          this.form.user = ''
-          this.form.password = ''
-          this.form.userType = []
+          this.form.name = ''
           this.form.state = 1
           break
         }
         case 'update': {
           this.$v.$reset()
-          this.$refs['modal-2'].hide()
+          this.$refs['modal-2-bank'].hide()
           this.form.id = 0
-          this.form.user = ''
-          this.form.password = ''
-          this.form.userType = []
+          this.form.name = ''
           this.form.state = 1
           break
         }
@@ -400,40 +330,52 @@ export default {
         } else if (action === 'update') {
           this.onUpdate()
         }
+      } else {
+        this.alertErrorText = 'Revisa que todos los campos requeridos esten llenos'
+        this.showAlertError()
       }
     },
     setData (data) {
-      this.form.user = data.user
+      this.form.name = data.nombre
       this.form.state = data.estado
       this.form.id = data.id
-      this.form.userType = data.tipo_usuario
     },
     /* Guardar */
     onSave () {
       const me = this
-      // this.$refs["modalSave"].hide();
-      axios.post(apiUrl + '/user/create', {
+      axios.post(apiUrl + '/banco/create', {
         form: me.form })
         .then((response) => {
+          me.alertVariant = 'success'
+          me.showAlert()
+          me.alertText = 'Se ha creado el banco ' + me.form.name + ' exitosamente'
           me.$refs.vuetable.refresh()
           me.closeModal('save')
         })
         .catch((error) => {
-          // this.errorMessage = error.message;
+          me.alertVariant = 'danger'
+          me.showAlertError()
+          me.alertErrorText = error.response.data.msg
           console.error('Error!', error)
         })
     },
     /* Guardar */
     onUpdate () {
       const me = this
-      axios.put(apiUrl + '/user/update', {
+      // this.$refs["modalSave"].hide();
+      axios.put(apiUrl + '/banco/update', {
         form: me.form })
         .then((response) => {
+          me.alertVariant = 'primary'
+          me.showAlert()
+          me.alertText = 'Se ha actualizado el banco ' + me.form.name + ' exitosamente'
           me.$refs.vuetable.refresh()
           me.closeModal('update')
         })
         .catch((error) => {
-          // this.errorMessage = error.message;
+          me.alertVariant = 'danger'
+          me.showAlertError()
+          me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
           console.error('Error!', error)
         })
     },
@@ -441,28 +383,38 @@ export default {
       let me = this
       if (this.form.state === 1) {
         axios
-          .put(apiUrl + '/user/deactivate', {
+          .put(apiUrl + '/banco/deactivate', {
             id: this.form.id
           })
           .then((response) => {
+            me.alertVariant = 'warning'
+            me.showAlert()
+            me.alertText = 'Se ha desactivado el banco ' + me.form.name + ' exitosamente'
             me.$refs.vuetable.refresh()
-            me.$refs['modal-3'].hide()
+            me.$refs['modal-3-bank'].hide()
           })
           .catch((error) => {
-            // this.errorMessage = error.message;
+            me.alertVariant = 'danger'
+            me.showAlertError()
+            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
             console.error('There was an error!', error)
           })
       } else {
         axios
-          .put(apiUrl + '/user/activate', {
+          .put(apiUrl + '/banco/activate', {
             id: this.form.id
           })
           .then((response) => {
+            me.alertVariant = 'info'
+            me.showAlert()
+            me.alertText = 'Se ha activado el banco ' + me.form.name + ' exitosamente'
             me.$refs.vuetable.refresh()
-            me.$refs['modal-4'].hide()
+            me.$refs['modal-4-bank'].hide()
           })
           .catch((error) => {
-            // this.errorMessage = error.message;
+            me.alertVariant = 'danger'
+            me.showAlertError()
+            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
             console.error('There was an error!', error)
           })
       }
@@ -474,16 +426,14 @@ export default {
           order: sortOrder[0] ? sortOrder[0].direction : 'desc',
           page: currentPage,
           limit: this.perPage,
-          search: this.search,
-          columna: this.columna.value
+          search: this.search
         }
         : {
           criterio: sortOrder[0] ? sortOrder[0].sortField : 'createdAt',
           order: sortOrder[0] ? sortOrder[0].direction : 'desc',
           page: currentPage,
           limit: this.perPage,
-          search: this.search,
-          columna: this.columna.value
+          search: this.search
         }
     },
     changePageSizes (perPage) {
@@ -505,8 +455,11 @@ export default {
     onChangePage (page) {
       this.$refs.vuetable.changePage(page)
     },
-    changeTypeSearch (columna) {
-      this.columna = columna
+    showAlert () {
+      this.alertCountDown = this.alertSecs
+    },
+    showAlertError () {
+      this.alertCountDownError = this.alertSecs
     }
   }
 }

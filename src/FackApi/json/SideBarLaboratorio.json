@@ -1,0 +1,152 @@
+[
+  {
+    "title": "Dashboard",
+    "name": "sidebar.admin",
+    "is_heading": true,
+    "is_active": false,
+    "class_name": "",
+    "is_icon_class": true,
+    "icon": ""
+  },
+  {
+    "title": "Hospital Dashboard 1",
+    "name": "sidebar.dashboard2",
+    "is_heading": false,
+    "is_active": false,
+    "link": {
+      "name": "dashboard.home-1"
+    },
+    "class_name": "",
+    "is_icon_class": true,
+    "icon": "ri-home-8-fill"
+  },
+  {
+    "title": "Caja",
+    "name": "Caja",
+    "is_heading": false,
+    "is_active": false,
+    "link": {
+    },
+    "class_name": "",
+    "is_icon_class": true,
+    "icon": "ri-briefcase-4-fill",
+    "children": [
+      {
+        "title": "Cortes",
+        "name": "Cortes",
+        "is_active": false,
+        "link": {
+          "name" : "caja.cortes_lab"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-shopping-cart-fill"
+      },
+      {
+        "title": "Cuentas por cobrar",
+        "name": "Cuentas por cobrar",
+        "is_active": false,
+        "link": {
+          "name" : "caja.cuentas_lab"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-shopping-cart-fill"
+      }
+    ]
+  },
+  {
+    "title": "Exámenes",
+    "name": "Exámenes",
+    "is_heading": false,
+    "is_active": false,
+    "link": {
+      "name" : "examenes.examenesparent"
+    },
+    "class_name": "",
+    "is_icon_class": true,
+    "icon": "ri-briefcase-4-fill"
+  },
+  {
+    "title": "Estadísticas",
+    "name": "Estadísticas",
+    "is_heading": false,
+    "is_active": false,
+    "class_name": "",
+    "is_icon_class": true,
+    "icon": "ri-briefcase-4-fill",
+    "link": {
+    },
+    "children": [
+      {
+        "title": "Exámenes internos",
+        "name": "Exámenes internos",
+        "is_active": false,
+        "link": {
+          "name" : "estadistica.estadistica_internos"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-shopping-cart-fill"
+      },
+      {
+        "title": "Incentivos",
+        "name": "Incentivos",
+        "is_active": false,
+        "link": {
+          "name" : "estadistica.estadistica_incentivos"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-shopping-cart-fill"
+      }
+    ]
+  },
+  {
+    "title": "Inventario",
+    "name": "Inventario",
+    "is_heading": false,
+    "is_active": false,
+    "link": {
+    },
+    "class_name": "",
+    "is_icon_class": true,
+    "icon": "ri-briefcase-4-fill",
+    "children": [
+      {
+        "title": "Insumos",
+        "name": "Insumos",
+        "is_active": false,
+        "link": {
+          "name" : "inventario.insumos"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-shopping-cart-fill"
+      },
+      {
+        "title": "Equipos de laboratorio",
+        "name": "Equipos de laboratorio",
+        "is_active": false,
+        "link": {
+          "name" : "inventario.equipos"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-shopping-cart-fill"
+      }
+    ]
+  },
+  {
+    "title": "Encargados",
+    "name": "Encargados",
+    "is_heading": false,
+    "is_active": false,
+    "link": {
+      "name" : "encargados.encargadosparent"
+    },
+    "class_name": "",
+    "is_icon_class": true,
+    "icon": "ri-briefcase-4-fill"
+  }
+]

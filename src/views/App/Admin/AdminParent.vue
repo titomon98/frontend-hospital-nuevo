@@ -19,9 +19,9 @@
           <template v-slot:body>
             <b-tabs>
               <b-tab title="Usuarios" active><Users/></b-tab>
-              <b-tab title="Personal" active><Users/></b-tab>
-              <b-tab title="Cuartos" active><Users/></b-tab>
-              <b-tab title="Asuetos" active><Users/></b-tab>
+              <b-tab title="Personal" active><Personal/></b-tab>
+              <b-tab title="Cuartos" active><Cuartos/></b-tab>
+              <b-tab title="Asuetos" active><Asuetos/></b-tab>
             </b-tabs>
           </template>
         </iq-card>
@@ -34,11 +34,17 @@ import { xray } from '../../../config/pluginInit'
 import axios from 'axios'
 import { apiUrl } from '../../../config/constant'
 import Users from './Users.vue'
+import Personal from './Personal.vue'
+import Cuartos from './Cuartos.vue'
+import Asuetos from './Asuetos.vue'
 
 export default {
   name: 'AdminParent',
   components: {
-    Users
+    Users,
+    Personal,
+    Cuartos,
+    Asuetos
   },
   data () {
     return {

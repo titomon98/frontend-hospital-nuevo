@@ -160,7 +160,7 @@
         "name": "Emergencia",
         "is_active": false,
         "link": {
-          "name" : "enfermeria.emergencia"
+          "name" : "enfermeria.emergencias"
         },
         "class_name": "",
         "is_icon_class": true,
@@ -241,6 +241,28 @@
         "is_active": false,
         "link": {
           "name" : "farmacia.equipos"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-shopping-cart-fill"
+      },
+      {
+        "title": "Alimentación",
+        "name": "Alimentación",
+        "is_active": false,
+        "link": {
+          "name" : "farmacia.alimentos"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-shopping-cart-fill"
+      },
+      {
+        "title": "Datos farmacia",
+        "name": "Datos farmacia",
+        "is_active": false,
+        "link": {
+          "name" : "farmacia.datos"
         },
         "class_name": "",
         "is_icon_class": true,
