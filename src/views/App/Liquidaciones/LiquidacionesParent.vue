@@ -4,7 +4,7 @@
       <b-col md="12">
         <iq-card>
           <template v-slot:headerTitle>
-            <h4 class="card-title mt-3">Gerencia</h4>
+            <h4 class="card-title mt-3">Liquidaciones</h4>
             <div class="iq-search-bar mt-2">
               <div class="row">
                 <div class="col-sm">
@@ -18,10 +18,10 @@
           </template>
           <template v-slot:body>
             <b-tabs>
-              <b-tab title="Usuarios" active><Users/></b-tab>
+              <b-tab title="Hospital" active><Hospital/></b-tab>
+              <b-tab title="Laboratorio" lazy><Laboratorio/></b-tab>
+              <b-tab title="Medicos" lazy><Medicos/></b-tab>
               <b-tab title="Personal" lazy><Personal/></b-tab>
-              <b-tab title="Cuartos" lazy><Cuartos/></b-tab>
-              <b-tab title="Asuetos" lazy><Asuetos/></b-tab>
             </b-tabs>
           </template>
         </iq-card>
@@ -33,18 +33,18 @@
 import { xray } from '../../../config/pluginInit'
 import axios from 'axios'
 import { apiUrl } from '../../../config/constant'
-import Users from './Users.vue'
+import Hospital from './Hospital.vue'
 import Personal from './Personal.vue'
-import Cuartos from './Cuartos.vue'
-import Asuetos from './Asuetos.vue'
+import Laboratorio from './Laboratorio.vue'
+import Medicos from './Medicos.vue'
 
 export default {
   name: 'AdminParent',
   components: {
-    Users,
+    Hospital,
     Personal,
-    Cuartos,
-    Asuetos
+    Laboratorio,
+    Medicos
   },
   data () {
     return {

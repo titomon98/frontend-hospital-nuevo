@@ -124,6 +124,9 @@ import Medicos from '../views/App/Medicos/Medicos'
 import Especialidad from '../views/App/Medicos/Especialidad'
 import Socios from '../views/App/Medicos/Socios'
 
+// liquidacion
+import LiquidacionParent from '../views/App/Liquidaciones/LiquidacionesParent'
+
 Vue.use(VueRouter)
 
 const AdminRoutes = (prop, mode) => [
@@ -150,6 +153,15 @@ const AdminRoutes = (prop, mode) => [
     name: prop + '.adminparent',
     meta: { dark: mode, auth: true, name: 'adminparent' },
     component: AdminParent
+  }
+]
+
+const LiquidacionRoutes = (prop, mode) => [
+  {
+    path: 'liquidacionparent',
+    name: prop + '.liquidacionparent',
+    meta: { dark: mode, auth: true, name: 'liquidacionparent' },
+    component: LiquidacionParent
   }
 ]
 
@@ -776,6 +788,13 @@ const routes = [
     component: Layout1,
     meta: { auth: true },
     children: CajaRoutes('caja')
+  },
+  {
+    path: '/liquidacion',
+    name: 'liquidacion',
+    component: Layout1,
+    meta: { auth: true },
+    children: LiquidacionRoutes('liquidacion')
   },
   {
     path: '/enfermeria',

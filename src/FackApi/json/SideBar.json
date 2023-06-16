@@ -281,5 +281,17 @@
     "class_name": "",
     "is_icon_class": true,
     "icon": "ri-briefcase-4-fill"
+  },
+  {
+    "title": "Liquidaciones",
+    "name": "Liquidaciones",
+    "is_heading": false,
+    "is_active": false,
+    "link": {
+      "name" : "liquidacion.liquidaciones"
+    },
+    "class_name": "",
+    "is_icon_class": true,
+    "icon": "ri-briefcase-4-fill"
   }
 ]
