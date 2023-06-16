@@ -88,6 +88,17 @@
         "icon": "ri-shopping-cart-fill"
       },
       {
+        "title": "Liquidaciones caja chica",
+        "name": "Liquidaciones caja chica",
+        "is_active": false,
+        "link": {
+          "name" : "caja.liquidacionesmaestro"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-shopping-cart-fill"
+      },
+      {
         "title": "Cuentas por cobrar",
         "name": "Cuentas por cobrar",
         "is_active": false,
@@ -288,7 +299,7 @@
     "is_heading": false,
     "is_active": false,
     "link": {
-      "name" : "liquidacion.liquidaciones"
+      "name" : "liquidacion.liquidacionparent"
     },
     "class_name": "",
     "is_icon_class": true,
