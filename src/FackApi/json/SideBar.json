@@ -247,6 +247,30 @@
         "icon": "ri-shopping-cart-fill"
       },
       {
+        "title": "Datos farmacia",
+        "name": "Datos farmacia",
+        "is_active": false,
+        "link": {
+          "name" : "farmacia.datos"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-shopping-cart-fill"
+      }
+    ]
+  },
+  {
+    "title": "Inventario",
+    "name": "Inventario",
+    "is_heading": false,
+    "is_active": false,
+    "link": {
+    },
+    "class_name": "",
+    "is_icon_class": true,
+    "icon": "ri-briefcase-4-fill",
+    "children": [
+      {
         "title": "Equipos médicos",
         "name": "Equipos médicos",
         "is_active": false,
@@ -263,17 +287,6 @@
         "is_active": false,
         "link": {
           "name" : "farmacia.alimentos"
-        },
-        "class_name": "",
-        "is_icon_class": true,
-        "icon": "ri-shopping-cart-fill"
-      },
-      {
-        "title": "Datos farmacia",
-        "name": "Datos farmacia",
-        "is_active": false,
-        "link": {
-          "name" : "farmacia.datos"
         },
         "class_name": "",
         "is_icon_class": true,
