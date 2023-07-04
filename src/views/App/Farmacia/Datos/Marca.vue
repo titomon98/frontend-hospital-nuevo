@@ -10,7 +10,7 @@
     >
       <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
-    <b-modal id="modal-1-bank" ref="modal-1-bank" title="Agregar banco">
+    <b-modal id="modal-1-marca" ref="modal-1-marca" title="Agregar marca">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -23,11 +23,11 @@
       <b-form @submit="$event.preventDefault()">
         <b-form-group label="Nombre:">
           <b-form-input
-            v-model.trim="$v.form.name.$model"
-            :state="!$v.form.name.$error"
-            placeholder="Ingresar nombre del banco"
+            v-model.trim="$v.form.nombre.$model"
+            :state="!$v.form.nombre.$error"
+            placeholder="Ingresar nombre de la marca"
           ></b-form-input>
-          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
+          <div v-if="$v.form.nombre.required.$invalid" class="invalid-feedback">
             Debe ingresar el nombre
           </div>
         </b-form-group>
@@ -41,7 +41,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-2-bank" ref="modal-2-bank" title="Editar banco">
+    <b-modal id="modal-2-marca" ref="modal-2-marca" title="Editar marca">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -54,11 +54,11 @@
       <b-form @submit="$event.preventDefault()">
         <b-form-group label="Nombre:">
           <b-form-input
-            v-model.trim="$v.form.name.$model"
-            :state="!$v.form.name.$error"
-            placeholder="Ingresar nombre de banco"
+            v-model.trim="$v.form.nombre.$model"
+            :state="!$v.form.nombre.$error"
+            placeholder="Ingresar nombre de la marca"
           ></b-form-input>
-          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
+          <div v-if="$v.form.nombre.required.$invalid" class="invalid-feedback">
             Debe ingresar el nombre
           </div>
         </b-form-group>
@@ -72,7 +72,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-3-bank" ref="modal-3-bank" title="Desactivar banco">
+    <b-modal id="modal-3-marca" ref="modal-3-marca" title="Desactivar marca">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -83,22 +83,22 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6 class="my-4">
-        ¿Desea desactivar el banco: {{ form.name }} ?
+        ¿Desea desactivar la marca: {{ form.nombre }} ?
       </h6>
       <template #modal-footer="{}">
         <b-button
           type="submit"
           variant="primary"
           @click="onState()
-                  $bvModal.hide('modal-3-bank')"
+                  $bvModal.hide('modal-3-marca')"
           >Desactivar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-3-bank')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-3-marca')"
           >Cancelar</b-button
         >
       </template>
     </b-modal>
-    <b-modal id="modal-4-bank" ref="modal-4-bank" title="Activar banco">
+    <b-modal id="modal-4-marca" ref="modal-4-marca" title="Activar marca">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -109,17 +109,17 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6 class="my-4">
-        ¿Desea activar al banco: {{ form.name }} ?
+        ¿Desea activar al marca: {{ form.nombre }} ?
       </h6>
       <template #modal-footer="{}">
         <b-button
           type="submit"
           variant="primary"
           @click="onState()
-                  $bvModal.hide('modal-4-bank')"
+                  $bvModal.hide('modal-4-marca')"
           >Activar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-4-bank')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-4-marca')"
           >Cancelar</b-button
         >
       </template>
@@ -137,7 +137,7 @@
               </div>
             </template>
             <template v-slot:headerAction>
-            <b-button variant="primary"  v-b-modal.modal-1-bank>AGREGAR NUEVO</b-button>
+            <b-button variant="primary"  v-b-modal.modal-1-marca>AGREGAR NUEVO</b-button>
           </template>
           <template v-slot:body>
             <datatable-heading
@@ -179,7 +179,7 @@
                   <b-button
                     v-b-tooltip.top="'Editar'"
                     @click="setData(props.rowData)"
-                    v-b-modal.modal-2-bank
+                    v-b-modal.modal-2-marca
                     class="mb-2"
                     size="sm"
                     variant="outline-warning"
@@ -191,8 +191,8 @@
                     @click="
                       setData(props.rowData);
                       props.rowData.estado == 1
-                        ? $bvModal.show('modal-3-bank')
-                        : $bvModal.show('modal-4-bank');
+                        ? $bvModal.show('modal-3-marca')
+                        : $bvModal.show('modal-4-marca');
                     "
                     class="mb-2"
                     size="sm"
@@ -229,7 +229,7 @@ import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
 
 export default {
-  name: 'Bank',
+  name: 'Marcas',
   components: {
     vuetable: Vuetable,
     'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
@@ -250,7 +250,7 @@ export default {
       search: '',
       form: {
         id: 0,
-        name: '',
+        nombre: '',
         state: 1
       },
       alertSecs: 5,
@@ -259,7 +259,7 @@ export default {
       alertText: '',
       alertErrorText: '',
       alertVariant: '',
-      apiBase: apiUrl + '/banco/list',
+      apiBase: apiUrl + '/marca/list',
       fields: [
         {
           name: '__slot:actions',
@@ -269,7 +269,7 @@ export default {
         },
         {
           name: 'nombre',
-          sortField: 'name',
+          sortField: 'nombre',
           title: 'Nombre',
           dataClass: 'list-item-heading'
         },
@@ -286,7 +286,7 @@ export default {
   validations () {
     return {
       form: {
-        name: { required }
+        nombre: { required }
       }
     }
   },
@@ -296,7 +296,7 @@ export default {
         case 'save': {
           this.$v.$reset()
           this.form.id = 0
-          this.form.name = ''
+          this.form.nombre = ''
           this.form.state = 1
           break
         }
@@ -306,17 +306,17 @@ export default {
       switch (action) {
         case 'save': {
           this.$v.$reset()
-          this.$refs['modal-1-bank'].hide()
+          this.$refs['modal-1-marca'].hide()
           this.form.id = 0
-          this.form.name = ''
+          this.form.nombre = ''
           this.form.state = 1
           break
         }
         case 'update': {
           this.$v.$reset()
-          this.$refs['modal-2-bank'].hide()
+          this.$refs['modal-2-marca'].hide()
           this.form.id = 0
-          this.form.name = ''
+          this.form.nombre = ''
           this.form.state = 1
           break
         }
@@ -336,19 +336,19 @@ export default {
       }
     },
     setData (data) {
-      this.form.name = data.nombre
+      this.form.nombre = data.nombre
       this.form.state = data.estado
       this.form.id = data.id
     },
     /* Guardar */
     onSave () {
       const me = this
-      axios.post(apiUrl + '/banco/create', {
+      axios.post(apiUrl + '/marca/create', {
         form: me.form })
         .then((response) => {
           me.alertVariant = 'success'
           me.showAlert()
-          me.alertText = 'Se ha creado el banco ' + me.form.name + ' exitosamente'
+          me.alertText = 'Se ha creado el marca ' + me.form.nombre + ' exitosamente'
           me.$refs.vuetable.refresh()
           me.closeModal('save')
         })
@@ -363,12 +363,12 @@ export default {
     onUpdate () {
       const me = this
       // this.$refs["modalSave"].hide();
-      axios.put(apiUrl + '/banco/update', {
+      axios.put(apiUrl + '/marca/update', {
         form: me.form })
         .then((response) => {
           me.alertVariant = 'primary'
           me.showAlert()
-          me.alertText = 'Se ha actualizado el banco ' + me.form.name + ' exitosamente'
+          me.alertText = 'Se ha actualizado el marca ' + me.form.nombre + ' exitosamente'
           me.$refs.vuetable.refresh()
           me.closeModal('update')
         })
@@ -383,15 +383,15 @@ export default {
       let me = this
       if (this.form.state === 1) {
         axios
-          .put(apiUrl + '/banco/deactivate', {
+          .put(apiUrl + '/marca/deactivate', {
             id: this.form.id
           })
           .then((response) => {
             me.alertVariant = 'warning'
             me.showAlert()
-            me.alertText = 'Se ha desactivado el banco ' + me.form.name + ' exitosamente'
+            me.alertText = 'Se ha desactivado el marca ' + me.form.nombre + ' exitosamente'
             me.$refs.vuetable.refresh()
-            me.$refs['modal-3-bank'].hide()
+            me.$refs['modal-3-marca'].hide()
           })
           .catch((error) => {
             me.alertVariant = 'danger'
@@ -401,15 +401,15 @@ export default {
           })
       } else {
         axios
-          .put(apiUrl + '/banco/activate', {
+          .put(apiUrl + '/marca/activate', {
             id: this.form.id
           })
           .then((response) => {
             me.alertVariant = 'info'
             me.showAlert()
-            me.alertText = 'Se ha activado el banco ' + me.form.name + ' exitosamente'
+            me.alertText = 'Se ha activado el marca ' + me.form.nombre + ' exitosamente'
             me.$refs.vuetable.refresh()
-            me.$refs['modal-4-bank'].hide()
+            me.$refs['modal-4-marca'].hide()
           })
           .catch((error) => {
             me.alertVariant = 'danger'

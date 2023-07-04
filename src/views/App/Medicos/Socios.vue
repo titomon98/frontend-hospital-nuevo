@@ -10,7 +10,7 @@
     >
       <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
-    <b-modal id="modal-1-bank" ref="modal-1-bank" title="Agregar banco">
+    <b-modal id="modal-1-socios" ref="modal-1-socios" title="Agregar socio">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -21,15 +21,63 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <b-form @submit="$event.preventDefault()">
-        <b-form-group label="Nombre:">
-          <b-form-input
-            v-model.trim="$v.form.name.$model"
-            :state="!$v.form.name.$error"
-            placeholder="Ingresar nombre del banco"
-          ></b-form-input>
-          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
-            Debe ingresar el nombre
+        <b-form-group label="Médicos:">
+          <v-select
+            name="medico"
+            v-model="$v.form.medico.$model"
+            :state="!$v.form.medico.$error"
+            :options="medicos"
+            :filterable="false"
+            placeholder="Seleccione el médico"
+            @search="onSearchMedico"
+          >
+            <template v-slot:spinner="{ loading }">
+              <div v-show="loading">Cargando...</div>
+            </template>
+            <template v-slot:option="option">
+              {{ 'Nombre: '+ option.nombre }}
+            </template>
+            <template slot="selected-option" slot-scope="option">
+              {{ 'Nombre: '+ option.nombre }}
+            </template>
+          </v-select>
+          <div v-if="$v.form.medico.$error" class="invalid-feedback-vselect">
+            Debe seleccionar el médico
           </div>
+        </b-form-group>
+        <b-form-group label="Acciones:">
+          <b-form-input
+            v-model.trim="$v.form.acciones.$model"
+            :state="!$v.form.acciones.$error"
+            placeholder="Ingresar acciones del socio"
+          ></b-form-input>
+          <div v-if="$v.form.acciones.required.$invalid" class="invalid-feedback">
+            Debe ingresar la cantidad de acciones
+          </div>
+        </b-form-group>
+        <b-form-group label="Inicio:">
+          <b-form-input
+            type="date"
+            v-model.trim="$v.form.inicio.$model"
+            :state="!$v.form.inicio.$error"
+            placeholder="Ingresar fecha de inicio del socio"
+          ></b-form-input>
+          <div v-if="$v.form.inicio.required.$invalid" class="invalid-feedback">
+            Debe ingresar el inicio
+          </div>
+        </b-form-group>
+        <b-form-group label="Final:">
+          <b-form-input
+            type="date"
+            v-model.trim="form.final"
+            placeholder="Ingresar fecha final del socio"
+          ></b-form-input>
+        </b-form-group>
+        <b-form-group label="Observaciones:">
+          <b-form-input
+            v-model.trim="form.observaciones"
+            placeholder="Ingresar observaciones del socio"
+          ></b-form-input>
         </b-form-group>
       </b-form>
       <template #modal-footer="{}">
@@ -41,7 +89,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-2-bank" ref="modal-2-bank" title="Editar banco">
+    <b-modal id="modal-2-socios" ref="modal-2-socios" title="Editar socio">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -52,15 +100,63 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <b-form @submit="$event.preventDefault()">
-        <b-form-group label="Nombre:">
-          <b-form-input
-            v-model.trim="$v.form.name.$model"
-            :state="!$v.form.name.$error"
-            placeholder="Ingresar nombre de banco"
-          ></b-form-input>
-          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
-            Debe ingresar el nombre
+        <b-form-group label="Médicos:">
+          <v-select
+            name="medico"
+            v-model="$v.form.medico.$model"
+            :state="!$v.form.medico.$error"
+            :options="medicos"
+            :filterable="false"
+            placeholder="Seleccione el médico"
+            @search="onSearchMedico"
+          >
+            <template v-slot:spinner="{ loading }">
+              <div v-show="loading">Cargando...</div>
+            </template>
+            <template v-slot:option="option">
+              {{ 'Nombre: '+ option.nombre }}
+            </template>
+            <template slot="selected-option" slot-scope="option">
+              {{ 'Nombre: '+ option.nombre }}
+            </template>
+          </v-select>
+          <div v-if="$v.form.medico.$error" class="invalid-feedback-vselect">
+            Debe seleccionar el médico
           </div>
+        </b-form-group>
+        <b-form-group label="Acciones:">
+          <b-form-input
+            v-model.trim="$v.form.acciones.$model"
+            :state="!$v.form.acciones.$error"
+            placeholder="Ingresar acciones del socio"
+          ></b-form-input>
+          <div v-if="$v.form.acciones.required.$invalid" class="invalid-feedback">
+            Debe ingresar la cantidad de acciones
+          </div>
+        </b-form-group>
+        <b-form-group label="Inicio:">
+          <b-form-input
+            type="date"
+            v-model.trim="$v.form.inicio.$model"
+            :state="!$v.form.inicio.$error"
+            placeholder="Ingresar fecha de inicio del socio"
+          ></b-form-input>
+          <div v-if="$v.form.inicio.required.$invalid" class="invalid-feedback">
+            Debe ingresar el inicio
+          </div>
+        </b-form-group>
+        <b-form-group label="Final:">
+          <b-form-input
+            type="date"
+            v-model.trim="form.final"
+            placeholder="Ingresar fecha final del socio"
+          ></b-form-input>
+        </b-form-group>
+        <b-form-group label="Observaciones:">
+          <b-form-input
+            v-model.trim="form.observaciones"
+            placeholder="Ingresar observaciones del socio"
+          ></b-form-input>
         </b-form-group>
       </b-form>
       <template #modal-footer="{}">
@@ -72,7 +168,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-3-bank" ref="modal-3-bank" title="Desactivar banco">
+    <b-modal id="modal-3-socios" ref="modal-3-socios" title="Desactivar socio">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -83,22 +179,22 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6 class="my-4">
-        ¿Desea desactivar el banco: {{ form.name }} ?
+        ¿Desea desactivar el socio ?
       </h6>
       <template #modal-footer="{}">
         <b-button
           type="submit"
           variant="primary"
           @click="onState()
-                  $bvModal.hide('modal-3-bank')"
+                  $bvModal.hide('modal-3-socios')"
           >Desactivar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-3-bank')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-3-socios')"
           >Cancelar</b-button
         >
       </template>
     </b-modal>
-    <b-modal id="modal-4-bank" ref="modal-4-bank" title="Activar banco">
+    <b-modal id="modal-4-socios" ref="modal-4-socios" title="Activar socio">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -109,17 +205,17 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6 class="my-4">
-        ¿Desea activar al banco: {{ form.name }} ?
+        ¿Desea activar al socio ?
       </h6>
       <template #modal-footer="{}">
         <b-button
           type="submit"
           variant="primary"
           @click="onState()
-                  $bvModal.hide('modal-4-bank')"
+                  $bvModal.hide('modal-4-socios')"
           >Activar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-4-bank')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-4-socios')"
           >Cancelar</b-button
         >
       </template>
@@ -137,7 +233,7 @@
               </div>
             </template>
             <template v-slot:headerAction>
-            <b-button variant="primary"  v-b-modal.modal-1-bank>AGREGAR NUEVO</b-button>
+            <b-button variant="primary"  v-b-modal.modal-1-socios>AGREGAR NUEVO</b-button>
           </template>
           <template v-slot:body>
             <datatable-heading
@@ -179,7 +275,7 @@
                   <b-button
                     v-b-tooltip.top="'Editar'"
                     @click="setData(props.rowData)"
-                    v-b-modal.modal-2-bank
+                    v-b-modal.modal-2-socios
                     class="mb-2"
                     size="sm"
                     variant="outline-warning"
@@ -191,8 +287,8 @@
                     @click="
                       setData(props.rowData);
                       props.rowData.estado == 1
-                        ? $bvModal.show('modal-3-bank')
-                        : $bvModal.show('modal-4-bank');
+                        ? $bvModal.show('modal-3-socios')
+                        : $bvModal.show('modal-4-socios');
                     "
                     class="mb-2"
                     size="sm"
@@ -229,7 +325,7 @@ import axios from 'axios'
 import { apiUrl } from '../../../config/constant'
 
 export default {
-  name: 'Bank',
+  name: 'Socios',
   components: {
     vuetable: Vuetable,
     'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
@@ -248,9 +344,14 @@ export default {
       total: 0,
       perPage: 5,
       search: '',
+      medicos: [],
       form: {
         id: 0,
-        name: '',
+        medico: null,
+        acciones: '',
+        inicio: '',
+        final: '',
+        observaciones: '',
         state: 1
       },
       alertSecs: 5,
@@ -259,7 +360,7 @@ export default {
       alertText: '',
       alertErrorText: '',
       alertVariant: '',
-      apiBase: apiUrl + '/banco/list',
+      apiBase: apiUrl + '/socios/list',
       fields: [
         {
           name: '__slot:actions',
@@ -268,9 +369,27 @@ export default {
           dataClass: 'text-muted'
         },
         {
-          name: 'nombre',
-          sortField: 'name',
+          name: 'medico.nombre',
+          sortField: 'medico.nombre',
           title: 'Nombre',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'acciones',
+          sortField: 'acciones',
+          title: 'Acciones',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'inicio',
+          sortField: 'inicio',
+          title: 'Fecha de inicio',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'final',
+          sortField: 'final',
+          title: 'Fecha final',
           dataClass: 'list-item-heading'
         },
         {
@@ -286,7 +405,9 @@ export default {
   validations () {
     return {
       form: {
-        name: { required }
+        acciones: { required },
+        medico: { required },
+        inicio: { required }
       }
     }
   },
@@ -296,7 +417,11 @@ export default {
         case 'save': {
           this.$v.$reset()
           this.form.id = 0
-          this.form.name = ''
+          this.form.medico = null
+          this.form.acciones = ''
+          this.form.inicio = ''
+          this.form.final = ''
+          this.form.observaciones = ''
           this.form.state = 1
           break
         }
@@ -306,17 +431,25 @@ export default {
       switch (action) {
         case 'save': {
           this.$v.$reset()
-          this.$refs['modal-1-bank'].hide()
+          this.$refs['modal-1-socios'].hide()
           this.form.id = 0
-          this.form.name = ''
+          this.form.medico = null
+          this.form.acciones = ''
+          this.form.inicio = ''
+          this.form.final = ''
+          this.form.observaciones = ''
           this.form.state = 1
           break
         }
         case 'update': {
           this.$v.$reset()
-          this.$refs['modal-2-bank'].hide()
+          this.$refs['modal-2-socios'].hide()
           this.form.id = 0
-          this.form.name = ''
+          this.form.medico = null
+          this.form.acciones = ''
+          this.form.inicio = ''
+          this.form.final = ''
+          this.form.observaciones = ''
           this.form.state = 1
           break
         }
@@ -336,19 +469,23 @@ export default {
       }
     },
     setData (data) {
-      this.form.name = data.nombre
+      this.form.medico = data.medico
+      this.form.acciones = data.acciones
+      this.form.inicio = data.inicio
+      this.form.final = data.final
+      this.form.observaciones = data.observaciones
       this.form.state = data.estado
       this.form.id = data.id
     },
     /* Guardar */
     onSave () {
       const me = this
-      axios.post(apiUrl + '/banco/create', {
+      axios.post(apiUrl + '/socios/create', {
         form: me.form })
         .then((response) => {
           me.alertVariant = 'success'
           me.showAlert()
-          me.alertText = 'Se ha creado el banco ' + me.form.name + ' exitosamente'
+          me.alertText = 'Se ha creado el socio exitosamente'
           me.$refs.vuetable.refresh()
           me.closeModal('save')
         })
@@ -363,12 +500,12 @@ export default {
     onUpdate () {
       const me = this
       // this.$refs["modalSave"].hide();
-      axios.put(apiUrl + '/banco/update', {
+      axios.put(apiUrl + '/socios/update', {
         form: me.form })
         .then((response) => {
           me.alertVariant = 'primary'
           me.showAlert()
-          me.alertText = 'Se ha actualizado el banco ' + me.form.name + ' exitosamente'
+          me.alertText = 'Se ha actualizado el socio exitosamente'
           me.$refs.vuetable.refresh()
           me.closeModal('update')
         })
@@ -383,15 +520,15 @@ export default {
       let me = this
       if (this.form.state === 1) {
         axios
-          .put(apiUrl + '/banco/deactivate', {
+          .put(apiUrl + '/socios/deactivate', {
             id: this.form.id
           })
           .then((response) => {
             me.alertVariant = 'warning'
             me.showAlert()
-            me.alertText = 'Se ha desactivado el banco ' + me.form.name + ' exitosamente'
+            me.alertText = 'Se ha desactivado el socio exitosamente'
             me.$refs.vuetable.refresh()
-            me.$refs['modal-3-bank'].hide()
+            me.$refs['modal-3-socios'].hide()
           })
           .catch((error) => {
             me.alertVariant = 'danger'
@@ -401,15 +538,15 @@ export default {
           })
       } else {
         axios
-          .put(apiUrl + '/banco/activate', {
+          .put(apiUrl + '/socios/activate', {
             id: this.form.id
           })
           .then((response) => {
             me.alertVariant = 'info'
             me.showAlert()
-            me.alertText = 'Se ha activado el banco ' + me.form.name + ' exitosamente'
+            me.alertText = 'Se ha activado el socio exitosamente'
             me.$refs.vuetable.refresh()
-            me.$refs['modal-4-bank'].hide()
+            me.$refs['modal-4-socios'].hide()
           })
           .catch((error) => {
             me.alertVariant = 'danger'
@@ -460,6 +597,24 @@ export default {
     },
     showAlertError () {
       this.alertCountDownError = this.alertSecs
+    },
+    onSearchMedico (search, loading) {
+      if (search.length) {
+        loading(true)
+        this.searchingMedicos(search, loading)
+      }
+    },
+    searchingMedicos (search, loading) {
+      axios.get(apiUrl + '/medicos/getSearch',
+        {
+          params: {
+            search: search
+          }
+        }
+      ).then((response) => {
+        this.medicos = response.data
+        loading(false)
+      })
     }
   }
 }

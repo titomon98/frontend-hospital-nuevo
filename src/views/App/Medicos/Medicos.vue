@@ -10,7 +10,7 @@
     >
       <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
-    <b-modal id="modal-1-bank" ref="modal-1-bank" title="Agregar banco">
+    <b-modal id="modal-1-medico" ref="modal-1-medico" title="Agregar medico">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -23,14 +23,70 @@
       <b-form @submit="$event.preventDefault()">
         <b-form-group label="Nombre:">
           <b-form-input
-            v-model.trim="$v.form.name.$model"
-            :state="!$v.form.name.$error"
-            placeholder="Ingresar nombre del banco"
+            v-model.trim="$v.form.nombre.$model"
+            :state="!$v.form.nombre.$error"
+            placeholder="Ingresar nombre del medico"
           ></b-form-input>
-          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
+          <div v-if="$v.form.nombre.required.$invalid" class="invalid-feedback">
             Debe ingresar el nombre
           </div>
         </b-form-group>
+        <b-form-group label="Nit:">
+          <b-form-input
+            v-model.trim="$v.form.nit.$model"
+            :state="!$v.form.nit.$error"
+            placeholder="Ingresar nit del medico"
+          ></b-form-input>
+          <div v-if="$v.form.nit.required.$invalid" class="invalid-feedback">
+            Debe ingresar el nit
+          </div>
+        </b-form-group>
+        <b-form-group label="Teléfono:">
+          <b-form-input
+            v-model.trim="$v.form.telefono.$model"
+            :state="!$v.form.telefono.$error"
+            placeholder="Ingresar telefono del medico"
+          ></b-form-input>
+          <div v-if="$v.form.telefono.required.$invalid" class="invalid-feedback">
+            Debe ingresar el telefono
+          </div>
+        </b-form-group>
+        <b-form-group label="Correo:">
+          <b-form-input
+            v-model.trim="form.correo"
+            placeholder="Ingresar correo del medico"
+          ></b-form-input>
+        </b-form-group>
+        <b-form-group label="Observaciones:">
+          <b-form-input
+            v-model.trim="form.observaciones"
+            placeholder="Ingresar observaciones del medico"
+          ></b-form-input>
+        </b-form-group>
+        <b-form-group label="Especialidad:">
+          <v-select
+            name="especialidad"
+            v-model="$v.form.especialidad.$model"
+            :state="!$v.form.especialidad.$error"
+            :options="especialidades"
+            :filterable="false"
+            placeholder="Seleccione la especialidad"
+            @search="onSearchEspecialidad"
+          >
+            <template v-slot:spinner="{ loading }">
+              <div v-show="loading">Cargando...</div>
+            </template>
+            <template v-slot:option="option">
+              {{ 'Nombre: '+ option.nombre }}
+            </template>
+            <template slot="selected-option" slot-scope="option">
+              {{ 'Nombre: '+ option.nombre }}
+            </template>
+          </v-select>
+          <div v-if="$v.form.especialidad.$error" class="invalid-feedback-vselect">
+            Debe seleccionar la especialidad
+          </div>
+         </b-form-group>
       </b-form>
       <template #modal-footer="{}">
         <b-button variant="primary" @click="onValidate('save')"
@@ -41,7 +97,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-2-bank" ref="modal-2-bank" title="Editar banco">
+    <b-modal id="modal-2-medico" ref="modal-2-medico" title="Editar medico">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -54,14 +110,70 @@
       <b-form @submit="$event.preventDefault()">
         <b-form-group label="Nombre:">
           <b-form-input
-            v-model.trim="$v.form.name.$model"
-            :state="!$v.form.name.$error"
-            placeholder="Ingresar nombre de banco"
+            v-model.trim="$v.form.nombre.$model"
+            :state="!$v.form.nombre.$error"
+            placeholder="Ingresar nombre del medico"
           ></b-form-input>
-          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
+          <div v-if="$v.form.nombre.required.$invalid" class="invalid-feedback">
             Debe ingresar el nombre
           </div>
         </b-form-group>
+        <b-form-group label="Nit:">
+          <b-form-input
+            v-model.trim="$v.form.nit.$model"
+            :state="!$v.form.nit.$error"
+            placeholder="Ingresar nit del medico"
+          ></b-form-input>
+          <div v-if="$v.form.nit.required.$invalid" class="invalid-feedback">
+            Debe ingresar el nit
+          </div>
+        </b-form-group>
+        <b-form-group label="Teléfono:">
+          <b-form-input
+            v-model.trim="$v.form.telefono.$model"
+            :state="!$v.form.telefono.$error"
+            placeholder="Ingresar telefono del medico"
+          ></b-form-input>
+          <div v-if="$v.form.telefono.required.$invalid" class="invalid-feedback">
+            Debe ingresar el telefono
+          </div>
+        </b-form-group>
+        <b-form-group label="Correo:">
+          <b-form-input
+            v-model.trim="form.correo"
+            placeholder="Ingresar correo del medico"
+          ></b-form-input>
+        </b-form-group>
+        <b-form-group label="Observaciones:">
+          <b-form-input
+            v-model.trim="form.observaciones"
+            placeholder="Ingresar observaciones del medico"
+          ></b-form-input>
+        </b-form-group>
+        <b-form-group label="Especialidad:">
+          <v-select
+            name="especialidad"
+            v-model="$v.form.especialidad.$model"
+            :state="!$v.form.especialidad.$error"
+            :options="especialidades"
+            :filterable="false"
+            placeholder="Seleccione la especialidad"
+            @search="onSearchEspecialidad"
+          >
+            <template v-slot:spinner="{ loading }">
+              <div v-show="loading">Cargando...</div>
+            </template>
+            <template v-slot:option="option">
+              {{ 'Nombre: '+ option.nombre }}
+            </template>
+            <template slot="selected-option" slot-scope="option">
+              {{ 'Nombre: '+ option.nombre }}
+            </template>
+          </v-select>
+          <div v-if="$v.form.especialidad.$error" class="invalid-feedback-vselect">
+            Debe seleccionar la especialidad
+          </div>
+         </b-form-group>
       </b-form>
       <template #modal-footer="{}">
         <b-button variant="primary" @click="onValidate('update')"
@@ -72,7 +184,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-3-bank" ref="modal-3-bank" title="Desactivar banco">
+    <b-modal id="modal-3-medico" ref="modal-3-medico" title="Desactivar medico">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -83,22 +195,22 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6 class="my-4">
-        ¿Desea desactivar el banco: {{ form.name }} ?
+        ¿Desea desactivar el medico: {{ form.nombre }} ?
       </h6>
       <template #modal-footer="{}">
         <b-button
           type="submit"
           variant="primary"
           @click="onState()
-                  $bvModal.hide('modal-3-bank')"
+                  $bvModal.hide('modal-3-medico')"
           >Desactivar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-3-bank')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-3-medico')"
           >Cancelar</b-button
         >
       </template>
     </b-modal>
-    <b-modal id="modal-4-bank" ref="modal-4-bank" title="Activar banco">
+    <b-modal id="modal-4-medico" ref="modal-4-medico" title="Activar medico">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -109,17 +221,17 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6 class="my-4">
-        ¿Desea activar al banco: {{ form.name }} ?
+        ¿Desea activar al medico: {{ form.nombre }} ?
       </h6>
       <template #modal-footer="{}">
         <b-button
           type="submit"
           variant="primary"
           @click="onState()
-                  $bvModal.hide('modal-4-bank')"
+                  $bvModal.hide('modal-4-medico')"
           >Activar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-4-bank')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-4-medico')"
           >Cancelar</b-button
         >
       </template>
@@ -137,7 +249,7 @@
               </div>
             </template>
             <template v-slot:headerAction>
-            <b-button variant="primary"  v-b-modal.modal-1-bank>AGREGAR NUEVO</b-button>
+            <b-button variant="primary"  v-b-modal.modal-1-medico>AGREGAR NUEVO</b-button>
           </template>
           <template v-slot:body>
             <datatable-heading
@@ -179,7 +291,7 @@
                   <b-button
                     v-b-tooltip.top="'Editar'"
                     @click="setData(props.rowData)"
-                    v-b-modal.modal-2-bank
+                    v-b-modal.modal-2-medico
                     class="mb-2"
                     size="sm"
                     variant="outline-warning"
@@ -191,8 +303,8 @@
                     @click="
                       setData(props.rowData);
                       props.rowData.estado == 1
-                        ? $bvModal.show('modal-3-bank')
-                        : $bvModal.show('modal-4-bank');
+                        ? $bvModal.show('modal-3-medico')
+                        : $bvModal.show('modal-4-medico');
                     "
                     class="mb-2"
                     size="sm"
@@ -229,7 +341,7 @@ import axios from 'axios'
 import { apiUrl } from '../../../config/constant'
 
 export default {
-  name: 'Bank',
+  name: 'Medicos',
   components: {
     vuetable: Vuetable,
     'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
@@ -248,9 +360,15 @@ export default {
       total: 0,
       perPage: 5,
       search: '',
+      especialidades: [],
       form: {
         id: 0,
-        name: '',
+        nombre: '',
+        nit: '',
+        telefono: '',
+        correo: '',
+        observaciones: '',
+        especialidad: null,
         state: 1
       },
       alertSecs: 5,
@@ -259,7 +377,7 @@ export default {
       alertText: '',
       alertErrorText: '',
       alertVariant: '',
-      apiBase: apiUrl + '/banco/list',
+      apiBase: apiUrl + '/medicos/list',
       fields: [
         {
           name: '__slot:actions',
@@ -269,8 +387,26 @@ export default {
         },
         {
           name: 'nombre',
-          sortField: 'name',
+          sortField: 'nombre',
           title: 'Nombre',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'telefono',
+          sortField: 'telefono',
+          title: 'Teléfono',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'correo',
+          sortField: 'correo',
+          title: 'Correo',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'especialidade.nombre',
+          sortField: 'especialidade.nombre',
+          title: 'Especialidad',
           dataClass: 'list-item-heading'
         },
         {
@@ -286,7 +422,10 @@ export default {
   validations () {
     return {
       form: {
-        name: { required }
+        nombre: { required },
+        nit: { required },
+        telefono: { required },
+        especialidad: { required }
       }
     }
   },
@@ -296,7 +435,12 @@ export default {
         case 'save': {
           this.$v.$reset()
           this.form.id = 0
-          this.form.name = ''
+          this.form.nombre = ''
+          this.form.nit = ''
+          this.form.telefono = ''
+          this.form.correo = ''
+          this.form.observaciones = ''
+          this.form.especialidad = null
           this.form.state = 1
           break
         }
@@ -306,17 +450,27 @@ export default {
       switch (action) {
         case 'save': {
           this.$v.$reset()
-          this.$refs['modal-1-bank'].hide()
+          this.$refs['modal-1-medico'].hide()
           this.form.id = 0
-          this.form.name = ''
+          this.form.nombre = ''
+          this.form.nit = ''
+          this.form.telefono = ''
+          this.form.correo = ''
+          this.form.observaciones = ''
+          this.form.especialidad = null
           this.form.state = 1
           break
         }
         case 'update': {
           this.$v.$reset()
-          this.$refs['modal-2-bank'].hide()
+          this.$refs['modal-2-medico'].hide()
           this.form.id = 0
-          this.form.name = ''
+          this.form.nombre = ''
+          this.form.nit = ''
+          this.form.telefono = ''
+          this.form.correo = ''
+          this.form.observaciones = ''
+          this.form.especialidad = null
           this.form.state = 1
           break
         }
@@ -336,19 +490,24 @@ export default {
       }
     },
     setData (data) {
-      this.form.name = data.nombre
+      this.form.nombre = data.nombre
+      this.form.nit = data.nit
+      this.form.telefono = data.telefono
+      this.form.correo = data.correo
+      this.form.observaciones = data.observaciones
       this.form.state = data.estado
+      this.form.especialidad = data.especialidad
       this.form.id = data.id
     },
     /* Guardar */
     onSave () {
       const me = this
-      axios.post(apiUrl + '/banco/create', {
+      axios.post(apiUrl + '/medicos/create', {
         form: me.form })
         .then((response) => {
           me.alertVariant = 'success'
           me.showAlert()
-          me.alertText = 'Se ha creado el banco ' + me.form.name + ' exitosamente'
+          me.alertText = 'Se ha creado el medico ' + me.form.nombre + ' exitosamente'
           me.$refs.vuetable.refresh()
           me.closeModal('save')
         })
@@ -363,12 +522,12 @@ export default {
     onUpdate () {
       const me = this
       // this.$refs["modalSave"].hide();
-      axios.put(apiUrl + '/banco/update', {
+      axios.put(apiUrl + '/medicos/update', {
         form: me.form })
         .then((response) => {
           me.alertVariant = 'primary'
           me.showAlert()
-          me.alertText = 'Se ha actualizado el banco ' + me.form.name + ' exitosamente'
+          me.alertText = 'Se ha actualizado el medico ' + me.form.nombre + ' exitosamente'
           me.$refs.vuetable.refresh()
           me.closeModal('update')
         })
@@ -383,15 +542,15 @@ export default {
       let me = this
       if (this.form.state === 1) {
         axios
-          .put(apiUrl + '/banco/deactivate', {
+          .put(apiUrl + '/medicos/deactivate', {
             id: this.form.id
           })
           .then((response) => {
             me.alertVariant = 'warning'
             me.showAlert()
-            me.alertText = 'Se ha desactivado el banco ' + me.form.name + ' exitosamente'
+            me.alertText = 'Se ha desactivado el medico ' + me.form.nombre + ' exitosamente'
             me.$refs.vuetable.refresh()
-            me.$refs['modal-3-bank'].hide()
+            me.$refs['modal-3-medico'].hide()
           })
           .catch((error) => {
             me.alertVariant = 'danger'
@@ -401,15 +560,15 @@ export default {
           })
       } else {
         axios
-          .put(apiUrl + '/banco/activate', {
+          .put(apiUrl + '/medicos/activate', {
             id: this.form.id
           })
           .then((response) => {
             me.alertVariant = 'info'
             me.showAlert()
-            me.alertText = 'Se ha activado el banco ' + me.form.name + ' exitosamente'
+            me.alertText = 'Se ha activado el medico ' + me.form.nombre + ' exitosamente'
             me.$refs.vuetable.refresh()
-            me.$refs['modal-4-bank'].hide()
+            me.$refs['modal-4-medico'].hide()
           })
           .catch((error) => {
             me.alertVariant = 'danger'
@@ -460,6 +619,24 @@ export default {
     },
     showAlertError () {
       this.alertCountDownError = this.alertSecs
+    },
+    onSearchEspecialidad (search, loading) {
+      if (search.length) {
+        loading(true)
+        this.searchingEspecialidades(search, loading)
+      }
+    },
+    searchingEspecialidades (search, loading) {
+      axios.get(apiUrl + '/especialidades/getSearch',
+        {
+          params: {
+            search: search
+          }
+        }
+      ).then((response) => {
+        this.especialidades = response.data
+        loading(false)
+      })
     }
   }
 }

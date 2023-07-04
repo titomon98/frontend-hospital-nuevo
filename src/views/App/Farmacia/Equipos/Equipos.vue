@@ -10,7 +10,7 @@
     >
       <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
-    <b-modal id="modal-1-bank" ref="modal-1-bank" title="Agregar banco">
+    <b-modal id="modal-1-equipo" ref="modal-1-equipo" title="Agregar equipo">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -25,7 +25,7 @@
           <b-form-input
             v-model.trim="$v.form.name.$model"
             :state="!$v.form.name.$error"
-            placeholder="Ingresar nombre del banco"
+            placeholder="Ingresar nombre del equipo"
           ></b-form-input>
           <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
             Debe ingresar el nombre
@@ -41,7 +41,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-2-bank" ref="modal-2-bank" title="Editar banco">
+    <b-modal id="modal-2-equipo" ref="modal-2-equipo" title="Editar equipo">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -56,7 +56,7 @@
           <b-form-input
             v-model.trim="$v.form.name.$model"
             :state="!$v.form.name.$error"
-            placeholder="Ingresar nombre de banco"
+            placeholder="Ingresar nombre de equipo"
           ></b-form-input>
           <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
             Debe ingresar el nombre
@@ -72,7 +72,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-3-bank" ref="modal-3-bank" title="Desactivar banco">
+    <b-modal id="modal-3-equipo" ref="modal-3-equipo" title="Desactivar equipo">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -83,22 +83,22 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6 class="my-4">
-        ¿Desea desactivar el banco: {{ form.name }} ?
+        ¿Desea desactivar el equipo: {{ form.name }} ?
       </h6>
       <template #modal-footer="{}">
         <b-button
           type="submit"
           variant="primary"
           @click="onState()
-                  $bvModal.hide('modal-3-bank')"
+                  $bvModal.hide('modal-3-equipo')"
           >Desactivar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-3-bank')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-3-equipo')"
           >Cancelar</b-button
         >
       </template>
     </b-modal>
-    <b-modal id="modal-4-bank" ref="modal-4-bank" title="Activar banco">
+    <b-modal id="modal-4-equipo" ref="modal-4-equipo" title="Activar equipo">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -109,17 +109,17 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6 class="my-4">
-        ¿Desea activar al banco: {{ form.name }} ?
+        ¿Desea activar al equipo: {{ form.name }} ?
       </h6>
       <template #modal-footer="{}">
         <b-button
           type="submit"
           variant="primary"
           @click="onState()
-                  $bvModal.hide('modal-4-bank')"
+                  $bvModal.hide('modal-4-equipo')"
           >Activar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-4-bank')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-4-equipo')"
           >Cancelar</b-button
         >
       </template>
@@ -137,7 +137,7 @@
               </div>
             </template>
             <template v-slot:headerAction>
-            <b-button variant="primary"  v-b-modal.modal-1-bank>AGREGAR NUEVO</b-button>
+            <b-button variant="primary"  v-b-modal.modal-1-equipo>AGREGAR NUEVO</b-button>
           </template>
           <template v-slot:body>
             <datatable-heading
@@ -179,7 +179,7 @@
                   <b-button
                     v-b-tooltip.top="'Editar'"
                     @click="setData(props.rowData)"
-                    v-b-modal.modal-2-bank
+                    v-b-modal.modal-2-equipo
                     class="mb-2"
                     size="sm"
                     variant="outline-warning"
@@ -191,8 +191,8 @@
                     @click="
                       setData(props.rowData);
                       props.rowData.estado == 1
-                        ? $bvModal.show('modal-3-bank')
-                        : $bvModal.show('modal-4-bank');
+                        ? $bvModal.show('modal-3-equipo')
+                        : $bvModal.show('modal-4-equipo');
                     "
                     class="mb-2"
                     size="sm"
@@ -229,7 +229,7 @@ import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
 
 export default {
-  name: 'Bank',
+  name: 'Equipos',
   components: {
     vuetable: Vuetable,
     'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
@@ -259,7 +259,7 @@ export default {
       alertText: '',
       alertErrorText: '',
       alertVariant: '',
-      apiBase: apiUrl + '/banco/list',
+      apiBase: apiUrl + '/equipos/list',
       fields: [
         {
           name: '__slot:actions',
@@ -306,7 +306,7 @@ export default {
       switch (action) {
         case 'save': {
           this.$v.$reset()
-          this.$refs['modal-1-bank'].hide()
+          this.$refs['modal-1-equipo'].hide()
           this.form.id = 0
           this.form.name = ''
           this.form.state = 1
@@ -314,7 +314,7 @@ export default {
         }
         case 'update': {
           this.$v.$reset()
-          this.$refs['modal-2-bank'].hide()
+          this.$refs['modal-2-equipo'].hide()
           this.form.id = 0
           this.form.name = ''
           this.form.state = 1
@@ -343,12 +343,12 @@ export default {
     /* Guardar */
     onSave () {
       const me = this
-      axios.post(apiUrl + '/banco/create', {
+      axios.post(apiUrl + '/equipos/create', {
         form: me.form })
         .then((response) => {
           me.alertVariant = 'success'
           me.showAlert()
-          me.alertText = 'Se ha creado el banco ' + me.form.name + ' exitosamente'
+          me.alertText = 'Se ha creado el equipo ' + me.form.name + ' exitosamente'
           me.$refs.vuetable.refresh()
           me.closeModal('save')
         })
@@ -363,12 +363,12 @@ export default {
     onUpdate () {
       const me = this
       // this.$refs["modalSave"].hide();
-      axios.put(apiUrl + '/banco/update', {
+      axios.put(apiUrl + '/equipos/update', {
         form: me.form })
         .then((response) => {
           me.alertVariant = 'primary'
           me.showAlert()
-          me.alertText = 'Se ha actualizado el banco ' + me.form.name + ' exitosamente'
+          me.alertText = 'Se ha actualizado el equipo ' + me.form.name + ' exitosamente'
           me.$refs.vuetable.refresh()
           me.closeModal('update')
         })
@@ -383,15 +383,15 @@ export default {
       let me = this
       if (this.form.state === 1) {
         axios
-          .put(apiUrl + '/banco/deactivate', {
+          .put(apiUrl + '/equipos/deactivate', {
             id: this.form.id
           })
           .then((response) => {
             me.alertVariant = 'warning'
             me.showAlert()
-            me.alertText = 'Se ha desactivado el banco ' + me.form.name + ' exitosamente'
+            me.alertText = 'Se ha desactivado el equipo ' + me.form.name + ' exitosamente'
             me.$refs.vuetable.refresh()
-            me.$refs['modal-3-bank'].hide()
+            me.$refs['modal-3-equipo'].hide()
           })
           .catch((error) => {
             me.alertVariant = 'danger'
@@ -401,15 +401,15 @@ export default {
           })
       } else {
         axios
-          .put(apiUrl + '/banco/activate', {
+          .put(apiUrl + '/equipos/activate', {
             id: this.form.id
           })
           .then((response) => {
             me.alertVariant = 'info'
             me.showAlert()
-            me.alertText = 'Se ha activado el banco ' + me.form.name + ' exitosamente'
+            me.alertText = 'Se ha activado el equipo ' + me.form.name + ' exitosamente'
             me.$refs.vuetable.refresh()
-            me.$refs['modal-4-bank'].hide()
+            me.$refs['modal-4-equipo'].hide()
           })
           .catch((error) => {
             me.alertVariant = 'danger'
