@@ -10,7 +10,7 @@
     >
       <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
-    <b-modal id="modal-1-bank" ref="modal-1-bank" title="Agregar banco">
+    <b-modal id="modal-1-medicamento" size="xl" ref="modal-1-medicamento" title="Agregar medicamento">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -21,16 +21,162 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <b-form @submit="$event.preventDefault()">
-        <b-form-group label="Nombre:">
-          <b-form-input
-            v-model.trim="$v.form.name.$model"
-            :state="!$v.form.name.$error"
-            placeholder="Ingresar nombre del banco"
-          ></b-form-input>
-          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
-            Debe ingresar el nombre
-          </div>
-        </b-form-group>
+        <b-row class="ml-2">
+          <b-col md="6">
+            <b-form-group label="Nombre:">
+              <b-form-input
+                v-model.trim="$v.form.name.$model"
+                :state="!$v.form.name.$error"
+                placeholder="Ingresar nombre del medicamento"
+              ></b-form-input>
+              <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
+                Debe ingresar el nombre
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Anestesico:">
+              <b-form-radio v-model="form.anestesico" value="0" name="customRadio">Anestesico</b-form-radio>
+              <b-form-radio v-model="form.anestesico" value="1" name="customRadio">Medicamento</b-form-radio>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Controlado:">
+              <b-form-radio v-model="form.controlado" value="0" name="customRadio1">No controlado</b-form-radio>
+              <b-form-radio v-model="form.controlado" value="1" name="customRadio1">Controlado</b-form-radio>
+            </b-form-group>
+          </b-col>
+        </b-row>
+        <b-row class="ml-2">
+          <b-col md="3">
+            <b-form-group label="Costo:">
+              <b-form-input
+                v-model.trim="$v.form.precio_costo.$model"
+                :state="!$v.form.precio_costo.$error"
+                placeholder="Ingresar costo del medicamento"
+              ></b-form-input>
+              <div v-if="$v.form.precio_costo.required.$invalid" class="invalid-feedback">
+                Debe ingresar el costo
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Venta:">
+              <b-form-input
+                v-model.trim="$v.form.precio_venta.$model"
+                :state="!$v.form.precio_venta.$error"
+                placeholder="Ingresar venta del medicamento"
+              ></b-form-input>
+              <div v-if="$v.form.precio_venta.required.$invalid" class="invalid-feedback">
+                Debe ingresar el precio de venta
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Existencia mínima:">
+              <b-form-input
+                v-model.trim="$v.form.existencia_minima.$model"
+                :state="!$v.form.existencia_minima.$error"
+                placeholder="Ingresar existencia minima del medicamento"
+              ></b-form-input>
+              <div v-if="$v.form.existencia_minima.required.$invalid" class="invalid-feedback">
+                Debe ingresar la existencia minima
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Existencia actual:">
+              <b-form-input
+                v-model.trim="$v.form.existencia_actual.$model"
+                :state="!$v.form.existencia_actual.$error"
+                placeholder="Ingresar existencia actual del medicamento"
+              ></b-form-input>
+              <div v-if="$v.form.existencia_actual.required.$invalid" class="invalid-feedback">
+                Debe ingresar la existencia actual
+              </div>
+            </b-form-group>
+          </b-col>
+        </b-row>
+        <b-row class="ml-2">
+          <b-col md="4">
+            <b-form-group label="Marca:">
+              <v-select
+                name="marca"
+                v-model="$v.form.marca.$model"
+                :state="!$v.form.marca.$error"
+                :options="marcas"
+                :filterable="false"
+                placeholder="Seleccione la marca"
+                @search="onSearchMarca"
+              >
+                <template v-slot:spinner="{ loading }">
+                  <div v-show="loading">Cargando...</div>
+                </template>
+                <template v-slot:option="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+                <template slot="selected-option" slot-scope="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+              </v-select>
+              <div v-if="$v.form.marca.$error" class="invalid-feedback-vselect">
+                Debe seleccionar la marca
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="4">
+            <b-form-group label="Presentación:">
+              <v-select
+                name="presentacion"
+                v-model="$v.form.presentacion.$model"
+                :state="!$v.form.presentacion.$error"
+                :options="presentaciones"
+                :filterable="false"
+                placeholder="Seleccione la presentacion"
+                @search="onSearchPresentacion"
+              >
+                <template v-slot:spinner="{ loading }">
+                  <div v-show="loading">Cargando...</div>
+                </template>
+                <template v-slot:option="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+                <template slot="selected-option" slot-scope="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+              </v-select>
+              <div v-if="$v.form.presentacion.$error" class="invalid-feedback-vselect">
+                Debe seleccionar la presentacion
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="4">
+            <b-form-group label="Proveedor:">
+              <v-select
+                name="proveedor"
+                v-model="$v.form.proveedor.$model"
+                :state="!$v.form.proveedor.$error"
+                :options="proveedores"
+                :filterable="false"
+                placeholder="Seleccione el proveedor"
+                @search="onSearchProveedor"
+              >
+                <template v-slot:spinner="{ loading }">
+                  <div v-show="loading">Cargando...</div>
+                </template>
+                <template v-slot:option="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+                <template slot="selected-option" slot-scope="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+              </v-select>
+              <div v-if="$v.form.proveedor.$error" class="invalid-feedback-vselect">
+                Debe seleccionar el proveedor
+              </div>
+            </b-form-group>
+          </b-col>
+        </b-row>
       </b-form>
       <template #modal-footer="{}">
         <b-button variant="primary" @click="onValidate('save')"
@@ -41,7 +187,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-2-bank" ref="modal-2-bank" title="Editar banco">
+    <b-modal id="modal-2-medicamento" size="xl" ref="modal-2-medicamento" title="Editar medicamento">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -52,16 +198,162 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <b-form @submit="$event.preventDefault()">
-        <b-form-group label="Nombre:">
-          <b-form-input
-            v-model.trim="$v.form.name.$model"
-            :state="!$v.form.name.$error"
-            placeholder="Ingresar nombre de banco"
-          ></b-form-input>
-          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
-            Debe ingresar el nombre
-          </div>
-        </b-form-group>
+        <b-row class="ml-2">
+          <b-col md="6">
+            <b-form-group label="Nombre:">
+              <b-form-input
+                v-model.trim="$v.form.name.$model"
+                :state="!$v.form.name.$error"
+                placeholder="Ingresar nombre del medicamento"
+              ></b-form-input>
+              <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
+                Debe ingresar el nombre
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Anestesico:">
+              <b-form-radio v-model="form.anestesico" value="0" name="customRadio">Anestesico</b-form-radio>
+              <b-form-radio v-model="form.anestesico" value="1" name="customRadio">Medicamento</b-form-radio>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Controlado:">
+              <b-form-radio v-model="form.controlado" value="0" name="customRadio1">No controlado</b-form-radio>
+              <b-form-radio v-model="form.controlado" value="1" name="customRadio1">Controlado</b-form-radio>
+            </b-form-group>
+          </b-col>
+        </b-row>
+        <b-row class="ml-2">
+          <b-col md="3">
+            <b-form-group label="Costo:">
+              <b-form-input
+                v-model.trim="$v.form.precio_costo.$model"
+                :state="!$v.form.precio_costo.$error"
+                placeholder="Ingresar costo del medicamento"
+              ></b-form-input>
+              <div v-if="$v.form.precio_costo.required.$invalid" class="invalid-feedback">
+                Debe ingresar el costo
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Venta:">
+              <b-form-input
+                v-model.trim="$v.form.precio_venta.$model"
+                :state="!$v.form.precio_venta.$error"
+                placeholder="Ingresar venta del medicamento"
+              ></b-form-input>
+              <div v-if="$v.form.precio_venta.required.$invalid" class="invalid-feedback">
+                Debe ingresar el precio de venta
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Existencia mínima:">
+              <b-form-input
+                v-model.trim="$v.form.existencia_minima.$model"
+                :state="!$v.form.existencia_minima.$error"
+                placeholder="Ingresar existencia minima del medicamento"
+              ></b-form-input>
+              <div v-if="$v.form.existencia_minima.required.$invalid" class="invalid-feedback">
+                Debe ingresar la existencia minima
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Existencia actual:">
+              <b-form-input
+                v-model.trim="$v.form.existencia_actual.$model"
+                :state="!$v.form.existencia_actual.$error"
+                placeholder="Ingresar existencia actual del medicamento"
+              ></b-form-input>
+              <div v-if="$v.form.existencia_actual.required.$invalid" class="invalid-feedback">
+                Debe ingresar la existencia actual
+              </div>
+            </b-form-group>
+          </b-col>
+        </b-row>
+        <b-row class="ml-2">
+          <b-col md="4">
+            <b-form-group label="Marca:">
+              <v-select
+                name="marca"
+                v-model="$v.form.marca.$model"
+                :state="!$v.form.marca.$error"
+                :options="marcas"
+                :filterable="false"
+                placeholder="Seleccione la marca"
+                @search="onSearchMarca"
+              >
+                <template v-slot:spinner="{ loading }">
+                  <div v-show="loading">Cargando...</div>
+                </template>
+                <template v-slot:option="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+                <template slot="selected-option" slot-scope="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+              </v-select>
+              <div v-if="$v.form.marca.$error" class="invalid-feedback-vselect">
+                Debe seleccionar la marca
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="4">
+            <b-form-group label="Presentación:">
+              <v-select
+                name="presentacion"
+                v-model="$v.form.presentacion.$model"
+                :state="!$v.form.presentacion.$error"
+                :options="presentaciones"
+                :filterable="false"
+                placeholder="Seleccione la presentacion"
+                @search="onSearchPresentacion"
+              >
+                <template v-slot:spinner="{ loading }">
+                  <div v-show="loading">Cargando...</div>
+                </template>
+                <template v-slot:option="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+                <template slot="selected-option" slot-scope="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+              </v-select>
+              <div v-if="$v.form.presentacion.$error" class="invalid-feedback-vselect">
+                Debe seleccionar la presentacion
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="4">
+            <b-form-group label="Proveedor:">
+              <v-select
+                name="proveedor"
+                v-model="$v.form.proveedor.$model"
+                :state="!$v.form.proveedor.$error"
+                :options="proveedores"
+                :filterable="false"
+                placeholder="Seleccione el proveedor"
+                @search="onSearchProveedor"
+              >
+                <template v-slot:spinner="{ loading }">
+                  <div v-show="loading">Cargando...</div>
+                </template>
+                <template v-slot:option="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+                <template slot="selected-option" slot-scope="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+              </v-select>
+              <div v-if="$v.form.proveedor.$error" class="invalid-feedback-vselect">
+                Debe seleccionar el proveedor
+              </div>
+            </b-form-group>
+          </b-col>
+        </b-row>
       </b-form>
       <template #modal-footer="{}">
         <b-button variant="primary" @click="onValidate('update')"
@@ -72,7 +364,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-3-bank" ref="modal-3-bank" title="Desactivar banco">
+    <b-modal id="modal-3-medicamento" ref="modal-3-medicamento" title="Desactivar medicamento">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -83,22 +375,22 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6 class="my-4">
-        ¿Desea desactivar el banco: {{ form.name }} ?
+        ¿Desea desactivar el medicamento: {{ form.name }} ?
       </h6>
       <template #modal-footer="{}">
         <b-button
           type="submit"
           variant="primary"
           @click="onState()
-                  $bvModal.hide('modal-3-bank')"
+                  $bvModal.hide('modal-3-medicamento')"
           >Desactivar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-3-bank')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-3-medicamento')"
           >Cancelar</b-button
         >
       </template>
     </b-modal>
-    <b-modal id="modal-4-bank" ref="modal-4-bank" title="Activar banco">
+    <b-modal id="modal-4-medicamento" ref="modal-4-medicamento" title="Activar medicamento">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -109,17 +401,17 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6 class="my-4">
-        ¿Desea activar al banco: {{ form.name }} ?
+        ¿Desea activar al medicamento: {{ form.name }} ?
       </h6>
       <template #modal-footer="{}">
         <b-button
           type="submit"
           variant="primary"
           @click="onState()
-                  $bvModal.hide('modal-4-bank')"
+                  $bvModal.hide('modal-4-medicamento')"
           >Activar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-4-bank')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-4-medicamento')"
           >Cancelar</b-button
         >
       </template>
@@ -137,7 +429,7 @@
               </div>
             </template>
             <template v-slot:headerAction>
-            <b-button variant="primary"  v-b-modal.modal-1-bank>AGREGAR NUEVO</b-button>
+            <b-button variant="primary"  v-b-modal.modal-1-medicamento>AGREGAR NUEVO</b-button>
           </template>
           <template v-slot:body>
             <datatable-heading
@@ -179,7 +471,7 @@
                   <b-button
                     v-b-tooltip.top="'Editar'"
                     @click="setData(props.rowData)"
-                    v-b-modal.modal-2-bank
+                    v-b-modal.modal-2-medicamento
                     class="mb-2"
                     size="sm"
                     variant="outline-warning"
@@ -191,8 +483,8 @@
                     @click="
                       setData(props.rowData);
                       props.rowData.estado == 1
-                        ? $bvModal.show('modal-3-bank')
-                        : $bvModal.show('modal-4-bank');
+                        ? $bvModal.show('modal-3-medicamento')
+                        : $bvModal.show('modal-4-medicamento');
                     "
                     class="mb-2"
                     size="sm"
@@ -248,9 +540,21 @@ export default {
       total: 0,
       perPage: 5,
       search: '',
+      marcas: [],
+      presentaciones: [],
+      proveedores: [],
       form: {
         id: 0,
         name: '',
+        anestesico: 0,
+        controlado: 0,
+        precio_costo: 0,
+        precio_venta: 0,
+        existencia_minima: 0,
+        existencia_actual: 0,
+        marca: null,
+        presentacion: null,
+        proveedor: null,
         state: 1
       },
       alertSecs: 5,
@@ -259,7 +563,7 @@ export default {
       alertText: '',
       alertErrorText: '',
       alertVariant: '',
-      apiBase: apiUrl + '/banco/list',
+      apiBase: apiUrl + '/medicamentos/list',
       fields: [
         {
           name: '__slot:actions',
@@ -271,6 +575,36 @@ export default {
           name: 'nombre',
           sortField: 'name',
           title: 'Nombre',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'precio_costo',
+          sortField: 'precio_costo',
+          title: 'Precio costo',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'precio_venta',
+          sortField: 'precio_venta',
+          title: 'Precio venta',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'existencia_minima',
+          sortField: 'existencia_minima',
+          title: 'Existencia minima',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'existencia_actual',
+          sortField: 'existencia_actual',
+          title: 'Existencia actual',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'presentacione.nombre',
+          sortField: 'presentacione.nombre',
+          title: 'Presentación',
           dataClass: 'list-item-heading'
         },
         {
@@ -286,7 +620,14 @@ export default {
   validations () {
     return {
       form: {
-        name: { required }
+        name: { required },
+        precio_costo: { required },
+        precio_venta: { required },
+        existencia_minima: { required },
+        existencia_actual: { required },
+        marca: { required },
+        presentacion: { required },
+        proveedor: { required }
       }
     }
   },
@@ -297,6 +638,15 @@ export default {
           this.$v.$reset()
           this.form.id = 0
           this.form.name = ''
+          this.form.anestesico = 0
+          this.form.controlado = 0
+          this.form.precio_costo = 0
+          this.form.precio_venta = 0
+          this.form.existencia_minima = 0
+          this.form.existencia_actual = 0
+          this.form.marca = null
+          this.form.presentacion = null
+          this.form.proveedor = null
           this.form.state = 1
           break
         }
@@ -306,17 +656,35 @@ export default {
       switch (action) {
         case 'save': {
           this.$v.$reset()
-          this.$refs['modal-1-bank'].hide()
+          this.$refs['modal-1-medicamento'].hide()
           this.form.id = 0
           this.form.name = ''
+          this.form.anestesico = 0
+          this.form.controlado = 0
+          this.form.precio_costo = 0
+          this.form.precio_venta = 0
+          this.form.existencia_minima = 0
+          this.form.existencia_actual = 0
+          this.form.marca = null
+          this.form.presentacion = null
+          this.form.proveedor = null
           this.form.state = 1
           break
         }
         case 'update': {
           this.$v.$reset()
-          this.$refs['modal-2-bank'].hide()
+          this.$refs['modal-2-medicamento'].hide()
           this.form.id = 0
           this.form.name = ''
+          this.form.anestesico = 0
+          this.form.controlado = 0
+          this.form.precio_costo = 0
+          this.form.precio_venta = 0
+          this.form.existencia_minima = 0
+          this.form.existencia_actual = 0
+          this.form.marca = null
+          this.form.presentacion = null
+          this.form.proveedor = null
           this.form.state = 1
           break
         }
@@ -337,18 +705,27 @@ export default {
     },
     setData (data) {
       this.form.name = data.nombre
+      this.form.anestesico = data.anestesico
+      this.form.controlado = data.controlado
+      this.form.precio_costo = data.precio_costo
+      this.form.precio_venta = data.precio_venta
+      this.form.existencia_minima = data.existencia_minima
+      this.form.existencia_actual = data.existencia_actual
+      this.form.marca = data.marca
+      this.form.presentacion = data.presentacione
+      this.form.proveedor = data.proveedore
       this.form.state = data.estado
       this.form.id = data.id
     },
     /* Guardar */
     onSave () {
       const me = this
-      axios.post(apiUrl + '/banco/create', {
+      axios.post(apiUrl + '/medicamentos/create', {
         form: me.form })
         .then((response) => {
           me.alertVariant = 'success'
           me.showAlert()
-          me.alertText = 'Se ha creado el banco ' + me.form.name + ' exitosamente'
+          me.alertText = 'Se ha creado el medicamento ' + me.form.name + ' exitosamente'
           me.$refs.vuetable.refresh()
           me.closeModal('save')
         })
@@ -363,12 +740,12 @@ export default {
     onUpdate () {
       const me = this
       // this.$refs["modalSave"].hide();
-      axios.put(apiUrl + '/banco/update', {
+      axios.put(apiUrl + '/medicamentos/update', {
         form: me.form })
         .then((response) => {
           me.alertVariant = 'primary'
           me.showAlert()
-          me.alertText = 'Se ha actualizado el banco ' + me.form.name + ' exitosamente'
+          me.alertText = 'Se ha actualizado el medicamento ' + me.form.name + ' exitosamente'
           me.$refs.vuetable.refresh()
           me.closeModal('update')
         })
@@ -383,15 +760,15 @@ export default {
       let me = this
       if (this.form.state === 1) {
         axios
-          .put(apiUrl + '/banco/deactivate', {
+          .put(apiUrl + '/medicamentos/deactivate', {
             id: this.form.id
           })
           .then((response) => {
             me.alertVariant = 'warning'
             me.showAlert()
-            me.alertText = 'Se ha desactivado el banco ' + me.form.name + ' exitosamente'
+            me.alertText = 'Se ha desactivado el medicamento ' + me.form.name + ' exitosamente'
             me.$refs.vuetable.refresh()
-            me.$refs['modal-3-bank'].hide()
+            me.$refs['modal-3-medicamento'].hide()
           })
           .catch((error) => {
             me.alertVariant = 'danger'
@@ -401,15 +778,15 @@ export default {
           })
       } else {
         axios
-          .put(apiUrl + '/banco/activate', {
+          .put(apiUrl + '/medicamentos/activate', {
             id: this.form.id
           })
           .then((response) => {
             me.alertVariant = 'info'
             me.showAlert()
-            me.alertText = 'Se ha activado el banco ' + me.form.name + ' exitosamente'
+            me.alertText = 'Se ha activado el medicamento ' + me.form.name + ' exitosamente'
             me.$refs.vuetable.refresh()
-            me.$refs['modal-4-bank'].hide()
+            me.$refs['modal-4-medicamento'].hide()
           })
           .catch((error) => {
             me.alertVariant = 'danger'
@@ -460,6 +837,60 @@ export default {
     },
     showAlertError () {
       this.alertCountDownError = this.alertSecs
+    },
+    onSearchMarca (search, loading) {
+      if (search.length) {
+        loading(true)
+        this.searchingMarcas(search, loading)
+      }
+    },
+    searchingMarcas (search, loading) {
+      axios.get(apiUrl + '/marca/getSearch',
+        {
+          params: {
+            search: search
+          }
+        }
+      ).then((response) => {
+        this.marcas = response.data
+        loading(false)
+      })
+    },
+    onSearchPresentacion (search, loading) {
+      if (search.length) {
+        loading(true)
+        this.searchingPresentaciones(search, loading)
+      }
+    },
+    searchingPresentaciones (search, loading) {
+      axios.get(apiUrl + '/presentacion/getSearch',
+        {
+          params: {
+            search: search
+          }
+        }
+      ).then((response) => {
+        this.presentaciones = response.data
+        loading(false)
+      })
+    },
+    onSearchProveedor (search, loading) {
+      if (search.length) {
+        loading(true)
+        this.searchingProveedor(search, loading)
+      }
+    },
+    searchingProveedor (search, loading) {
+      axios.get(apiUrl + '/proveedor/getSearch',
+        {
+          params: {
+            search: search
+          }
+        }
+      ).then((response) => {
+        this.proveedores = response.data
+        loading(false)
+      })
     }
   }
 }

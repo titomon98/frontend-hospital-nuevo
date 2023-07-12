@@ -10,7 +10,7 @@
     >
       <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
-    <b-modal id="modal-1-muestra" size="lg" ref="modal-1-muestra" title="Agregar muestra">
+    <b-modal id="modal-1-muestra" size="xl" ref="modal-1-muestra" title="Agregar muestra">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -22,20 +22,169 @@
       </b-alert>
       <b-form @submit="$event.preventDefault()">
         <b-row class="ml-2">
+          <b-col md="9">
+            <b-form-group label="Nombre:">
+              <b-form-input
+                v-model.trim="$v.form.name.$model"
+                :state="!$v.form.name.$error"
+                placeholder="Ingresar nombre de la muestra"
+              ></b-form-input>
+              <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
+                Debe ingresar el nombre
+              </div>
+            </b-form-group>
+          </b-col>
           <b-col md="3">
-
+            <b-form-group label="Controlado:">
+              <b-form-radio v-model="form.controlado" value="0" name="customRadio">No controlado</b-form-radio>
+              <b-form-radio v-model="form.controlado" value="1" name="customRadio">Controlado</b-form-radio>
+            </b-form-group>
           </b-col>
         </b-row>
-        <b-form-group label="Nombre:">
-          <b-form-input
-            v-model.trim="$v.form.name.$model"
-            :state="!$v.form.name.$error"
-            placeholder="Ingresar nombre de la muestra"
-          ></b-form-input>
-          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
-            Debe ingresar el nombre
-          </div>
-        </b-form-group>
+        <b-row class="ml-2">
+          <b-col md="4">
+            <b-form-group label="Costo:">
+              <b-form-input
+                v-model.trim="$v.form.precio_costo.$model"
+                :state="!$v.form.precio_costo.$error"
+                placeholder="Ingresar costo de la muestra"
+              ></b-form-input>
+              <div v-if="$v.form.precio_costo.required.$invalid" class="invalid-feedback">
+                Debe ingresar el costo
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="4">
+            <b-form-group label="Existencia mínima:">
+              <b-form-input
+                v-model.trim="$v.form.existencia_minima.$model"
+                :state="!$v.form.existencia_minima.$error"
+                placeholder="Ingresar existencia minima de la muestra"
+              ></b-form-input>
+              <div v-if="$v.form.existencia_minima.required.$invalid" class="invalid-feedback">
+                Debe ingresar la existencia minima
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="4">
+            <b-form-group label="Existencia actual:">
+              <b-form-input
+                v-model.trim="$v.form.existencia_actual.$model"
+                :state="!$v.form.existencia_actual.$error"
+                placeholder="Ingresar existencia actual de la muestra"
+              ></b-form-input>
+              <div v-if="$v.form.existencia_actual.required.$invalid" class="invalid-feedback">
+                Debe ingresar la existencia actual
+              </div>
+            </b-form-group>
+          </b-col>
+        </b-row>
+        <b-row class="ml-2">
+          <b-col md="3">
+            <b-form-group label="Marca:">
+              <v-select
+                name="marca"
+                v-model="$v.form.marca.$model"
+                :state="!$v.form.marca.$error"
+                :options="marcas"
+                :filterable="false"
+                placeholder="Seleccione la marca"
+                @search="onSearchMarca"
+              >
+                <template v-slot:spinner="{ loading }">
+                  <div v-show="loading">Cargando...</div>
+                </template>
+                <template v-slot:option="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+                <template slot="selected-option" slot-scope="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+              </v-select>
+              <div v-if="$v.form.marca.$error" class="invalid-feedback-vselect">
+                Debe seleccionar la marca
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Presentación:">
+              <v-select
+                name="presentacion"
+                v-model="$v.form.presentacion.$model"
+                :state="!$v.form.presentacion.$error"
+                :options="presentaciones"
+                :filterable="false"
+                placeholder="Seleccione la presentacion"
+                @search="onSearchPresentacion"
+              >
+                <template v-slot:spinner="{ loading }">
+                  <div v-show="loading">Cargando...</div>
+                </template>
+                <template v-slot:option="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+                <template slot="selected-option" slot-scope="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+              </v-select>
+              <div v-if="$v.form.presentacion.$error" class="invalid-feedback-vselect">
+                Debe seleccionar la presentacion
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Casa médica:">
+              <v-select
+                name="casa"
+                v-model="$v.form.casa_medica.$model"
+                :state="!$v.form.casa_medica.$error"
+                :options="casas"
+                :filterable="false"
+                placeholder="Seleccione la casa médica"
+                @search="onSearchCasas"
+              >
+                <template v-slot:spinner="{ loading }">
+                  <div v-show="loading">Cargando...</div>
+                </template>
+                <template v-slot:option="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+                <template slot="selected-option" slot-scope="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+              </v-select>
+              <div v-if="$v.form.casa_medica.$error" class="invalid-feedback-vselect">
+                Debe seleccionar la casa médica
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Proveedor:">
+              <v-select
+                name="proveedor"
+                v-model="$v.form.proveedor.$model"
+                :state="!$v.form.proveedor.$error"
+                :options="proveedores"
+                :filterable="false"
+                placeholder="Seleccione el proveedor"
+                @search="onSearchProveedor"
+              >
+                <template v-slot:spinner="{ loading }">
+                  <div v-show="loading">Cargando...</div>
+                </template>
+                <template v-slot:option="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+                <template slot="selected-option" slot-scope="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+              </v-select>
+              <div v-if="$v.form.proveedor.$error" class="invalid-feedback-vselect">
+                Debe seleccionar el proveedor
+              </div>
+            </b-form-group>
+          </b-col>
+        </b-row>
       </b-form>
       <template #modal-footer="{}">
         <b-button variant="primary" @click="onValidate('save')"
@@ -46,7 +195,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-2-muestra" ref="modal-2-muestra" title="Editar muestra">
+    <b-modal id="modal-2-muestra" size="xl" ref="modal-2-muestra" title="Editar muestra">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -57,16 +206,170 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <b-form @submit="$event.preventDefault()">
-        <b-form-group label="Nombre:">
-          <b-form-input
-            v-model.trim="$v.form.name.$model"
-            :state="!$v.form.name.$error"
-            placeholder="Ingresar nombre de muestra"
-          ></b-form-input>
-          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
-            Debe ingresar el nombre
-          </div>
-        </b-form-group>
+        <b-row class="ml-2">
+          <b-col md="9">
+            <b-form-group label="Nombre:">
+              <b-form-input
+                v-model.trim="$v.form.name.$model"
+                :state="!$v.form.name.$error"
+                placeholder="Ingresar nombre de la muestra"
+              ></b-form-input>
+              <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
+                Debe ingresar el nombre
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Tipo de cuenta:">
+              <b-form-radio v-model="form.controlado" value="0" name="customRadio">No controlado</b-form-radio>
+              <b-form-radio v-model="form.controlado" value="1" name="customRadio">Controlado</b-form-radio>
+            </b-form-group>
+          </b-col>
+        </b-row>
+        <b-row class="ml-2">
+          <b-col md="4">
+            <b-form-group label="Costo:">
+              <b-form-input
+                v-model.trim="$v.form.precio_costo.$model"
+                :state="!$v.form.precio_costo.$error"
+                placeholder="Ingresar costo de la muestra"
+              ></b-form-input>
+              <div v-if="$v.form.precio_costo.required.$invalid" class="invalid-feedback">
+                Debe ingresar el costo
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="4">
+            <b-form-group label="Existencia mínima:">
+              <b-form-input
+                v-model.trim="$v.form.existencia_minima.$model"
+                :state="!$v.form.existencia_minima.$error"
+                placeholder="Ingresar existencia minima de la muestra"
+              ></b-form-input>
+              <div v-if="$v.form.existencia_minima.required.$invalid" class="invalid-feedback">
+                Debe ingresar la existencia minima
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="4">
+            <b-form-group label="Existencia actual:">
+              <b-form-input
+                v-model.trim="$v.form.existencia_actual.$model"
+                :state="!$v.form.existencia_actual.$error"
+                placeholder="Ingresar existencia actual de la muestra"
+              ></b-form-input>
+              <div v-if="$v.form.existencia_actual.required.$invalid" class="invalid-feedback">
+                Debe ingresar la existencia actual
+              </div>
+            </b-form-group>
+          </b-col>
+        </b-row>
+        <b-row class="ml-2">
+          <b-col md="3">
+            <b-form-group label="Marca:">
+              <v-select
+                name="marca"
+                v-model="$v.form.marca.$model"
+                :state="!$v.form.marca.$error"
+                :options="marcas"
+                :filterable="false"
+                placeholder="Seleccione la marca"
+                @search="onSearchMarca"
+              >
+                <template v-slot:spinner="{ loading }">
+                  <div v-show="loading">Cargando...</div>
+                </template>
+                <template v-slot:option="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+                <template slot="selected-option" slot-scope="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+              </v-select>
+              <div v-if="$v.form.marca.$error" class="invalid-feedback-vselect">
+                Debe seleccionar la marca
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Presentación:">
+              <v-select
+                name="presentacion"
+                v-model="$v.form.presentacion.$model"
+                :state="!$v.form.presentacion.$error"
+                :options="presentaciones"
+                :filterable="false"
+                placeholder="Seleccione la presentacion"
+                @search="onSearchPresentacion"
+              >
+                <template v-slot:spinner="{ loading }">
+                  <div v-show="loading">Cargando...</div>
+                </template>
+                <template v-slot:option="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+                <template slot="selected-option" slot-scope="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+              </v-select>
+              <div v-if="$v.form.presentacion.$error" class="invalid-feedback-vselect">
+                Debe seleccionar la presentacion
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Casa médica:">
+              <v-select
+                name="casa"
+                v-model="$v.form.casa_medica.$model"
+                :state="!$v.form.casa_medica.$error"
+                :options="casas"
+                :filterable="false"
+                placeholder="Seleccione la casa médica"
+                @search="onSearchCasas"
+              >
+                <template v-slot:spinner="{ loading }">
+                  <div v-show="loading">Cargando...</div>
+                </template>
+                <template v-slot:option="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+                <template slot="selected-option" slot-scope="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+              </v-select>
+              <div v-if="$v.form.casa_medica.$error" class="invalid-feedback-vselect">
+                Debe seleccionar la casa médica
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Proveedor:">
+              <v-select
+                name="proveedor"
+                v-model="$v.form.proveedor.$model"
+                :state="!$v.form.proveedor.$error"
+                :options="proveedores"
+                :filterable="false"
+                placeholder="Seleccione el proveedor"
+                @search="onSearchProveedor"
+              >
+                <template v-slot:spinner="{ loading }">
+                  <div v-show="loading">Cargando...</div>
+                </template>
+                <template v-slot:option="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+                <template slot="selected-option" slot-scope="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+              </v-select>
+              <div v-if="$v.form.proveedor.$error" class="invalid-feedback-vselect">
+                Debe seleccionar el proveedor
+              </div>
+            </b-form-group>
+          </b-col>
+        </b-row>
       </b-form>
       <template #modal-footer="{}">
         <b-button variant="primary" @click="onValidate('update')"
@@ -253,6 +556,10 @@ export default {
       total: 0,
       perPage: 5,
       search: '',
+      marcas: [],
+      presentaciones: [],
+      casas: [],
+      proveedores: [],
       form: {
         id: 0,
         name: '',
@@ -306,8 +613,8 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
-          name: 'presentacion.nombre',
-          sortField: 'presentacion.nombre',
+          name: 'presentacione.nombre',
+          sortField: 'presentacione.nombre',
           title: 'Presentación',
           dataClass: 'list-item-heading'
         },
@@ -417,8 +724,8 @@ export default {
       this.form.existencia_minima = data.existencia_minima
       this.form.existencia_actual = data.existencia_actual
       this.form.marca = data.marca
-      this.form.presentacion = data.presentacion
-      this.form.proveedor = data.proveedor
+      this.form.presentacion = data.presentacione
+      this.form.proveedor = data.proveedore
       this.form.casa_medica = data.casa_medica
       this.form.state = data.estado
       this.form.id = data.id
@@ -543,6 +850,78 @@ export default {
     },
     showAlertError () {
       this.alertCountDownError = this.alertSecs
+    },
+    onSearchMarca (search, loading) {
+      if (search.length) {
+        loading(true)
+        this.searchingMarcas(search, loading)
+      }
+    },
+    searchingMarcas (search, loading) {
+      axios.get(apiUrl + '/marca/getSearch',
+        {
+          params: {
+            search: search
+          }
+        }
+      ).then((response) => {
+        this.marcas = response.data
+        loading(false)
+      })
+    },
+    onSearchPresentacion (search, loading) {
+      if (search.length) {
+        loading(true)
+        this.searchingPresentaciones(search, loading)
+      }
+    },
+    searchingPresentaciones (search, loading) {
+      axios.get(apiUrl + '/presentacion/getSearch',
+        {
+          params: {
+            search: search
+          }
+        }
+      ).then((response) => {
+        this.presentaciones = response.data
+        loading(false)
+      })
+    },
+    onSearchProveedor (search, loading) {
+      if (search.length) {
+        loading(true)
+        this.searchingProveedor(search, loading)
+      }
+    },
+    searchingProveedor (search, loading) {
+      axios.get(apiUrl + '/proveedor/getSearch',
+        {
+          params: {
+            search: search
+          }
+        }
+      ).then((response) => {
+        this.proveedores = response.data
+        loading(false)
+      })
+    },
+    onSearchCasas (search, loading) {
+      if (search.length) {
+        loading(true)
+        this.searchingCasas(search, loading)
+      }
+    },
+    searchingCasas (search, loading) {
+      axios.get(apiUrl + '/casa_medica/getSearch',
+        {
+          params: {
+            search: search
+          }
+        }
+      ).then((response) => {
+        this.casas = response.data
+        loading(false)
+      })
     }
   }
 }
