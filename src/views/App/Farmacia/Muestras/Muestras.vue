@@ -10,7 +10,7 @@
     >
       <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
-    <b-modal id="modal-1-bank" ref="modal-1-bank" title="Agregar banco">
+    <b-modal id="modal-1-muestra" size="lg" ref="modal-1-muestra" title="Agregar muestra">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -21,11 +21,16 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <b-form @submit="$event.preventDefault()">
+        <b-row class="ml-2">
+          <b-col md="3">
+
+          </b-col>
+        </b-row>
         <b-form-group label="Nombre:">
           <b-form-input
             v-model.trim="$v.form.name.$model"
             :state="!$v.form.name.$error"
-            placeholder="Ingresar nombre del banco"
+            placeholder="Ingresar nombre de la muestra"
           ></b-form-input>
           <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
             Debe ingresar el nombre
@@ -41,7 +46,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-2-bank" ref="modal-2-bank" title="Editar banco">
+    <b-modal id="modal-2-muestra" ref="modal-2-muestra" title="Editar muestra">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -56,7 +61,7 @@
           <b-form-input
             v-model.trim="$v.form.name.$model"
             :state="!$v.form.name.$error"
-            placeholder="Ingresar nombre de banco"
+            placeholder="Ingresar nombre de muestra"
           ></b-form-input>
           <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
             Debe ingresar el nombre
@@ -72,7 +77,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-3-bank" ref="modal-3-bank" title="Desactivar banco">
+    <b-modal id="modal-3-muestra" ref="modal-3-muestra" title="Desactivar muestra">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -83,22 +88,22 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6 class="my-4">
-        ¿Desea desactivar el banco: {{ form.name }} ?
+        ¿Desea desactivar muestra: {{ form.name }} ?
       </h6>
       <template #modal-footer="{}">
         <b-button
           type="submit"
           variant="primary"
           @click="onState()
-                  $bvModal.hide('modal-3-bank')"
+                  $bvModal.hide('modal-3-muestra')"
           >Desactivar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-3-bank')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-3-muestra')"
           >Cancelar</b-button
         >
       </template>
     </b-modal>
-    <b-modal id="modal-4-bank" ref="modal-4-bank" title="Activar banco">
+    <b-modal id="modal-4-muestra" ref="modal-4-muestra" title="Activar muestra">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -109,17 +114,17 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6 class="my-4">
-        ¿Desea activar al banco: {{ form.name }} ?
+        ¿Desea activar muestra: {{ form.name }} ?
       </h6>
       <template #modal-footer="{}">
         <b-button
           type="submit"
           variant="primary"
           @click="onState()
-                  $bvModal.hide('modal-4-bank')"
+                  $bvModal.hide('modal-4-muestra')"
           >Activar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-4-bank')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-4-muestra')"
           >Cancelar</b-button
         >
       </template>
@@ -137,7 +142,7 @@
               </div>
             </template>
             <template v-slot:headerAction>
-            <b-button variant="primary"  v-b-modal.modal-1-bank>AGREGAR NUEVO</b-button>
+            <b-button variant="primary"  v-b-modal.modal-1-muestra>AGREGAR NUEVO</b-button>
           </template>
           <template v-slot:body>
             <datatable-heading
@@ -179,7 +184,7 @@
                   <b-button
                     v-b-tooltip.top="'Editar'"
                     @click="setData(props.rowData)"
-                    v-b-modal.modal-2-bank
+                    v-b-modal.modal-2-muestra
                     class="mb-2"
                     size="sm"
                     variant="outline-warning"
@@ -191,8 +196,8 @@
                     @click="
                       setData(props.rowData);
                       props.rowData.estado == 1
-                        ? $bvModal.show('modal-3-bank')
-                        : $bvModal.show('modal-4-bank');
+                        ? $bvModal.show('modal-3-muestra')
+                        : $bvModal.show('modal-4-muestra');
                     "
                     class="mb-2"
                     size="sm"
@@ -229,7 +234,7 @@ import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
 
 export default {
-  name: 'Bank',
+  name: 'Muestras',
   components: {
     vuetable: Vuetable,
     'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
@@ -251,6 +256,15 @@ export default {
       form: {
         id: 0,
         name: '',
+        controlado: 0,
+        precio_costo: 0,
+        precio_venta: 0,
+        existencia_minima: 0,
+        existencia_actual: 0,
+        marca: null,
+        presentacion: null,
+        proveedor: null,
+        casa_medica: null,
         state: 1
       },
       alertSecs: 5,
@@ -259,7 +273,7 @@ export default {
       alertText: '',
       alertErrorText: '',
       alertVariant: '',
-      apiBase: apiUrl + '/banco/list',
+      apiBase: apiUrl + '/muestras/list',
       fields: [
         {
           name: '__slot:actions',
@@ -271,6 +285,30 @@ export default {
           name: 'nombre',
           sortField: 'name',
           title: 'Nombre',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'controlado',
+          sortField: 'controlado',
+          title: 'Controlado',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'precio_costo',
+          sortField: 'precio_costo',
+          title: 'Precio costo',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'existencia_actual',
+          sortField: 'existencia_actual',
+          title: 'Existencia actual',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'presentacion.nombre',
+          sortField: 'presentacion.nombre',
+          title: 'Presentación',
           dataClass: 'list-item-heading'
         },
         {
@@ -286,7 +324,16 @@ export default {
   validations () {
     return {
       form: {
-        name: { required }
+        name: { required },
+        controlado: { required },
+        precio_costo: { required },
+        precio_venta: { required },
+        existencia_minima: { required },
+        existencia_actual: { required },
+        marca: { required },
+        presentacion: { required },
+        proveedor: { required },
+        casa_medica: { required }
       }
     }
   },
@@ -297,6 +344,15 @@ export default {
           this.$v.$reset()
           this.form.id = 0
           this.form.name = ''
+          this.form.controlado = 0
+          this.form.precio_costo = 0
+          this.form.precio_venta = 0
+          this.form.existencia_minima = 0
+          this.form.existencia_actual = 0
+          this.form.marca = null
+          this.form.presentacion = null
+          this.form.proveedor = null
+          this.form.casa_medica = null
           this.form.state = 1
           break
         }
@@ -306,17 +362,35 @@ export default {
       switch (action) {
         case 'save': {
           this.$v.$reset()
-          this.$refs['modal-1-bank'].hide()
+          this.$refs['modal-1-muestra'].hide()
           this.form.id = 0
           this.form.name = ''
+          this.form.controlado = 0
+          this.form.precio_costo = 0
+          this.form.precio_venta = 0
+          this.form.existencia_minima = 0
+          this.form.existencia_actual = 0
+          this.form.marca = null
+          this.form.presentacion = null
+          this.form.proveedor = null
+          this.form.casa_medica = null
           this.form.state = 1
           break
         }
         case 'update': {
           this.$v.$reset()
-          this.$refs['modal-2-bank'].hide()
+          this.$refs['modal-2-muestra'].hide()
           this.form.id = 0
           this.form.name = ''
+          this.form.controlado = 0
+          this.form.precio_costo = 0
+          this.form.precio_venta = 0
+          this.form.existencia_minima = 0
+          this.form.existencia_actual = 0
+          this.form.marca = null
+          this.form.presentacion = null
+          this.form.proveedor = null
+          this.form.casa_medica = null
           this.form.state = 1
           break
         }
@@ -337,18 +411,27 @@ export default {
     },
     setData (data) {
       this.form.name = data.nombre
+      this.form.controlado = data.controlado
+      this.form.precio_costo = data.precio_costo
+      this.form.precio_venta = data.precio_venta
+      this.form.existencia_minima = data.existencia_minima
+      this.form.existencia_actual = data.existencia_actual
+      this.form.marca = data.marca
+      this.form.presentacion = data.presentacion
+      this.form.proveedor = data.proveedor
+      this.form.casa_medica = data.casa_medica
       this.form.state = data.estado
       this.form.id = data.id
     },
     /* Guardar */
     onSave () {
       const me = this
-      axios.post(apiUrl + '/banco/create', {
+      axios.post(apiUrl + '/muestras/create', {
         form: me.form })
         .then((response) => {
           me.alertVariant = 'success'
           me.showAlert()
-          me.alertText = 'Se ha creado el banco ' + me.form.name + ' exitosamente'
+          me.alertText = 'Se ha creado la muestra ' + me.form.name + ' exitosamente'
           me.$refs.vuetable.refresh()
           me.closeModal('save')
         })
@@ -363,12 +446,12 @@ export default {
     onUpdate () {
       const me = this
       // this.$refs["modalSave"].hide();
-      axios.put(apiUrl + '/banco/update', {
+      axios.put(apiUrl + '/muestras/update', {
         form: me.form })
         .then((response) => {
           me.alertVariant = 'primary'
           me.showAlert()
-          me.alertText = 'Se ha actualizado el banco ' + me.form.name + ' exitosamente'
+          me.alertText = 'Se ha actualizado el muestra ' + me.form.name + ' exitosamente'
           me.$refs.vuetable.refresh()
           me.closeModal('update')
         })
@@ -383,15 +466,15 @@ export default {
       let me = this
       if (this.form.state === 1) {
         axios
-          .put(apiUrl + '/banco/deactivate', {
+          .put(apiUrl + '/muestras/deactivate', {
             id: this.form.id
           })
           .then((response) => {
             me.alertVariant = 'warning'
             me.showAlert()
-            me.alertText = 'Se ha desactivado el banco ' + me.form.name + ' exitosamente'
+            me.alertText = 'Se ha desactivado el muestra ' + me.form.name + ' exitosamente'
             me.$refs.vuetable.refresh()
-            me.$refs['modal-3-bank'].hide()
+            me.$refs['modal-3-muestra'].hide()
           })
           .catch((error) => {
             me.alertVariant = 'danger'
@@ -401,15 +484,15 @@ export default {
           })
       } else {
         axios
-          .put(apiUrl + '/banco/activate', {
+          .put(apiUrl + '/muestras/activate', {
             id: this.form.id
           })
           .then((response) => {
             me.alertVariant = 'info'
             me.showAlert()
-            me.alertText = 'Se ha activado el banco ' + me.form.name + ' exitosamente'
+            me.alertText = 'Se ha activado el muestra ' + me.form.name + ' exitosamente'
             me.$refs.vuetable.refresh()
-            me.$refs['modal-4-bank'].hide()
+            me.$refs['modal-4-muestra'].hide()
           })
           .catch((error) => {
             me.alertVariant = 'danger'

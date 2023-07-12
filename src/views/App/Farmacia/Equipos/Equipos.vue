@@ -23,12 +23,67 @@
       <b-form @submit="$event.preventDefault()">
         <b-form-group label="Nombre:">
           <b-form-input
-            v-model.trim="$v.form.name.$model"
-            :state="!$v.form.name.$error"
+            v-model.trim="$v.form.nombre.$model"
+            :state="!$v.form.nombre.$error"
             placeholder="Ingresar nombre del equipo"
           ></b-form-input>
-          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
+          <div v-if="$v.form.nombre.required.$invalid" class="invalid-feedback">
             Debe ingresar el nombre
+          </div>
+        </b-form-group>
+        <b-form-group label="Cantidad de usos actual:">
+          <b-form-input
+            type="number"
+            v-model.trim="$v.form.cantidad_usos.$model"
+            :state="!$v.form.cantidad_usos.$error"
+            placeholder="Ingresar cantidad de usos actual del equipo"
+          ></b-form-input>
+          <div v-if="$v.form.cantidad_usos.required.$invalid" class="invalid-feedback">
+            Debe ingresar la cantidad de usos
+          </div>
+        </b-form-group>
+        <b-form-group label="Precio público:">
+          <b-form-input
+            type="number"
+            v-model.trim="$v.form.precio_publico.$model"
+            :state="!$v.form.precio_publico.$error"
+            placeholder="Ingresar precio público del equipo"
+          ></b-form-input>
+          <div v-if="$v.form.precio_publico.required.$invalid" class="invalid-feedback">
+            Debe ingresar el precio público
+          </div>
+        </b-form-group>
+        <b-form-group label="Gasto único:">
+          <b-form-input
+            type="number"
+            v-model.trim="$v.form.gasto_unico.$model"
+            :state="!$v.form.gasto_unico.$error"
+            placeholder="Ingresar gasto único del equipo"
+          ></b-form-input>
+          <div v-if="$v.form.gasto_unico.required.$invalid" class="invalid-feedback">
+            Debe ingresar el gasto único
+          </div>
+        </b-form-group>
+        <b-form-group label="Fecha de adquisición:">
+          <b-form-input
+            type="date"
+            v-model.trim="$v.form.fecha_adquisicion.$model"
+            :state="!$v.form.fecha_adquisicion.$error"
+            placeholder="Ingresar fecha de adquisición del equipo"
+          ></b-form-input>
+          <div v-if="$v.form.fecha_adquisicion.required.$invalid" class="invalid-feedback">
+            Debe ingresar la fecha de adquisición
+          </div>
+        </b-form-group>
+        <b-form-group label="Existencia:">
+          <b-form-input
+            type="number"
+            v-model.trim="$v.form.existencia.$model"
+            :state="!$v.form.existencia.$error"
+            placeholder="Ingresar existencia del equipo"
+          ></b-form-input>
+          <div v-if="$v.form.existencia.required.$invalid" class="invalid-feedback">
+            Debe ingresar la existencia
           </div>
         </b-form-group>
       </b-form>
@@ -54,12 +109,67 @@
       <b-form @submit="$event.preventDefault()">
         <b-form-group label="Nombre:">
           <b-form-input
-            v-model.trim="$v.form.name.$model"
-            :state="!$v.form.name.$error"
-            placeholder="Ingresar nombre de equipo"
+            v-model.trim="$v.form.nombre.$model"
+            :state="!$v.form.nombre.$error"
+            placeholder="Ingresar nombre del equipo"
           ></b-form-input>
-          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
+          <div v-if="$v.form.nombre.required.$invalid" class="invalid-feedback">
             Debe ingresar el nombre
+          </div>
+        </b-form-group>
+        <b-form-group label="Cantidad de usos actual:">
+          <b-form-input
+            type="number"
+            v-model.trim="$v.form.cantidad_usos.$model"
+            :state="!$v.form.cantidad_usos.$error"
+            placeholder="Ingresar cantidad de usos actual del equipo"
+          ></b-form-input>
+          <div v-if="$v.form.cantidad_usos.required.$invalid" class="invalid-feedback">
+            Debe ingresar la cantidad de usos
+          </div>
+        </b-form-group>
+        <b-form-group label="Precio público:">
+          <b-form-input
+            type="number"
+            v-model.trim="$v.form.precio_publico.$model"
+            :state="!$v.form.precio_publico.$error"
+            placeholder="Ingresar precio público del equipo"
+          ></b-form-input>
+          <div v-if="$v.form.precio_publico.required.$invalid" class="invalid-feedback">
+            Debe ingresar el precio público
+          </div>
+        </b-form-group>
+        <b-form-group label="Gasto único:">
+          <b-form-input
+            type="number"
+            v-model.trim="$v.form.gasto_unico.$model"
+            :state="!$v.form.gasto_unico.$error"
+            placeholder="Ingresar gasto único del equipo"
+          ></b-form-input>
+          <div v-if="$v.form.gasto_unico.required.$invalid" class="invalid-feedback">
+            Debe ingresar el gasto único
+          </div>
+        </b-form-group>
+        <b-form-group label="Fecha de adquisición:">
+          <b-form-input
+            type="date"
+            v-model.trim="$v.form.fecha_adquisicion.$model"
+            :state="!$v.form.fecha_adquisicion.$error"
+            placeholder="Ingresar fecha de adquisición del equipo"
+          ></b-form-input>
+          <div v-if="$v.form.fecha_adquisicion.required.$invalid" class="invalid-feedback">
+            Debe ingresar la fecha de adquisición
+          </div>
+        </b-form-group>
+        <b-form-group label="Existencia:">
+          <b-form-input
+            type="number"
+            v-model.trim="$v.form.existencia.$model"
+            :state="!$v.form.existencia.$error"
+            placeholder="Ingresar existencia del equipo"
+          ></b-form-input>
+          <div v-if="$v.form.existencia.required.$invalid" class="invalid-feedback">
+            Debe ingresar la existencia
           </div>
         </b-form-group>
       </b-form>
@@ -83,7 +193,7 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6 class="my-4">
-        ¿Desea desactivar el equipo: {{ form.name }} ?
+        ¿Desea desactivar el equipo: {{ form.nombre }} ?
       </h6>
       <template #modal-footer="{}">
         <b-button
@@ -109,7 +219,7 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6 class="my-4">
-        ¿Desea activar al equipo: {{ form.name }} ?
+        ¿Desea activar al equipo: {{ form.nombre }} ?
       </h6>
       <template #modal-footer="{}">
         <b-button
@@ -250,7 +360,12 @@ export default {
       search: '',
       form: {
         id: 0,
-        name: '',
+        nombre: '',
+        cantidad_usos: 0,
+        precio_publico: 0.0,
+        gasto_unico: 0.0,
+        fecha_adquisicion: '',
+        existencia: 0,
         state: 1
       },
       alertSecs: 5,
@@ -269,8 +384,32 @@ export default {
         },
         {
           name: 'nombre',
-          sortField: 'name',
+          sortField: 'nombre',
           title: 'Nombre',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'cantidad_usos',
+          sortField: 'cantidad_usos',
+          title: 'Cantidad de usos',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'gasto_unico',
+          sortField: 'gasto_unico',
+          title: 'Gasto único',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'fecha_adquisicion',
+          sortField: 'fecha_adquisicion',
+          title: 'Fecha de adquisición',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'existencia',
+          sortField: 'existencia',
+          title: 'Existencia',
           dataClass: 'list-item-heading'
         },
         {
@@ -286,7 +425,12 @@ export default {
   validations () {
     return {
       form: {
-        name: { required }
+        nombre: { required },
+        cantidad_usos: { required },
+        precio_publico: { required },
+        gasto_unico: { required },
+        fecha_adquisicion: { required },
+        existencia: { required }
       }
     }
   },
@@ -296,7 +440,12 @@ export default {
         case 'save': {
           this.$v.$reset()
           this.form.id = 0
-          this.form.name = ''
+          this.form.nombre = ''
+          this.form.cantidad_usos = 0
+          this.form.precio_publico = 0
+          this.form.gasto_unico = 0
+          this.form.fecha_adquisicion = ''
+          this.form.existencia = 0
           this.form.state = 1
           break
         }
@@ -308,7 +457,12 @@ export default {
           this.$v.$reset()
           this.$refs['modal-1-equipo'].hide()
           this.form.id = 0
-          this.form.name = ''
+          this.form.nombre = ''
+          this.form.cantidad_usos = 0
+          this.form.precio_publico = 0
+          this.form.gasto_unico = 0
+          this.form.fecha_adquisicion = ''
+          this.form.existencia = 0
           this.form.state = 1
           break
         }
@@ -316,7 +470,12 @@ export default {
           this.$v.$reset()
           this.$refs['modal-2-equipo'].hide()
           this.form.id = 0
-          this.form.name = ''
+          this.form.nombre = ''
+          this.form.cantidad_usos = 0
+          this.form.precio_publico = 0
+          this.form.gasto_unico = 0
+          this.form.fecha_adquisicion = ''
+          this.form.existencia = 0
           this.form.state = 1
           break
         }
@@ -336,7 +495,12 @@ export default {
       }
     },
     setData (data) {
-      this.form.name = data.nombre
+      this.form.nombre = data.nombre
+      this.form.cantidad_usos = data.cantidad_usos
+      this.form.precio_publico = data.precio_publico
+      this.form.gasto_unico = data.gasto_unico
+      this.form.fecha_adquisicion = data.fecha_adquisicion
+      this.form.existencia = data.existencia
       this.form.state = data.estado
       this.form.id = data.id
     },
@@ -348,7 +512,7 @@ export default {
         .then((response) => {
           me.alertVariant = 'success'
           me.showAlert()
-          me.alertText = 'Se ha creado el equipo ' + me.form.name + ' exitosamente'
+          me.alertText = 'Se ha creado el equipo ' + me.form.nombre + ' exitosamente'
           me.$refs.vuetable.refresh()
           me.closeModal('save')
         })
@@ -368,7 +532,7 @@ export default {
         .then((response) => {
           me.alertVariant = 'primary'
           me.showAlert()
-          me.alertText = 'Se ha actualizado el equipo ' + me.form.name + ' exitosamente'
+          me.alertText = 'Se ha actualizado el equipo ' + me.form.nombre + ' exitosamente'
           me.$refs.vuetable.refresh()
           me.closeModal('update')
         })
@@ -389,7 +553,7 @@ export default {
           .then((response) => {
             me.alertVariant = 'warning'
             me.showAlert()
-            me.alertText = 'Se ha desactivado el equipo ' + me.form.name + ' exitosamente'
+            me.alertText = 'Se ha desactivado el equipo ' + me.form.nombre + ' exitosamente'
             me.$refs.vuetable.refresh()
             me.$refs['modal-3-equipo'].hide()
           })
@@ -407,7 +571,7 @@ export default {
           .then((response) => {
             me.alertVariant = 'info'
             me.showAlert()
-            me.alertText = 'Se ha activado el equipo ' + me.form.name + ' exitosamente'
+            me.alertText = 'Se ha activado el equipo ' + me.form.nombre + ' exitosamente'
             me.$refs.vuetable.refresh()
             me.$refs['modal-4-equipo'].hide()
           })

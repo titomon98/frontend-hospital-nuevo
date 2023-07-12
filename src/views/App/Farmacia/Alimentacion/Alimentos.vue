@@ -23,12 +23,34 @@
       <b-form @submit="$event.preventDefault()">
         <b-form-group label="Nombre:">
           <b-form-input
-            v-model.trim="$v.form.name.$model"
-            :state="!$v.form.name.$error"
+            v-model.trim="$v.form.nombre.$model"
+            :state="!$v.form.nombre.$error"
             placeholder="Ingresar nombre del alimento"
           ></b-form-input>
-          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
+          <div v-if="$v.form.nombre.required.$invalid" class="invalid-feedback">
             Debe ingresar el nombre
+          </div>
+        </b-form-group>
+        <b-form-group label="Precio costo:">
+          <b-form-input
+          type="number"
+            v-model.trim="$v.form.precio_costo.$model"
+            :state="!$v.form.precio_costo.$error"
+            placeholder="Ingresar precio costo del alimento"
+          ></b-form-input>
+          <div v-if="$v.form.precio_costo.required.$invalid" class="invalid-feedback">
+            Debe ingresar el precio costo
+          </div>
+        </b-form-group>
+        <b-form-group label="Precio venta:">
+          <b-form-input
+          type="number"
+            v-model.trim="$v.form.precio_venta.$model"
+            :state="!$v.form.precio_venta.$error"
+            placeholder="Ingresar precio de venta del alimento"
+          ></b-form-input>
+          <div v-if="$v.form.precio_venta.required.$invalid" class="invalid-feedback">
+            Debe ingresar el precio de venta
           </div>
         </b-form-group>
       </b-form>
@@ -54,12 +76,34 @@
       <b-form @submit="$event.preventDefault()">
         <b-form-group label="Nombre:">
           <b-form-input
-            v-model.trim="$v.form.name.$model"
-            :state="!$v.form.name.$error"
-            placeholder="Ingresar nombre de alimento"
+            v-model.trim="$v.form.nombre.$model"
+            :state="!$v.form.nombre.$error"
+            placeholder="Ingresar nombre del alimento"
           ></b-form-input>
-          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
+          <div v-if="$v.form.nombre.required.$invalid" class="invalid-feedback">
             Debe ingresar el nombre
+          </div>
+        </b-form-group>
+        <b-form-group label="Precio costo:">
+          <b-form-input
+          type="number"
+            v-model.trim="$v.form.precio_costo.$model"
+            :state="!$v.form.precio_costo.$error"
+            placeholder="Ingresar precio costo del alimento"
+          ></b-form-input>
+          <div v-if="$v.form.precio_costo.required.$invalid" class="invalid-feedback">
+            Debe ingresar el precio costo
+          </div>
+        </b-form-group>
+        <b-form-group label="Precio venta:">
+          <b-form-input
+          type="number"
+            v-model.trim="$v.form.precio_venta.$model"
+            :state="!$v.form.precio_venta.$error"
+            placeholder="Ingresar precio de venta del alimento"
+          ></b-form-input>
+          <div v-if="$v.form.precio_venta.required.$invalid" class="invalid-feedback">
+            Debe ingresar el precio de venta
           </div>
         </b-form-group>
       </b-form>
@@ -83,7 +127,7 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6 class="my-4">
-        ¿Desea desactivar el alimento: {{ form.name }} ?
+        ¿Desea desactivar el alimento: {{ form.nombre }} ?
       </h6>
       <template #modal-footer="{}">
         <b-button
@@ -109,7 +153,7 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6 class="my-4">
-        ¿Desea activar al alimento: {{ form.name }} ?
+        ¿Desea activar al alimento: {{ form.nombre }} ?
       </h6>
       <template #modal-footer="{}">
         <b-button
@@ -250,7 +294,9 @@ export default {
       search: '',
       form: {
         id: 0,
-        name: '',
+        nombre: '',
+        precio_costo: 0.0,
+        precio_venta: 0.0,
         state: 1
       },
       alertSecs: 5,
@@ -269,8 +315,20 @@ export default {
         },
         {
           name: 'nombre',
-          sortField: 'name',
+          sortField: 'nombre',
           title: 'Nombre',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'precio_costo',
+          sortField: 'precio_costo',
+          title: 'Precio costo',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'precio_venta',
+          sortField: 'precio_venta',
+          title: 'Precio venta',
           dataClass: 'list-item-heading'
         },
         {
@@ -286,7 +344,9 @@ export default {
   validations () {
     return {
       form: {
-        name: { required }
+        nombre: { required },
+        precio_costo: { required },
+        precio_venta: { required }
       }
     }
   },
@@ -296,7 +356,9 @@ export default {
         case 'save': {
           this.$v.$reset()
           this.form.id = 0
-          this.form.name = ''
+          this.form.nombre = ''
+          this.form.precio_costo = 0
+          this.form.precio_venta = 0
           this.form.state = 1
           break
         }
@@ -308,7 +370,9 @@ export default {
           this.$v.$reset()
           this.$refs['modal-1-alimento'].hide()
           this.form.id = 0
-          this.form.name = ''
+          this.form.nombre = ''
+          this.form.precio_costo = 0
+          this.form.precio_venta = 0
           this.form.state = 1
           break
         }
@@ -316,7 +380,9 @@ export default {
           this.$v.$reset()
           this.$refs['modal-2-alimento'].hide()
           this.form.id = 0
-          this.form.name = ''
+          this.form.nombre = ''
+          this.form.precio_costo = 0
+          this.form.precio_venta = 0
           this.form.state = 1
           break
         }
@@ -336,7 +402,9 @@ export default {
       }
     },
     setData (data) {
-      this.form.name = data.nombre
+      this.form.nombre = data.nombre
+      this.form.precio_costo = data.precio_costo
+      this.form.precio_venta = data.precio_venta
       this.form.state = data.estado
       this.form.id = data.id
     },
@@ -348,7 +416,7 @@ export default {
         .then((response) => {
           me.alertVariant = 'success'
           me.showAlert()
-          me.alertText = 'Se ha creado el alimento ' + me.form.name + ' exitosamente'
+          me.alertText = 'Se ha creado el alimento ' + me.form.nombre + ' exitosamente'
           me.$refs.vuetable.refresh()
           me.closeModal('save')
         })
@@ -368,7 +436,7 @@ export default {
         .then((response) => {
           me.alertVariant = 'primary'
           me.showAlert()
-          me.alertText = 'Se ha actualizado el alimento ' + me.form.name + ' exitosamente'
+          me.alertText = 'Se ha actualizado el alimento ' + me.form.nombre + ' exitosamente'
           me.$refs.vuetable.refresh()
           me.closeModal('update')
         })
@@ -389,7 +457,7 @@ export default {
           .then((response) => {
             me.alertVariant = 'warning'
             me.showAlert()
-            me.alertText = 'Se ha desactivado el alimento ' + me.form.name + ' exitosamente'
+            me.alertText = 'Se ha desactivado el alimento ' + me.form.nombre + ' exitosamente'
             me.$refs.vuetable.refresh()
             me.$refs['modal-3-alimento'].hide()
           })
@@ -407,7 +475,7 @@ export default {
           .then((response) => {
             me.alertVariant = 'info'
             me.showAlert()
-            me.alertText = 'Se ha activado el alimento ' + me.form.name + ' exitosamente'
+            me.alertText = 'Se ha activado el alimento ' + me.form.nombre + ' exitosamente'
             me.$refs.vuetable.refresh()
             me.$refs['modal-4-alimento'].hide()
           })
