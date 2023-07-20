@@ -256,6 +256,17 @@
         "class_name": "",
         "is_icon_class": true,
         "icon": "ri-shopping-cart-fill"
+      },
+      {
+        "title": "Alertas existencia",
+        "name": "Alertas existencia",
+        "is_active": false,
+        "link": {
+          "name" : "farmacia.alertas"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-shopping-cart-fill"
       }
     ]
   },

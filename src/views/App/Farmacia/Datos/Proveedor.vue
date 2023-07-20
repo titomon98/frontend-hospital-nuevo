@@ -53,13 +53,9 @@
         </b-form-group>
         <b-form-group label="Teléfono:">
           <b-form-input
-            v-model.trim="$v.form.telefono.$model"
-            :state="!$v.form.telefono.$error"
+            v-model.trim="form.telefono"
             placeholder="Ingresar telefono del proveedor"
           ></b-form-input>
-          <div v-if="$v.form.telefono.required.$invalid" class="invalid-feedback">
-            Debe ingresar el telefono
-          </div>
         </b-form-group>
         <b-form-group label="Correo:">
           <b-form-input
@@ -138,13 +134,9 @@
         </b-form-group>
         <b-form-group label="Teléfono:">
           <b-form-input
-            v-model.trim="$v.form.telefono.$model"
-            :state="!$v.form.telefono.$error"
+            v-model.trim="form.telefono"
             placeholder="Ingresar telefono del proveedor"
           ></b-form-input>
-          <div v-if="$v.form.telefono.required.$invalid" class="invalid-feedback">
-            Debe ingresar el telefono
-          </div>
         </b-form-group>
         <b-form-group label="Correo:">
           <b-form-input
@@ -427,8 +419,7 @@ export default {
       form: {
         nombre: { required },
         representante: { required },
-        nit: { required },
-        telefono: { required }
+        nit: { required }
       }
     }
   },

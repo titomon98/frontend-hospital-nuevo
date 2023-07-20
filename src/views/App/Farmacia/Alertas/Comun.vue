@@ -10,7 +10,7 @@
     >
       <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
-    <b-modal id="modal-1-bank" ref="modal-1-bank" title="Agregar movimiento">
+    <b-modal id="modal-1-bank" ref="modal-1-bank" title="Agregar banco">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -21,15 +21,14 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <b-form @submit="$event.preventDefault()">
-        <b-form-group label="Cantidad:">
+        <b-form-group label="Nombre:">
           <b-form-input
-            type="number"
-            v-model.trim="$v.form.cantidad.$model"
-            :state="!$v.form.cantidad.$error"
-            placeholder="Ingresar cantidad"
+            v-model.trim="$v.form.name.$model"
+            :state="!$v.form.name.$error"
+            placeholder="Ingresar nombre del banco"
           ></b-form-input>
-          <div v-if="$v.form.cantidad.required.$invalid" class="invalid-feedback">
-            Debe ingresar cantidad
+          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
+            Debe ingresar el nombre
           </div>
         </b-form-group>
       </b-form>
@@ -129,7 +128,7 @@
       <b-col md="12">
         <iq-card>
             <template v-slot:headerTitle>
-              <h4 class="card-title mt-3">Movimientos muestras médicas</h4>
+              <h4 class="card-title mt-3">Alertas material común</h4>
                <div class="iq-search-bar mt-2">
                 <b-form action="#" class="searchbox">
                     <b-input id="search" placeholder="Buscar..." @input="(val) => searchChange(val)" />
@@ -230,7 +229,7 @@ import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
 
 export default {
-  name: 'MovimientosMuestras',
+  name: 'Bank',
   components: {
     vuetable: Vuetable,
     'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
@@ -249,12 +248,9 @@ export default {
       total: 0,
       perPage: 5,
       search: '',
-      muestras: [],
       form: {
         id: 0,
-        cantidad: 0,
-        muestra: null,
-        movimiento: 'ENTRADA',
+        name: '',
         state: 1
       },
       alertSecs: 5,
@@ -464,24 +460,6 @@ export default {
     },
     showAlertError () {
       this.alertCountDownError = this.alertSecs
-    },
-    onSearchMuestras (search, loading) {
-      if (search.length) {
-        loading(true)
-        this.searchingMuestras(search, loading)
-      }
-    },
-    searchingMuestras (search, loading) {
-      axios.get(apiUrl + '/muestras/getSearch',
-        {
-          params: {
-            search: search
-          }
-        }
-      ).then((response) => {
-        this.muestras = response.data
-        loading(false)
-      })
     }
   }
 }

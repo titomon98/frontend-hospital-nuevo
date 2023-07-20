@@ -22,7 +22,7 @@
       </b-alert>
       <b-form @submit="$event.preventDefault()">
         <b-row class="ml-2">
-          <b-col md="12">
+          <b-col md="8">
             <b-form-group label="Nombre:">
               <b-form-input
                 v-model.trim="$v.form.name.$model"
@@ -32,6 +32,12 @@
               <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
                 Debe ingresar el nombre
               </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="4">
+            <b-form-group label="Inventariado:">
+              <b-form-radio v-model="form.inventariado" value="INVENTARIADO" name="customRadio1">Inventariado</b-form-radio>
+              <b-form-radio v-model="form.inventariado" value="NO INVENTARIADO" name="customRadio1">No inventariado</b-form-radio>
             </b-form-group>
           </b-col>
         </b-row>
@@ -175,7 +181,7 @@
       </b-alert>
       <b-form @submit="$event.preventDefault()">
         <b-row class="ml-2">
-          <b-col md="12">
+          <b-col md="8">
             <b-form-group label="Nombre:">
               <b-form-input
                 v-model.trim="$v.form.name.$model"
@@ -185,6 +191,12 @@
               <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
                 Debe ingresar el nombre
               </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="4">
+            <b-form-group label="Inventariado:">
+              <b-form-radio v-model="form.inventariado" value="INVENTARIADO" name="customRadio1">Inventariado</b-form-radio>
+              <b-form-radio v-model="form.inventariado" value="NO INVENTARIADO" name="customRadio1">No inventariado</b-form-radio>
             </b-form-group>
           </b-col>
         </b-row>
@@ -501,6 +513,7 @@ export default {
         precio_costo: 0,
         existencia_minima: 0,
         existencia_actual: 0,
+        inventariado: 'INVENTARIADO',
         marca: null,
         proveedor: null,
         presentacion: null,
@@ -545,6 +558,12 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
+          name: 'inventariado',
+          sortField: 'inventariado',
+          title: 'Inventariado',
+          dataClass: 'list-item-heading'
+        },
+        {
           name: '__slot:estado',
           title: 'Estado',
           titleClass: '',
@@ -577,6 +596,7 @@ export default {
           this.form.precio_costo = 0
           this.form.existencia_minima = 0
           this.form.existencia_actual = 0
+          this.form.inventariado = 'INVENTARIADO'
           this.form.marca = null
           this.form.presentacion = null
           this.form.proveedor = null
@@ -595,6 +615,7 @@ export default {
           this.form.precio_costo = 0
           this.form.existencia_minima = 0
           this.form.existencia_actual = 0
+          this.form.inventariado = 'INVENTARIADO'
           this.form.marca = null
           this.form.presentacion = null
           this.form.proveedor = null
@@ -609,6 +630,7 @@ export default {
           this.form.precio_costo = 0
           this.form.existencia_minima = 0
           this.form.existencia_actual = 0
+          this.form.inventariado = 'INVENTARIADO'
           this.form.marca = null
           this.form.presentacion = null
           this.form.proveedor = null
@@ -636,6 +658,7 @@ export default {
       this.form.precio_costo = data.precio_costo
       this.form.existencia_minima = data.existencia_minima
       this.form.existencia_actual = data.existencia_actual
+      this.form.inventariado = data.inventariado
       this.form.marca = data.marca
       this.form.presentacion = data.presentacione
       this.form.proveedor = data.proveedore

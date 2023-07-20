@@ -117,6 +117,7 @@ import MedicamentosParent from '../views/App/Farmacia/Medicamentos/MedicamentosP
 import MuestrasParent from '../views/App/Farmacia/Muestras/MuestrasParent'
 import QuirurgicoParent from '../views/App/Farmacia/Quirurgico/QuirurgicoParent'
 import DatosParent from '../views/App/Farmacia/Datos/DatosParent'
+import AlertasParent from '../views/App/Farmacia/Alertas/AlertasParent'
 
 // medicos
 import MedicosParent from '../views/App/Medicos/MedicosParent'
@@ -279,6 +280,12 @@ const FarmaciaRoutes = (prop, mode) => [
     name: prop + '.datos',
     meta: { dark: mode, auth: true, name: 'datos' },
     component: DatosParent
+  },
+  {
+    path: 'alertas',
+    name: prop + '.alertas',
+    meta: { dark: mode, auth: true, name: 'alertas' },
+    component: AlertasParent
   }
 ]
 
