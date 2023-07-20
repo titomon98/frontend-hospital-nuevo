@@ -98,6 +98,56 @@
           </b-col>
         </b-row>
         <b-row class="ml-2">
+          <b-col md="3">
+            <b-form-group label="Existencia mínima quirófano:">
+              <b-form-input
+                v-model.trim="$v.form.existencia_minima_quirofano.$model"
+                :state="!$v.form.existencia_minima_quirofano.$error"
+                placeholder="Ingresar existencia minima del medicamento en quirófano"
+              ></b-form-input>
+              <div v-if="$v.form.existencia_minima_quirofano.required.$invalid" class="invalid-feedback">
+                Debe ingresar la existencia minima de quirófano
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Existencia actual quirófano:">
+              <b-form-input
+                v-model.trim="$v.form.existencia_actual_quirofano.$model"
+                :state="!$v.form.existencia_actual_quirofano.$error"
+                placeholder="Ingresar existencia actual del medicamento en quirófano"
+              ></b-form-input>
+              <div v-if="$v.form.existencia_actual_quirofano.required.$invalid" class="invalid-feedback">
+                Debe ingresar la existencia actual de quirófano
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Existencia mínima farmacia:">
+              <b-form-input
+                v-model.trim="$v.form.existencia_minima_farmacia.$model"
+                :state="!$v.form.existencia_minima_farmacia.$error"
+                placeholder="Ingresar existencia minima del medicamento en farmacia"
+              ></b-form-input>
+              <div v-if="$v.form.existencia_minima_farmacia.required.$invalid" class="invalid-feedback">
+                Debe ingresar la existencia minima de farmacia
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Existencia actual farmacia:">
+              <b-form-input
+                v-model.trim="$v.form.existencia_actual_farmacia.$model"
+                :state="!$v.form.existencia_actual_farmacia.$error"
+                placeholder="Ingresar existencia actual del medicamento en farmacia"
+              ></b-form-input>
+              <div v-if="$v.form.existencia_actual_farmacia.required.$invalid" class="invalid-feedback">
+                Debe ingresar la existencia actual de farmacia
+              </div>
+            </b-form-group>
+          </b-col>
+        </b-row>
+        <b-row class="ml-2">
           <b-col md="4">
             <b-form-group label="Marca:">
               <v-select
@@ -270,6 +320,56 @@
               ></b-form-input>
               <div v-if="$v.form.existencia_actual.required.$invalid" class="invalid-feedback">
                 Debe ingresar la existencia actual
+              </div>
+            </b-form-group>
+          </b-col>
+        </b-row>
+        <b-row class="ml-2">
+          <b-col md="3">
+            <b-form-group label="Existencia mínima quirófano:">
+              <b-form-input
+                v-model.trim="$v.form.existencia_minima_quirofano.$model"
+                :state="!$v.form.existencia_minima_quirofano.$error"
+                placeholder="Ingresar existencia minima del medicamento en quirófano"
+              ></b-form-input>
+              <div v-if="$v.form.existencia_minima_quirofano.required.$invalid" class="invalid-feedback">
+                Debe ingresar la existencia minima de quirófano
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Existencia actual quirófano:">
+              <b-form-input
+                v-model.trim="$v.form.existencia_actual_quirofano.$model"
+                :state="!$v.form.existencia_actual_quirofano.$error"
+                placeholder="Ingresar existencia actual del medicamento en quirófano"
+              ></b-form-input>
+              <div v-if="$v.form.existencia_actual_quirofano.required.$invalid" class="invalid-feedback">
+                Debe ingresar la existencia actual de quirófano
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Existencia mínima farmacia:">
+              <b-form-input
+                v-model.trim="$v.form.existencia_minima_farmacia.$model"
+                :state="!$v.form.existencia_minima_farmacia.$error"
+                placeholder="Ingresar existencia minima del medicamento en farmacia"
+              ></b-form-input>
+              <div v-if="$v.form.existencia_minima_farmacia.required.$invalid" class="invalid-feedback">
+                Debe ingresar la existencia minima de farmacia
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Existencia actual farmacia:">
+              <b-form-input
+                v-model.trim="$v.form.existencia_actual_farmacia.$model"
+                :state="!$v.form.existencia_actual_farmacia.$error"
+                placeholder="Ingresar existencia actual del medicamento en farmacia"
+              ></b-form-input>
+              <div v-if="$v.form.existencia_actual_farmacia.required.$invalid" class="invalid-feedback">
+                Debe ingresar la existencia actual de farmacia
               </div>
             </b-form-group>
           </b-col>
@@ -552,6 +652,10 @@ export default {
         precio_venta: 0,
         existencia_minima: 0,
         existencia_actual: 0,
+        existencia_minima_quirofano: 0,
+        existencia_actual_quirofano: 0,
+        existencia_minima_farmacia: 0,
+        existencia_actual_farmacia: 0,
         marca: null,
         presentacion: null,
         proveedor: null,
@@ -625,6 +729,10 @@ export default {
         precio_venta: { required },
         existencia_minima: { required },
         existencia_actual: { required },
+        existencia_minima_quirofano: { required },
+        existencia_actual_quirofano: { required },
+        existencia_minima_farmacia: { required },
+        existencia_actual_farmacia: { required },
         marca: { required },
         presentacion: { required },
         proveedor: { required }
@@ -644,6 +752,10 @@ export default {
           this.form.precio_venta = 0
           this.form.existencia_minima = 0
           this.form.existencia_actual = 0
+          this.form.existencia_minima_quirofano = 0
+          this.form.existencia_actual_quirofano = 0
+          this.form.existencia_minima_farmacia = 0
+          this.form.existencia_actual_farmacia = 0
           this.form.marca = null
           this.form.presentacion = null
           this.form.proveedor = null
@@ -665,6 +777,10 @@ export default {
           this.form.precio_venta = 0
           this.form.existencia_minima = 0
           this.form.existencia_actual = 0
+          this.form.existencia_minima_quirofano = 0
+          this.form.existencia_actual_quirofano = 0
+          this.form.existencia_minima_farmacia = 0
+          this.form.existencia_actual_farmacia = 0
           this.form.marca = null
           this.form.presentacion = null
           this.form.proveedor = null
@@ -682,6 +798,10 @@ export default {
           this.form.precio_venta = 0
           this.form.existencia_minima = 0
           this.form.existencia_actual = 0
+          this.form.existencia_minima_quirofano = 0
+          this.form.existencia_actual_quirofano = 0
+          this.form.existencia_minima_farmacia = 0
+          this.form.existencia_actual_farmacia = 0
           this.form.marca = null
           this.form.presentacion = null
           this.form.proveedor = null
@@ -711,6 +831,10 @@ export default {
       this.form.precio_venta = data.precio_venta
       this.form.existencia_minima = data.existencia_minima
       this.form.existencia_actual = data.existencia_actual
+      this.form.existencia_minima_quirofano = data.existencia_minima_quirofano
+      this.form.existencia_actual_quirofano = data.existencia_actual_quirofano
+      this.form.existencia_minima_farmacia = data.existencia_minima_farmacia
+      this.form.existencia_actual_farmacia = data.existencia_actual_farmacia
       this.form.marca = data.marca
       this.form.presentacion = data.presentacione
       this.form.proveedor = data.proveedore
