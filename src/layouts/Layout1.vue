@@ -47,7 +47,7 @@
             <li class="list-inline-item"><a href="#"></a></li>
           </template>
           <template v-slot:right>
-            {{ year }} <a href="#">Centro Galo</a>
+            {{ year }} <a href="#">Hospital de especialidades</a>
           </template>
         </FooterStyle1>
       </div>
