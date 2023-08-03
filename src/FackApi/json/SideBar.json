@@ -267,6 +267,28 @@
         "class_name": "",
         "is_icon_class": true,
         "icon": "ri-shopping-cart-fill"
+      },
+      {
+        "title": "Paquetes",
+        "name": "Paquetes",
+        "is_active": false,
+        "link": {
+          "name" : "farmacia.paquetes"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-shopping-cart-fill"
+      },
+      {
+        "title": "Ingreso con factura",
+        "name": "Ingreso con factura",
+        "is_active": false,
+        "link": {
+          "name" : "farmacia.facturas"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-shopping-cart-fill"
       }
     ]
   },

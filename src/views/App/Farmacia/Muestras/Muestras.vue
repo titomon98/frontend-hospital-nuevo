@@ -55,7 +55,7 @@
             </b-form-group>
           </b-col>
           <b-col md="4">
-            <b-form-group label="Existencia mínima:">
+            <b-form-group label="Existencia mínima general:">
               <b-form-input
                 v-model.trim="$v.form.existencia_minima.$model"
                 :state="!$v.form.existencia_minima.$error"
@@ -67,7 +67,7 @@
             </b-form-group>
           </b-col>
           <b-col md="4">
-            <b-form-group label="Existencia actual:">
+            <b-form-group label="Existencia actual general:">
               <b-form-input
                 v-model.trim="$v.form.existencia_actual.$model"
                 :state="!$v.form.existencia_actual.$error"
@@ -240,7 +240,7 @@
             </b-form-group>
           </b-col>
           <b-col md="4">
-            <b-form-group label="Existencia mínima:">
+            <b-form-group label="Existencia mínima general:">
               <b-form-input
                 v-model.trim="$v.form.existencia_minima.$model"
                 :state="!$v.form.existencia_minima.$error"
@@ -252,7 +252,7 @@
             </b-form-group>
           </b-col>
           <b-col md="4">
-            <b-form-group label="Existencia actual:">
+            <b-form-group label="Existencia actual general:">
               <b-form-input
                 v-model.trim="$v.form.existencia_actual.$model"
                 :state="!$v.form.existencia_actual.$error"

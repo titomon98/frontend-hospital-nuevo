@@ -42,7 +42,7 @@
           </b-col>
         </b-row>
         <b-row class="ml-2">
-          <b-col md="4">
+          <b-col md="3">
             <b-form-group label="Costo:">
               <b-form-input
                 v-model.trim="$v.form.precio_costo.$model"
@@ -54,8 +54,20 @@
               </div>
             </b-form-group>
           </b-col>
-          <b-col md="4">
-            <b-form-group label="Existencia mínima:">
+          <b-col md="3">
+            <b-form-group label="Precio de venta:">
+              <b-form-input
+                v-model.trim="$v.form.precio_venta.$model"
+                :state="!$v.form.precio_venta.$error"
+                placeholder="Ingresar precio de venta del medicamento"
+              ></b-form-input>
+              <div v-if="$v.form.precio_venta.required.$invalid" class="invalid-feedback">
+                Debe ingresar el precio de venta
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group v-if="form.inventariado === 'INVENTARIADO'" label="Existencia mínima general:">
               <b-form-input
                 v-model.trim="$v.form.existencia_minima.$model"
                 :state="!$v.form.existencia_minima.$error"
@@ -66,8 +78,8 @@
               </div>
             </b-form-group>
           </b-col>
-          <b-col md="4">
-            <b-form-group label="Existencia actual:">
+          <b-col md="3">
+            <b-form-group v-if="form.inventariado === 'INVENTARIADO'" label="Existencia actual general:">
               <b-form-input
                 v-model.trim="$v.form.existencia_actual.$model"
                 :state="!$v.form.existencia_actual.$error"
@@ -81,7 +93,7 @@
         </b-row>
         <b-row class="ml-2">
           <b-col md="3">
-            <b-form-group label="Existencia mínima quirófano:">
+            <b-form-group v-if="form.inventariado === 'INVENTARIADO'" label="Existencia mínima quirófano:">
               <b-form-input
                 v-model.trim="$v.form.existencia_minima_quirofano.$model"
                 :state="!$v.form.existencia_minima_quirofano.$error"
@@ -93,7 +105,7 @@
             </b-form-group>
           </b-col>
           <b-col md="3">
-            <b-form-group label="Existencia actual quirófano:">
+            <b-form-group v-if="form.inventariado === 'INVENTARIADO'" label="Existencia actual quirófano:">
               <b-form-input
                 v-model.trim="$v.form.existencia_actual_quirofano.$model"
                 :state="!$v.form.existencia_actual_quirofano.$error"
@@ -105,7 +117,7 @@
             </b-form-group>
           </b-col>
           <b-col md="3">
-            <b-form-group label="Existencia mínima farmacia:">
+            <b-form-group v-if="form.inventariado === 'INVENTARIADO'" label="Existencia mínima enfermería:">
               <b-form-input
                 v-model.trim="$v.form.existencia_minima_farmacia.$model"
                 :state="!$v.form.existencia_minima_farmacia.$error"
@@ -117,7 +129,7 @@
             </b-form-group>
           </b-col>
           <b-col md="3">
-            <b-form-group label="Existencia actual farmacia:">
+            <b-form-group v-if="form.inventariado === 'INVENTARIADO'" label="Existencia actual enfermería:">
               <b-form-input
                 v-model.trim="$v.form.existencia_actual_farmacia.$model"
                 :state="!$v.form.existencia_actual_farmacia.$error"
@@ -251,7 +263,7 @@
           </b-col>
         </b-row>
         <b-row class="ml-2">
-          <b-col md="4">
+          <b-col md="3">
             <b-form-group label="Costo:">
               <b-form-input
                 v-model.trim="$v.form.precio_costo.$model"
@@ -263,8 +275,20 @@
               </div>
             </b-form-group>
           </b-col>
-          <b-col md="4">
-            <b-form-group label="Existencia mínima:">
+          <b-col md="3">
+            <b-form-group label="Precio de venta:">
+              <b-form-input
+                v-model.trim="$v.form.precio_venta.$model"
+                :state="!$v.form.precio_venta.$error"
+                placeholder="Ingresar precio de venta del medicamento"
+              ></b-form-input>
+              <div v-if="$v.form.precio_venta.required.$invalid" class="invalid-feedback">
+                Debe ingresar el precio de venta
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group v-if="form.inventariado === 'INVENTARIADO'" label="Existencia mínima general:">
               <b-form-input
                 v-model.trim="$v.form.existencia_minima.$model"
                 :state="!$v.form.existencia_minima.$error"
@@ -275,8 +299,8 @@
               </div>
             </b-form-group>
           </b-col>
-          <b-col md="4">
-            <b-form-group label="Existencia actual:">
+          <b-col md="3">
+            <b-form-group v-if="form.inventariado === 'INVENTARIADO'" label="Existencia actual general:">
               <b-form-input
                 v-model.trim="$v.form.existencia_actual.$model"
                 :state="!$v.form.existencia_actual.$error"
@@ -290,7 +314,7 @@
         </b-row>
         <b-row class="ml-2">
           <b-col md="3">
-            <b-form-group label="Existencia mínima quirófano:">
+            <b-form-group v-if="form.inventariado === 'INVENTARIADO'" label="Existencia mínima quirófano:">
               <b-form-input
                 v-model.trim="$v.form.existencia_minima_quirofano.$model"
                 :state="!$v.form.existencia_minima_quirofano.$error"
@@ -302,7 +326,7 @@
             </b-form-group>
           </b-col>
           <b-col md="3">
-            <b-form-group label="Existencia actual quirófano:">
+            <b-form-group v-if="form.inventariado === 'INVENTARIADO'" label="Existencia actual quirófano:">
               <b-form-input
                 v-model.trim="$v.form.existencia_actual_quirofano.$model"
                 :state="!$v.form.existencia_actual_quirofano.$error"
@@ -314,7 +338,7 @@
             </b-form-group>
           </b-col>
           <b-col md="3">
-            <b-form-group label="Existencia mínima farmacia:">
+            <b-form-group v-if="form.inventariado === 'INVENTARIADO'" label="Existencia mínima enfermería:">
               <b-form-input
                 v-model.trim="$v.form.existencia_minima_farmacia.$model"
                 :state="!$v.form.existencia_minima_farmacia.$error"
@@ -326,7 +350,7 @@
             </b-form-group>
           </b-col>
           <b-col md="3">
-            <b-form-group label="Existencia actual farmacia:">
+            <b-form-group v-if="form.inventariado === 'INVENTARIADO'" label="Existencia actual enfermería:">
               <b-form-input
                 v-model.trim="$v.form.existencia_actual_farmacia.$model"
                 :state="!$v.form.existencia_actual_farmacia.$error"
@@ -611,6 +635,7 @@ export default {
         id: 0,
         name: '',
         precio_costo: 0,
+        precio_venta: 0,
         existencia_minima: 0,
         existencia_actual: 0,
         existencia_minima_quirofano: 0,
@@ -650,6 +675,12 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
+          name: 'precio_venta',
+          sortField: 'precio_venta',
+          title: 'Precio venta',
+          dataClass: 'list-item-heading'
+        },
+        {
           name: 'existencia_minima',
           sortField: 'existencia_minima',
           title: 'Existencia minima',
@@ -682,6 +713,7 @@ export default {
       form: {
         name: { required },
         precio_costo: { required },
+        precio_venta: { required },
         existencia_minima: { required },
         existencia_actual: { required },
         existencia_minima_quirofano: { required },
@@ -702,6 +734,7 @@ export default {
           this.form.id = 0
           this.form.name = ''
           this.form.precio_costo = 0
+          this.form.precio_venta = 0
           this.form.existencia_minima = 0
           this.form.existencia_actual = 0
           this.form.existencia_minima_quirofano = 0
@@ -725,6 +758,7 @@ export default {
           this.form.id = 0
           this.form.name = ''
           this.form.precio_costo = 0
+          this.form.precio_venta = 0
           this.form.existencia_minima = 0
           this.form.existencia_actual = 0
           this.form.existencia_minima_quirofano = 0
@@ -744,6 +778,7 @@ export default {
           this.form.id = 0
           this.form.name = ''
           this.form.precio_costo = 0
+          this.form.precio_venta = 0
           this.form.existencia_minima = 0
           this.form.existencia_actual = 0
           this.form.existencia_minima_quirofano = 0
@@ -776,6 +811,7 @@ export default {
       this.form.name = data.nombre
       this.form.state = data.estado
       this.form.precio_costo = data.precio_costo
+      this.form.precio_venta = data.precio_venta
       this.form.existencia_minima = data.existencia_minima
       this.form.existencia_actual = data.existencia_actual
       this.form.existencia_minima_quirofano = data.existencia_minima_quirofano

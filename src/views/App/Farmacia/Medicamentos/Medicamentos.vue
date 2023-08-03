@@ -73,7 +73,7 @@
             </b-form-group>
           </b-col>
           <b-col md="3">
-            <b-form-group label="Existencia mínima:">
+            <b-form-group label="Existencia mínima general:">
               <b-form-input
                 v-model.trim="$v.form.existencia_minima.$model"
                 :state="!$v.form.existencia_minima.$error"
@@ -85,7 +85,7 @@
             </b-form-group>
           </b-col>
           <b-col md="3">
-            <b-form-group label="Existencia actual:">
+            <b-form-group label="Existencia actual general:">
               <b-form-input
                 v-model.trim="$v.form.existencia_actual.$model"
                 :state="!$v.form.existencia_actual.$error"
@@ -123,7 +123,7 @@
             </b-form-group>
           </b-col>
           <b-col md="3">
-            <b-form-group label="Existencia mínima farmacia:">
+            <b-form-group label="Existencia mínima enfermería:">
               <b-form-input
                 v-model.trim="$v.form.existencia_minima_farmacia.$model"
                 :state="!$v.form.existencia_minima_farmacia.$error"
@@ -135,7 +135,7 @@
             </b-form-group>
           </b-col>
           <b-col md="3">
-            <b-form-group label="Existencia actual farmacia:">
+            <b-form-group label="Existencia actual enfermería:">
               <b-form-input
                 v-model.trim="$v.form.existencia_actual_farmacia.$model"
                 :state="!$v.form.existencia_actual_farmacia.$error"
@@ -300,7 +300,7 @@
             </b-form-group>
           </b-col>
           <b-col md="3">
-            <b-form-group label="Existencia mínima:">
+            <b-form-group label="Existencia mínima general:">
               <b-form-input
                 v-model.trim="$v.form.existencia_minima.$model"
                 :state="!$v.form.existencia_minima.$error"
@@ -312,7 +312,7 @@
             </b-form-group>
           </b-col>
           <b-col md="3">
-            <b-form-group label="Existencia actual:">
+            <b-form-group label="Existencia actual general:">
               <b-form-input
                 v-model.trim="$v.form.existencia_actual.$model"
                 :state="!$v.form.existencia_actual.$error"
@@ -350,7 +350,7 @@
             </b-form-group>
           </b-col>
           <b-col md="3">
-            <b-form-group label="Existencia mínima farmacia:">
+            <b-form-group label="Existencia mínima enfermería:">
               <b-form-input
                 v-model.trim="$v.form.existencia_minima_farmacia.$model"
                 :state="!$v.form.existencia_minima_farmacia.$error"
@@ -362,7 +362,7 @@
             </b-form-group>
           </b-col>
           <b-col md="3">
-            <b-form-group label="Existencia actual farmacia:">
+            <b-form-group label="Existencia actual enfermería:">
               <b-form-input
                 v-model.trim="$v.form.existencia_actual_farmacia.$model"
                 :state="!$v.form.existencia_actual_farmacia.$error"
