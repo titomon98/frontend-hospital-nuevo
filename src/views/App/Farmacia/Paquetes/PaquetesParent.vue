@@ -19,7 +19,8 @@
           <template v-slot:body>
             <b-tabs>
               <b-tab title="Vender paquetes" active><VenderPaquete/></b-tab>
-              <b-tab title="Paquetes" lazy><Paquetes/></b-tab>
+              <b-tab title="Datos de paquetes" lazy><Paquetes/></b-tab>
+              <b-tab title="Crear paquetes" lazy><CrearPaquete/></b-tab>
             </b-tabs>
           </template>
         </iq-card>
@@ -32,13 +33,15 @@ import { xray } from '../../../../config/pluginInit'
 import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
 import Paquetes from './Paquetes'
+import CrearPaquete from './CrearPaquete.vue'
 import VenderPaquete from './VenderPaquete.vue'
 
 export default {
   name: 'PaquetesParent',
   components: {
     Paquetes,
-    VenderPaquete
+    VenderPaquete,
+    CrearPaquete
   },
   data () {
     return {
