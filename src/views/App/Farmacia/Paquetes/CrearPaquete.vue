@@ -497,8 +497,7 @@ export default {
             this.alertErrorText = 'La cantidad del producto debe ser mayor a 0'
             this.showAlertError()
           }
-        }
-        else if (action === 'quirurgico') {
+        } else if (action === 'quirurgico') {
           if (this.formMedicamento.cantidad > 0) {
             this.addQuirurgico()
           } else {
@@ -506,8 +505,7 @@ export default {
             this.alertErrorText = 'La cantidad del producto debe ser mayor a 0'
             this.showAlertError()
           }
-        }
-        else if (action === 'comun') {
+        } else if (action === 'comun') {
           if (this.formMedicamento.cantidad > 0) {
             this.addComun()
           } else {
@@ -545,7 +543,8 @@ export default {
       axios.post(apiUrl + '/paquetes/create', {
         detalle: me.arrayDetalles,
         nombre: me.nombre,
-        id_usuario: me.id_usuario
+        id_usuario: me.id_usuario,
+        total: me.enviarTotal
       })
         .then((response) => {
           me.alertVariant = 'success'

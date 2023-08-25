@@ -10,58 +10,62 @@
     >
     <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
-    <b-modal id="modal-2-paquete" ref="modal-2-paquete" title="Editar paquete">
-    <b-alert
+    <b-modal id="modal-ver-paquete" ref="modal-ver-paquete" size="lg" title="Detalle de paquete">
+      <b-alert
         :show="alertCountDownError"
         dismissible
         fade
         @dismissed="alertCountDownError=0"
         class="text-white bg-danger"
-    >
+      >
         <div class="iq-alert-text">{{ alertErrorText }}</div>
-    </b-alert>
-    <b-form @submit="$event.preventDefault()">
-        <b-form-group label="Nombre:">
-        <b-form-input
-            v-model.trim="$v.form.nombre.$model"
-            :state="!$v.form.nombre.$error"
-            placeholder="Ingresar nombre del paquete"
-        ></b-form-input>
-        <div v-if="$v.form.nombre.required.$invalid" class="invalid-feedback">
-            Debe ingresar el nombre
-        </div>
-        </b-form-group>
-        <b-form-group label="Precio costo:">
-        <b-form-input
-        type="number"
-            v-model.trim="$v.form.precio_costo.$model"
-            :state="!$v.form.precio_costo.$error"
-            placeholder="Ingresar precio costo del paquete"
-        ></b-form-input>
-        <div v-if="$v.form.precio_costo.required.$invalid" class="invalid-feedback">
-            Debe ingresar el precio costo
-        </div>
-        </b-form-group>
-        <b-form-group label="Precio venta:">
-        <b-form-input
-        type="number"
-            v-model.trim="$v.form.precio_venta.$model"
-            :state="!$v.form.precio_venta.$error"
-            placeholder="Ingresar precio de venta del paquete"
-        ></b-form-input>
-        <div v-if="$v.form.precio_venta.required.$invalid" class="invalid-feedback">
-            Debe ingresar el precio de venta
-        </div>
-        </b-form-group>
-    </b-form>
-    <template #modal-footer="{}">
-        <b-button variant="primary" @click="onValidate('update')"
-        >Guardar</b-button
+      </b-alert>
+      <b-row class="ml-2">
+        <b-col md="4">
+          <b-form-group label="Nombre:">
+            <h6>{{ form.nombre }}</h6>
+          </b-form-group>
+        </b-col>
+        <b-col md="4">
+          <b-form-group label="Precio total:">
+            <h6>{{ total }}</h6>
+          </b-form-group>
+        </b-col>
+        <b-col md="4">
+          <b-form-group label="Persona que ingresó:">
+            <h6>{{ form.usuario.nombre + ' ' + form.usuario.apellidos }}</h6>
+          </b-form-group>
+        </b-col>
+      </b-row>
+      <br>
+      <br>
+      <table class="table table-hover product_item_list c_table theme-color mb-0">
+        <thead>
+            <tr>
+                <th>Descripción</th>
+                <th>Cantidad</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="details in arrayDetalles" :key="details.id">
+              <td v-text="details.descripcion"></td>
+              <td v-text="details.cantidad"></td>
+              <td v-text="details.subtotal"></td>
+            </tr>
+        </tbody>
+      </table>
+      <br>
+      <b-row class="ml-2">
+        <b-col md="6">
+          <h5>Total factura: {{ total }}</h5>
+        </b-col>
+      </b-row>
+      <template #modal-footer="{}">
+        <b-button variant="danger" @click="closeModal('ver')"
+          >Cerrar</b-button
         >
-        <b-button variant="danger" @click="closeModal('update')"
-        >Cancelar</b-button
-        >
-    </template>
+      </template>
     </b-modal>
     <b-modal id="modal-3-paquete" ref="modal-3-paquete" title="Desactivar paquete">
     <b-alert
@@ -167,13 +171,13 @@
             <template slot="actions" slot-scope="props">
                 <b-button-group>
                 <b-button
-                    v-b-tooltip.top="'Editar'"
+                    v-b-tooltip.top="'Ver'"
                     @click="setData(props.rowData)"
-                    v-b-modal.modal-2-paquete
+                    v-b-modal.modal-ver-paquete
                     class="mb-2"
                     size="sm"
-                    variant="outline-warning"
-                    ><i :class="'fas fa-pencil-alt'"
+                    variant="outline-success"
+                    ><i :class="'fas fa-eye'"
                 /></b-button>
                 <b-button
                     v-b-tooltip.top="
@@ -238,11 +242,17 @@ export default {
       total: 0,
       perPage: 5,
       search: '',
+      id: 0,
+      arrayDetalles: [],
       form: {
         id: 0,
         nombre: '',
         precio_costo: 0.0,
         precio_venta: 0.0,
+        usuario: {
+          nombre: '',
+          apellidos: ''
+        },
         state: 1
       },
       alertSecs: 5,
@@ -266,15 +276,9 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
-          name: 'precio_costo',
-          sortField: 'precio_costo',
-          title: 'Precio costo',
-          dataClass: 'list-item-heading'
-        },
-        {
-          name: 'precio_venta',
-          sortField: 'precio_venta',
-          title: 'Precio venta',
+          name: 'total',
+          sortField: 'total',
+          title: 'Total',
           dataClass: 'list-item-heading'
         },
         {
@@ -317,9 +321,19 @@ export default {
           this.$refs['modal-2-paquete'].hide()
           this.form.id = 0
           this.form.nombre = ''
-          this.form.precio_costo = 0
-          this.form.precio_venta = 0
+          this.form.total = 0
           this.form.state = 1
+          this.arrayDetalles = []
+          break
+        }
+        case 'ver': {
+          this.$v.$reset()
+          this.$refs['modal-ver-paquete'].hide()
+          this.form.id = 0
+          this.form.nombre = ''
+          this.form.total = 0
+          this.form.state = 1
+          this.arrayDetalles = []
           break
         }
       }
@@ -338,11 +352,13 @@ export default {
       }
     },
     setData (data) {
+      this.arrayDetalles = data.detalle_paquetes
       this.form.nombre = data.nombre
-      this.form.precio_costo = data.precio_costo
-      this.form.precio_venta = data.precio_venta
+      this.form.total = data.total
       this.form.state = data.estado
       this.form.id = data.id
+      this.form.usuario = data.usuario
+      this.total = data.total
     },
     /* Guardar */
     onSave () {
