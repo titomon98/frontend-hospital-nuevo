@@ -295,7 +295,7 @@ import createNumberMask from 'text-mask-addons/dist/createNumberMask'
 import { mapGetters } from 'vuex'
 
 export default {
-  name: 'Sales',
+  name: 'CrearPaquete',
   components: {
   },
   setup () {
@@ -549,7 +549,7 @@ export default {
         .then((response) => {
           me.alertVariant = 'success'
           me.showAlert()
-          me.alertText = 'Se ha creado la venta exitosamente'
+          me.alertText = 'Se ha creado el paquete exitosamente'
           me.closeModal('save')
           me.arrayDetalles = []
           me.paciente = null

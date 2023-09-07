@@ -374,7 +374,6 @@ export default {
       granTotal: 0.0,
       enviarTotal: 0.0,
       id_usuario: 0,
-      nombre: '',
       formMedicamento: {
         id: 0,
         cantidad: null,
@@ -455,8 +454,7 @@ export default {
         cantidad: {
           required
         }
-      },
-      nombre: { required }
+      }
     }
   },
   methods: {
@@ -614,7 +612,7 @@ export default {
     /* Guardar */
     onSave () {
       const me = this
-      axios.post(apiUrl + '/paquetes/create', {
+      axios.post(apiUrl + '/paquetes/vender', {
         detalle: me.arrayDetalles,
         nombre: me.nombre,
         id_usuario: me.id_usuario,
