@@ -98,7 +98,7 @@
         >
     </template>
     </b-modal>
-    <b-modal id="modal-4-ingreso" ref="modal-4-ingreso" title="Activar ingreso">
+    <b-modal id="modal-confirmar-ingreso" ref="modal-confirmar-ingreso" title="Confirmar ingreso">
     <b-alert
         :show="alertCountDownError"
         dismissible
@@ -109,17 +109,17 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
     </b-alert>
     <h6 class="my-4">
-        ¿Desea activar el ingreso con factura: {{ form.factura }} ?
+        ¿Desea confirmar el ingreso con factura: {{ form.factura }} ?
     </h6>
     <template #modal-footer="{}">
         <b-button
         type="submit"
         variant="primary"
-        @click="onState()
-                $bvModal.hide('modal-4-ingreso')"
-        >Activar</b-button
+        @click="onConfirm()
+        $bvModal.hide('modal-confirmar-ingreso')"
+        >Confirmar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-4-ingreso')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-confirmar-ingreso')"
         >Cancelar</b-button
         >
     </template>
@@ -161,16 +161,9 @@
             >
             <!-- Estado -->
             <div slot="estado" slot-scope="props">
-                <h5 v-if="props.rowData.estado == 1">
-                <b-badge variant="light"
-                    ><h6 class="success"><strong>ACTIVO</strong></h6></b-badge
-                >
-                </h5>
-                <h5 v-else>
-                <b-badge variant="light"
-                    ><h6 class="danger"><strong>INACTIVO</strong></h6></b-badge
-                >
-                </h5>
+              <button v-if="props.rowData.estado === 2" type="button" class="btn btn-info" disabled>PENDIENTE DE INGRESO</button>
+              <button v-if="props.rowData.estado === 1" type="button" class="btn btn-success" disabled>INGRESADO</button>
+              <button v-if="props.rowData.estado === 0" type="button" class="btn btn-danger" disabled>ANULADO</button>
             </div>
             <!-- Botones -->
             <template slot="actions" slot-scope="props">
@@ -185,24 +178,42 @@
                     ><i :class="'fas fa-eye'"
                 /></b-button>
                 <b-button
-                    v-b-tooltip.top="
-                    props.rowData.estado == 1 ? 'Desactivar' : 'Activar'"
+                    v-if="props.rowData.estado === 2"
+                    v-b-tooltip.top="'Confirmar ingreso'"
+                    @click="setData(props.rowData)"
+                    v-b-modal.modal-confirmar-ingreso
+                    class="mb-2"
+                    size="sm"
+                    variant="outline-info"
+                    ><i :class="'fas fa-check'"
+                /></b-button>
+                <b-button
+                    v-if="props.rowData.estado === 1"
+                    v-b-tooltip.top="'Desactivar'"
                     @click="
                     setData(props.rowData);
-                    props.rowData.estado == 1
-                        ? $bvModal.show('modal-3-ingreso')
-                        : $bvModal.show('modal-4-ingreso');
+                    $bvModal.show('modal-3-ingreso')
+                    "
+                    class="mb-2"
+                    size="sm"
+                    :variant="'outline-danger'">
+                    <i
+                    :class="'fas fa-trash-alt'"
+                /></b-button>
+                <!-- <b-button
+                    v-if="props.rowData.estado === 0"
+                    v-b-tooltip.top="'Activar'"
+                    @click="
+                    setData(props.rowData);
+                    $bvModal.show('modal-4-ingreso')
                     "
                     class="mb-2"
                     size="sm"
                     :variant="
-                    props.rowData.estado == 1 ? 'outline-danger' : 'outline-info'">
+                    'outline-info'">
                     <i
-                    :class="
-                        props.rowData.estado == 1
-                        ? 'fas fa-trash-alt'
-                        : 'fas fa-check'"
-                /></b-button>
+                    :class="'fas fa-check'"
+                /></b-button> -->
                 </b-button-group>
             </template>
             <!-- Paginacion -->
@@ -440,6 +451,26 @@ export default {
             console.error('There was an error!', error)
           })
       }
+    },
+    onConfirm () {
+      let me = this
+      axios
+        .put(apiUrl + '/ingresos/confirm', {
+          id: this.form.id
+        })
+        .then((response) => {
+          me.alertVariant = 'warning'
+          me.showAlert()
+          me.alertText = 'Se ha confirmado el ingreso ' + me.form.id + ' exitosamente'
+          me.$refs.vuetable.refresh()
+          me.$refs['modal-confirmar-ingreso'].hide()
+        })
+        .catch((error) => {
+          me.alertVariant = 'danger'
+          me.showAlertError()
+          me.alertErr8orText = 'Ha ocurrido un error, por favor intente más tarde'
+          console.error('There was an error!', error)
+        })
     },
     makeQueryParams (sortOrder, currentPage, perPage) {
       return sortOrder[0]
