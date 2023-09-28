@@ -655,6 +655,7 @@ export default {
           me.arrayDetalles = []
           me.paciente = null
           me.granTotal = 0.0
+          me.password = ''
           me.closeModal('login')
         })
         .catch((error) => {
