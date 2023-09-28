@@ -52,7 +52,7 @@
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-shopping-cart-fill"
+        "icon": "ri-file-reduce-line"
       },
       {
         "title": "Expedientes",
@@ -63,7 +63,7 @@
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-shopping-cart-fill"
+        "icon": "ri-article-line"
       },
       {
         "title": "Contratos",
@@ -74,7 +74,7 @@
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-shopping-cart-fill"
+        "icon": "ri-file-lock-line"
       },
       {
         "title": "Egresos",
@@ -85,7 +85,7 @@
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-shopping-cart-fill"
+        "icon": "ri-file-transfer-line"
       },
       {
         "title": "Liquidaciones caja chica",
@@ -96,7 +96,7 @@
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-shopping-cart-fill"
+        "icon": "ri-file-add-line"
       },
       {
         "title": "Cuentas por cobrar",
@@ -107,7 +107,7 @@
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-shopping-cart-fill"
+        "icon": "ri-file-warning-line"
       }
     ]
   },
@@ -118,7 +118,7 @@
     "is_active": false,
     "class_name": "",
     "is_icon_class": true,
-    "icon": "ri-briefcase-4-fill",
+    "icon": "ri-home-heart-line",
     "link": {
     },
     "children": [
@@ -131,7 +131,7 @@
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-shopping-cart-fill"
+        "icon": "ri-arrow-left-circle-line"
       },
       {
         "title": "Quirófano",
@@ -142,7 +142,7 @@
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-shopping-cart-fill"
+        "icon": "ri-heart-2-fill"
       },
       {
         "title": "Hospitalización",
@@ -153,7 +153,7 @@
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-shopping-cart-fill"
+        "icon": "ri-heart-fill"
       },
       {
         "title": "Intensivo",
@@ -164,7 +164,7 @@
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-shopping-cart-fill"
+        "icon": "ri-spam-fill"
       },
       {
         "title": "Emergencia",
@@ -175,7 +175,7 @@
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-shopping-cart-fill"
+        "icon": "ri-spam-line"
       }
     ]
   },
@@ -188,7 +188,7 @@
     },
     "class_name": "",
     "is_icon_class": true,
-    "icon": "ri-briefcase-4-fill",
+    "icon": "ri-store-fill",
     "children": [
       {
         "title": "Pedidos pendientes",
@@ -199,7 +199,7 @@
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-shopping-cart-fill"
+        "icon": "ri-arrow-right-circle-line"
       },
       {
         "title": "Medicamentos",
@@ -210,7 +210,7 @@
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-shopping-cart-fill"
+        "icon": "ri-hospital-line"
       },
       {
         "title": "Material quirúrgico",
@@ -221,7 +221,7 @@
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-shopping-cart-fill"
+        "icon": "ri-scissors-fill"
       },
       {
         "title": "Material común",
@@ -232,7 +232,7 @@
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-shopping-cart-fill"
+        "icon": "ri-file-list-3-fill"
       }
       ,
       {
@@ -244,7 +244,7 @@
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-shopping-cart-fill"
+        "icon": "ri-briefcase-line"
       },
       {
         "title": "Datos farmacia",
@@ -255,7 +255,7 @@
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-shopping-cart-fill"
+        "icon": "ri-pie-chart-fill"
       },
       {
         "title": "Alertas existencia",
@@ -266,7 +266,7 @@
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-shopping-cart-fill"
+        "icon": "ri-error-warning-fill"
       },
       {
         "title": "Paquetes",
@@ -277,7 +277,7 @@
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-shopping-cart-fill"
+        "icon": "ri-red-packet-fill"
       },
       {
         "title": "Ingreso con factura",
@@ -288,7 +288,7 @@
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-shopping-cart-fill"
+        "icon": "ri-arrow-down-circle-fill"
       }
     ]
   },
@@ -301,7 +301,7 @@
     },
     "class_name": "",
     "is_icon_class": true,
-    "icon": "ri-briefcase-4-fill",
+    "icon": "ri-archive-fill",
     "children": [
       {
         "title": "Equipos médicos",
@@ -312,7 +312,7 @@
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-shopping-cart-fill"
+        "icon": "ri-keyboard-box-fill"
       },
       {
         "title": "Alimentación",
@@ -337,7 +337,7 @@
     },
     "class_name": "",
     "is_icon_class": true,
-    "icon": "ri-briefcase-4-fill"
+    "icon": "ri-shield-cross-fill"
   },
   {
     "title": "Liquidaciones",
@@ -349,6 +349,6 @@
     },
     "class_name": "",
     "is_icon_class": true,
-    "icon": "ri-briefcase-4-fill"
+    "icon": "ri-folder-warning-fill"
   }
 ]

@@ -162,50 +162,10 @@
             >
               <!-- Estado -->
               <div slot="estado" slot-scope="props">
-                <h5 v-if="props.rowData.estado == 1">
-                  <b-badge variant="light"
-                    ><h6 class="success"><strong>ACTIVO</strong></h6></b-badge
-                  >
-                </h5>
-                <h5 v-else>
-                  <b-badge variant="light"
-                    ><h6 class="danger"><strong>INACTIVO</strong></h6></b-badge
-                  >
-                </h5>
+                <button v-if="props.rowData.existencia_actual < 6" type="button" class="btn btn-danger" disabled>POCA EXISTENCIA GENERAL</button>
+                <button v-if="props.rowData.existencia_actual_quirofano < 6" type="button" class="btn btn-warning" disabled>POCA EXISTENCIA EN QUIRÓFANO</button>
+                <button v-if="props.rowData.existencia_actual_farmacia < 6" type="button" class="btn btn-dark" disabled>POCA EXISTENCIA EN ENFERMERÍA</button>
               </div>
-              <!-- Botones -->
-              <template slot="actions" slot-scope="props">
-                <b-button-group>
-                  <b-button
-                    v-b-tooltip.top="'Editar'"
-                    @click="setData(props.rowData)"
-                    v-b-modal.modal-2-bank
-                    class="mb-2"
-                    size="sm"
-                    variant="outline-warning"
-                    ><i :class="'fas fa-pencil-alt'"
-                  /></b-button>
-                  <b-button
-                    v-b-tooltip.top="
-                      props.rowData.estado == 1 ? 'Desactivar' : 'Activar'"
-                    @click="
-                      setData(props.rowData);
-                      props.rowData.estado == 1
-                        ? $bvModal.show('modal-3-bank')
-                        : $bvModal.show('modal-4-bank');
-                    "
-                    class="mb-2"
-                    size="sm"
-                    :variant="
-                      props.rowData.estado == 1 ? 'outline-danger' : 'outline-info'">
-                    <i
-                      :class="
-                        props.rowData.estado == 1
-                          ? 'fas fa-trash-alt'
-                          : 'fas fa-check'"
-                  /></b-button>
-                </b-button-group>
-              </template>
               <!-- Paginacion -->
             </vuetable>
             <vuetable-pagination-bootstrap
@@ -259,18 +219,30 @@ export default {
       alertText: '',
       alertErrorText: '',
       alertVariant: '',
-      apiBase: apiUrl + '/banco/list',
+      apiBase: apiUrl + '/alertas/listComunes',
       fields: [
-        {
-          name: '__slot:actions',
-          title: 'Acciones',
-          titleClass: '',
-          dataClass: 'text-muted'
-        },
         {
           name: 'nombre',
           sortField: 'name',
           title: 'Nombre',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'existencia_actual',
+          sortField: 'existencia_actual',
+          title: 'Existencia actual',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'existencia_actual_quirofano',
+          sortField: 'existencia_actual_quirofano',
+          title: 'Existencia quirófano',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'existencia_actual_farmacia',
+          sortField: 'existencia_actual_farmacia',
+          title: 'Existencia enfermería',
           dataClass: 'list-item-heading'
         },
         {

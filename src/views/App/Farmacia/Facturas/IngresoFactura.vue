@@ -35,10 +35,10 @@
               <div v-show="loading">Cargando...</div>
             </template>
             <template v-slot:option="option">
-              {{ 'Nombre: '+ option.nombre}}
+              {{ 'Nombre: '+ option.nombre + ' Proveedor: ' + option.proveedore.nombre }}
             </template>
             <template slot="selected-option" slot-scope="option">
-              {{ 'Nombre: '+ option.nombre}}
+              {{ 'Nombre: '+ option.nombre + ' Proveedor: ' + option.proveedore.nombre }}
             </template>
           </v-select>
           <div v-if="$v.formMedicamento.medicine.$error" class="invalid-feedback-vselect">
@@ -94,10 +94,10 @@
               <div v-show="loading">Cargando...</div>
             </template>
             <template v-slot:option="option">
-              {{ 'Nombre: '+ option.nombre}}
+              {{ 'Nombre: '+ option.nombre + ' Proveedor: ' + option.proveedore.nombre }}
             </template>
             <template slot="selected-option" slot-scope="option">
-              {{ 'Nombre: '+ option.nombre}}
+              {{ 'Nombre: '+ option.nombre + ' Proveedor: ' + option.proveedore.nombre }}
             </template>
           </v-select>
           <div v-if="$v.formMedicamento.medicine.$error" class="invalid-feedback-vselect">
@@ -153,10 +153,10 @@
               <div v-show="loading">Cargando...</div>
             </template>
             <template v-slot:option="option">
-              {{ 'Nombre: '+ option.nombre}}
+              {{ 'Nombre: '+ option.nombre + ' Proveedor: ' + option.proveedore.nombre }}
             </template>
             <template slot="selected-option" slot-scope="option">
-              {{ 'Nombre: '+ option.nombre}}
+              {{ 'Nombre: '+ option.nombre + ' Proveedor: ' + option.proveedore.nombre }}
             </template>
           </v-select>
           <div v-if="$v.formMedicamento.medicine.$error" class="invalid-feedback-vselect">

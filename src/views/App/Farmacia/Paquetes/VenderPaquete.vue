@@ -238,9 +238,6 @@
     <b-row>
       <b-col md="12">
         <iq-card>
-          <template v-slot:headerTitle>
-            <h4 class="card-title mt-3">Vender paquetes</h4>
-          </template>
           <template v-slot:body>
             <h5 class="card-title mt-3">Datos de generales de paquete</h5>
             <hr>
