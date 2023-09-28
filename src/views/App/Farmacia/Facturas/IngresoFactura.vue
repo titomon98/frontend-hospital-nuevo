@@ -10,6 +10,34 @@
     >
       <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
+    <b-modal id="modal-password" ref="modal-password" title="Comprobar contraseña">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <b-form>
+        <b-form-group label="Contraseña:">
+          <b-form-input
+            type="password"
+            v-model.trim="password"
+            placeholder="Ingresar contraseña"
+          ></b-form-input>
+        </b-form-group>
+      </b-form>
+      <template #modal-footer="{}">
+        <b-button  variant="primary" @click="onLogin('login')"
+          >Guardar</b-button
+        >
+        <b-button variant="danger" @click="closeModal('login')"
+          >Cancelar</b-button
+        >
+      </template>
+    </b-modal>
     <b-modal id="modal-1" ref="modal-1" title="Agregar medicamento">
       <b-alert
         :show="alertCountDownError"
@@ -59,6 +87,13 @@
         <div v-if="$v.formMedicamento.cantidad.$invalid" class="invalid-feedback">
           Debe ingresar la cantidad
         </div>
+        <b-form-group label="Fecha de vencimiento:">
+          <b-form-input
+            type="date"
+            v-model.trim="formMedicamento.vencimiento"
+            placeholder="Ingresar Vencimiento"
+          ></b-form-input>
+        </b-form-group>
       </b-form>
       <template #modal-footer="{}">
         <b-button  variant="primary" @click="onValidate('medicamento')"
@@ -118,6 +153,13 @@
         <div v-if="$v.formMedicamento.cantidad.$invalid" class="invalid-feedback">
           Debe ingresar la cantidad
         </div>
+        <b-form-group label="Fecha de vencimiento:">
+          <b-form-input
+            type="date"
+            v-model.trim="formMedicamento.vencimiento"
+            placeholder="Ingresar Vencimiento"
+          ></b-form-input>
+        </b-form-group>
       </b-form>
       <template #modal-footer="{}">
         <b-button  variant="primary" @click="onValidate('quirurgico')"
@@ -177,6 +219,13 @@
         <div v-if="$v.formMedicamento.cantidad.$invalid" class="invalid-feedback">
           Debe ingresar la cantidad
         </div>
+        <b-form-group label="Fecha de vencimiento:">
+          <b-form-input
+            type="date"
+            v-model.trim="formMedicamento.vencimiento"
+            placeholder="Ingresar Vencimiento"
+          ></b-form-input>
+        </b-form-group>
       </b-form>
       <template #modal-footer="{}">
         <b-button  variant="primary" @click="onValidate('comun')"
@@ -337,11 +386,13 @@ export default {
       enviarTotal: 0.0,
       id_usuario: 0,
       factura: '',
+      password: '',
       fecha: null,
       descripcion: '',
       formMedicamento: {
         id: 0,
         cantidad: null,
+        vencimiento: null,
         medicine: [],
         total: '',
         is_medicine: false,
@@ -427,6 +478,7 @@ export default {
       let medicamento = {
         cantidad: me.formMedicamento.cantidad,
         descripcion: me.formMedicamento.medicine.nombre,
+        vencimiento: me.formMedicamento.vencimiento,
         total: nuevoTotal,
         id: me.total_array,
         id_medicine: me.formMedicamento.medicine.id,
@@ -443,6 +495,7 @@ export default {
       let medicamento = {
         cantidad: me.formMedicamento.cantidad,
         descripcion: me.formMedicamento.medicine.nombre,
+        vencimiento: me.formMedicamento.vencimiento,
         total: nuevoTotal,
         id: me.total_array,
         id_medicine: me.formMedicamento.medicine.id,
@@ -459,6 +512,7 @@ export default {
       let medicamento = {
         cantidad: me.formMedicamento.cantidad,
         descripcion: me.formMedicamento.medicine.nombre,
+        vencimiento: me.formMedicamento.vencimiento,
         total: nuevoTotal,
         id: me.total_array,
         id_medicine: me.formMedicamento.medicine.id,
@@ -498,6 +552,12 @@ export default {
         }
         case 'save': {
           this.$v.$reset()
+          this.resetData()
+          break
+        }
+        case 'login': {
+          this.$v.$reset()
+          this.$refs['modal-password'].hide()
           this.resetData()
           break
         }
@@ -542,7 +602,7 @@ export default {
       this.formMedicamento.medicine = 'Ingresar'
       this.formMedicamento.cantidad = 'Ingresar'
       if (this.$v.$error !== true) {
-        this.onSave()
+        this.onLogin('validate')
       } else {
         this.alertText = 'Ha ocurrido un error en el ingreso'
         this.showAlertError()
@@ -553,6 +613,27 @@ export default {
       this.formMedicamento.cantidad = null
       this.formMedicamento.total = null
       this.formMedicamento.id = null
+      this.formMedicamento.vencimiento = null
+    },
+    onLogin (action) {
+      let me = this
+      if (action === 'validate') {
+        this.$refs['modal-password'].show()
+      } else if (action === 'login') {
+        axios.post(apiUrl + '/validatePassword', {
+        id_usuario: me.id_usuario,
+        password: me.password
+      })
+        .then((response) => {
+          me.onSave()
+        })
+        .catch((error) => {
+          me.alertVariant = 'danger'
+          me.showAlertError()
+          me.alertErrorText = error.response.data.message
+          console.error('Error!', error)
+        })
+      }
     },
     /* Guardar */
     onSave () {
@@ -573,6 +654,8 @@ export default {
           me.closeModal('save')
           me.arrayDetalles = []
           me.paciente = null
+          me.granTotal = 0.0
+          me.closeModal('login')
         })
         .catch((error) => {
           me.alertVariant = 'danger'
