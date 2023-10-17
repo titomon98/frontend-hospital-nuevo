@@ -55,6 +55,17 @@
         "icon": "ri-file-reduce-line"
       },
       {
+        "title": "Ingresos",
+        "name": "Ingresos",
+        "is_active": false,
+        "link": {
+          "name" : "caja.ingresos"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-user-add-fill"
+      },
+      {
         "title": "Expedientes",
         "name": "Expedientes",
         "is_active": false,
@@ -64,6 +75,17 @@
         "class_name": "",
         "is_icon_class": true,
         "icon": "ri-article-line"
+      },
+      {
+        "title": "Cuentas",
+        "name": "Cuentas",
+        "is_active": false,
+        "link": {
+          "name" : "caja.cuentaslist"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-wallet-3-fill"
       },
       {
         "title": "Contratos",
@@ -176,6 +198,17 @@
         "class_name": "",
         "is_icon_class": true,
         "icon": "ri-spam-line"
+      },
+      {
+        "title": "Habitaciones",
+        "name": "Habitaciones",
+        "is_active": false,
+        "link": {
+          "name" : "enfermeria.habitaciones"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-hotel-bed-line"
       }
     ]
   },
@@ -338,6 +371,18 @@
     "class_name": "",
     "is_icon_class": true,
     "icon": "ri-shield-cross-fill"
+  },
+  {
+    "title": "Registro de pacientes",
+    "name": "Registro de pacientes",
+    "is_heading": false,
+    "is_active": false,
+    "link": {
+      "name" : "pacientes.pacientesparent"
+    },
+    "class_name": "",
+    "is_icon_class": true,
+    "icon": "ri-account-box-fill"
   },
   {
     "title": "Liquidaciones",

@@ -95,11 +95,13 @@ import Cuartos from '../views/App/Admin/Cuartos.vue'
 import Users from '../views/App/Admin/Users'
 
 // caja
-import ContratosParent from '../views/App/Caja/Contratos/ContratosParent'
+import Contratos from '../views/App/Caja/Contratos/Contratos'
 import CortesParent from '../views/App/Caja/Cortes/CortesParent'
 import CuentasParent from '../views/App/Caja/Cuentas/CuentasParent'
 import EgresosParent from '../views/App/Caja/Egresos/EgresosParent'
-import ExpedientesParent from '../views/App/Caja/Expedientes/ExpedientesParent'
+import Expedientes from '../views/App/Caja/Expedientes/Expedientes'
+import CuentasList from '../views/App/Caja/Cuentas/CuentasList'
+import Ingresos from '../views/App/Caja/Ingresos/Ingresos'
 
 // enfermeria
 import PedidosFarmaciaParent from '../views/App/Enfermeria/Pedidos/PedidosFarmaciaParent'
@@ -107,6 +109,7 @@ import EmergenciasParent from '../views/App/Enfermeria/Emergencias/EmergenciasPa
 import HospitalizacionParent from '../views/App/Enfermeria/Hospitalizacion/HospitalizacionParent'
 import IntensivoParent from '../views/App/Enfermeria/Intensivo/IntensivoParent'
 import QuirofanoParent from '../views/App/Enfermeria/Quirofano/QuirofanoParent'
+import Habitaciones from '../views/App/Enfermeria/Habitaciones/Habitaciones'
 
 // farmacia
 import PedidosPendientesParent from '../views/App/Farmacia/Pedidos/PedidosPendientesParent'
@@ -129,6 +132,9 @@ import Socios from '../views/App/Medicos/Socios'
 
 // liquidacion
 import LiquidacionParent from '../views/App/Liquidaciones/LiquidacionesParent'
+
+// pacientes
+import PacientesParent from '../views/App/Pacientes/PacientesParent'
 
 Vue.use(VueRouter)
 
@@ -168,12 +174,21 @@ const LiquidacionRoutes = (prop, mode) => [
   }
 ]
 
+const PacientesRoutes = (prop, mode) => [
+  {
+    path: 'pacientesparent',
+    name: prop + '.pacientesparent',
+    meta: { dark: mode, auth: true, name: 'pacientesparent' },
+    component: PacientesParent
+  }
+]
+
 const CajaRoutes = (prop, mode) => [
   {
     path: 'contratos',
     name: prop + '.contratos',
     meta: { dark: mode, auth: true, name: 'contratos' },
-    component: ContratosParent
+    component: Contratos
   },
   {
     path: 'cortes',
@@ -197,7 +212,19 @@ const CajaRoutes = (prop, mode) => [
     path: 'expedientes',
     name: prop + '.expedientes',
     meta: { dark: mode, auth: true, name: 'expedientes' },
-    component: ExpedientesParent
+    component: Expedientes
+  },
+  {
+    path: 'cuentaslist',
+    name: prop + '.cuentaslist',
+    meta: { dark: mode, auth: true, name: 'cuentaslist' },
+    component: CuentasList
+  },
+  {
+    path: 'ingresos',
+    name: prop + '.ingresos',
+    meta: { dark: mode, auth: true, name: 'ingresos' },
+    component: Ingresos
   }
 ]
 
@@ -231,6 +258,12 @@ const EnfermeriaRoutes = (prop, mode) => [
     name: prop + '.quirofano',
     meta: { dark: mode, auth: true, name: 'quirofano' },
     component: QuirofanoParent
+  },
+  {
+    path: 'habitaciones',
+    name: prop + '.habitaciones',
+    meta: { dark: mode, auth: true, name: 'habitaciones' },
+    component: Habitaciones
   }
 ]
 
@@ -816,6 +849,13 @@ const routes = [
     component: Layout1,
     meta: { auth: true },
     children: LiquidacionRoutes('liquidacion')
+  },
+  {
+    path: '/pacientes',
+    name: 'pacientes',
+    component: Layout1,
+    meta: { auth: true },
+    children: PacientesRoutes('pacientes')
   },
   {
     path: '/enfermeria',
