@@ -280,7 +280,7 @@
       <b-col md="12">
         <iq-card>
           <template v-slot:headerTitle>
-            <h4 class="card-title mt-3">Ingreso de encargado</h4>
+            <h4 class="card-title mt-3">Ingreso de conyuge</h4>
           </template>
           <template v-slot:body>
             <!-- fila -->

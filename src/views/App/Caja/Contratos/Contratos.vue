@@ -10,7 +10,7 @@
     >
       <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
-    <b-modal id="modal-1-bank" ref="modal-1-bank" title="Agregar banco">
+    <b-modal id="modal-1-contract" ref="modal-1-contract" title="Agregar contrato">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -23,13 +23,21 @@
       <b-form @submit="$event.preventDefault()">
         <b-form-group label="Nombre:">
           <b-form-input
-            v-model.trim="$v.form.name.$model"
-            :state="!$v.form.name.$error"
-            placeholder="Ingresar nombre del banco"
+            v-model.trim="$v.form.nombre.$model"
+            :state="!$v.form.nombre.$error"
+            placeholder="Ingresar nombre del contrato"
           ></b-form-input>
-          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
+          <div v-if="$v.form.nombre.required.$invalid" class="invalid-feedback">
             Debe ingresar el nombre
           </div>
+        </b-form-group>
+        <b-form-group label="Contenido:">
+          <quill-editor
+            ref="myQuillEditor"
+            v-model="form.contrato"
+            :options="editorOption"
+            theme="snow"
+          />
         </b-form-group>
       </b-form>
       <template #modal-footer="{}">
@@ -41,7 +49,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-2-bank" ref="modal-2-bank" title="Editar banco">
+    <b-modal id="modal-2-contract" ref="modal-2-contract" title="Editar contrato">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -54,13 +62,21 @@
       <b-form @submit="$event.preventDefault()">
         <b-form-group label="Nombre:">
           <b-form-input
-            v-model.trim="$v.form.name.$model"
-            :state="!$v.form.name.$error"
-            placeholder="Ingresar nombre de banco"
+            v-model.trim="$v.form.nombre.$model"
+            :state="!$v.form.nombre.$error"
+            placeholder="Ingresar nombre del contrato"
           ></b-form-input>
-          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
+          <div v-if="$v.form.nombre.required.$invalid" class="invalid-feedback">
             Debe ingresar el nombre
           </div>
+        </b-form-group>
+        <b-form-group label="Contenido:">
+          <quill-editor
+            ref="myQuillEditor"
+            v-model="form.contrato"
+            :options="editorOption"
+            theme="snow"
+          />
         </b-form-group>
       </b-form>
       <template #modal-footer="{}">
@@ -72,7 +88,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-3-bank" ref="modal-3-bank" title="Desactivar banco">
+    <b-modal id="modal-3-contract" ref="modal-3-contract" title="Desactivar contrato">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -83,22 +99,22 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6 class="my-4">
-        ¿Desea desactivar el banco: {{ form.name }} ?
+        ¿Desea desactivar el contrato: {{ form.nombre }} ?
       </h6>
       <template #modal-footer="{}">
         <b-button
           type="submit"
           variant="primary"
           @click="onState()
-                  $bvModal.hide('modal-3-bank')"
+                  $bvModal.hide('modal-3-contract')"
           >Desactivar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-3-bank')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-3-contract')"
           >Cancelar</b-button
         >
       </template>
     </b-modal>
-    <b-modal id="modal-4-bank" ref="modal-4-bank" title="Activar banco">
+    <b-modal id="modal-4-contract" ref="modal-4-contract" title="Activar contrato">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -109,17 +125,17 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6 class="my-4">
-        ¿Desea activar al banco: {{ form.name }} ?
+        ¿Desea activar al contrato: {{ form.nombre }} ?
       </h6>
       <template #modal-footer="{}">
         <b-button
           type="submit"
           variant="primary"
           @click="onState()
-                  $bvModal.hide('modal-4-bank')"
+                  $bvModal.hide('modal-4-contract')"
           >Activar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-4-bank')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-4-contract')"
           >Cancelar</b-button
         >
       </template>
@@ -137,7 +153,7 @@
               </div>
             </template>
             <template v-slot:headerAction>
-            <b-button variant="primary"  v-b-modal.modal-1-bank>AGREGAR NUEVO</b-button>
+            <b-button variant="primary"  v-b-modal.modal-1-contract>AGREGAR NUEVO</b-button>
           </template>
           <template v-slot:body>
             <datatable-heading
@@ -179,7 +195,7 @@
                   <b-button
                     v-b-tooltip.top="'Editar'"
                     @click="setData(props.rowData)"
-                    v-b-modal.modal-2-bank
+                    v-b-modal.modal-2-contract
                     class="mb-2"
                     size="sm"
                     variant="outline-warning"
@@ -191,8 +207,8 @@
                     @click="
                       setData(props.rowData);
                       props.rowData.estado == 1
-                        ? $bvModal.show('modal-3-bank')
-                        : $bvModal.show('modal-4-bank');
+                        ? $bvModal.show('modal-3-contract')
+                        : $bvModal.show('modal-4-contract');
                     "
                     class="mb-2"
                     size="sm"
@@ -227,13 +243,18 @@ import useVuelidate from '@vuelidate/core'
 import { required } from '@vuelidate/validators'
 import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
+import 'quill/dist/quill.core.css'
+import 'quill/dist/quill.snow.css'
+import 'quill/dist/quill.bubble.css'
+import { quillEditor } from 'vue-quill-editor'
 
 export default {
-  name: 'Bank',
+  name: 'Contratos',
   components: {
     vuetable: Vuetable,
     'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
-    'datatable-heading': DatatableHeading
+    'datatable-heading': DatatableHeading,
+    quillEditor
   },
   setup () {
     return { $v: useVuelidate() }
@@ -243,6 +264,21 @@ export default {
   },
   data () {
     return {
+      editorOption: {
+        placeholder: '',
+        modules: {
+          toolbar: [
+            ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+            [
+              { list: 'ordered' },
+              { list: 'bullet' },
+              { indent: '-1' },
+              { indent: '+1' }
+            ],
+            ['clean']
+          ]
+        }
+      },
       from: 0,
       to: 0,
       total: 0,
@@ -250,7 +286,8 @@ export default {
       search: '',
       form: {
         id: 0,
-        name: '',
+        contrato: '',
+        nombre: '',
         state: 1
       },
       alertSecs: 5,
@@ -259,7 +296,7 @@ export default {
       alertText: '',
       alertErrorText: '',
       alertVariant: '',
-      apiBase: apiUrl + '/banco/list',
+      apiBase: apiUrl + '/contrato/list',
       fields: [
         {
           name: '__slot:actions',
@@ -269,7 +306,7 @@ export default {
         },
         {
           name: 'nombre',
-          sortField: 'name',
+          sortField: 'nombre',
           title: 'Nombre',
           dataClass: 'list-item-heading'
         },
@@ -286,7 +323,8 @@ export default {
   validations () {
     return {
       form: {
-        name: { required }
+        contrato: { required },
+        nombre: { required }
       }
     }
   },
@@ -296,7 +334,8 @@ export default {
         case 'save': {
           this.$v.$reset()
           this.form.id = 0
-          this.form.name = ''
+          this.form.contrato = ''
+          this.form.nombre = ''
           this.form.state = 1
           break
         }
@@ -306,17 +345,19 @@ export default {
       switch (action) {
         case 'save': {
           this.$v.$reset()
-          this.$refs['modal-1-bank'].hide()
+          this.$refs['modal-1-contract'].hide()
           this.form.id = 0
-          this.form.name = ''
+          this.form.contrato = ''
+          this.form.nombre = ''
           this.form.state = 1
           break
         }
         case 'update': {
           this.$v.$reset()
-          this.$refs['modal-2-bank'].hide()
+          this.$refs['modal-2-contract'].hide()
           this.form.id = 0
-          this.form.name = ''
+          this.form.contrato = ''
+          this.form.nombre = ''
           this.form.state = 1
           break
         }
@@ -336,19 +377,20 @@ export default {
       }
     },
     setData (data) {
-      this.form.name = data.nombre
+      this.form.contrato = data.contrato
+      this.form.nombre = data.nombre
       this.form.state = data.estado
       this.form.id = data.id
     },
     /* Guardar */
     onSave () {
       const me = this
-      axios.post(apiUrl + '/banco/create', {
+      axios.post(apiUrl + '/contrato/create', {
         form: me.form })
         .then((response) => {
           me.alertVariant = 'success'
           me.showAlert()
-          me.alertText = 'Se ha creado el banco ' + me.form.name + ' exitosamente'
+          me.alertText = 'Se ha creado el contrato exitosamente'
           me.$refs.vuetable.refresh()
           me.closeModal('save')
         })
@@ -363,12 +405,12 @@ export default {
     onUpdate () {
       const me = this
       // this.$refs["modalSave"].hide();
-      axios.put(apiUrl + '/banco/update', {
+      axios.put(apiUrl + '/contrato/update', {
         form: me.form })
         .then((response) => {
           me.alertVariant = 'primary'
           me.showAlert()
-          me.alertText = 'Se ha actualizado el banco ' + me.form.name + ' exitosamente'
+          me.alertText = 'Se ha actualizado el contrato exitosamente'
           me.$refs.vuetable.refresh()
           me.closeModal('update')
         })
@@ -383,15 +425,15 @@ export default {
       let me = this
       if (this.form.state === 1) {
         axios
-          .put(apiUrl + '/banco/deactivate', {
+          .put(apiUrl + '/contrato/deactivate', {
             id: this.form.id
           })
           .then((response) => {
             me.alertVariant = 'warning'
             me.showAlert()
-            me.alertText = 'Se ha desactivado el banco ' + me.form.name + ' exitosamente'
+            me.alertText = 'Se ha desactivado el contrato exitosamente'
             me.$refs.vuetable.refresh()
-            me.$refs['modal-3-bank'].hide()
+            me.$refs['modal-3-contract'].hide()
           })
           .catch((error) => {
             me.alertVariant = 'danger'
@@ -401,15 +443,15 @@ export default {
           })
       } else {
         axios
-          .put(apiUrl + '/banco/activate', {
+          .put(apiUrl + '/contrato/activate', {
             id: this.form.id
           })
           .then((response) => {
             me.alertVariant = 'info'
             me.showAlert()
-            me.alertText = 'Se ha activado el banco ' + me.form.name + ' exitosamente'
+            me.alertText = 'Se ha activado el contrato exitosamente'
             me.$refs.vuetable.refresh()
-            me.$refs['modal-4-bank'].hide()
+            me.$refs['modal-4-contract'].hide()
           })
           .catch((error) => {
             me.alertVariant = 'danger'

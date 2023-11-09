@@ -206,9 +206,27 @@ export default {
           dataClass: 'text-muted'
         },
         {
-          name: 'nombre',
-          sortField: 'name',
-          title: 'Nombre',
+          name: 'numero',
+          sortField: 'numero',
+          title: 'Numero',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'tipo',
+          sortField: 'tipo',
+          title: 'Tipo de habitación',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'costo_diario',
+          sortField: 'costo_diario',
+          title: 'Costo de habitación',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'costo_ambulatorio',
+          sortField: 'costo_ambulatorio',
+          title: 'Costo ambulatorio',
           dataClass: 'list-item-heading'
         },
         {
