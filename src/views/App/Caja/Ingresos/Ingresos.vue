@@ -23,44 +23,43 @@
       <b-col md="12">
         <iq-card>
           <template v-slot:headerTitle>
-            <h4 class="card-title mt-3">Ingreso de paciente</h4>
+            <h4 class="card-title mt-3">Primer ingreso de paciente</h4>
           </template>
-          <template v-slot:headerAction>
-            <b-button variant="primary" @click="backToPatients"  >REGRESAR A LISTADO</b-button>
-          </template>
+
           <template v-slot:body>
             <!-- fila -->
+            <h4 class="card-title mt-3">Datos de paciente</h4>
             <b-row class="ml-2">
               <!-- columna -->
               <b-col md="2">
                 <b-form-group label="Nombre:">
                   <b-form-input
-                    v-model.trim="$v.form.name.$model"
-                    :state="!$v.form.name.$error"
+                    v-model.trim="$v.form.nombre.$model"
+                    :state="!$v.form.nombre.$error"
                     placeholder="Ingresar nombre"
                   ></b-form-input>
-                  <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
+                  <div v-if="$v.form.nombre.required.$invalid" class="invalid-feedback">
                     Debe ingresar el nombre
                   </div>
                 </b-form-group>
               </b-col>
               <!-- columna -->
               <b-col md="2">
-                <b-form-group label="Apellido:">
+                <b-form-group label="Apellidos:">
                   <b-form-input
-                    v-model.trim="$v.form.secondName.$model"
-                    :state="!$v.form.secondName.$error"
-                    placeholder="Ingresar apellido"
+                    v-model.trim="$v.form.apellidos.$model"
+                    :state="!$v.form.apellidos.$error"
+                    placeholder="Ingresar apellidos"
                   ></b-form-input>
-                  <div v-if="$v.form.secondName.required.$invalid" class="invalid-feedback">
-                    Debe ingresar el apellido
+                  <div v-if="$v.form.apellidos.required.$invalid" class="invalid-feedback">
+                    Debe ingresar los apellidos
                   </div>
                 </b-form-group>
               </b-col>
               <b-col md="2">
                 <b-form-group label="Apellido de casada:">
                   <b-form-input
-                    v-model.trim="form.marriedName"
+                    v-model.trim="form.casada"
                     placeholder="Ingresar apellido de casada"
                   ></b-form-input>
                 </b-form-group>
@@ -69,8 +68,8 @@
                 <b-form-group label="Fecha de nacimiento:">
                   <b-form-input
                     type="date"
-                    v-model.trim="$v.form.birth.$model"
-                    :state="!$v.form.birth.$error"
+                    v-model.trim="$v.form.nacimiento.$model"
+                    :state="!$v.form.nacimiento.$error"
                     placeholder="Ingresar fecha de nacimiento"
                   ></b-form-input>
                 </b-form-group>
@@ -78,8 +77,8 @@
               <b-col md="4">
                 <b-form-group label="Dirección:">
                   <b-form-input
-                    v-model.trim="$v.form.address.$model"
-                    :state="!$v.form.address.$error"
+                    v-model.trim="$v.form.direccion.$model"
+                    :state="!$v.form.direccion.$error"
                     placeholder="Ingresar dirección"
                   ></b-form-input>
                 </b-form-group>
@@ -87,48 +86,6 @@
             </b-row>
             <b-row class="ml-2">
               <!-- columna -->
-              <b-col md="2">
-                <b-form-group label="Telefono:">
-                  <b-form-input
-                    v-model.trim="$v.form.phoneNumber.$model"
-                    :state="!$v.form.phoneNumber.$error"
-                    placeholder="Ingresar telefono"
-                  ></b-form-input>
-                  <div v-if="$v.form.phoneNumber.required.$invalid" class="invalid-feedback">
-                    Debe ingresar el telefono
-                  </div>
-                  <div v-if="$v.form.phoneNumber.numeric.$invalid" class="invalid-feedback">
-                    Debe ingresar unicamente numeros
-                  </div>
-                </b-form-group>
-              </b-col>
-              <!-- columna -->
-              <b-col md="2">
-                <b-form-group label="Correo:">
-                  <b-form-input
-                    v-model.trim="form.email"
-                    :state="!$v.form.email.$error"
-                    placeholder="Ingresar correo"
-                  ></b-form-input>
-                  <div v-if="$v.form.email.$invalid" class="invalid-feedback">
-                    Debe ingresar una direccion de correo válida
-                  </div>
-                </b-form-group>
-              </b-col>
-              <b-col md="2">
-                <b-form-group label="Sexo:">
-                  <v-select
-                    name="type"
-                    v-model="$v.form.sex.$model"
-                    :state="!$v.form.sex.$error"
-                    :options="genders"
-                    placeholder="Seleccione el sexo"
-                  />
-                  <div v-if="$v.form.sex.$error" class="invalid-feedback-vselect">
-                    Debe ingresar el Sexo
-                  </div>
-                </b-form-group>
-              </b-col>
               <b-col md="2">
                 <b-form-group label="CUI:">
                   <b-form-input
@@ -141,7 +98,110 @@
                   </div>
                 </b-form-group>
               </b-col>
-
+              <b-col md="2">
+                <b-form-group label="Nacionalidad:">
+                  <v-select
+                    name="type"
+                    v-model="$v.form.nacionalidad.$model"
+                    :state="!$v.form.nacionalidad.$error"
+                    :options="nacionalidades"
+                    placeholder="Seleccione nacionalidad"
+                  />
+                  <div v-if="$v.form.nacionalidad.$error" class="invalid-feedback-vselect">
+                    Debe ingresar la nacionalidad del paciente
+                  </div>
+                </b-form-group>
+              </b-col>
+              <b-col md="2">
+                <b-form-group label="Telefono:">
+                  <b-form-input
+                    v-model.trim="$v.form.telefono.$model"
+                    :state="!$v.form.telefono.$error"
+                    placeholder="Ingresar telefono"
+                  ></b-form-input>
+                  <div v-if="$v.form.telefono.required.$invalid" class="invalid-feedback">
+                    Debe ingresar el telefono
+                  </div>
+                  <div v-if="$v.form.telefono.numeric.$invalid" class="invalid-feedback">
+                    Debe ingresar unicamente numeros
+                  </div>
+                </b-form-group>
+              </b-col>
+              <!-- columna -->
+              <b-col md="2">
+                <b-form-group label="Sexo:">
+                  <v-select
+                    name="type"
+                    v-model="$v.form.generos.$model"
+                    :state="!$v.form.generos.$error"
+                    :options="generos"
+                    placeholder="Seleccione el sexo"
+                  />
+                  <div v-if="$v.form.generos.$error" class="invalid-feedback-vselect">
+                    Debe ingresar el Sexo
+                  </div>
+                </b-form-group>
+              </b-col>
+            </b-row>
+            <!-- Datos de encargado -->
+            <h4 class="card-title mt-3">Ingreso de encargado</h4>
+            <b-row class="ml-2">
+              <!-- columna -->
+              <b-col md="2">
+                <b-form-group label="Nombre:">
+                  <b-form-input
+                    v-model.trim="$v.form.nombre_encargado.$model"
+                    :state="!$v.form.nombre_encargado.$error"
+                    placeholder="Ingresar nombre"
+                  ></b-form-input>
+                  <div v-if="$v.form.nombre_encargado.required.$invalid" class="invalid-feedback">
+                    Debe ingresar el nombre del encargado
+                  </div>
+                </b-form-group>
+              </b-col>
+              <b-col md="2">
+                <b-form-group label="Telefono:">
+                  <b-form-input
+                    v-model.trim="$v.form.contacto_encargado.$model"
+                    :state="!$v.form.contacto_encargado.$error"
+                    placeholder="Ingresar telefono"
+                  ></b-form-input>
+                  <div v-if="$v.form.contacto_encargado.required.$invalid" class="invalid-feedback">
+                    Debe ingresar el telefono
+                  </div>
+                  <div v-if="$v.form.contacto_encargado.numeric.$invalid" class="invalid-feedback">
+                    Debe ingresar unicamente numeros
+                  </div>
+                </b-form-group>
+              </b-col>
+              <!-- columna -->
+              <b-col md="2">
+                <b-form-group label="CUI:">
+                  <b-form-input
+                    v-model.trim="$v.form.cui_encargado.$model"
+                    :state="!$v.form.cui_encargado.$error"
+                    placeholder="Ingresar el CUI"
+                  ></b-form-input>
+                  <div v-if="$v.form.cui_encargado.$error" class="invalid-feedback">
+                    El valor del CUI debe ser numerico.
+                  </div>
+                </b-form-group>
+              </b-col>
+              <b-col md="2">
+                <b-form-group label="Parentesco:">
+                  <v-select
+                    name="type"
+                    v-model="$v.form.parentesco_encargado.$model"
+                    :state="!$v.form.parentesco_encargado.$error"
+                    :options="parentescos"
+                    placeholder="Seleccione parentesco"
+                  />
+                  <div v-if="$v.form.parentesco_encargado.$error" class="invalid-feedback-vselect">
+                    Debe ingresar el parentesco con el paciente
+                  </div>
+                </b-form-group>
+              </b-col>
+              <!-- columna -->
             </b-row>
           </template>
         </iq-card>
@@ -152,119 +212,79 @@
       <b-col md="12">
         <iq-card>
           <template v-slot:headerTitle>
-            <h4 class="card-title mt-3">Ingreso de encargado</h4>
+            <h4 class="card-title mt-3">Detalles de ingreso</h4>
           </template>
           <template v-slot:body>
             <!-- fila -->
             <b-row class="ml-2">
               <!-- columna -->
+              <b-col md="4">
+                <b-form-group label="Motivo de ingreso:">
+                  <quill-editor
+                    ref="myQuillEditor"
+                    v-model.trim="$v.form.motivo.$model"
+                    :state="!$v.form.motivo.$error"
+                    :options="editorOption"
+                    theme="snow"
+                  />
+                </b-form-group>
+              </b-col>
+              <b-col md="1">
+                <b-form-group label="Paciente:">
+                  <b-form-radio
+                    v-model="form.tipo_paciente"
+                    value="0"
+                    name="customRadio"
+                    @change="getHabitaciones(form.tipo_paciente)"
+                  >Normal</b-form-radio>
+                  <b-form-radio
+                    v-model="form.tipo_paciente"
+                    value="1"
+                    name="customRadio"
+                    @change="getHabitaciones(form.tipo_paciente)"
+                  >Ambulatorio</b-form-radio>
+                </b-form-group>
+              </b-col>
               <b-col md="2">
-                <b-form-group label="Nombre:">
-                  <b-form-input
-                    v-model.trim="$v.form.name.$model"
-                    :state="!$v.form.name.$error"
-                    placeholder="Ingresar nombre"
-                  ></b-form-input>
-                  <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
-                    Debe ingresar el nombre
+                <b-form-group label="Habitaciones disponibles:">
+                  <v-select
+                    name="habitacion"
+                    v-model="$v.form.habitacion.$model"
+                    :state="!$v.form.habitacion.$error"
+                    :options="habitaciones"
+                    :filterable="false"
+                    placeholder="Seleccione una habitación disponible"
+                  >
+                    <template v-slot:option="option">
+                      {{ option.numero + ' - Tipo: ' + option.tipo }}
+                    </template>
+                    <template slot="selected-option" slot-scope="option">
+                      {{ option.numero + ' - Tipo: ' + option.tipo }}
+                    </template>
+                  </v-select>
+                  <div v-if="$v.form.habitacion.$error" class="invalid-feedback-vselect">
+                    Debe ingresar habitación para el paciente
                   </div>
                 </b-form-group>
               </b-col>
-              <!-- columna -->
               <b-col md="2">
-                <b-form-group label="Apellido:">
-                  <b-form-input
-                    v-model.trim="$v.form.secondName.$model"
-                    :state="!$v.form.secondName.$error"
-                    placeholder="Ingresar apellido"
-                  ></b-form-input>
-                  <div v-if="$v.form.secondName.required.$invalid" class="invalid-feedback">
-                    Debe ingresar el apellido
-                  </div>
-                </b-form-group>
-              </b-col>
-              <b-col md="2">
-                <b-form-group label="Apellido de casada:">
-                  <b-form-input
-                    v-model.trim="form.marriedName"
-                    placeholder="Ingresar apellido de casada"
-                  ></b-form-input>
-                </b-form-group>
-              </b-col>
-              <b-col md="2">
-                <b-form-group label="Fecha de nacimiento:">
+                <b-form-group label="Fecha de ingreso:">
                   <b-form-input
                     type="date"
-                    v-model.trim="$v.form.birth.$model"
-                    :state="!$v.form.birth.$error"
-                    placeholder="Ingresar fecha de nacimiento"
+                    v-model.trim="$v.form.fecha_hora.$model"
+                    :state="!$v.form.fecha_hora.$error"
+                    placeholder="Ingresar fecha y hora de ingreso"
                   ></b-form-input>
-                </b-form-group>
-              </b-col>
-              <b-col md="4">
-                <b-form-group label="Dirección:">
-                  <b-form-input
-                    v-model.trim="$v.form.address.$model"
-                    :state="!$v.form.address.$error"
-                    placeholder="Ingresar dirección"
-                  ></b-form-input>
-                </b-form-group>
-              </b-col>
-            </b-row>
-            <b-row class="ml-2">
-              <!-- columna -->
-              <b-col md="2">
-                <b-form-group label="Telefono:">
-                  <b-form-input
-                    v-model.trim="$v.form.phoneNumber.$model"
-                    :state="!$v.form.phoneNumber.$error"
-                    placeholder="Ingresar telefono"
-                  ></b-form-input>
-                  <div v-if="$v.form.phoneNumber.required.$invalid" class="invalid-feedback">
-                    Debe ingresar el telefono
-                  </div>
-                  <div v-if="$v.form.phoneNumber.numeric.$invalid" class="invalid-feedback">
-                    Debe ingresar unicamente numeros
-                  </div>
-                </b-form-group>
-              </b-col>
-              <!-- columna -->
-              <b-col md="2">
-                <b-form-group label="Correo:">
-                  <b-form-input
-                    v-model.trim="form.email"
-                    :state="!$v.form.email.$error"
-                    placeholder="Ingresar correo"
-                  ></b-form-input>
-                  <div v-if="$v.form.email.$invalid" class="invalid-feedback">
-                    Debe ingresar una direccion de correo válida
-                  </div>
                 </b-form-group>
               </b-col>
               <b-col md="2">
-                <b-form-group label="Sexo:">
-                  <v-select
-                    name="type"
-                    v-model="$v.form.sex.$model"
-                    :state="!$v.form.sex.$error"
-                    :options="genders"
-                    placeholder="Seleccione el sexo"
-                  />
-                  <div v-if="$v.form.sex.$error" class="invalid-feedback-vselect">
-                    Debe ingresar el Sexo
-                  </div>
-                </b-form-group>
-              </b-col>
-              <b-col md="2">
-                <b-form-group label="CUI:">
+                <b-form-group label="Hora de ingreso:">
                   <b-form-input
-                    v-model.trim="$v.form.cui.$model"
-                    :state="!$v.form.cui.$error"
-                    placeholder="Ingresar el CUI"
+                    type="date"
+                    v-model.trim="$v.form.fecha_hora.$model"
+                    :state="!$v.form.fecha_hora.$error"
+                    placeholder="Ingresar fecha y hora de ingreso"
                   ></b-form-input>
-                  <div v-if="$v.form.cui.$error" class="invalid-feedback">
-                    El valor del CUI debe ser numerico.
-                  </div>
                 </b-form-group>
               </b-col>
             </b-row>
@@ -276,155 +296,31 @@
       </b-col>
     </b-row>
     <!-- Empieza datos del conyuge -->
-    <b-row>
-      <b-col md="12">
-        <iq-card>
-          <template v-slot:headerTitle>
-            <h4 class="card-title mt-3">Ingreso de conyuge</h4>
-          </template>
-          <template v-slot:body>
-            <!-- fila -->
-            <b-row class="ml-2">
-              <!-- columna -->
-              <b-col md="2">
-                <b-form-group label="Nombre:">
-                  <b-form-input
-                    v-model.trim="$v.form.name.$model"
-                    :state="!$v.form.name.$error"
-                    placeholder="Ingresar nombre"
-                  ></b-form-input>
-                  <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
-                    Debe ingresar el nombre
-                  </div>
-                </b-form-group>
-              </b-col>
-              <!-- columna -->
-              <b-col md="2">
-                <b-form-group label="Apellido:">
-                  <b-form-input
-                    v-model.trim="$v.form.secondName.$model"
-                    :state="!$v.form.secondName.$error"
-                    placeholder="Ingresar apellido"
-                  ></b-form-input>
-                  <div v-if="$v.form.secondName.required.$invalid" class="invalid-feedback">
-                    Debe ingresar el apellido
-                  </div>
-                </b-form-group>
-              </b-col>
-              <b-col md="2">
-                <b-form-group label="Apellido de casada:">
-                  <b-form-input
-                    v-model.trim="form.marriedName"
-                    placeholder="Ingresar apellido de casada"
-                  ></b-form-input>
-                </b-form-group>
-              </b-col>
-              <b-col md="2">
-                <b-form-group label="Fecha de nacimiento:">
-                  <b-form-input
-                    type="date"
-                    v-model.trim="$v.form.birth.$model"
-                    :state="!$v.form.birth.$error"
-                    placeholder="Ingresar fecha de nacimiento"
-                  ></b-form-input>
-                </b-form-group>
-              </b-col>
-              <b-col md="4">
-                <b-form-group label="Dirección:">
-                  <b-form-input
-                    v-model.trim="$v.form.address.$model"
-                    :state="!$v.form.address.$error"
-                    placeholder="Ingresar dirección"
-                  ></b-form-input>
-                </b-form-group>
-              </b-col>
-            </b-row>
-            <b-row class="ml-2">
-              <!-- columna -->
-              <b-col md="2">
-                <b-form-group label="Telefono:">
-                  <b-form-input
-                    v-model.trim="$v.form.phoneNumber.$model"
-                    :state="!$v.form.phoneNumber.$error"
-                    placeholder="Ingresar telefono"
-                  ></b-form-input>
-                  <div v-if="$v.form.phoneNumber.required.$invalid" class="invalid-feedback">
-                    Debe ingresar el telefono
-                  </div>
-                  <div v-if="$v.form.phoneNumber.numeric.$invalid" class="invalid-feedback">
-                    Debe ingresar unicamente numeros
-                  </div>
-                </b-form-group>
-              </b-col>
-              <!-- columna -->
-              <b-col md="2">
-                <b-form-group label="Correo:">
-                  <b-form-input
-                    v-model.trim="form.email"
-                    :state="!$v.form.email.$error"
-                    placeholder="Ingresar correo"
-                  ></b-form-input>
-                  <div v-if="$v.form.email.$invalid" class="invalid-feedback">
-                    Debe ingresar una direccion de correo válida
-                  </div>
-                </b-form-group>
-              </b-col>
-              <b-col md="2">
-                <b-form-group label="Sexo:">
-                  <v-select
-                    name="type"
-                    v-model="$v.form.sex.$model"
-                    :state="!$v.form.sex.$error"
-                    :options="genders"
-                    placeholder="Seleccione el sexo"
-                  />
-                  <div v-if="$v.form.sex.$error" class="invalid-feedback-vselect">
-                    Debe ingresar el Sexo
-                  </div>
-                </b-form-group>
-              </b-col>
-              <b-col md="2">
-                <b-form-group label="CUI:">
-                  <b-form-input
-                    v-model.trim="$v.form.cui.$model"
-                    :state="!$v.form.cui.$error"
-                    placeholder="Ingresar el CUI"
-                  ></b-form-input>
-                  <div v-if="$v.form.cui.$error" class="invalid-feedback">
-                    El valor del CUI debe ser numerico.
-                  </div>
-                </b-form-group>
-              </b-col>
-            </b-row>
-            <b-row class="ml-2">
-              <!-- columna -->
-            </b-row>
-            <b-button block variant="primary" @click="onValidate">Registrar paciente</b-button>
-          </template>
-        </iq-card>
-      </b-col>
-    </b-row>
+    <b-button block variant="primary" @click="onValidate">Registrar paciente</b-button>
   </b-container>
 </template>
 <script>
 import { xray } from '../../../../config/pluginInit'
 import useVuelidate from '@vuelidate/core'
-import { required, email, numeric } from '@vuelidate/validators'
+import { required, numeric } from '@vuelidate/validators'
 import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
 import { mapGetters } from 'vuex'
+import 'quill/dist/quill.core.css'
+import 'quill/dist/quill.snow.css'
+import 'quill/dist/quill.bubble.css'
+import { quillEditor } from 'vue-quill-editor'
 
 export default {
   name: 'Patients',
   components: {
+    quillEditor
   },
   setup () {
     return { $v: useVuelidate() }
   },
   beforeMount () {
-    this.getLaguages()
-    this.getNationalities()
-    this.getBloods()
+    this.getHabitaciones(0)
     this.form.id_usuario = this.currentUser.uid
   },
   mounted () {
@@ -437,6 +333,22 @@ export default {
   },
   data () {
     return {
+      hours: Array.from({ length: 24 }, (_, index) => index),
+      editorOption: {
+        placeholder: '',
+        modules: {
+          toolbar: [
+            ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+            [
+              { list: 'ordered' },
+              { list: 'bullet' },
+              { indent: '-1' },
+              { indent: '+1' }
+            ],
+            ['clean']
+          ]
+        }
+      },
       from: 0,
       to: 0,
       total: 0,
@@ -444,33 +356,29 @@ export default {
       search: '',
       form: {
         id: 0,
-        name: '',
-        secondName: '',
-        marriedName: '',
-        address: '',
-        fileNumber: '',
-        birth: '',
-        phoneNumber: '',
-        email: '',
-        sex: '',
-        cui: '',
-        parentName: '',
-        parentCUI: '',
-        afiliado: '',
-        origin: '',
-        maritalStatus: '',
-        age: '',
-        tutor: '',
-        language: [],
-        blood: [],
-        nationality: [],
+        nombre: '',
+        apellidos: '',
+        casada: '',
+        nacimiento: null,
+        cui: null,
+        nacionalidad: null,
+        telefono: '',
+        direccion: '',
+        generos: '',
+        nombre_encargado: '',
+        contacto_encargado: '',
+        parentesco_encargado: '',
+        motivo: '',
+        fecha_hora: null,
+        habitacion: null,
+        tipo_paciente: 0,
         state: 1,
         id_usuario: null
       },
-      languages: [],
-      bloods: [],
-      nationalities: [],
-      genders: ['M', 'F'],
+      nacionalidades: ['Guatemala', 'El Salvador', 'México', 'Honduras', 'Belice', 'Otro'],
+      generos: ['Masculino', 'Femenino'],
+      parentescos: ['Padre/Madre', 'Hermano/a', 'Hijo/a', 'Cónyuge', 'Otro'],
+      habitaciones: [],
       alertSecs: 5,
       alertCountDown: 0,
       alertCountDownError: 0,
@@ -483,40 +391,49 @@ export default {
   validations () {
     return {
       form: {
-        name: {
+        nombre: {
           required
         },
-        secondName: {
+        apellidos: {
           required
         },
-        phoneNumber: {
+        telefono: {
           required, numeric
         },
-        birth: {
+        nacimiento: {
         },
-        email: {
-          email
+        generos: {
+          required
         },
-        sex: {
+        nacionalidad: {
           required
         },
         cui: {
           numeric
         },
-        maritalStatus: {},
-        language: {},
-        nationality: {},
-        blood: {},
-        address: {
+        direccion: {
         },
-        parentName: {
+        nombre_encargado: {
+          required
         },
-        parentCUI: {
+        contacto_encargado: {
+          required,
           numeric
         },
-        afiliado: {
+        cui_encargado: {
+          numeric
         },
-        origin: {
+        parentesco_encargado: {
+          required
+        },
+        motivo: {
+          required
+        },
+        habitacion: {
+          required
+        },
+        fecha_hora: {
+          required
         }
       }
     }
@@ -534,13 +451,13 @@ export default {
     /* Guardar */
     onSave () {
       const me = this
-      axios.post(apiUrl + '/paciente/create', {
+      axios.post(apiUrl + '/expedientes/create', {
         form: me.form })
         .then(() => {
           me.alertVariant = 'success'
           me.showAlert()
-          me.alertText = 'Se ha creado el paciente ' + me.form.name + ' exitosamente'
-          me.$router.push({ name: 'patient.patients' })
+          me.alertText = 'Se ha creado el paciente ' + me.form.nombre + ' ' + me.form.apellidos + ' exitosamente'
+          me.$router.push({ name: 'caja.expedientes' })
         })
         .catch((error) => {
           me.alertVariant = 'danger'
@@ -549,41 +466,20 @@ export default {
           console.error('Error!', error)
         })
     },
-    /* Guardar */
-    getLaguages () {
-      axios.get(apiUrl + '/idioma/get').then((response) => {
-        this.languages = response.data
-      })
-    },
-    getBloods () {
-      axios.get(apiUrl + '/sangre/get').then((response) => {
-        this.bloods = response.data
-      })
-    },
-    getNationalities () {
-      axios.get(apiUrl + '/nacionalidad/get').then((response) => {
-        this.nationalities = response.data
-      })
-    },
     showAlert () {
       this.alertCountDown = this.alertSecs
     },
     showAlertError () {
       this.alertCountDownError = this.alertSecs
     },
-    backToPatients () {
-      this.$router.push({ name: 'patient.patients' })
-    },
-    nationalityModal () {
-      this.$refs.nationalityModal.openModal()
-    },
-    savedNationality (nationality) {
-      // console.log('holaaaaaaaaa')
-      this.alertVariant = 'success'
-      this.showAlert()
-      this.alertText = 'Se la nacionalidad: ' + nationality.nombre + ' exitosamente'
-      this.getNationalities()
-      this.form.nationality = nationality
+    getHabitaciones (num) {
+      axios.get(apiUrl + '/habitaciones/get', {
+        params: {
+          tipo: num
+        }
+      }).then((response) => {
+        this.habitaciones = response.data
+      })
     }
   }
 }

@@ -102,6 +102,7 @@ import EgresosParent from '../views/App/Caja/Egresos/EgresosParent'
 import Expedientes from '../views/App/Caja/Expedientes/Expedientes'
 import CuentasList from '../views/App/Caja/Cuentas/CuentasList'
 import Ingresos from '../views/App/Caja/Ingresos/Ingresos'
+import Reingresos from '../views/App/Caja/Ingresos/IngresoPrevio'
 
 // enfermeria
 import PedidosFarmaciaParent from '../views/App/Enfermeria/Pedidos/PedidosFarmaciaParent'
@@ -225,6 +226,12 @@ const CajaRoutes = (prop, mode) => [
     name: prop + '.ingresos',
     meta: { dark: mode, auth: true, name: 'ingresos' },
     component: Ingresos
+  },
+  {
+    path: 'reingresos',
+    name: prop + '.reingresos',
+    meta: { dark: mode, auth: true, name: 'reingresos' },
+    component: Reingresos
   }
 ]
 

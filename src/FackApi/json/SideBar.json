@@ -55,11 +55,22 @@
         "icon": "ri-file-reduce-line"
       },
       {
-        "title": "Ingresos",
-        "name": "Ingresos",
+        "title": "Nuevo Ingreso",
+        "name": "Nuevo Ingreso",
         "is_active": false,
         "link": {
           "name" : "caja.ingresos"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-user-add-fill"
+      },
+      {
+        "title": "Reingreso",
+        "name": "Reingreso",
+        "is_active": false,
+        "link": {
+          "name" : "caja.reingresos"
         },
         "class_name": "",
         "is_icon_class": true,
