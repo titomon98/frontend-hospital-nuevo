@@ -10,38 +10,7 @@
     >
       <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
-    <b-modal id="modal-1-bank" ref="modal-1-bank" title="Agregar banco">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
-      >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
-      </b-alert>
-      <b-form @submit="$event.preventDefault()">
-        <b-form-group label="Nombre:">
-          <b-form-input
-            v-model.trim="$v.form.name.$model"
-            :state="!$v.form.name.$error"
-            placeholder="Ingresar nombre del banco"
-          ></b-form-input>
-          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
-            Debe ingresar el nombre
-          </div>
-        </b-form-group>
-      </b-form>
-      <template #modal-footer="{}">
-        <b-button variant="primary" @click="onValidate('save')"
-          >Guardar</b-button
-        >
-        <b-button variant="danger" @click="closeModal('save')"
-          >Cancelar</b-button
-        >
-      </template>
-    </b-modal>
-    <b-modal id="modal-2-bank" ref="modal-2-bank" title="Editar banco">
+    <b-modal id="modal-2-expediente" ref="modal-2-expediente" title="Editar expediente">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -72,58 +41,6 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-3-bank" ref="modal-3-bank" title="Desactivar banco">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
-      >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
-      </b-alert>
-      <h6 class="my-4">
-        ¿Desea desactivar el banco: {{ form.name }} ?
-      </h6>
-      <template #modal-footer="{}">
-        <b-button
-          type="submit"
-          variant="primary"
-          @click="onState()
-                  $bvModal.hide('modal-3-bank')"
-          >Desactivar</b-button
-        >
-        <b-button variant="danger" @click="$bvModal.hide('modal-3-bank')"
-          >Cancelar</b-button
-        >
-      </template>
-    </b-modal>
-    <b-modal id="modal-4-bank" ref="modal-4-bank" title="Activar banco">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
-      >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
-      </b-alert>
-      <h6 class="my-4">
-        ¿Desea activar al banco: {{ form.name }} ?
-      </h6>
-      <template #modal-footer="{}">
-        <b-button
-          type="submit"
-          variant="primary"
-          @click="onState()
-                  $bvModal.hide('modal-4-bank')"
-          >Activar</b-button
-        >
-        <b-button variant="danger" @click="$bvModal.hide('modal-4-bank')"
-          >Cancelar</b-button
-        >
-      </template>
-    </b-modal>
     <b-row>
       <b-col md="12">
         <iq-card>
@@ -137,7 +54,6 @@
               </div>
             </template>
             <template v-slot:headerAction>
-            <b-button variant="primary"  v-b-modal.modal-1-bank>AGREGAR NUEVO</b-button>
           </template>
           <template v-slot:body>
             <datatable-heading
@@ -161,17 +77,14 @@
               @vuetable:pagination-data="onPaginationData"
             >
               <!-- Estado -->
+              <!-- Estado -->
               <div slot="estado" slot-scope="props">
-                <h5 v-if="props.rowData.estado == 1">
-                  <b-badge variant="light"
-                    ><h6 class="success"><strong>ACTIVO</strong></h6></b-badge
-                  >
-                </h5>
-                <h5 v-else>
-                  <b-badge variant="light"
-                    ><h6 class="danger"><strong>INACTIVO</strong></h6></b-badge
-                  >
-                </h5>
+                <button v-if="props.rowData.estado === 1" type="button" class="btn btn-success" disabled>INGRESADO EN HOSPITAL</button>
+                <button v-if="props.rowData.estado === 2" type="button" class="btn btn-warning" disabled>EGRESADO</button>
+                <button v-if="props.rowData.estado === 3" type="button" class="btn btn-success" disabled>INGRESADO EN QUIRÓFANO</button>
+                <button v-if="props.rowData.estado === 4" type="button" class="btn btn-success" disabled>INGRESADO EN INTENSIVO</button>
+                <button v-if="props.rowData.estado === 5" type="button" class="btn btn-success" disabled>INGRESADO EN EMERGENCIA</button>
+                <button v-if="props.rowData.estado === 0" type="button" class="btn btn-dark" disabled>FALLECIDO</button>
               </div>
               <!-- Botones -->
               <template slot="actions" slot-scope="props">
@@ -179,30 +92,27 @@
                   <b-button
                     v-b-tooltip.top="'Editar'"
                     @click="setData(props.rowData)"
-                    v-b-modal.modal-2-bank
+                    v-b-modal.modal-2-expediente
                     class="mb-2"
                     size="sm"
                     variant="outline-warning"
                     ><i :class="'fas fa-pencil-alt'"
                   /></b-button>
                   <b-button
-                    v-b-tooltip.top="
-                      props.rowData.estado == 1 ? 'Desactivar' : 'Activar'"
-                    @click="
-                      setData(props.rowData);
-                      props.rowData.estado == 1
-                        ? $bvModal.show('modal-3-bank')
-                        : $bvModal.show('modal-4-bank');
-                    "
+                    v-b-tooltip.top="'Trasladar'"
+                    @click="setData(props.rowData)"
                     class="mb-2"
                     size="sm"
-                    :variant="
-                      props.rowData.estado == 1 ? 'outline-danger' : 'outline-info'">
-                    <i
-                      :class="
-                        props.rowData.estado == 1
-                          ? 'fas fa-trash-alt'
-                          : 'fas fa-check'"
+                    variant="outline-success"
+                    ><i :class="'fas fa-heart'"
+                  /></b-button>
+                  <b-button
+                    v-b-tooltip.top="'Detalle de cuentas previas'"
+                    @click="setData(props.rowData)"
+                    class="mb-2"
+                    size="sm"
+                    variant="outline-dark"
+                    ><i :class="'fas fa-list-alt'"
                   /></b-button>
                 </b-button-group>
               </template>
@@ -259,7 +169,7 @@ export default {
       alertText: '',
       alertErrorText: '',
       alertVariant: '',
-      apiBase: apiUrl + '/banco/list',
+      apiBase: apiUrl + '/expedientes/list',
       fields: [
         {
           name: '__slot:actions',
@@ -268,9 +178,45 @@ export default {
           dataClass: 'text-muted'
         },
         {
-          name: 'nombre',
-          sortField: 'name',
+          name: 'nombres',
+          sortField: 'nombres',
           title: 'Nombre',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'apellidos',
+          sortField: 'apellidos',
+          title: 'Apellidos',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'expediente',
+          sortField: 'expediente',
+          title: 'Expediente',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'nacimiento',
+          sortField: 'nacimiento',
+          title: 'Fecha de nacimiento',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'genero',
+          sortField: 'genero',
+          title: 'Género',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'nombre_encargado',
+          sortField: 'nombre_encargado',
+          title: 'Nombre de encargado',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'contacto_encargado',
+          sortField: 'contacto_encargado',
+          title: 'Contacto de encargado',
           dataClass: 'list-item-heading'
         },
         {
@@ -304,17 +250,9 @@ export default {
     },
     closeModal (action) {
       switch (action) {
-        case 'save': {
-          this.$v.$reset()
-          this.$refs['modal-1-bank'].hide()
-          this.form.id = 0
-          this.form.name = ''
-          this.form.state = 1
-          break
-        }
         case 'update': {
           this.$v.$reset()
-          this.$refs['modal-2-bank'].hide()
+          this.$refs['modal-2-expediente'].hide()
           this.form.id = 0
           this.form.name = ''
           this.form.state = 1
@@ -341,34 +279,15 @@ export default {
       this.form.id = data.id
     },
     /* Guardar */
-    onSave () {
-      const me = this
-      axios.post(apiUrl + '/banco/create', {
-        form: me.form })
-        .then((response) => {
-          me.alertVariant = 'success'
-          me.showAlert()
-          me.alertText = 'Se ha creado el banco ' + me.form.name + ' exitosamente'
-          me.$refs.vuetable.refresh()
-          me.closeModal('save')
-        })
-        .catch((error) => {
-          me.alertVariant = 'danger'
-          me.showAlertError()
-          me.alertErrorText = error.response.data.msg
-          console.error('Error!', error)
-        })
-    },
-    /* Guardar */
     onUpdate () {
       const me = this
       // this.$refs["modalSave"].hide();
-      axios.put(apiUrl + '/banco/update', {
+      axios.put(apiUrl + '/expedientes/update', {
         form: me.form })
         .then((response) => {
           me.alertVariant = 'primary'
           me.showAlert()
-          me.alertText = 'Se ha actualizado el banco ' + me.form.name + ' exitosamente'
+          me.alertText = 'Se ha actualizado el expediente ' + me.form.nombre + ' exitosamente'
           me.$refs.vuetable.refresh()
           me.closeModal('update')
         })
@@ -378,46 +297,6 @@ export default {
           me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
           console.error('Error!', error)
         })
-    },
-    onState () {
-      let me = this
-      if (this.form.state === 1) {
-        axios
-          .put(apiUrl + '/banco/deactivate', {
-            id: this.form.id
-          })
-          .then((response) => {
-            me.alertVariant = 'warning'
-            me.showAlert()
-            me.alertText = 'Se ha desactivado el banco ' + me.form.name + ' exitosamente'
-            me.$refs.vuetable.refresh()
-            me.$refs['modal-3-bank'].hide()
-          })
-          .catch((error) => {
-            me.alertVariant = 'danger'
-            me.showAlertError()
-            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-            console.error('There was an error!', error)
-          })
-      } else {
-        axios
-          .put(apiUrl + '/banco/activate', {
-            id: this.form.id
-          })
-          .then((response) => {
-            me.alertVariant = 'info'
-            me.showAlert()
-            me.alertText = 'Se ha activado el banco ' + me.form.name + ' exitosamente'
-            me.$refs.vuetable.refresh()
-            me.$refs['modal-4-bank'].hide()
-          })
-          .catch((error) => {
-            me.alertVariant = 'danger'
-            me.showAlertError()
-            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-            console.error('There was an error!', error)
-          })
-      }
     },
     makeQueryParams (sortOrder, currentPage, perPage) {
       return sortOrder[0]
