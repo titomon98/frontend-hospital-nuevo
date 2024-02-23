@@ -106,10 +106,10 @@ import Reingresos from '../views/App/Caja/Ingresos/IngresoPrevio'
 
 // enfermeria
 import PedidosFarmaciaParent from '../views/App/Enfermeria/Pedidos/PedidosFarmaciaParent'
-import EmergenciasParent from '../views/App/Enfermeria/Emergencias/EmergenciasParent'
-import HospitalizacionParent from '../views/App/Enfermeria/Hospitalizacion/HospitalizacionParent'
-import IntensivoParent from '../views/App/Enfermeria/Intensivo/IntensivoParent'
-import QuirofanoParent from '../views/App/Enfermeria/Quirofano/QuirofanoParent'
+import EmergenciasParent from '../views/App/Enfermeria/Emergencias/Emergencias'
+import HospitalizacionParent from '../views/App/Enfermeria/Hospitalizacion/Hospitalizacion'
+import IntensivoParent from '../views/App/Enfermeria/Intensivo/Intensivo'
+import QuirofanoParent from '../views/App/Enfermeria/Quirofano/Quirofano'
 import Habitaciones from '../views/App/Enfermeria/Habitaciones/Habitaciones'
 
 // farmacia

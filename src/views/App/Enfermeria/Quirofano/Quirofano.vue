@@ -10,7 +10,7 @@
     >
       <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
-    <b-modal id="modal-1-bank" ref="modal-1-bank" title="Agregar banco">
+    <b-modal id="modal-traslado" ref="modal-traslado" title="Trasladar paciente">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -21,27 +21,36 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <b-form @submit="$event.preventDefault()">
-        <b-form-group label="Nombre:">
-          <b-form-input
-            v-model.trim="$v.form.name.$model"
-            :state="!$v.form.name.$error"
-            placeholder="Ingresar nombre del banco"
-          ></b-form-input>
-          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
-            Debe ingresar el nombre
-          </div>
-        </b-form-group>
+        <b-col >
+          <b-form-group label="Área a la que desea trasladar:">
+            <b-form-radio
+              v-model="form.selectedOption"
+              value="hospi"
+              name="customRadio1"
+            >Hospitalización</b-form-radio>
+            <b-form-radio
+              v-model="form.selectedOption"
+              value="emergencia"
+              name="customRadio1"
+            >Emergencia</b-form-radio>
+            <b-form-radio
+              v-model="form.selectedOption"
+              value="intensivo"
+              name="customRadio1"
+            >Intensivo</b-form-radio>
+          </b-form-group>
+        </b-col>
       </b-form>
       <template #modal-footer="{}">
-        <b-button variant="primary" @click="onValidate('save')"
+        <b-button variant="primary" @click="saveTraslado('traslado')"
           >Guardar</b-button
         >
-        <b-button variant="danger" @click="closeModal('save')"
+        <b-button variant="danger" @click="closeModal('traslado')"
           >Cancelar</b-button
         >
       </template>
     </b-modal>
-    <b-modal id="modal-2-bank" ref="modal-2-bank" title="Editar banco">
+    <b-modal id="modal-add-receta" ref="modal-add-receta" title="Añadir receta">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -64,15 +73,15 @@
         </b-form-group>
       </b-form>
       <template #modal-footer="{}">
-        <b-button variant="primary" @click="onValidate('update')"
+        <b-button variant="primary" @click="onValidate('add-receta')"
           >Guardar</b-button
         >
-        <b-button variant="danger" @click="closeModal('update')"
+        <b-button variant="danger" @click="closeModal('add-receta')"
           >Cancelar</b-button
         >
       </template>
     </b-modal>
-    <b-modal id="modal-3-bank" ref="modal-3-bank" title="Desactivar banco">
+    <b-modal id="modal-ver-receta" ref="modal-ver-receta" title="Ver recetas">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -82,23 +91,28 @@
       >
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
-      <h6 class="my-4">
-        ¿Desea desactivar el banco: {{ form.name }} ?
-      </h6>
+      <b-form @submit="$event.preventDefault()">
+        <b-form-group label="Nombre:">
+          <b-form-input
+            v-model.trim="$v.form.name.$model"
+            :state="!$v.form.name.$error"
+            placeholder="Ingresar nombre de banco"
+          ></b-form-input>
+          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
+            Debe ingresar el nombre
+          </div>
+        </b-form-group>
+      </b-form>
       <template #modal-footer="{}">
-        <b-button
-          type="submit"
-          variant="primary"
-          @click="onState()
-                  $bvModal.hide('modal-3-bank')"
-          >Desactivar</b-button
+        <b-button variant="primary" @click="onValidate('ver-receta')"
+          >Guardar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-3-bank')"
+        <b-button variant="danger" @click="closeModal('ver-receta')"
           >Cancelar</b-button
         >
       </template>
     </b-modal>
-    <b-modal id="modal-4-bank" ref="modal-4-bank" title="Activar banco">
+    <b-modal id="modal-add-servicio" ref="modal-add-servicio" title="Añadir servicio">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -108,18 +122,54 @@
       >
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
-      <h6 class="my-4">
-        ¿Desea activar al banco: {{ form.name }} ?
-      </h6>
+      <b-form @submit="$event.preventDefault()">
+        <b-form-group label="Nombre:">
+          <b-form-input
+            v-model.trim="$v.form.name.$model"
+            :state="!$v.form.name.$error"
+            placeholder="Ingresar nombre de banco"
+          ></b-form-input>
+          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
+            Debe ingresar el nombre
+          </div>
+        </b-form-group>
+      </b-form>
       <template #modal-footer="{}">
-        <b-button
-          type="submit"
-          variant="primary"
-          @click="onState()
-                  $bvModal.hide('modal-4-bank')"
-          >Activar</b-button
+        <b-button variant="primary" @click="onValidate('add-servicio')"
+          >Guardar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-4-bank')"
+        <b-button variant="danger" @click="closeModal('add-servicio')"
+          >Cancelar</b-button
+        >
+      </template>
+    </b-modal>
+    <b-modal id="modal-ver-servicio" ref="modal-ver-servicio" title="Ver servicios">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <b-form @submit="$event.preventDefault()">
+        <b-form-group label="Nombre:">
+          <b-form-input
+            v-model.trim="$v.form.name.$model"
+            :state="!$v.form.name.$error"
+            placeholder="Ingresar nombre de banco"
+          ></b-form-input>
+          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
+            Debe ingresar el nombre
+          </div>
+        </b-form-group>
+      </b-form>
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click="onValidate('ver-servicio')"
+          >Guardar</b-button
+        >
+        <b-button variant="danger" @click="closeModal('ver-servicio')"
           >Cancelar</b-button
         >
       </template>
@@ -137,7 +187,6 @@
               </div>
             </template>
             <template v-slot:headerAction>
-            <b-button variant="primary"  v-b-modal.modal-1-bank>AGREGAR NUEVO</b-button>
           </template>
           <template v-slot:body>
             <datatable-heading
@@ -160,49 +209,48 @@
               pagination-path
               @vuetable:pagination-data="onPaginationData"
             >
-              <!-- Estado -->
-              <div slot="estado" slot-scope="props">
-                <h5 v-if="props.rowData.estado == 1">
-                  <b-badge variant="light"
-                    ><h6 class="success"><strong>ACTIVO</strong></h6></b-badge
-                  >
-                </h5>
-                <h5 v-else>
-                  <b-badge variant="light"
-                    ><h6 class="danger"><strong>INACTIVO</strong></h6></b-badge
-                  >
-                </h5>
-              </div>
               <!-- Botones -->
               <template slot="actions" slot-scope="props">
                 <b-button-group>
                   <b-button
-                    v-b-tooltip.top="'Editar'"
-                    @click="setData(props.rowData)"
-                    v-b-modal.modal-2-bank
+                    v-b-tooltip.top="'Trasladar'"
+                    @click="traslado(props.rowData.id)"
+                    class="mb-2"
+                    size="sm"
+                    variant="outline-primary"
+                    ><i :class="'fas fa-heart'"
+                  /></b-button>
+                  <b-button
+                    v-b-tooltip.top="'Agregar receta'"
+                    @click="addReceta(props.rowData.id)"
+                    class="mb-2"
+                    size="sm"
+                    variant="outline-dark"
+                    ><i :class="'fas fa-list-alt'"
+                  /></b-button>
+                  <b-button
+                    v-b-tooltip.top="'Ver recetas'"
+                    @click="verReceta(props.rowData.id)"
                     class="mb-2"
                     size="sm"
                     variant="outline-warning"
-                    ><i :class="'fas fa-pencil-alt'"
+                    ><i :class="'fas fa-eye'"
                   /></b-button>
                   <b-button
-                    v-b-tooltip.top="
-                      props.rowData.estado == 1 ? 'Desactivar' : 'Activar'"
-                    @click="
-                      setData(props.rowData);
-                      props.rowData.estado == 1
-                        ? $bvModal.show('modal-3-bank')
-                        : $bvModal.show('modal-4-bank');
-                    "
+                    v-b-tooltip.top="'Agregar servicios'"
+                    @click="addServicio(props.rowData.id)"
                     class="mb-2"
                     size="sm"
-                    :variant="
-                      props.rowData.estado == 1 ? 'outline-danger' : 'outline-info'">
-                    <i
-                      :class="
-                        props.rowData.estado == 1
-                          ? 'fas fa-trash-alt'
-                          : 'fas fa-check'"
+                    variant="outline-success"
+                    ><i :class="'fas fa-list-alt'"
+                  /></b-button>
+                  <b-button
+                    v-b-tooltip.top="'Ver servicios'"
+                    @click="verServicio(props.rowData.id)"
+                    class="mb-2"
+                    size="sm"
+                    variant="outline-secondary"
+                    ><i :class="'fas fa-eye'"
                   /></b-button>
                 </b-button-group>
               </template>
@@ -251,7 +299,8 @@ export default {
       form: {
         id: 0,
         name: '',
-        state: 1
+        state: 1,
+        selectedOption: 'hospi'
       },
       alertSecs: 5,
       alertCountDown: 0,
@@ -259,7 +308,7 @@ export default {
       alertText: '',
       alertErrorText: '',
       alertVariant: '',
-      apiBase: apiUrl + '/banco/list',
+      apiBase: apiUrl + '/expedientes/listQuirofano',
       fields: [
         {
           name: '__slot:actions',
@@ -268,17 +317,46 @@ export default {
           dataClass: 'text-muted'
         },
         {
-          name: 'nombre',
-          sortField: 'name',
+          name: 'nombres',
+          sortField: 'nombres',
           title: 'Nombre',
           dataClass: 'list-item-heading'
         },
         {
-          name: '__slot:estado',
-          title: 'Estado',
-          titleClass: '',
-          dataClass: 'text-muted',
-          width: '25%'
+          name: 'apellidos',
+          sortField: 'apellidos',
+          title: 'Apellidos',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'expediente',
+          sortField: 'expediente',
+          title: 'Expediente',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'nacimiento',
+          sortField: 'nacimiento',
+          title: 'Fecha de nacimiento',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'genero',
+          sortField: 'genero',
+          title: 'Género',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'nombre_encargado',
+          sortField: 'nombre_encargado',
+          title: 'Nombre de encargado',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'contacto_encargado',
+          sortField: 'contacto_encargado',
+          title: 'Contacto de encargado',
+          dataClass: 'list-item-heading'
         }
       ]
     }
@@ -304,17 +382,41 @@ export default {
     },
     closeModal (action) {
       switch (action) {
-        case 'save': {
+        case 'traslado': {
           this.$v.$reset()
-          this.$refs['modal-1-bank'].hide()
+          this.$refs['modal-traslado'].hide()
           this.form.id = 0
           this.form.name = ''
           this.form.state = 1
           break
         }
-        case 'update': {
+        case 'add-receta': {
           this.$v.$reset()
-          this.$refs['modal-2-bank'].hide()
+          this.$refs['modal-add-receta'].hide()
+          this.form.id = 0
+          this.form.name = ''
+          this.form.state = 1
+          break
+        }
+        case 'ver-receta': {
+          this.$v.$reset()
+          this.$refs['modal-ver-receta'].hide()
+          this.form.id = 0
+          this.form.name = ''
+          this.form.state = 1
+          break
+        }
+        case 'add-servicio': {
+          this.$v.$reset()
+          this.$refs['modal-add-servicio'].hide()
+          this.form.id = 0
+          this.form.name = ''
+          this.form.state = 1
+          break
+        }
+        case 'ver-servicio': {
+          this.$v.$reset()
+          this.$refs['modal-ver-servicio'].hide()
           this.form.id = 0
           this.form.name = ''
           this.form.state = 1
@@ -335,40 +437,51 @@ export default {
         this.showAlertError()
       }
     },
-    setData (data) {
-      this.form.name = data.nombre
-      this.form.state = data.estado
-      this.form.id = data.id
+    traslado (id) {
+      this.$refs['modal-traslado'].show()
+      this.form.id = id
     },
-    /* Guardar */
-    onSave () {
+    saveTraslado () {
       const me = this
-      axios.post(apiUrl + '/banco/create', {
-        form: me.form })
-        .then((response) => {
-          me.alertVariant = 'success'
-          me.showAlert()
-          me.alertText = 'Se ha creado el banco ' + me.form.name + ' exitosamente'
-          me.$refs.vuetable.refresh()
-          me.closeModal('save')
-        })
-        .catch((error) => {
-          me.alertVariant = 'danger'
-          me.showAlertError()
-          me.alertErrorText = error.response.data.msg
-          console.error('Error!', error)
-        })
-    },
-    /* Guardar */
-    onUpdate () {
-      const me = this
-      // this.$refs["modalSave"].hide();
-      axios.put(apiUrl + '/banco/update', {
+      axios.put(apiUrl + '/expedientes/changeStatus', {
         form: me.form })
         .then((response) => {
           me.alertVariant = 'primary'
           me.showAlert()
-          me.alertText = 'Se ha actualizado el banco ' + me.form.name + ' exitosamente'
+          me.alertText = 'Se ha trasladado el expediente ' + me.form.nombre + ' exitosamente'
+          me.$refs.vuetable.refresh()
+          me.closeModal('traslado')
+          me.form.id = 0
+          me.form.selectedOption = 'hospi'
+        })
+        .catch((error) => {
+          me.alertVariant = 'danger'
+          me.showAlertError()
+          me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+          console.error('Error!', error)
+        })
+    },
+    addReceta (id) {
+      this.$refs['modal-add-receta'].show()
+    },
+    verReceta (id) {
+      this.$refs['modal-ver-receta'].show()
+    },
+    addServicio (id) {
+      this.$refs['modal-add-servicio'].show()
+    },
+    verServicio (id) {
+      this.$refs['modal-ver-servicio'].show()
+    },
+    /* Guardar */
+    onUpdate () {
+      const me = this
+      axios.put(apiUrl + '/expedientes/update', {
+        form: me.form })
+        .then((response) => {
+          me.alertVariant = 'primary'
+          me.showAlert()
+          me.alertText = 'Se ha actualizado el expediente ' + me.form.nombre + ' exitosamente'
           me.$refs.vuetable.refresh()
           me.closeModal('update')
         })
@@ -378,46 +491,6 @@ export default {
           me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
           console.error('Error!', error)
         })
-    },
-    onState () {
-      let me = this
-      if (this.form.state === 1) {
-        axios
-          .put(apiUrl + '/banco/deactivate', {
-            id: this.form.id
-          })
-          .then((response) => {
-            me.alertVariant = 'warning'
-            me.showAlert()
-            me.alertText = 'Se ha desactivado el banco ' + me.form.name + ' exitosamente'
-            me.$refs.vuetable.refresh()
-            me.$refs['modal-3-bank'].hide()
-          })
-          .catch((error) => {
-            me.alertVariant = 'danger'
-            me.showAlertError()
-            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-            console.error('There was an error!', error)
-          })
-      } else {
-        axios
-          .put(apiUrl + '/banco/activate', {
-            id: this.form.id
-          })
-          .then((response) => {
-            me.alertVariant = 'info'
-            me.showAlert()
-            me.alertText = 'Se ha activado el banco ' + me.form.name + ' exitosamente'
-            me.$refs.vuetable.refresh()
-            me.$refs['modal-4-bank'].hide()
-          })
-          .catch((error) => {
-            me.alertVariant = 'danger'
-            me.showAlertError()
-            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-            console.error('There was an error!', error)
-          })
-      }
     },
     makeQueryParams (sortOrder, currentPage, perPage) {
       return sortOrder[0]

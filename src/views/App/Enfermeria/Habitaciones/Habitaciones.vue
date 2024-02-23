@@ -102,12 +102,17 @@
               <div slot="estado" slot-scope="props">
                 <h5 v-if="props.rowData.estado == 1">
                   <b-badge variant="light"
-                    ><h6 class="success"><strong>ACTIVO</strong></h6></b-badge
+                    ><h6 class="success"><strong>DISPONIBLE</strong></h6></b-badge
                   >
                 </h5>
-                <h5 v-else>
+                <h5 v-else-if="props.rowData.estado == 2">
                   <b-badge variant="light"
-                    ><h6 class="danger"><strong>INACTIVO</strong></h6></b-badge
+                    ><h6 class="danger"><strong>OCUPADA</strong></h6></b-badge
+                  >
+                </h5>
+                <h5 v-else-if="props.rowData.estado == 0">
+                  <b-badge variant="light"
+                    ><h6 class="danger"><strong>NO DISPONIBLE</strong></h6></b-badge
                   >
                 </h5>
               </div>
