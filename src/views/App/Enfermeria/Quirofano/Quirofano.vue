@@ -50,7 +50,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-add-receta" ref="modal-add-receta" title="Añadir receta">
+    <b-modal size="lg" id="modal-add-receta" ref="modal-add-receta" title="Contenido de receta">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -61,19 +61,12 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <b-form @submit="$event.preventDefault()">
-        <b-form-group label="Nombre:">
-          <b-form-input
-            v-model.trim="$v.form.name.$model"
-            :state="!$v.form.name.$error"
-            placeholder="Ingresar nombre de banco"
-          ></b-form-input>
-          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
-            Debe ingresar el nombre
-          </div>
+        <b-form-group label="Contenido:">
+          <quill-editor v-model="form.receta" :options="editorOptions" class="custom-editor"></quill-editor>
         </b-form-group>
       </b-form>
       <template #modal-footer="{}">
-        <b-button variant="primary" @click="onValidate('add-receta')"
+        <b-button variant="primary" @click="saveReceta()"
           >Guardar</b-button
         >
         <b-button variant="danger" @click="closeModal('add-receta')"
@@ -91,18 +84,34 @@
       >
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
-      <b-form @submit="$event.preventDefault()">
-        <b-form-group label="Nombre:">
-          <b-form-input
-            v-model.trim="$v.form.name.$model"
-            :state="!$v.form.name.$error"
-            placeholder="Ingresar nombre de banco"
-          ></b-form-input>
-          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
-            Debe ingresar el nombre
-          </div>
-        </b-form-group>
-      </b-form>
+      <vuetable
+          ref="vuetableRecetas"
+          class="table-divided table-responsive order-with-arrow"
+          :api-url="apiBaseReceta"
+          :query-params="makeQueryParamsReceta"
+          :per-page="perPage"
+          :reactive-api-url="true"
+          :fields="fieldsReceta"
+          pagination-path
+          @vuetable:pagination-data="onPaginationDataReceta"
+        >
+          <template slot="actions" slot-scope="props">
+            <b-button-group>
+              <b-button
+                v-b-tooltip.top="'Generar voucher de pago'"
+                @click="voucherData(props.rowData)"
+                class="mb-2"
+                size="sm"
+                variant="outline-info"
+                ><i :class="'fas fa-money-bill'"
+              /></b-button>
+            </b-button-group>
+          </template>
+        </vuetable>
+        <vuetable-pagination-bootstrap
+          ref="paginationReceta"
+          @vuetable-pagination:change-page="onChangePageReceta"
+        />
       <template #modal-footer="{}">
         <b-button variant="primary" @click="onValidate('ver-receta')"
           >Guardar</b-button
@@ -275,13 +284,15 @@ import useVuelidate from '@vuelidate/core'
 import { required } from '@vuelidate/validators'
 import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
+import { quillEditor } from 'vue-quill-editor'
 
 export default {
   name: 'Bank',
   components: {
     vuetable: Vuetable,
     'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
-    'datatable-heading': DatatableHeading
+    'datatable-heading': DatatableHeading,
+    quillEditor
   },
   setup () {
     return { $v: useVuelidate() }
@@ -294,13 +305,27 @@ export default {
       from: 0,
       to: 0,
       total: 0,
+      editorOptions: {
+        modules: {
+          toolbar: [
+            [{ 'header': '1' }, { 'header': '2' }, { 'font': [] }],
+            [{ size: [] }],
+            ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+            ['clean']
+          ]
+        },
+        placeholder: 'Escribir contenido de la receta',
+        theme: 'snow'
+      },
       perPage: 5,
       search: '',
       form: {
         id: 0,
         name: '',
         state: 1,
-        selectedOption: 'hospi'
+        selectedOption: 'hospi',
+        receta: null
       },
       alertSecs: 5,
       alertCountDown: 0,
@@ -357,6 +382,45 @@ export default {
           sortField: 'contacto_encargado',
           title: 'Contacto de encargado',
           dataClass: 'list-item-heading'
+        }
+      ],
+      fieldsReceta: [
+        {
+          name: 'contenido',
+          sortField: 'contenido',
+          title: 'Indicaciones',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'tipo',
+          sortField: 'tipo',
+          title: 'Tipo',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'tipo_movimiento.nombre',
+          sortField: 'tipo_movimiento.nombre',
+          title: 'Tipo de movimiento',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'cantidad',
+          sortField: 'cantidad',
+          title: 'Cantidad',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'cantidad_previa',
+          sortField: 'cantidad_previa',
+          title: 'Cantidad previa',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: '__slot:estado',
+          title: 'Estado',
+          titleClass: '',
+          dataClass: 'text-muted',
+          width: '25%'
         }
       ]
     }
@@ -463,6 +527,28 @@ export default {
     },
     addReceta (id) {
       this.$refs['modal-add-receta'].show()
+      this.form.id = id
+    },
+    saveReceta () {
+      const me = this
+      if (me.form.receta !== null) {
+        axios.post(apiUrl + '/recetas/create', {
+          form: me.form })
+          .then((response) => {
+            me.alertVariant = 'primary'
+            me.showAlert()
+            me.alertText = 'Se ha creado la receta exitosamente'
+            me.$refs.vuetable.refresh()
+            me.closeModal('add-receta')
+            me.form.id = 0
+          })
+          .catch((error) => {
+            me.alertVariant = 'danger'
+            me.showAlertError()
+            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+            console.error('Error!', error)
+          })
+      }
     },
     verReceta (id) {
       this.$refs['modal-ver-receta'].show()
@@ -533,7 +619,51 @@ export default {
     },
     showAlertError () {
       this.alertCountDownError = this.alertSecs
+    },
+    makeQueryParamsReceta (sortOrder, currentPage, perPage) {
+      return sortOrder[0]
+        ? {
+          criterio: sortOrder[0] ? sortOrder[0].sortField : 'createdAt',
+          order: sortOrder[0] ? sortOrder[0].direction : 'desc',
+          page: currentPage,
+          limit: this.perPage
+        }
+        : {
+          criterio: sortOrder[0] ? sortOrder[0].sortField : 'createdAt',
+          order: sortOrder[0] ? sortOrder[0].direction : 'desc',
+          page: currentPage,
+          limit: this.perPage
+        }
+    },
+    onPaginationDataReceta (paginationData) {
+      this.fromP = paginationData.from
+      this.toP = paginationData.to
+      this.totalP = paginationData.total
+      this.lastPageP = paginationData.last_page
+      this.items = paginationData.data
+      this.$refs.paginationReceta.setPaginationData(paginationData)
+    },
+    onChangePageReceta (page) {
+      this.$refs.vuetableRecetas.changePage(page)
+    },
+    getDataRecetas (data) {
+      this.form.name = data.nombre
+      this.form.number = data.numero_cuenta_bancaria
+      this.form.quantity = data.cantidad
+      this.form.bank_id = data.banco.nombre
+      this.form.state = data.estado
+      this.form.id = data.id
+      let id = data.id
+      this.apiBaseReceta = apiUrl + `/recetas/getId?id=${id}`
     }
   }
 }
 </script>
+<style>
+.custom-editor {
+  height: 500px; /* Adjust the height as needed */
+}
+.custom-editor .ql-editor {
+  color: #333; /* Adjust the color value to make the text darker */
+}
+</style>
