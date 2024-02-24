@@ -74,7 +74,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-ver-receta" ref="modal-ver-receta" title="Ver recetas">
+    <b-modal size="lg" id="modal-ver-receta" ref="modal-ver-receta" title="Ver recetas">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -325,7 +325,8 @@ export default {
         name: '',
         state: 1,
         selectedOption: 'hospi',
-        receta: null
+        receta: null,
+        id_receta: null
       },
       alertSecs: 5,
       alertCountDown: 0,
@@ -334,6 +335,7 @@ export default {
       alertErrorText: '',
       alertVariant: '',
       apiBase: apiUrl + '/expedientes/listQuirofano',
+      apiBaseReceta: '',
       fields: [
         {
           name: '__slot:actions',
@@ -392,35 +394,10 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
-          name: 'tipo',
-          sortField: 'tipo',
-          title: 'Tipo',
+          name: 'createdAt',
+          sortField: 'createdAt',
+          title: 'Creación',
           dataClass: 'list-item-heading'
-        },
-        {
-          name: 'tipo_movimiento.nombre',
-          sortField: 'tipo_movimiento.nombre',
-          title: 'Tipo de movimiento',
-          dataClass: 'list-item-heading'
-        },
-        {
-          name: 'cantidad',
-          sortField: 'cantidad',
-          title: 'Cantidad',
-          dataClass: 'list-item-heading'
-        },
-        {
-          name: 'cantidad_previa',
-          sortField: 'cantidad_previa',
-          title: 'Cantidad previa',
-          dataClass: 'list-item-heading'
-        },
-        {
-          name: '__slot:estado',
-          title: 'Estado',
-          titleClass: '',
-          dataClass: 'text-muted',
-          width: '25%'
         }
       ]
     }
@@ -468,6 +445,7 @@ export default {
           this.form.id = 0
           this.form.name = ''
           this.form.state = 1
+          this.form.id_receta = null
           break
         }
         case 'add-servicio': {
@@ -552,6 +530,8 @@ export default {
     },
     verReceta (id) {
       this.$refs['modal-ver-receta'].show()
+      this.getDataRecetas(id)
+      this.form.id_receta = id
     },
     addServicio (id) {
       this.$refs['modal-add-servicio'].show()
@@ -646,14 +626,8 @@ export default {
     onChangePageReceta (page) {
       this.$refs.vuetableRecetas.changePage(page)
     },
-    getDataRecetas (data) {
-      this.form.name = data.nombre
-      this.form.number = data.numero_cuenta_bancaria
-      this.form.quantity = data.cantidad
-      this.form.bank_id = data.banco.nombre
-      this.form.state = data.estado
-      this.form.id = data.id
-      let id = data.id
+    getDataRecetas (id) {
+      this.form.id = id
       this.apiBaseReceta = apiUrl + `/recetas/getId?id=${id}`
     }
   }
@@ -661,7 +635,7 @@ export default {
 </script>
 <style>
 .custom-editor {
-  height: 500px; /* Adjust the height as needed */
+  height: 350px; /* Adjust the height as needed */
 }
 .custom-editor .ql-editor {
   color: #333; /* Adjust the color value to make the text darker */
