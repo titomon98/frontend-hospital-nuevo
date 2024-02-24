@@ -74,7 +74,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-ver-receta" ref="modal-ver-receta" title="Ver recetas">
+    <b-modal size="lg" id="modal-ver-receta" ref="modal-ver-receta" title="Ver recetas">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -121,7 +121,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-add-servicio" ref="modal-add-servicio" title="Añadir servicio">
+    <b-modal id="modal-add-servicio" ref="modal-add-servicio" title="Añadir consumo de servicio">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -132,19 +132,33 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <b-form @submit="$event.preventDefault()">
-        <b-form-group label="Nombre:">
+        <b-form-group label="Servicio a agregar:">
+          <v-select
+            name="servicio"
+            v-model="servicio"
+            :options="servicios"
+            :filterable="false"
+            placeholder="Seleccione un servicio a agregar"
+            @search="onSearchServicios"
+          >
+            <template v-slot:option="option">
+              {{ option.descripcion + ' - Precio: ' + option.precio }}
+            </template>
+            <template slot="selected-option" slot-scope="option">
+              {{ option.descripcion + ' - Precio: ' + option.precio }}
+            </template>
+          </v-select>
+        </b-form-group>
+        <b-form-group label="Cantidad:">
           <b-form-input
-            v-model.trim="$v.form.name.$model"
-            :state="!$v.form.name.$error"
-            placeholder="Ingresar nombre de banco"
+            v-model.trim="form.cantidad"
+            placeholder="Ingresar cantidad utilizada"
+            type="number"
           ></b-form-input>
-          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
-            Debe ingresar el nombre
-          </div>
         </b-form-group>
       </b-form>
       <template #modal-footer="{}">
-        <b-button variant="primary" @click="onValidate('add-servicio')"
+        <b-button variant="primary" @click="saveServicio('add-servicio')"
           >Guardar</b-button
         >
         <b-button variant="danger" @click="closeModal('add-servicio')"
@@ -152,7 +166,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-ver-servicio" ref="modal-ver-servicio" title="Ver servicios">
+    <b-modal id="modal-ver-servicio" size="lg" ref="modal-ver-servicio" title="Ver consumos">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -162,18 +176,34 @@
       >
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
-      <b-form @submit="$event.preventDefault()">
-        <b-form-group label="Nombre:">
-          <b-form-input
-            v-model.trim="$v.form.name.$model"
-            :state="!$v.form.name.$error"
-            placeholder="Ingresar nombre de banco"
-          ></b-form-input>
-          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
-            Debe ingresar el nombre
-          </div>
-        </b-form-group>
-      </b-form>
+      <vuetable
+          ref="vuetableConsumos"
+          class="table-divided table-responsive order-with-arrow"
+          :api-url="apiBaseConsumo"
+          :query-params="makeQueryParamsConsumo"
+          :per-page="perPage"
+          :reactive-api-url="true"
+          :fields="fieldsConsumo"
+          pagination-path
+          @vuetable:pagination-data="onPaginationDataConsumo"
+        >
+          <template slot="actions" slot-scope="props">
+            <b-button-group>
+              <b-button
+                v-b-tooltip.top="'Generar voucher de pago'"
+                @click="voucherData(props.rowData)"
+                class="mb-2"
+                size="sm"
+                variant="outline-info"
+                ><i :class="'fas fa-money-bill'"
+              /></b-button>
+            </b-button-group>
+          </template>
+        </vuetable>
+        <vuetable-pagination-bootstrap
+          ref="paginationConsumo"
+          @vuetable-pagination:change-page="onChangePageConsumo"
+        />
       <template #modal-footer="{}">
         <b-button variant="primary" @click="onValidate('ver-servicio')"
           >Guardar</b-button
@@ -287,7 +317,7 @@ import { apiUrl } from '../../../../config/constant'
 import { quillEditor } from 'vue-quill-editor'
 
 export default {
-  name: 'Bank',
+  name: 'Intensivo',
   components: {
     vuetable: Vuetable,
     'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
@@ -325,8 +355,11 @@ export default {
         name: '',
         state: 1,
         selectedOption: 'hospi',
-        receta: null
+        receta: null,
+        id_receta: null,
+        cantidad: null
       },
+      servicio: null,
       alertSecs: 5,
       alertCountDown: 0,
       alertCountDownError: 0,
@@ -334,6 +367,8 @@ export default {
       alertErrorText: '',
       alertVariant: '',
       apiBase: apiUrl + '/expedientes/listIntensivo',
+      apiBaseReceta: '',
+      apiBaseConsumo: '',
       fields: [
         {
           name: '__slot:actions',
@@ -392,15 +427,17 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
-          name: 'tipo',
-          sortField: 'tipo',
-          title: 'Tipo',
+          name: 'createdAt',
+          sortField: 'createdAt',
+          title: 'Creación',
           dataClass: 'list-item-heading'
-        },
+        }
+      ],
+      fieldsConsumo: [
         {
-          name: 'tipo_movimiento.nombre',
-          sortField: 'tipo_movimiento.nombre',
-          title: 'Tipo de movimiento',
+          name: 'servicio.descripcion',
+          sortField: 'servicio.descripcion',
+          title: 'Nombre del servicio',
           dataClass: 'list-item-heading'
         },
         {
@@ -410,19 +447,25 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
-          name: 'cantidad_previa',
-          sortField: 'cantidad_previa',
-          title: 'Cantidad previa',
+          name: 'subtotal',
+          sortField: 'subtotal',
+          title: 'Subtotal',
           dataClass: 'list-item-heading'
         },
         {
-          name: '__slot:estado',
-          title: 'Estado',
-          titleClass: '',
-          dataClass: 'text-muted',
-          width: '25%'
+          name: 'descripcion',
+          sortField: 'descripcion',
+          title: 'Lugar de consumo',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'createdAt',
+          sortField: 'createdAt',
+          title: 'Creación',
+          dataClass: 'list-item-heading'
         }
-      ]
+      ],
+      servicios: []
     }
   },
   validations () {
@@ -468,6 +511,7 @@ export default {
           this.form.id = 0
           this.form.name = ''
           this.form.state = 1
+          this.form.id_receta = null
           break
         }
         case 'add-servicio': {
@@ -476,6 +520,8 @@ export default {
           this.form.id = 0
           this.form.name = ''
           this.form.state = 1
+          this.servicio = null
+          this.form.servicio = null
           break
         }
         case 'ver-servicio': {
@@ -512,7 +558,7 @@ export default {
         .then((response) => {
           me.alertVariant = 'primary'
           me.showAlert()
-          me.alertText = 'Se ha trasladado el expediente ' + me.form.nombre + ' exitosamente'
+          me.alertText = 'Se ha trasladado el expediente exitosamente'
           me.$refs.vuetable.refresh()
           me.closeModal('traslado')
           me.form.id = 0
@@ -552,12 +598,44 @@ export default {
     },
     verReceta (id) {
       this.$refs['modal-ver-receta'].show()
+      this.getDataRecetas(id)
+      this.form.id_receta = id
     },
     addServicio (id) {
       this.$refs['modal-add-servicio'].show()
+      this.form.id = id
+    },
+    saveServicio () {
+      const me = this
+      if (me.servicio !== null && me.form.cantidad !== null) {
+        me.form.servicio = me.servicio
+        me.form.descripcion = 'Añadido en intensivo'
+        axios.post(apiUrl + '/consumos/create', {
+          form: me.form })
+          .then((response) => {
+            me.alertVariant = 'primary'
+            me.showAlert()
+            me.alertText = 'Se ha creado el consumo de un servicio exitosamente'
+            me.$refs.vuetable.refresh()
+            me.closeModal('add-servicio')
+            me.form.id = 0
+          })
+          .catch((error) => {
+            me.alertVariant = 'danger'
+            me.showAlertError()
+            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+            console.error('Error!', error)
+          })
+      } else {
+        me.alertVariant = 'danger'
+        me.showAlertError()
+        me.alertErrorText = 'Por favor llene los campos solicitados'
+      }
     },
     verServicio (id) {
       this.$refs['modal-ver-servicio'].show()
+      this.getDataConsumos(id)
+      this.form.id_consumo = id
     },
     /* Guardar */
     onUpdate () {
@@ -646,22 +724,64 @@ export default {
     onChangePageReceta (page) {
       this.$refs.vuetableRecetas.changePage(page)
     },
-    getDataRecetas (data) {
-      this.form.name = data.nombre
-      this.form.number = data.numero_cuenta_bancaria
-      this.form.quantity = data.cantidad
-      this.form.bank_id = data.banco.nombre
-      this.form.state = data.estado
-      this.form.id = data.id
-      let id = data.id
+    getDataRecetas (id) {
+      this.form.id = id
       this.apiBaseReceta = apiUrl + `/recetas/getId?id=${id}`
+    },
+    onSearchServicios (search, loading) {
+      if (search.length) {
+        loading(true)
+        this.searchingServicios(search, loading)
+      }
+    },
+    searchingServicios (search, loading) {
+      axios.get(apiUrl + '/servicios/getSearch',
+        {
+          params: {
+            search: search
+          }
+        }
+      ).then((response) => {
+        this.servicios = response.data
+        loading(false)
+      })
+    },
+    makeQueryParamsConsumo (sortOrder, currentPage, perPage) {
+      return sortOrder[0]
+        ? {
+          criterio: sortOrder[0] ? sortOrder[0].sortField : 'createdAt',
+          order: sortOrder[0] ? sortOrder[0].direction : 'desc',
+          page: currentPage,
+          limit: this.perPage
+        }
+        : {
+          criterio: sortOrder[0] ? sortOrder[0].sortField : 'createdAt',
+          order: sortOrder[0] ? sortOrder[0].direction : 'desc',
+          page: currentPage,
+          limit: this.perPage
+        }
+    },
+    onPaginationDataConsumo (paginationData) {
+      this.fromP = paginationData.from
+      this.toP = paginationData.to
+      this.totalP = paginationData.total
+      this.lastPageP = paginationData.last_page
+      this.items = paginationData.data
+      this.$refs.paginationConsumo.setPaginationData(paginationData)
+    },
+    onChangePageConsumo (page) {
+      this.$refs.vuetableConsumos.changePage(page)
+    },
+    getDataConsumos (id) {
+      this.form.id = id
+      this.apiBaseConsumo = apiUrl + `/consumos/getId?id=${id}`
     }
   }
 }
 </script>
 <style>
 .custom-editor {
-  height: 500px; /* Adjust the height as needed */
+  height: 350px; /* Adjust the height as needed */
 }
 .custom-editor .ql-editor {
   color: #333; /* Adjust the color value to make the text darker */
