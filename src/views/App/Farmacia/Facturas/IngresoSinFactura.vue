@@ -616,18 +616,18 @@ export default {
         this.$refs['modal-password-2'].show()
       } else if (action === 'login') {
         axios.post(apiUrl + '/validatePassword', {
-        id_usuario: me.id_usuario,
-        password: me.password
-      })
-        .then((response) => {
-          me.onSave()
+          id_usuario: me.id_usuario,
+          password: me.password
         })
-        .catch((error) => {
-          me.alertVariant = 'danger'
-          me.showAlertError()
-          me.alertErrorText = error.response.data.message
-          console.error('Error!', error)
-        })
+          .then((response) => {
+            me.onSave()
+          })
+          .catch((error) => {
+            me.alertVariant = 'danger'
+            me.showAlertError()
+            me.alertErrorText = error.response.data.message
+            console.error('Error!', error)
+          })
       }
     },
     /* Guardar */
