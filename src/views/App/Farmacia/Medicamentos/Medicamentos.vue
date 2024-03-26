@@ -34,16 +34,22 @@
               </div>
             </b-form-group>
           </b-col>
-          <b-col md="3">
+          <b-col md="2">
             <b-form-group label="Anestesico:">
               <b-form-radio v-model="form.anestesico" value="0" name="customRadio">Anestesico</b-form-radio>
               <b-form-radio v-model="form.anestesico" value="1" name="customRadio">Medicamento</b-form-radio>
             </b-form-group>
           </b-col>
-          <b-col md="3">
+          <b-col md="2">
             <b-form-group label="Controlado:">
               <b-form-radio v-model="form.controlado" value="0" name="customRadio1">No controlado</b-form-radio>
               <b-form-radio v-model="form.controlado" value="1" name="customRadio1">Controlado</b-form-radio>
+            </b-form-group>
+          </b-col>
+          <b-col md="2">
+            <b-form-group label="Facturado:">
+              <b-form-radio v-model="form.factura" value="0" name="customRadio2">No factura</b-form-radio>
+              <b-form-radio v-model="form.factura" value="1" name="customRadio2">Factura</b-form-radio>
             </b-form-group>
           </b-col>
         </b-row>
@@ -261,16 +267,22 @@
               </div>
             </b-form-group>
           </b-col>
-          <b-col md="3">
+          <b-col md="2">
             <b-form-group label="Anestesico:">
               <b-form-radio v-model="form.anestesico" value="0" name="customRadio">Anestesico</b-form-radio>
               <b-form-radio v-model="form.anestesico" value="1" name="customRadio">Medicamento</b-form-radio>
             </b-form-group>
           </b-col>
-          <b-col md="3">
+          <b-col md="2">
             <b-form-group label="Controlado:">
               <b-form-radio v-model="form.controlado" value="0" name="customRadio1">No controlado</b-form-radio>
               <b-form-radio v-model="form.controlado" value="1" name="customRadio1">Controlado</b-form-radio>
+            </b-form-group>
+          </b-col>
+          <b-col md="2">
+            <b-form-group label="Facturado:">
+              <b-form-radio v-model="form.factura" value="0" name="customRadio2">No factura</b-form-radio>
+              <b-form-radio v-model="form.factura" value="1" name="customRadio2">Factura</b-form-radio>
             </b-form-group>
           </b-col>
         </b-row>
@@ -565,6 +577,18 @@
                   >
                 </h5>
               </div>
+              <div slot="factura" slot-scope="props">
+                <h5 v-if="props.rowData.factura == 1">
+                  <b-badge variant="light"
+                    ><h6 class="success"><strong>SI FACTURA</strong></h6></b-badge
+                  >
+                </h5>
+                <h5 v-else>
+                  <b-badge variant="light"
+                    ><h6 class="danger"><strong>NO FACTURA</strong></h6></b-badge
+                  >
+                </h5>
+              </div>
               <!-- Botones -->
               <template slot="actions" slot-scope="props">
                 <b-button-group>
@@ -648,6 +672,7 @@ export default {
         name: '',
         anestesico: 0,
         controlado: 0,
+        factura: 1,
         precio_costo: 0,
         precio_venta: 0,
         existencia_minima: 0,
@@ -712,6 +737,12 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
+          name: '__slot:factura',
+          title: 'Factura',
+          titleClass: '',
+          dataClass: 'text-muted'
+        },
+        {
           name: '__slot:estado',
           title: 'Estado',
           titleClass: '',
@@ -748,6 +779,7 @@ export default {
           this.form.name = ''
           this.form.anestesico = 0
           this.form.controlado = 0
+          this.form.factura = 1
           this.form.precio_costo = 0
           this.form.precio_venta = 0
           this.form.existencia_minima = 0
@@ -773,6 +805,7 @@ export default {
           this.form.name = ''
           this.form.anestesico = 0
           this.form.controlado = 0
+          this.form.factura = 1
           this.form.precio_costo = 0
           this.form.precio_venta = 0
           this.form.existencia_minima = 0
@@ -794,6 +827,7 @@ export default {
           this.form.name = ''
           this.form.anestesico = 0
           this.form.controlado = 0
+          this.form.factura = 1
           this.form.precio_costo = 0
           this.form.precio_venta = 0
           this.form.existencia_minima = 0
@@ -827,6 +861,7 @@ export default {
       this.form.name = data.nombre
       this.form.anestesico = data.anestesico
       this.form.controlado = data.controlado
+      this.form.factura = data.factura
       this.form.precio_costo = data.precio_costo
       this.form.precio_venta = data.precio_venta
       this.form.existencia_minima = data.existencia_minima

@@ -22,7 +22,7 @@
       </b-alert>
       <b-form @submit="$event.preventDefault()">
         <b-row class="ml-2">
-          <b-col md="8">
+          <b-col md="6">
             <b-form-group label="Nombre:">
               <b-form-input
                 v-model.trim="$v.form.name.$model"
@@ -34,10 +34,16 @@
               </div>
             </b-form-group>
           </b-col>
-          <b-col md="4">
+          <b-col md="3">
             <b-form-group label="Inventariado:">
               <b-form-radio v-model="form.inventariado" value="INVENTARIADO" name="customRadio1">Inventariado</b-form-radio>
               <b-form-radio v-model="form.inventariado" value="NO INVENTARIADO" name="customRadio1">No inventariado</b-form-radio>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Facturado:">
+              <b-form-radio v-model="form.factura" value="0" name="customRadio2">No factura</b-form-radio>
+              <b-form-radio v-model="form.factura" value="1" name="customRadio2">Factura</b-form-radio>
             </b-form-group>
           </b-col>
         </b-row>
@@ -243,7 +249,7 @@
       </b-alert>
       <b-form @submit="$event.preventDefault()">
         <b-row class="ml-2">
-          <b-col md="8">
+          <b-col md="6">
             <b-form-group label="Nombre:">
               <b-form-input
                 v-model.trim="$v.form.name.$model"
@@ -255,10 +261,16 @@
               </div>
             </b-form-group>
           </b-col>
-          <b-col md="4">
+          <b-col md="3">
             <b-form-group label="Inventariado:">
               <b-form-radio v-model="form.inventariado" value="INVENTARIADO" name="customRadio1">Inventariado</b-form-radio>
               <b-form-radio v-model="form.inventariado" value="NO INVENTARIADO" name="customRadio1">No inventariado</b-form-radio>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Facturado:">
+              <b-form-radio v-model="form.factura" value="0" name="customRadio2">No factura</b-form-radio>
+              <b-form-radio v-model="form.factura" value="1" name="customRadio2">Factura</b-form-radio>
             </b-form-group>
           </b-col>
         </b-row>
@@ -553,6 +565,18 @@
                   >
                 </h5>
               </div>
+              <div slot="factura" slot-scope="props">
+                <h5 v-if="props.rowData.factura == 1">
+                  <b-badge variant="light"
+                    ><h6 class="success"><strong>SI FACTURA</strong></h6></b-badge
+                  >
+                </h5>
+                <h5 v-else>
+                  <b-badge variant="light"
+                    ><h6 class="danger"><strong>NO FACTURA</strong></h6></b-badge
+                  >
+                </h5>
+              </div>
               <!-- Botones -->
               <template slot="actions" slot-scope="props">
                 <b-button-group>
@@ -643,6 +667,7 @@ export default {
         existencia_minima_farmacia: 0,
         existencia_actual_farmacia: 0,
         inventariado: 'INVENTARIADO',
+        factura: 1,
         marca: null,
         proveedor: null,
         presentacion: null,
@@ -699,6 +724,12 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
+          name: '__slot:factura',
+          title: 'Factura',
+          titleClass: '',
+          dataClass: 'text-muted'
+        },
+        {
           name: '__slot:estado',
           title: 'Estado',
           titleClass: '',
@@ -742,6 +773,7 @@ export default {
           this.form.existencia_minima_farmacia = 0
           this.form.existencia_actual_farmacia = 0
           this.form.inventariado = 'INVENTARIADO'
+          this.form.factura = 1
           this.form.marca = null
           this.form.presentacion = null
           this.form.proveedor = null
@@ -766,6 +798,7 @@ export default {
           this.form.existencia_minima_farmacia = 0
           this.form.existencia_actual_farmacia = 0
           this.form.inventariado = 'INVENTARIADO'
+          this.form.factura = 1
           this.form.marca = null
           this.form.presentacion = null
           this.form.proveedor = null
@@ -786,6 +819,7 @@ export default {
           this.form.existencia_minima_farmacia = 0
           this.form.existencia_actual_farmacia = 0
           this.form.inventariado = 'INVENTARIADO'
+          this.form.factura = 1
           this.form.marca = null
           this.form.presentacion = null
           this.form.proveedor = null
@@ -819,6 +853,7 @@ export default {
       this.form.existencia_minima_farmacia = data.existencia_minima_farmacia
       this.form.existencia_actual_farmacia = data.existencia_actual_farmacia
       this.form.inventariado = data.inventariado
+      this.form.factura = data.factura
       this.form.marca = data.marca
       this.form.presentacion = data.presentacione
       this.form.proveedor = data.proveedore
