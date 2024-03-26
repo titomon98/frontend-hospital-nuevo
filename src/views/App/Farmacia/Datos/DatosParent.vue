@@ -18,8 +18,7 @@
           </template>
           <template v-slot:body>
             <b-tabs>
-              <b-tab title="Casa médica" active><CasaMedica/></b-tab>
-              <b-tab title="Marca" lazy><Marca/></b-tab>
+              <b-tab title="Marca" active><Marca/></b-tab>
               <b-tab title="Presentacion" lazy><Presentacion/></b-tab>
               <b-tab title="Proveedor" lazy><Proveedor/></b-tab>
             </b-tabs>
@@ -33,7 +32,6 @@
 import { xray } from '../../../../config/pluginInit'
 import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
-import CasaMedica from './CasaMedica.vue'
 import Marca from './Marca.vue'
 import Presentacion from './Presentacion.vue'
 import Proveedor from './Proveedor.vue'
@@ -41,7 +39,6 @@ import Proveedor from './Proveedor.vue'
 export default {
   name: 'DatosParent',
   components: {
-    CasaMedica,
     Marca,
     Presentacion,
     Proveedor

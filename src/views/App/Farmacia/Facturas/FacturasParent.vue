@@ -20,6 +20,8 @@
             <b-tabs>
               <b-tab title="Ingreso con factura" active><IngresoFactura/></b-tab>
               <b-tab title="Listado de ingresos con factura" lazy><ListadoFactura/></b-tab>
+              <b-tab title="Ingreso sin factura" lazy><IngresoSinFactura/></b-tab>
+              <b-tab title="Listado de ingresos sin factura" lazy><ListadoSinFactura/></b-tab>
             </b-tabs>
           </template>
         </iq-card>
@@ -33,12 +35,16 @@ import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
 import IngresoFactura from './IngresoFactura.vue'
 import ListadoFactura from './ListadoFactura.vue'
+import IngresoSinFactura from './IngresoSinFactura.vue'
+import ListadoSinFactura from './ListadoSinFactura.vue'
 
 export default {
   name: 'PaquetesParent',
   components: {
     IngresoFactura,
-    ListadoFactura
+    ListadoFactura,
+    IngresoSinFactura,
+    ListadoSinFactura
   },
   data () {
     return {

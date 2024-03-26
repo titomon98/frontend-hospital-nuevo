@@ -42,9 +42,10 @@
           </b-col>
         </b-row>
         <b-row class="ml-2">
-          <b-col md="4">
-            <b-form-group label="Costo:">
+          <b-col md="3">
+            <b-form-group label="Precio costo:">
               <b-form-input
+              type="number"
                 v-model.trim="$v.form.precio_costo.$model"
                 :state="!$v.form.precio_costo.$error"
                 placeholder="Ingresar costo de la muestra"
@@ -54,7 +55,16 @@
               </div>
             </b-form-group>
           </b-col>
-          <b-col md="4">
+          <b-col md="3">
+            <b-form-group label="Precio de venta:">
+              <b-form-input
+              type="number"
+                v-model.trim="form.precio_venta"
+                placeholder="Ingresar precio de venta de la muestra"
+              ></b-form-input>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
             <b-form-group label="Existencia mínima general:">
               <b-form-input
                 v-model.trim="$v.form.existencia_minima.$model"
@@ -66,7 +76,7 @@
               </div>
             </b-form-group>
           </b-col>
-          <b-col md="4">
+          <b-col md="3">
             <b-form-group label="Existencia actual general:">
               <b-form-input
                 v-model.trim="$v.form.existencia_actual.$model"
@@ -80,7 +90,7 @@
           </b-col>
         </b-row>
         <b-row class="ml-2">
-          <b-col md="3">
+          <b-col md="4">
             <b-form-group label="Marca:">
               <v-select
                 name="marca"
@@ -106,7 +116,7 @@
               </div>
             </b-form-group>
           </b-col>
-          <b-col md="3">
+          <b-col md="4">
             <b-form-group label="Presentación:">
               <v-select
                 name="presentacion"
@@ -132,33 +142,7 @@
               </div>
             </b-form-group>
           </b-col>
-          <b-col md="3">
-            <b-form-group label="Casa médica:">
-              <v-select
-                name="casa"
-                v-model="$v.form.casa_medica.$model"
-                :state="!$v.form.casa_medica.$error"
-                :options="casas"
-                :filterable="false"
-                placeholder="Seleccione la casa médica"
-                @search="onSearchCasas"
-              >
-                <template v-slot:spinner="{ loading }">
-                  <div v-show="loading">Cargando...</div>
-                </template>
-                <template v-slot:option="option">
-                  {{ 'Nombre: '+ option.nombre }}
-                </template>
-                <template slot="selected-option" slot-scope="option">
-                  {{ 'Nombre: '+ option.nombre }}
-                </template>
-              </v-select>
-              <div v-if="$v.form.casa_medica.$error" class="invalid-feedback-vselect">
-                Debe seleccionar la casa médica
-              </div>
-            </b-form-group>
-          </b-col>
-          <b-col md="3">
+          <b-col md="4">
             <b-form-group label="Proveedor:">
               <v-select
                 name="proveedor"
@@ -227,9 +211,10 @@
           </b-col>
         </b-row>
         <b-row class="ml-2">
-          <b-col md="4">
-            <b-form-group label="Costo:">
+          <b-col md="3">
+            <b-form-group label="Precio costo:">
               <b-form-input
+              type="number"
                 v-model.trim="$v.form.precio_costo.$model"
                 :state="!$v.form.precio_costo.$error"
                 placeholder="Ingresar costo de la muestra"
@@ -239,7 +224,16 @@
               </div>
             </b-form-group>
           </b-col>
-          <b-col md="4">
+          <b-col md="3">
+            <b-form-group label="Precio de venta:">
+              <b-form-input
+              type="number"
+                v-model.trim="form.precio_venta"
+                placeholder="Ingresar precio de venta de la muestra"
+              ></b-form-input>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
             <b-form-group label="Existencia mínima general:">
               <b-form-input
                 v-model.trim="$v.form.existencia_minima.$model"
@@ -251,7 +245,7 @@
               </div>
             </b-form-group>
           </b-col>
-          <b-col md="4">
+          <b-col md="3">
             <b-form-group label="Existencia actual general:">
               <b-form-input
                 v-model.trim="$v.form.existencia_actual.$model"
@@ -265,7 +259,7 @@
           </b-col>
         </b-row>
         <b-row class="ml-2">
-          <b-col md="3">
+          <b-col md="4">
             <b-form-group label="Marca:">
               <v-select
                 name="marca"
@@ -291,7 +285,7 @@
               </div>
             </b-form-group>
           </b-col>
-          <b-col md="3">
+          <b-col md="4">
             <b-form-group label="Presentación:">
               <v-select
                 name="presentacion"
@@ -317,33 +311,7 @@
               </div>
             </b-form-group>
           </b-col>
-          <b-col md="3">
-            <b-form-group label="Casa médica:">
-              <v-select
-                name="casa"
-                v-model="$v.form.casa_medica.$model"
-                :state="!$v.form.casa_medica.$error"
-                :options="casas"
-                :filterable="false"
-                placeholder="Seleccione la casa médica"
-                @search="onSearchCasas"
-              >
-                <template v-slot:spinner="{ loading }">
-                  <div v-show="loading">Cargando...</div>
-                </template>
-                <template v-slot:option="option">
-                  {{ 'Nombre: '+ option.nombre }}
-                </template>
-                <template slot="selected-option" slot-scope="option">
-                  {{ 'Nombre: '+ option.nombre }}
-                </template>
-              </v-select>
-              <div v-if="$v.form.casa_medica.$error" class="invalid-feedback-vselect">
-                Debe seleccionar la casa médica
-              </div>
-            </b-form-group>
-          </b-col>
-          <b-col md="3">
+          <b-col md="4">
             <b-form-group label="Proveedor:">
               <v-select
                 name="proveedor"
@@ -558,7 +526,6 @@ export default {
       search: '',
       marcas: [],
       presentaciones: [],
-      casas: [],
       proveedores: [],
       form: {
         id: 0,
@@ -571,7 +538,6 @@ export default {
         marca: null,
         presentacion: null,
         proveedor: null,
-        casa_medica: null,
         state: 1
       },
       alertSecs: 5,
@@ -607,6 +573,12 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
+          name: 'precio_venta',
+          sortField: 'precio_venta',
+          title: 'Precio venta',
+          dataClass: 'list-item-heading'
+        },
+        {
           name: 'existencia_actual',
           sortField: 'existencia_actual',
           title: 'Existencia actual',
@@ -639,8 +611,7 @@ export default {
         existencia_actual: { required },
         marca: { required },
         presentacion: { required },
-        proveedor: { required },
-        casa_medica: { required }
+        proveedor: { required }
       }
     }
   },
@@ -659,7 +630,6 @@ export default {
           this.form.marca = null
           this.form.presentacion = null
           this.form.proveedor = null
-          this.form.casa_medica = null
           this.form.state = 1
           break
         }
@@ -680,7 +650,6 @@ export default {
           this.form.marca = null
           this.form.presentacion = null
           this.form.proveedor = null
-          this.form.casa_medica = null
           this.form.state = 1
           break
         }
@@ -697,7 +666,6 @@ export default {
           this.form.marca = null
           this.form.presentacion = null
           this.form.proveedor = null
-          this.form.casa_medica = null
           this.form.state = 1
           break
         }
@@ -726,7 +694,6 @@ export default {
       this.form.marca = data.marca
       this.form.presentacion = data.presentacione
       this.form.proveedor = data.proveedore
-      this.form.casa_medica = data.casa_medica
       this.form.state = data.estado
       this.form.id = data.id
     },
@@ -902,24 +869,6 @@ export default {
         }
       ).then((response) => {
         this.proveedores = response.data
-        loading(false)
-      })
-    },
-    onSearchCasas (search, loading) {
-      if (search.length) {
-        loading(true)
-        this.searchingCasas(search, loading)
-      }
-    },
-    searchingCasas (search, loading) {
-      axios.get(apiUrl + '/casa_medica/getSearch',
-        {
-          params: {
-            search: search
-          }
-        }
-      ).then((response) => {
-        this.casas = response.data
         loading(false)
       })
     }

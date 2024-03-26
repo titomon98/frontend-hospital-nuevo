@@ -324,8 +324,8 @@
         "icon": "ri-red-packet-fill"
       },
       {
-        "title": "Ingreso con factura",
-        "name": "Ingreso con factura",
+        "title": "Ingresos de medicamento",
+        "name": "Ingreso de medicamento",
         "is_active": false,
         "link": {
           "name" : "farmacia.facturas"
