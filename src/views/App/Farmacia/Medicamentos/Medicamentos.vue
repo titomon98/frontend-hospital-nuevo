@@ -670,7 +670,7 @@ export default {
       form: {
         id: 0,
         name: '',
-        anestesico: 0,
+        anestesico: 1,
         controlado: 0,
         factura: 1,
         precio_costo: 0,
