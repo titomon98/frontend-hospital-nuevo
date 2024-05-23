@@ -25,10 +25,20 @@
           <b-form-input
             v-model.trim="$v.form.descripcion.$model"
             :state="!$v.form.descripcion.$error"
-            placeholder="Ingresar descripcion del servicio"
+            placeholder="Ingresar la descripción del servicio"
           ></b-form-input>
           <div v-if="$v.form.descripcion.required.$invalid" class="invalid-feedback">
             Debe ingresar la descripción
+          </div>
+        </b-form-group>
+        <b-form-group label="Unidad de medida:">
+          <b-form-input
+            v-model.trim="$v.form.unidadDeMedida.$model"
+            :state="!$v.form.unidadDeMedida.$error"
+            placeholder="Ingresar la unidad de medida del servicio"
+          ></b-form-input>
+          <div v-if="$v.form.unidadDeMedida.required.$invalid" class="invalid-feedback">
+            Debe ingresar la unidad de medida
           </div>
         </b-form-group>
         <b-form-group label="Precio:">
@@ -71,6 +81,16 @@
           ></b-form-input>
           <div v-if="$v.form.descripcion.required.$invalid" class="invalid-feedback">
             Debe ingresar la descripción
+          </div>
+        </b-form-group>
+        <b-form-group label="Unidad de medida:">
+          <b-form-input
+            v-model.trim="$v.form.unidadDeMedida.$model"
+            :state="!$v.form.unidadDeMedida.$error"
+            placeholder="Ingresar la unidad de medida del servicio"
+          ></b-form-input>
+          <div v-if="$v.form.unidadDeMedida.required.$invalid" class="invalid-feedback">
+            Debe ingresar la unidad de medida
           </div>
         </b-form-group>
         <b-form-group label="Precio:">
@@ -274,6 +294,7 @@ export default {
         id: 0,
         descripcion: '',
         precio: '',
+        unidadDeMedida: '',
         state: 1
       },
       alertSecs: 5,
@@ -297,6 +318,12 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
+          name: 'unidadDeMedida',
+          sortField: 'unidadDeMedida',
+          title: 'Unidad de medida',
+          dataClass: 'list-item-heading'
+        },
+        {
           name: 'precio',
           sortField: 'precio',
           title: 'Precio',
@@ -316,6 +343,7 @@ export default {
     return {
       form: {
         descripcion: { required },
+        unidadDeMedida: { required },
         precio: { required }
       }
     }
@@ -327,6 +355,7 @@ export default {
           this.$v.$reset()
           this.form.id = 0
           this.form.descripcion = ''
+          this.form.unidadDeMedida = ''
           this.form.precio = ''
           this.form.state = 1
           break
@@ -340,6 +369,7 @@ export default {
           this.$refs['modal-1-servicios'].hide()
           this.form.id = 0
           this.form.descripcion = ''
+          this.form.unidadDeMedida = ''
           this.form.precio = ''
           this.form.state = 1
           break
@@ -349,6 +379,7 @@ export default {
           this.$refs['modal-2-servicios'].hide()
           this.form.id = 0
           this.form.descripcion = ''
+          this.form.unidadDeMedida = ''
           this.form.precio = ''
           this.form.state = 1
           break
@@ -370,6 +401,7 @@ export default {
     },
     setData (data) {
       this.form.descripcion = data.descripcion
+      this.form.unidadDeMedida = data.unidadDeMedida
       this.form.precio = data.precio
       this.form.state = data.estado
       this.form.id = data.id
