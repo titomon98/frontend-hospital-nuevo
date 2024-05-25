@@ -102,7 +102,7 @@ import EgresosParent from '../views/App/Caja/Egresos/EgresosParent'
 import Expedientes from '../views/App/Caja/Expedientes/Expedientes'
 import CuentasList from '../views/App/Caja/Cuentas/CuentasList'
 import Ingresos from '../views/App/Caja/Ingresos/Ingresos'
-import Reingresos from '../views/App/Caja/Ingresos/IngresoPrevio'
+import Reingresos from '../views/App/Caja/Reingresos/Reingreso'
 
 // enfermeria
 import PedidosFarmaciaParent from '../views/App/Enfermeria/Pedidos/PedidosFarmaciaParent'
