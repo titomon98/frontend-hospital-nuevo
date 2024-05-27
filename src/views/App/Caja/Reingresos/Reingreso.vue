@@ -173,8 +173,12 @@
               <h4 class="card-title mt-3">Reingreso</h4>
                <div class="iq-search-bar mt-2">
                 <b-form action="#" class="searchbox">
-                    <b-input v-model="search" placeholder="Buscar..." @keyup.enter="fetchResults" />
+                    <b-input v-model="search" placeholder="Buscar..." @input="handleSearchInput" />
                     <a class="search-link" href="#"><i class="ri-search-line"></i></a>
+                    <b-form-radio v-model="selectedCriteria" name="selectedCriteria" value="nombres" @change="handleSearchInput">Nombres</b-form-radio>
+                    <b-form-radio v-model="selectedCriteria" name="selectedCriteria" value="apellidos" @change="handleSearchInput">Apellidos</b-form-radio>
+                    <b-form-radio v-model="selectedCriteria" name="selectedCriteria" value="expediente" @change="handleSearchInput">Expediente</b-form-radio>
+                    <b-form-radio v-model="selectedCriteria" name="selectedCriteria" value="cui" @change="handleSearchInput">CUI</b-form-radio>
                 </b-form>
               </div>
             </template>
@@ -219,15 +223,6 @@
               <template slot="actions" slot-scope="props">
                 <b-button-group>
                   <b-button
-                    v-b-tooltip.top="'Editar'"
-                    @click="setData(props.rowData)"
-                    v-b-modal.modal-2-servicios
-                    class="mb-2"
-                    size="sm"
-                    variant="outline-warning"
-                    ><i :class="'fas fa-pencil-alt'"
-                  /></b-button>
-                  <b-button
                     v-b-tooltip.top="
                       props.rowData.estado == 1 ? 'Desactivar' : 'Activar'"
                     @click="
@@ -269,7 +264,6 @@ import useVuelidate from '@vuelidate/core'
 import { required } from '@vuelidate/validators'
 import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
-// import debounce from 'lodash/debounce'
 
 export default {
   name: 'Reingreso',
@@ -283,7 +277,6 @@ export default {
   },
   mounted () {
     xray.index()
-    this.fetchResults()
   },
   data () {
     return {
@@ -291,7 +284,8 @@ export default {
       to: 0,
       total: 0,
       perPage: 5,
-      search: '',
+      search: this.search,
+      selectedCriteria: 'nombres',
       form: {
         id: 0,
         nombres: '',
@@ -358,28 +352,6 @@ export default {
     }
   },
   methods: {
-    fetchResults () {
-      const params = {
-        search: this.search,
-        criterio: 'nombres', // Puedes cambiar esto a otro campo si es necesario
-        order: 'asc' // O 'desc', según el criterio de ordenamiento
-      }
-
-      axios.get(this.apiBase, { params })
-        .then(response => {
-          this.results = response.data.data
-          this.total = response.data.total
-          this.from = response.data.from
-          this.to = response.data.to
-          this.currentPage = response.data.current_page
-        })
-        .catch(error => {
-          console.error('Error fetching results:', error)
-          this.alertErrorText = 'Ha ocurrido un error al buscar los resultados.'
-          this.alertVariant = 'danger'
-          this.alertCountDownError = this.alertSecs
-        })
-    },
     openModal (modal, action) {
       switch (modal) {
         case 'save': {
@@ -519,14 +491,14 @@ export default {
     makeQueryParams (sortOrder, currentPage, perPage) {
       return sortOrder[0]
         ? {
-          criterio: sortOrder[0] ? sortOrder[0].sortField : 'createdAt',
+          criterio: sortOrder[0] ? sortOrder[0].sortField : this.selectedCriteria,
           order: sortOrder[0] ? sortOrder[0].direction : 'desc',
           page: currentPage,
           limit: this.perPage,
           search: this.search
         }
         : {
-          criterio: sortOrder[0] ? sortOrder[0].sortField : 'createdAt',
+          criterio: sortOrder[0] ? sortOrder[0].sortField : this.selectedCriteria,
           order: sortOrder[0] ? sortOrder[0].direction : 'desc',
           page: currentPage,
           limit: this.perPage,
@@ -557,6 +529,11 @@ export default {
     },
     showAlertError () {
       this.alertCountDownError = this.alertSecs
+    },
+    handleSearchInput () {
+      this.currentPage = 1 // Reiniciar la página actual a 1 cada vez que se cambia la búsqueda
+      this.$refs.vuetable.refresh()
+      console.log(this.selectedCriteria)
     }
   }
 }
