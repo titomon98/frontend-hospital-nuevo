@@ -175,10 +175,13 @@
                 <b-form action="#" class="searchbox">
                     <b-input v-model="search" placeholder="Buscar..." @input="handleSearchInput" />
                     <a class="search-link" href="#"><i class="ri-search-line"></i></a>
-                    <b-form-radio v-model="selectedCriteria" name="selectedCriteria" value="nombres" @change="handleSearchInput">Nombres</b-form-radio>
-                    <b-form-radio v-model="selectedCriteria" name="selectedCriteria" value="apellidos" @change="handleSearchInput">Apellidos</b-form-radio>
-                    <b-form-radio v-model="selectedCriteria" name="selectedCriteria" value="expediente" @change="handleSearchInput">Expediente</b-form-radio>
-                    <b-form-radio v-model="selectedCriteria" name="selectedCriteria" value="cui" @change="handleSearchInput">CUI</b-form-radio>
+                    <b-form-radio-group
+                      id="radio-group-1"
+                      v-model="selectedCriteria"
+                      :options="options"
+                      @change="handleSearching"
+                      name="radio-options"
+                    ></b-form-radio-group>
                 </b-form>
               </div>
             </template>
@@ -301,6 +304,12 @@ export default {
       alertErrorText: '',
       alertVariant: '',
       apiBase: apiUrl + '/expedientes/listReingreso',
+      options: [
+        { text: 'Nombres', value: 'nombres' },
+        { text: 'Apellidos', value: 'apellidos' },
+        { text: 'Expediente', value: 'expediente' },
+        { text: 'CUI', value: 'cui' }
+      ],
       fields: [
         {
           name: '__slot:actions',
