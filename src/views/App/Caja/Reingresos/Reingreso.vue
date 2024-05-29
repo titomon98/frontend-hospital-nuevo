@@ -186,7 +186,6 @@
               </div>
             </template>
             <template v-slot:headerAction>
-            <b-button variant="primary"  v-b-modal.modal-1-servicios>REINGRESO</b-button>
           </template>
           <template v-slot:body>
             <datatable-heading
@@ -218,7 +217,7 @@
                 </h5>
                 <h5 v-else>
                   <b-badge variant="light"
-                    ><h6 class="danger"><strong>INACTIVO</strong></h6></b-badge
+                    ><h6 class="danger"><strong>FUERA DE HOSPITAL</strong></h6></b-badge
                   >
                 </h5>
               </div>
@@ -542,7 +541,6 @@ export default {
     handleSearchInput () {
       this.currentPage = 1 // Reiniciar la página actual a 1 cada vez que se cambia la búsqueda
       this.$refs.vuetable.refresh()
-      console.log(this.selectedCriteria)
     }
   }
 }
