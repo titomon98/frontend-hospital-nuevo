@@ -10,7 +10,7 @@
     >
       <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
-    <b-modal id="modal-1-bank" ref="modal-1-bank" title="Agregar banco">
+    <b-modal id="modal-1-account" ref="modal-1-account" title="Agregar cuenta">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -21,15 +21,47 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <b-form @submit="$event.preventDefault()">
-        <b-form-group label="Nombre:">
+        <b-form-group label="Fecha de ingreso:">
           <b-form-input
-            v-model.trim="$v.form.name.$model"
-            :state="!$v.form.name.$error"
-            placeholder="Ingresar nombre del banco"
+            type="date"
+            v-model.trim="$v.form.fecha_ingreso.$model"
+            :state="!$v.form.fecha_ingreso.$error"
+            placeholder="Ingresar la fecha de ingreso"
           ></b-form-input>
-          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
-            Debe ingresar el nombre
+          <div v-if="$v.form.fecha_ingreso.required.$invalid" class="invalid-feedback">
+            Debe ingresar una fecha de ingreso
           </div>
+        </b-form-group><b-form-group label="Motivo:">
+          <b-form-input
+            v-model.trim="$v.form.motivo.$model"
+            :state="!$v.form.motivo.$error"
+            placeholder="Ingresar motivo"
+          ></b-form-input>
+          <div v-if="$v.form.motivo.required.$invalid" class="invalid-feedback">
+            Debe ingresar un motivo
+          </div>
+        </b-form-group>
+        <b-form-group label="Descripción:">
+          <b-form-input
+            v-model.trim="$v.form.descripcion.$model"
+            :state="!$v.form.descripcion.$error"
+            placeholder="Ingresar descripción"
+          ></b-form-input>
+        </b-form-group>
+        <b-form-group label="Otros:">
+          <b-form-input
+            v-model.trim="$v.form.otros.$model"
+            :state="!$v.form.otros.$error"
+            placeholder="Ingresar otros"
+          ></b-form-input>
+        </b-form-group>
+        <b-form-group label="Expediente:">
+          <v-select
+            name="type"
+            v-model="form.id_expediente"
+            :options="expedientes"
+            placeholder="Seleccione el expediente"
+          />
         </b-form-group>
       </b-form>
       <template #modal-footer="{}">
@@ -41,7 +73,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-2-bank" ref="modal-2-bank" title="Editar banco">
+    <b-modal id="modal-2-account" ref="modal-2-account" title="Editar cuenta">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -52,16 +84,42 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <b-form @submit="$event.preventDefault()">
-        <b-form-group label="Nombre:">
+        <b-form-group label="Nombre:"><b-form-group label="Fecha de ingreso:">
           <b-form-input
-            v-model.trim="$v.form.name.$model"
-            :state="!$v.form.name.$error"
-            placeholder="Ingresar nombre de banco"
+            type="date"
+            v-model.trim="$v.form.fecha_ingreso.$model"
+            :state="!$v.form.fecha_ingreso.$error"
+            placeholder="Ingresar fecha de ingreso"
           ></b-form-input>
-          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
-            Debe ingresar el nombre
+          <div v-if="$v.form.fecha_ingreso.required.$invalid" class="invalid-feedback">
+            Debe ingresar una fecha válida
           </div>
         </b-form-group>
+        <b-form-group label="Motivo:">
+          <b-form-input
+            v-model.trim="$v.form.motivo.$model"
+            :state="!$v.form.motivo.$error"
+            placeholder="Ingresar motivo"
+          ></b-form-input>
+          <div v-if="$v.form.motivo.required.$invalid" class="invalid-feedback">
+            Debe ingresar un motivo
+          </div>
+        </b-form-group>
+        <b-form-group label="Descripción:">
+          <b-form-input
+            v-model.trim="$v.form.descripcion.$model"
+            :state="!$v.form.descripcion.$error"
+            placeholder="Ingresar descripción"
+          ></b-form-input>
+        </b-form-group>
+        <b-form-group label="Otros:">
+          <b-form-input
+            v-model.trim="$v.form.otros.$model"
+            :state="!$v.form.otros.$error"
+            placeholder="Ingresar otros"
+          ></b-form-input>
+        </b-form-group>
+      </b-form-group>
       </b-form>
       <template #modal-footer="{}">
         <b-button variant="primary" @click="onValidate('update')"
@@ -72,7 +130,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-3-bank" ref="modal-3-bank" title="Desactivar banco">
+    <b-modal id="modal-3-account" ref="modal-3-account" title="Desactivar cuenta">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -83,22 +141,22 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6 class="my-4">
-        ¿Desea desactivar el banco: {{ form.name }} ?
+        ¿Desea desactivar la cuenta: {{ form.numero }} ?
       </h6>
       <template #modal-footer="{}">
         <b-button
           type="submit"
           variant="primary"
           @click="onState()
-                  $bvModal.hide('modal-3-bank')"
+                  $bvModal.hide('modal-3-account')"
           >Desactivar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-3-bank')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-3-account')"
           >Cancelar</b-button
         >
       </template>
     </b-modal>
-    <b-modal id="modal-4-bank" ref="modal-4-bank" title="Activar banco">
+    <b-modal id="modal-4-account" ref="modal-4-account" title="Activar cuenta">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -109,17 +167,17 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6 class="my-4">
-        ¿Desea activar al banco: {{ form.name }} ?
+        ¿Desea activar la cuenta: {{ form.numero }} ?
       </h6>
       <template #modal-footer="{}">
         <b-button
           type="submit"
           variant="primary"
           @click="onState()
-                  $bvModal.hide('modal-4-bank')"
+                  $bvModal.hide('modal-4-account')"
           >Activar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-4-bank')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-4-account')"
           >Cancelar</b-button
         >
       </template>
@@ -137,7 +195,7 @@
               </div>
             </template>
             <template v-slot:headerAction>
-            <b-button variant="primary"  v-b-modal.modal-1-bank>AGREGAR NUEVO</b-button>
+            <b-button variant="primary"  v-b-modal.modal-1-account>AGREGAR NUEVO</b-button>
           </template>
           <template v-slot:body>
             <datatable-heading
@@ -179,7 +237,7 @@
                   <b-button
                     v-b-tooltip.top="'Editar'"
                     @click="setData(props.rowData)"
-                    v-b-modal.modal-2-bank
+                    v-b-modal.modal-2-account
                     class="mb-2"
                     size="sm"
                     variant="outline-warning"
@@ -191,8 +249,8 @@
                     @click="
                       setData(props.rowData);
                       props.rowData.estado == 1
-                        ? $bvModal.show('modal-3-bank')
-                        : $bvModal.show('modal-4-bank');
+                        ? $bvModal.show('modal-3-account')
+                        : $bvModal.show('modal-4-account');
                     "
                     class="mb-2"
                     size="sm"
@@ -240,6 +298,7 @@ export default {
   },
   mounted () {
     xray.index()
+    this.fetchExpedientes()
   },
   data () {
     return {
@@ -250,8 +309,14 @@ export default {
       search: '',
       form: {
         id: 0,
-        name: '',
-        state: 1
+        numero: 0,
+        fecha_ingreso: '',
+        motivo: '',
+        descripcion: '',
+        otros: '',
+        total: 0,
+        state: 1,
+        id_expediente: 1
       },
       alertSecs: 5,
       alertCountDown: 0,
@@ -259,7 +324,7 @@ export default {
       alertText: '',
       alertErrorText: '',
       alertVariant: '',
-      apiBase: apiUrl + '/banco/list',
+      apiBase: apiUrl + '/cuentas/list',
       fields: [
         {
           name: '__slot:actions',
@@ -268,9 +333,39 @@ export default {
           dataClass: 'text-muted'
         },
         {
-          name: 'nombre',
-          sortField: 'name',
-          title: 'Nombre',
+          name: 'numero',
+          sortField: 'numero',
+          title: 'Número',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'fecha_ingreso',
+          sortField: 'fecha_ingreso',
+          title: 'Fecha de ingreso',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'descripcion',
+          sortField: 'descripcion',
+          title: 'Descripción',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'otros',
+          sortField: 'otros',
+          title: 'Otros...',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'total',
+          sortField: 'total',
+          title: 'Total',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'id_expediente.expediente',
+          sortField: 'id_expediente.expediente',
+          title: 'Expediente',
           dataClass: 'list-item-heading'
         },
         {
@@ -280,13 +375,20 @@ export default {
           dataClass: 'text-muted',
           width: '25%'
         }
-      ]
+      ],
+      expedientes: []
     }
   },
   validations () {
     return {
       form: {
-        name: { required }
+        fecha_ingreso: { required },
+        descripcion: { required },
+        motivo: { required },
+        otros: { required },
+        total: { required },
+        id_expediente: { required },
+        state: { required }
       }
     }
   },
@@ -296,7 +398,12 @@ export default {
         case 'save': {
           this.$v.$reset()
           this.form.id = 0
-          this.form.name = ''
+          this.form.fecha_ingreso = ''
+          this.form.descripcion = ''
+          this.form.motivo = ''
+          this.form.otros = ''
+          this.form.total = 0
+          this.form.id_expediente = 1
           this.form.state = 1
           break
         }
@@ -306,17 +413,27 @@ export default {
       switch (action) {
         case 'save': {
           this.$v.$reset()
-          this.$refs['modal-1-bank'].hide()
+          this.$refs['modal-1-account'].hide()
           this.form.id = 0
-          this.form.name = ''
+          this.form.fecha_ingreso = ''
+          this.form.descripcion = ''
+          this.form.motivo = ''
+          this.form.otros = ''
+          this.form.total = 0
+          this.form.id_expediente = 1
           this.form.state = 1
           break
         }
         case 'update': {
           this.$v.$reset()
-          this.$refs['modal-2-bank'].hide()
+          this.$refs['modal-2-account'].hide()
           this.form.id = 0
-          this.form.name = ''
+          this.form.fecha_ingreso = ''
+          this.form.descripcion = ''
+          this.form.motivo = ''
+          this.form.otros = ''
+          this.form.total = 0
+          this.form.id_expediente = 1
           this.form.state = 1
           break
         }
@@ -336,19 +453,25 @@ export default {
       }
     },
     setData (data) {
-      this.form.name = data.nombre
+      this.form.numero = data.numero
+      this.form.fecha_ingreso = data.fecha_ingreso
+      this.form.descripcion = data.descripcion
+      this.form.motivo = data.motivo
+      this.form.otros = data.otros
+      this.form.total = data.total
+      this.form.id_expediente = data.id_expediente
       this.form.state = data.estado
       this.form.id = data.id
     },
     /* Guardar */
     onSave () {
       const me = this
-      axios.post(apiUrl + '/banco/create', {
+      axios.post(apiUrl + '/cuentas/create', {
         form: me.form })
         .then((response) => {
           me.alertVariant = 'success'
           me.showAlert()
-          me.alertText = 'Se ha creado el banco ' + me.form.name + ' exitosamente'
+          me.alertText = 'Se ha creado la cuenta \'' + me.form.numero + '\' exitosamente'
           me.$refs.vuetable.refresh()
           me.closeModal('save')
         })
@@ -363,12 +486,12 @@ export default {
     onUpdate () {
       const me = this
       // this.$refs["modalSave"].hide();
-      axios.put(apiUrl + '/banco/update', {
+      axios.put(apiUrl + '/cuentas/update', {
         form: me.form })
         .then((response) => {
           me.alertVariant = 'primary'
           me.showAlert()
-          me.alertText = 'Se ha actualizado el banco ' + me.form.name + ' exitosamente'
+          me.alertText = 'Se ha actualizado la cuenta \'' + me.form.numero + '\' exitosamente'
           me.$refs.vuetable.refresh()
           me.closeModal('update')
         })
@@ -383,15 +506,15 @@ export default {
       let me = this
       if (this.form.state === 1) {
         axios
-          .put(apiUrl + '/banco/deactivate', {
+          .put(apiUrl + '/cuentas/deactivate', {
             id: this.form.id
           })
           .then((response) => {
             me.alertVariant = 'warning'
             me.showAlert()
-            me.alertText = 'Se ha desactivado el banco ' + me.form.name + ' exitosamente'
+            me.alertText = 'Se ha desactivado la cuenta \'' + me.form.numero + '\' exitosamente'
             me.$refs.vuetable.refresh()
-            me.$refs['modal-3-bank'].hide()
+            me.$refs['modal-3-account'].hide()
           })
           .catch((error) => {
             me.alertVariant = 'danger'
@@ -401,15 +524,15 @@ export default {
           })
       } else {
         axios
-          .put(apiUrl + '/banco/activate', {
+          .put(apiUrl + '/cuentas/activate', {
             id: this.form.id
           })
           .then((response) => {
             me.alertVariant = 'info'
             me.showAlert()
-            me.alertText = 'Se ha activado el banco ' + me.form.name + ' exitosamente'
+            me.alertText = 'Se ha activado la cuenta \'' + me.form.numero + '\' exitosamente'
             me.$refs.vuetable.refresh()
-            me.$refs['modal-4-bank'].hide()
+            me.$refs['modal-4-account'].hide()
           })
           .catch((error) => {
             me.alertVariant = 'danger'
@@ -422,14 +545,14 @@ export default {
     makeQueryParams (sortOrder, currentPage, perPage) {
       return sortOrder[0]
         ? {
-          criterio: sortOrder[0] ? sortOrder[0].sortField : 'createdAt',
+          criterio: sortOrder[0] ? sortOrder[0].sortField : 'numero',
           order: sortOrder[0] ? sortOrder[0].direction : 'desc',
           page: currentPage,
           limit: this.perPage,
           search: this.search
         }
         : {
-          criterio: sortOrder[0] ? sortOrder[0].sortField : 'createdAt',
+          criterio: sortOrder[0] ? sortOrder[0].sortField : 'numero',
           order: sortOrder[0] ? sortOrder[0].direction : 'desc',
           page: currentPage,
           limit: this.perPage,
@@ -459,7 +582,15 @@ export default {
       this.alertCountDown = this.alertSecs
     },
     showAlertError () {
-      this.alertCountDownError = this.alertSecs
+      this.alertC.ountDownError = this.alertSecs
+    },
+    async fetchExpedientes () {
+      try {
+        const response = axios.get(apiUrl + '/expedientes/list')
+        this.expedientes = response.data
+      } catch (error) {
+        console.error('Error fetching expedientes:', error)
+      }
     }
   }
 }

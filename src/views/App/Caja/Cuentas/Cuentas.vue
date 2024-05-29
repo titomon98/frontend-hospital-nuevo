@@ -10,7 +10,7 @@
     >
       <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
-    <b-modal id="modal-1-bank" ref="modal-1-bank" title="Agregar banco">
+    <b-modal id="modal-1-account" ref="modal-1-account" title="Agregar cuenta">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -21,15 +21,46 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <b-form @submit="$event.preventDefault()">
-        <b-form-group label="Nombre:">
+        <b-form-group label="Fecha de ingreso:">
           <b-form-input
-            v-model.trim="$v.form.name.$model"
-            :state="!$v.form.name.$error"
-            placeholder="Ingresar nombre del banco"
+            type="date"
+            v-model.trim="$v.form.fecha_ingreso.$model"
+            :state="!$v.form.fecha_ingreso.$error"
+            placeholder="Ingresar fecha de ingreso"
           ></b-form-input>
-          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
-            Debe ingresar el nombre
+          <div v-if="$v.form.fecha_ingreso.required.$invalid" class="invalid-feedback">
+            Debe ingresar una fecha válida
           </div>
+        </b-form-group>
+      </b-form>
+      <b-form @submit="$event.preventDefault()">
+        <b-form-group label="Motivo:">
+          <b-form-input
+            v-model.trim="$v.form.motivo.$model"
+            :state="!$v.form.motivo.$error"
+            placeholder="Ingresar motivo"
+          ></b-form-input>
+          <div v-if="$v.form.motivo.required.$invalid" class="invalid-feedback">
+            Debe ingresar un motivo
+          </div>
+        </b-form-group>
+      </b-form>
+      <b-form @submit="$event.preventDefault()">
+        <b-form-group label="Descripción:">
+          <b-form-input
+            v-model.trim="$v.form.descripcion.$model"
+            :state="!$v.form.descripcion.$error"
+            placeholder="Ingresar descripción"
+          ></b-form-input>
+        </b-form-group>
+      </b-form>
+      <b-form @submit="$event.preventDefault()">
+        <b-form-group label="Otros:">
+          <b-form-input
+            v-model.trim="$v.form.otros.$model"
+            :state="!$v.form.otros.$error"
+            placeholder="Ingresar otros"
+          ></b-form-input>
         </b-form-group>
       </b-form>
       <template #modal-footer="{}">
@@ -41,7 +72,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-2-bank" ref="modal-2-bank" title="Editar banco">
+    <b-modal id="modal-2-account" ref="modal-2-account" title="Editar banco">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -62,6 +93,49 @@
             Debe ingresar el nombre
           </div>
         </b-form-group>
+          <b-form @submit="$event.preventDefault()">
+            <b-form-group label="Fecha de ingreso:">
+              <b-form-input
+                type="date"
+                v-model.trim="$v.form.fecha_ingreso.$model"
+                :state="!$v.form.fecha_ingreso.$error"
+                placeholder="Ingresar fecha de ingreso"
+              ></b-form-input>
+              <div v-if="$v.form.fecha_ingreso.required.$invalid" class="invalid-feedback">
+                Debe ingresar una fecha válida
+              </div>
+            </b-form-group>
+          </b-form>
+          <b-form @submit="$event.preventDefault()">
+            <b-form-group label="Motivo:">
+              <b-form-input
+                v-model.trim="$v.form.motivo.$model"
+                :state="!$v.form.motivo.$error"
+                placeholder="Ingresar motivo"
+              ></b-form-input>
+              <div v-if="$v.form.motivo.required.$invalid" class="invalid-feedback">
+                Debe ingresar un motivo
+              </div>
+            </b-form-group>
+          </b-form>
+          <b-form @submit="$event.preventDefault()">
+            <b-form-group label="Descripción:">
+              <b-form-input
+                v-model.trim="$v.form.descripcion.$model"
+                :state="!$v.form.descripcion.$error"
+                placeholder="Ingresar descripción"
+              ></b-form-input>
+            </b-form-group>
+          </b-form>
+          <b-form @submit="$event.preventDefault()">
+            <b-form-group label="Otros:">
+              <b-form-input
+                v-model.trim="$v.form.otros.$model"
+                :state="!$v.form.otros.$error"
+                placeholder="Ingresar otros"
+              ></b-form-input>
+            </b-form-group>
+          </b-form>
       </b-form>
       <template #modal-footer="{}">
         <b-button variant="primary" @click="onValidate('update')"
@@ -72,7 +146,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-3-bank" ref="modal-3-bank" title="Desactivar banco">
+    <b-modal id="modal-3-account" ref="modal-3-account" title="Desactivar banco">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -90,15 +164,15 @@
           type="submit"
           variant="primary"
           @click="onState()
-                  $bvModal.hide('modal-3-bank')"
+                  $bvModal.hide('modal-3-account')"
           >Desactivar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-3-bank')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-3-account')"
           >Cancelar</b-button
         >
       </template>
     </b-modal>
-    <b-modal id="modal-4-bank" ref="modal-4-bank" title="Activar banco">
+    <b-modal id="modal-4-account" ref="modal-4-account" title="Activar banco">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -116,10 +190,10 @@
           type="submit"
           variant="primary"
           @click="onState()
-                  $bvModal.hide('modal-4-bank')"
+                  $bvModal.hide('modal-4-account')"
           >Activar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-4-bank')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-4-account')"
           >Cancelar</b-button
         >
       </template>
@@ -137,7 +211,7 @@
               </div>
             </template>
             <template v-slot:headerAction>
-            <b-button variant="primary"  v-b-modal.modal-1-bank>AGREGAR NUEVO</b-button>
+            <b-button variant="primary"  v-b-modal.modal-1-account>AGREGAR NUEVO</b-button>
           </template>
           <template v-slot:body>
             <datatable-heading
@@ -179,7 +253,7 @@
                   <b-button
                     v-b-tooltip.top="'Editar'"
                     @click="setData(props.rowData)"
-                    v-b-modal.modal-2-bank
+                    v-b-modal.modal-2-account
                     class="mb-2"
                     size="sm"
                     variant="outline-warning"
@@ -191,8 +265,8 @@
                     @click="
                       setData(props.rowData);
                       props.rowData.estado == 1
-                        ? $bvModal.show('modal-3-bank')
-                        : $bvModal.show('modal-4-bank');
+                        ? $bvModal.show('modal-3-account')
+                        : $bvModal.show('modal-4-account');
                     "
                     class="mb-2"
                     size="sm"
@@ -229,7 +303,7 @@ import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
 
 export default {
-  name: 'Bank',
+  name: 'Account',
   components: {
     vuetable: Vuetable,
     'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
@@ -306,7 +380,7 @@ export default {
       switch (action) {
         case 'save': {
           this.$v.$reset()
-          this.$refs['modal-1-bank'].hide()
+          this.$refs['modal-1-account'].hide()
           this.form.id = 0
           this.form.name = ''
           this.form.state = 1
@@ -314,7 +388,7 @@ export default {
         }
         case 'update': {
           this.$v.$reset()
-          this.$refs['modal-2-bank'].hide()
+          this.$refs['modal-2-account'].hide()
           this.form.id = 0
           this.form.name = ''
           this.form.state = 1
@@ -391,7 +465,7 @@ export default {
             me.showAlert()
             me.alertText = 'Se ha desactivado el banco ' + me.form.name + ' exitosamente'
             me.$refs.vuetable.refresh()
-            me.$refs['modal-3-bank'].hide()
+            me.$refs['modal-3-account'].hide()
           })
           .catch((error) => {
             me.alertVariant = 'danger'
@@ -409,7 +483,7 @@ export default {
             me.showAlert()
             me.alertText = 'Se ha activado el banco ' + me.form.name + ' exitosamente'
             me.$refs.vuetable.refresh()
-            me.$refs['modal-4-bank'].hide()
+            me.$refs['modal-4-account'].hide()
           })
           .catch((error) => {
             me.alertVariant = 'danger'
