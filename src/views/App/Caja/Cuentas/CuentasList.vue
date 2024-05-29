@@ -195,7 +195,6 @@
               </div>
             </template>
             <template v-slot:headerAction>
-            <b-button variant="primary"  v-b-modal.modal-1-account>AGREGAR NUEVO</b-button>
           </template>
           <template v-slot:body>
             <datatable-heading
@@ -345,6 +344,12 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
+          name: 'motivo',
+          sortField: 'motivo',
+          title: 'Motivo',
+          dataClass: 'list-item-heading'
+        },
+        {
           name: 'descripcion',
           sortField: 'descripcion',
           title: 'Descripción',
@@ -363,8 +368,8 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
-          name: 'id_expediente.expediente',
-          sortField: 'id_expediente.expediente',
+          name: 'expediente.expediente',
+          sortField: 'expediente.expediente',
           title: 'Expediente',
           dataClass: 'list-item-heading'
         },
