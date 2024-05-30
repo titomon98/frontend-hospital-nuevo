@@ -335,6 +335,12 @@ export default {
           dataClass: 'text-muted'
         },
         {
+          name: 'expediente.expediente',
+          sortField: 'expediente.expediente',
+          title: 'Expediente',
+          dataClass: 'list-item-heading'
+        },
+        {
           name: 'numero',
           sortField: 'numero',
           title: 'Número',
@@ -368,12 +374,6 @@ export default {
           name: 'total',
           sortField: 'total',
           title: 'Total',
-          dataClass: 'list-item-heading'
-        },
-        {
-          name: 'expediente.expediente',
-          sortField: 'expediente.expediente',
-          title: 'Expediente',
           dataClass: 'list-item-heading'
         },
         {
