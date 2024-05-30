@@ -140,7 +140,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-4-servicios" ref="modal-4-servicios" title="Activar servicio">
+    <b-modal id="modal-4-servicios" ref="modal-4-servicios" title="Ingresar paciente">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -151,15 +151,27 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6 class="my-4">
-        ¿Desea ingresar el paciente: {{ form.nombre }} ?
+        ¿Desea ingresar el paciente: {{ form.nombres }} ?
       </h6>
+      <b-form @submit="$event.preventDefault()">
+        <b-col >
+          <b-form-group label="Área a la que desea trasladar:">
+            <b-form-radio-group
+                      id="radio-group-2"
+                      v-model="selectedTrasOption"
+                      :options="optionsTraslado"
+                      name="radio-options"
+                    ></b-form-radio-group>
+          </b-form-group>
+        </b-col>
+      </b-form>
       <template #modal-footer="{}">
         <b-button
           type="submit"
           variant="primary"
           @click="onState()
                   $bvModal.hide('modal-4-servicios')"
-          >Activar</b-button
+          >Ingresar</b-button
         >
         <b-button variant="danger" @click="$bvModal.hide('modal-4-servicios')"
           >Cancelar</b-button
@@ -186,7 +198,6 @@
               </div>
             </template>
             <template v-slot:headerAction>
-            <b-button variant="primary"  v-b-modal.modal-1-servicios>REINGRESO</b-button>
           </template>
           <template v-slot:body>
             <datatable-heading
@@ -218,7 +229,7 @@
                 </h5>
                 <h5 v-else>
                   <b-badge variant="light"
-                    ><h6 class="danger"><strong>INACTIVO</strong></h6></b-badge
+                    ><h6 class="danger"><strong>FUERA DE HOSPITAL</strong></h6></b-badge
                   >
                 </h5>
               </div>
@@ -226,8 +237,7 @@
               <template slot="actions" slot-scope="props">
                 <b-button-group>
                   <b-button
-                    v-b-tooltip.top="
-                      props.rowData.estado == 1 ? 'Desactivar' : 'Activar'"
+                    v-b-tooltip.top="'Ingresar'"
                     @click="
                       setData(props.rowData)
                       props.rowData.estado == 1
@@ -289,6 +299,7 @@ export default {
       perPage: 5,
       search: this.search,
       selectedCriteria: 'nombres',
+      selectedTrasOption: 1,
       form: {
         id: 0,
         nombres: '',
@@ -309,6 +320,12 @@ export default {
         { text: 'Apellidos', value: 'apellidos' },
         { text: 'Expediente', value: 'expediente' },
         { text: 'CUI', value: 'cui' }
+      ],
+      optionsTraslado: [
+        { text: 'Hospitalización', value: 1 },
+        { text: 'Quirófano', value: 3 },
+        { text: 'Emergencia', value: 4 },
+        { text: 'Intensivos', value: 5 }
       ],
       fields: [
         {
@@ -479,8 +496,9 @@ export default {
           })
       } else {
         axios
-          .put(apiUrl + '/expedientes/activate', {
-            id: this.form.id
+          .put(apiUrl + '/expedientes/changeState', {
+            id: this.form.id,
+            estado: this.selectedTrasOption
           })
           .then((response) => {
             me.alertVariant = 'info'
@@ -542,7 +560,6 @@ export default {
     handleSearchInput () {
       this.currentPage = 1 // Reiniciar la página actual a 1 cada vez que se cambia la búsqueda
       this.$refs.vuetable.refresh()
-      console.log(this.selectedCriteria)
     }
   }
 }
