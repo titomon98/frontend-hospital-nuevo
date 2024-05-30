@@ -59,8 +59,11 @@
           <v-select
             name="type"
             v-model="form.id_expediente"
+            :state="!$v.form.id_expediente.$error"
             :options="expedientes"
+            :filterable="false"
             placeholder="Seleccione el expediente"
+            @search="onSearchExpedientes"
           />
         </b-form-group>
       </b-form>
@@ -589,13 +592,23 @@ export default {
     showAlertError () {
       this.alertC.ountDownError = this.alertSecs
     },
-    async fetchExpedientes () {
-      try {
-        const response = axios.get(apiUrl + '/expedientes/list')
-        this.expedientes = response.data
-      } catch (error) {
-        console.error('Error fetching expedientes:', error)
+    onSearchExpedientes (search, loading) {
+      if (search.length) {
+        loading(true)
+        this.searchingExpedientes(search, loading)
       }
+    },
+    searchingExpedientes (search, loading) {
+      axios.get(apiUrl + '/expedientes/getSearch',
+        {
+          params: {
+            search: search
+          }
+        }
+      ).then((response) => {
+        this.expedientes = response.data
+        loading(false)
+      })
     }
   }
 }
