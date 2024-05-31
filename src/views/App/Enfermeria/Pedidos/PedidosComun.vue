@@ -72,7 +72,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-3-bank" ref="modal-3-bank" title="Desactivar banco">
+    <b-modal id="modal-3-bank" ref="modal-3-bank" title="Desactivar pedido">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -83,7 +83,7 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6 class="my-4">
-        ¿Desea desactivar el banco: {{ form.name }} ?
+        ¿Desea desactivar el pedido: {{ form.name }} ?
       </h6>
       <template #modal-footer="{}">
         <b-button
@@ -98,7 +98,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-4-bank" ref="modal-4-bank" title="Activar banco">
+    <b-modal id="modal-4-bank" ref="modal-4-bank" title="Activar pedido">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -109,7 +109,7 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6 class="my-4">
-        ¿Desea activar al banco: {{ form.name }} ?
+        ¿Desea activar el pedido: {{ form.name }} ?
       </h6>
       <template #modal-footer="{}">
         <b-button
@@ -259,7 +259,7 @@ export default {
       alertText: '',
       alertErrorText: '',
       alertVariant: '',
-      apiBase: apiUrl + '/banco/list',
+      apiBase: apiUrl + '/pedidos/list',
       fields: [
         {
           name: '__slot:actions',

@@ -496,14 +496,14 @@ export default {
     makeQueryParams (sortOrder, currentPage, perPage) {
       return sortOrder[0]
         ? {
-          criterio: sortOrder[0] ? sortOrder[0].sortField : 'createdAt',
+          criterio: sortOrder[0] ? sortOrder[0].sortField : 'expediente',
           order: sortOrder[0] ? sortOrder[0].direction : 'desc',
           page: currentPage,
           limit: this.perPage,
           search: this.search
         }
         : {
-          criterio: sortOrder[0] ? sortOrder[0].sortField : 'createdAt',
+          criterio: sortOrder[0] ? sortOrder[0].sortField : 'expediente',
           order: sortOrder[0] ? sortOrder[0].direction : 'desc',
           page: currentPage,
           limit: this.perPage,
