@@ -491,6 +491,7 @@ export default {
         })
     },
     onState () {
+      const today = new Date()
       let me = this
       axios
         .put(apiUrl + '/expedientes/changeState', {
@@ -507,10 +508,21 @@ export default {
             .put(apiUrl + '/habitaciones/inUse', {
               id: this.selectedHab.id
             })
-            .then(
+            .then((res) => {
               this.getHabitaciones(0).then(me.$refs.selectHab.refresh())
-            )
-          console.log(this.selectedHab.id)
+              console.log(res)
+            })
+          axios
+            .create(apiUrl + ('/cuentas/create'), {
+              numero: 1,
+              fecha_ingreso: today,
+              motivo: ' ',
+              descripcion: ' ',
+              otros: ' ',
+              total: 0,
+              estado: 1,
+              id_expediente: this.form.id
+            }).then((resp) => console.log(resp))
         })
         .catch((error) => {
           me.alertVariant = 'danger'
