@@ -162,6 +162,15 @@
                       :options="optionsTraslado"
                       name="radio-options"
                     ></b-form-radio-group>
+            <div v-if="selectedTrasOption==1||selectedTrasOption==5">
+              Habitación
+              <v-select
+              ref="selectHab"
+              v-model="selectedHab"
+              :options="habitaciones"
+              label="numero"
+              value="id"></v-select>
+            </div>
           </b-form-group>
         </b-col>
       </b-form>
@@ -191,7 +200,7 @@
                       id="radio-group-1"
                       v-model="selectedCriteria"
                       :options="options"
-                      @change="handleSearching"
+                      @change="handleSearchInput"
                       name="radio-options"
                     ></b-form-radio-group>
                 </b-form>
@@ -288,6 +297,10 @@ export default {
   setup () {
     return { $v: useVuelidate() }
   },
+  beforeMount () {
+    this.getHabitaciones(0)
+    console.log(this.habitaciones)
+  },
   mounted () {
     xray.index()
   },
@@ -306,7 +319,8 @@ export default {
         apellidos: '',
         expediente: '',
         cui: '',
-        state: 1
+        state: 1,
+        habitacion: null
       },
       alertSecs: 5,
       alertCountDown: 0,
@@ -314,7 +328,9 @@ export default {
       alertText: '',
       alertErrorText: '',
       alertVariant: '',
+      selectedHab: null,
       apiBase: apiUrl + '/expedientes/listReingreso',
+      habitaciones: [],
       options: [
         { text: 'Nombres', value: 'nombres' },
         { text: 'Apellidos', value: 'apellidos' },
@@ -476,44 +492,32 @@ export default {
     },
     onState () {
       let me = this
-      if (this.form.state === 1) {
-        axios
-          .put(apiUrl + '/expedientes/deactivate', {
-            id: this.form.id
-          })
-          .then((response) => {
-            me.alertVariant = 'warning'
-            me.showAlert()
-            me.alertText = 'Se ha desactivado el servicio ' + me.form.descripcion + ' exitosamente'
-            me.$refs.vuetable.refresh()
-            me.$refs['modal-3-servicios'].hide()
-          })
-          .catch((error) => {
-            me.alertVariant = 'danger'
-            me.showAlertError()
-            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-            console.error('There was an error!', error)
-          })
-      } else {
-        axios
-          .put(apiUrl + '/expedientes/changeState', {
-            id: this.form.id,
-            estado: this.selectedTrasOption
-          })
-          .then((response) => {
-            me.alertVariant = 'info'
-            me.showAlert()
-            me.alertText = 'Se ha activado el servicio ' + me.form.nombres + ' exitosamente'
-            me.$refs.vuetable.refresh()
-            me.$refs['modal-4-servicios'].hide()
-          })
-          .catch((error) => {
-            me.alertVariant = 'danger'
-            me.showAlertError()
-            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-            console.error('There was an error!', error)
-          })
-      }
+      axios
+        .put(apiUrl + '/expedientes/changeState', {
+          id: this.form.id,
+          estado: this.selectedTrasOption
+        })
+        .then((response) => {
+          me.alertVariant = 'info'
+          me.showAlert()
+          me.alertText = 'Se ha ingresado el paciente ' + me.form.nombres + ' exitosamente'
+          me.$refs.vuetable.refresh()
+          me.$refs['modal-4-servicios'].hide()
+          axios
+            .put(apiUrl + '/habitaciones/inUse', {
+              id: this.selectedHab.id
+            })
+            .then(
+              this.getHabitaciones(0).then(me.$refs.selectHab.refresh())
+            )
+          console.log(this.selectedHab.id)
+        })
+        .catch((error) => {
+          me.alertVariant = 'danger'
+          me.showAlertError()
+          me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+          console.error('There was an error!', error)
+        })
     },
     makeQueryParams (sortOrder, currentPage, perPage) {
       return sortOrder[0]
@@ -560,6 +564,28 @@ export default {
     handleSearchInput () {
       this.currentPage = 1 // Reiniciar la página actual a 1 cada vez que se cambia la búsqueda
       this.$refs.vuetable.refresh()
+    },
+    /* handleChangeHab () {
+      this.currentPage = 1 // Reiniciar la página actual a 1 cada vez que se cambia la búsqueda
+      selectedTrasOption==1 ? (this.getHabitaciones(1)) : (this.getHabitaciones(2))
+      this.$refs.vuetable.refresh()
+    }, */
+    handleFilter () {
+      this.currentPage = 1 // Reiniciar la página actual a 1 cada vez que se cambia la búsqueda
+      this.$refs.vuetable.refresh()
+    },
+    handleCancel () {
+      this.$refs.vuetable.refresh()
+    },
+    getHabitaciones (num) {
+      axios.get(apiUrl + '/habitaciones/get', {
+        params: {
+          tipo: num
+        }
+      }).then((response) => {
+        this.habitaciones = response.data
+        console.log(response.data)
+      })
     }
   }
 }
