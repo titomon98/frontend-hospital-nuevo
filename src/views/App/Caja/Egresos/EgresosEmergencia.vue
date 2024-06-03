@@ -10,7 +10,7 @@
     >
       <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
-    <b-modal id="modal-1-bank" ref="modal-1-bank" title="Agregar banco">
+    <b-modal id="modal-1-traslado" ref="modal-1-traslado" title="Trasladar paciente">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -20,28 +20,44 @@
       >
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
+      <h6 class="my-4">
+        ¿Desea trasladar el paciente: {{ form.nombres }} ?
+      </h6>
       <b-form @submit="$event.preventDefault()">
-        <b-form-group label="Nombre:">
-          <b-form-input
-            v-model.trim="$v.form.name.$model"
-            :state="!$v.form.name.$error"
-            placeholder="Ingresar nombre del banco"
-          ></b-form-input>
-          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
-            Debe ingresar el nombre
-          </div>
-        </b-form-group>
+        <b-col >
+          <b-form-group label="Área a la que desea trasladar:">
+            <b-form-radio-group
+                      id="radio-group-2"
+                      v-model="selectedTrasOption"
+                      :options="optionsTraslado"
+                      name="radio-options"
+                    ></b-form-radio-group>
+            <div v-if="selectedTrasOption==1 || selectedTrasOption==4">
+              Habitación
+              <v-select
+              ref="selectHab"
+              v-model="selectedHab"
+              :options="habitaciones"
+              label="numero"
+              value="id"></v-select>
+            </div>
+          </b-form-group>
+        </b-col>
       </b-form>
       <template #modal-footer="{}">
-        <b-button variant="primary" @click="onValidate('save')"
-          >Guardar</b-button
+        <b-button
+          type="submit"
+          variant="primary"
+          @click="onState()
+                  $bvModal.hide('modal-1-traslado')"
+          >Ingresar</b-button
         >
-        <b-button variant="danger" @click="closeModal('save')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-1-traslado')"
           >Cancelar</b-button
         >
       </template>
     </b-modal>
-    <b-modal id="modal-2-bank" ref="modal-2-bank" title="Editar banco">
+    <b-modal id="modal-2-egreso" ref="modal-2-egreso" title="Egresar paciente">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -51,23 +67,12 @@
       >
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
-      <b-form @submit="$event.preventDefault()">
-        <b-form-group label="Nombre:">
-          <b-form-input
-            v-model.trim="$v.form.name.$model"
-            :state="!$v.form.name.$error"
-            placeholder="Ingresar nombre de banco"
-          ></b-form-input>
-          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
-            Debe ingresar el nombre
-          </div>
-        </b-form-group>
-      </b-form>
+      <h3>¿Desea dar egreso al paciente {{form.nombres}} {{form.apellidos}}?</h3>
       <template #modal-footer="{}">
-        <b-button variant="primary" @click="onValidate('update')"
-          >Guardar</b-button
+        <b-button variant="primary" @click="onPatientQuit()"
+          >Aceptar</b-button
         >
-        <b-button variant="danger" @click="closeModal('update')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-2-egreso')"
           >Cancelar</b-button
         >
       </template>
@@ -137,7 +142,6 @@
               </div>
             </template>
             <template v-slot:headerAction>
-            <b-button variant="primary"  v-b-modal.modal-1-bank>AGREGAR NUEVO</b-button>
           </template>
           <template v-slot:body>
             <datatable-heading
@@ -164,12 +168,12 @@
               <div slot="estado" slot-scope="props">
                 <h5 v-if="props.rowData.estado == 1">
                   <b-badge variant="light"
-                    ><h6 class="success"><strong>ACTIVO</strong></h6></b-badge
+                    ><h6 class="success"><strong></strong></h6></b-badge
                   >
                 </h5>
                 <h5 v-else>
                   <b-badge variant="light"
-                    ><h6 class="danger"><strong>INACTIVO</strong></h6></b-badge
+                    ><h6 class="danger"><strong>EN EMERGENCIAS</strong></h6></b-badge
                   >
                 </h5>
               </div>
@@ -177,22 +181,21 @@
               <template slot="actions" slot-scope="props">
                 <b-button-group>
                   <b-button
-                    v-b-tooltip.top="'Editar'"
-                    @click="setData(props.rowData)"
-                    v-b-modal.modal-2-bank
+                    v-b-tooltip.top="'Egresar paciente'"
+                    @click="
+                      setData(props.rowData)
+                      $bvModal.show('modal-2-egreso')
+                    "
                     class="mb-2"
                     size="sm"
                     variant="outline-warning"
                     ><i :class="'fas fa-pencil-alt'"
                   /></b-button>
                   <b-button
-                    v-b-tooltip.top="
-                      props.rowData.estado == 1 ? 'Desactivar' : 'Activar'"
+                    v-b-tooltip.top="'Trasladar paciente'"
                     @click="
                       setData(props.rowData);
-                      props.rowData.estado == 1
-                        ? $bvModal.show('modal-3-bank')
-                        : $bvModal.show('modal-4-bank');
+                      $bvModal.show('modal-1-traslado');
                     "
                     class="mb-2"
                     size="sm"
@@ -238,6 +241,9 @@ export default {
   setup () {
     return { $v: useVuelidate() }
   },
+  beforeMount () {
+    this.getHabitaciones(0)
+  },
   mounted () {
     xray.index()
   },
@@ -250,7 +256,10 @@ export default {
       search: '',
       form: {
         id: 0,
-        name: '',
+        nombres: '',
+        apellidos: '',
+        expediente: '',
+        cui: '',
         state: 1
       },
       alertSecs: 5,
@@ -259,7 +268,15 @@ export default {
       alertText: '',
       alertErrorText: '',
       alertVariant: '',
-      apiBase: apiUrl + '/banco/list',
+      selectedHab: null,
+      habitaciones: [],
+      selectedTrasOption: 1,
+      optionsTraslado: [
+        { text: 'Quirófano', value: 3 },
+        { text: 'Hospitalización', value: 1 },
+        { text: 'Intensivos', value: 4 }
+      ],
+      apiBase: apiUrl + '/expedientes/listEmergencia',
       fields: [
         {
           name: '__slot:actions',
@@ -268,9 +285,15 @@ export default {
           dataClass: 'text-muted'
         },
         {
-          name: 'nombre',
-          sortField: 'name',
+          name: 'nombres',
+          sortField: 'nombres',
           title: 'Nombre',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'apellidos',
+          sortField: 'appellidos',
+          title: 'Apellidos',
           dataClass: 'list-item-heading'
         },
         {
@@ -306,7 +329,7 @@ export default {
       switch (action) {
         case 'save': {
           this.$v.$reset()
-          this.$refs['modal-1-bank'].hide()
+          this.$refs['modal-1-traslado'].hide()
           this.form.id = 0
           this.form.name = ''
           this.form.state = 1
@@ -314,7 +337,7 @@ export default {
         }
         case 'update': {
           this.$v.$reset()
-          this.$refs['modal-2-bank'].hide()
+          this.$refs['modal-2-egreso'].hide()
           this.form.id = 0
           this.form.name = ''
           this.form.state = 1
@@ -381,43 +404,56 @@ export default {
     },
     onState () {
       let me = this
-      if (this.form.state === 1) {
-        axios
-          .put(apiUrl + '/banco/deactivate', {
-            id: this.form.id
-          })
-          .then((response) => {
-            me.alertVariant = 'warning'
-            me.showAlert()
-            me.alertText = 'Se ha desactivado el banco ' + me.form.name + ' exitosamente'
-            me.$refs.vuetable.refresh()
-            me.$refs['modal-3-bank'].hide()
-          })
-          .catch((error) => {
-            me.alertVariant = 'danger'
-            me.showAlertError()
-            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-            console.error('There was an error!', error)
-          })
-      } else {
-        axios
-          .put(apiUrl + '/banco/activate', {
-            id: this.form.id
-          })
-          .then((response) => {
-            me.alertVariant = 'info'
-            me.showAlert()
-            me.alertText = 'Se ha activado el banco ' + me.form.name + ' exitosamente'
-            me.$refs.vuetable.refresh()
-            me.$refs['modal-4-bank'].hide()
-          })
-          .catch((error) => {
-            me.alertVariant = 'danger'
-            me.showAlertError()
-            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-            console.error('There was an error!', error)
-          })
-      }
+      axios
+        .put(apiUrl + '/expedientes/changeState', {
+          id: this.form.id,
+          estado: this.selectedTrasOption
+        })
+        .then((response) => {
+          me.alertVariant = 'info'
+          me.showAlert()
+          me.alertText = 'Se ha trasladado el paciente ' + me.form.nombres + ' exitosamente'
+          me.$refs.vuetable.refresh()
+          me.$refs['modal-1-traslado'].hide()
+          if (this.selectedTrasOption === 1 || this.selectedTrasOption === 5) {
+            axios
+              .put(apiUrl + '/habitaciones/inUse', {
+                id: this.selectedHab.id
+              })
+              .then((res) => {
+                this.selectedHab = null
+                console.log(this.selectedHab)
+                this.getHabitaciones(0).then(me.$refs.selectHab.refresh())
+              })
+          }
+        })
+        .catch((error) => {
+          me.alertVariant = 'danger'
+          me.showAlertError()
+          me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+          console.error('There was an error!', error)
+        })
+    },
+    onPatientQuit () {
+      let me = this
+      axios
+        .put(apiUrl + '/expedientes/changeState', {
+          id: this.form.id,
+          estado: 0
+        })
+        .then((response) => {
+          me.alertVariant = 'info'
+          me.showAlert()
+          me.alertText = 'Se ha egresado el paciente ' + me.form.nombres + ' exitosamente'
+          me.$refs.vuetable.refresh()
+          me.$refs['modal-2-egreso'].hide()
+        })
+        .catch((error) => {
+          me.alertVariant = 'danger'
+          me.showAlertError()
+          me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+          console.error('There was an error!', error)
+        })
     },
     makeQueryParams (sortOrder, currentPage, perPage) {
       return sortOrder[0]
@@ -460,6 +496,16 @@ export default {
     },
     showAlertError () {
       this.alertCountDownError = this.alertSecs
+    },
+    getHabitaciones (num) {
+      axios.get(apiUrl + '/habitaciones/get', {
+        params: {
+          tipo: num
+        }
+      }).then((response) => {
+        this.habitaciones = response.data
+        console.log(response.data)
+      })
     }
   }
 }

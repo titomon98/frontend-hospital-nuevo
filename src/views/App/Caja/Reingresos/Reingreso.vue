@@ -162,7 +162,7 @@
                       :options="optionsTraslado"
                       name="radio-options"
                     ></b-form-radio-group>
-            <div v-if="selectedTrasOption==1||selectedTrasOption==5">
+            <div v-if="selectedTrasOption==1||selectedTrasOption==4">
               Habitación
               <v-select
               ref="selectHab"
@@ -299,7 +299,6 @@ export default {
   },
   beforeMount () {
     this.getHabitaciones(0)
-    console.log(this.habitaciones)
   },
   mounted () {
     xray.index()
@@ -340,8 +339,8 @@ export default {
       optionsTraslado: [
         { text: 'Hospitalización', value: 1 },
         { text: 'Quirófano', value: 3 },
-        { text: 'Emergencia', value: 4 },
-        { text: 'Intensivos', value: 5 }
+        { text: 'Emergencia', value: 5 },
+        { text: 'Intensivos', value: 4 }
       ],
       fields: [
         {
@@ -504,14 +503,17 @@ export default {
           me.alertText = 'Se ha ingresado el paciente ' + me.form.nombres + ' exitosamente'
           me.$refs.vuetable.refresh()
           me.$refs['modal-4-servicios'].hide()
-          axios
-            .put(apiUrl + '/habitaciones/inUse', {
-              id: this.selectedHab.id
-            })
-            .then((res) => {
-              this.getHabitaciones(0).then(me.$refs.selectHab.refresh())
-              console.log(res)
-            })
+          if (this.selectedTrasOption === 1 || this.selectedTrasOption === 4) {
+            axios
+              .put(apiUrl + '/habitaciones/inUse', {
+                id: this.selectedHab.id
+              })
+              .then((res) => {
+                this.selectedHab = null
+                console.log(this.selectedHab)
+                this.getHabitaciones(0).then(me.$refs.selectHab.refresh())
+              })
+          }
           axios
             .create(apiUrl + ('/cuentas/create'), {
               numero: 1,
