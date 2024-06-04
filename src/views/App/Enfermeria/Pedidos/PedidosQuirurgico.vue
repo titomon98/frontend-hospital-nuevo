@@ -58,7 +58,7 @@
             :state="!$v.form.fecha.$error"
             placeholder="Ingresar fecha del pedido"
           ></b-form-input>
-          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
+          <div v-if="$v.form.fecha.required.$invalid" class="invalid-feedback">
             Debe ingresar la fecha
           </div>
         </b-form-group>
