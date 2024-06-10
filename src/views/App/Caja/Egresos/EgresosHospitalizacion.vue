@@ -70,8 +70,41 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6>¿Desea dar egreso al paciente {{form.nombres}} {{form.apellidos}}?</h6>
+      <template>
+        <div>
+          <h6>Cuentas activas para {{this.form.nombres}} {{this.form.apellidos}}</h6>
+          <b-card>
+            <b-card-body>
+              <b-table
+                hover
+                :items="cuentas"
+                :fields="fieldsAccounts"
+                :select-mode="'single'"
+                selectable
+                @row-selected="onRowSelected"
+              >
+                <template #cell(seleccion)="{ rowSelected }">
+                  <template v-if="rowSelected">
+                    <span aria-hidden="true">&check;</span>
+                    <span class="sr-only">Selected</span>
+                  </template>
+                  <template v-else>
+                    <span aria-hidden="true">&nbsp;</span>
+                    <span class="sr-only">Not selected</span>
+                  </template>
+                </template>
+              </b-table>
+              <b-input id="paymentTypeInput" ref="paymentTypeInput" placeholder="Ingresar tipo de pago" @input="(val) => inputPaymentType(val)" />
+            </b-card-body>
+          </b-card>
+        </div>
+      </template>
       <template #modal-footer="{}">
-        <b-button variant="primary" @click="onPatientQuit()"
+        <b-button variant="primary" @click="
+            onPatientQuit()
+            selectedAccount = null
+            paymentType = ''
+          "
           >Aceptar</b-button
         >
         <b-button variant="danger" @click="$bvModal.hide('modal-2-egresarHosp')"
@@ -266,6 +299,7 @@ export default {
       alertVariant: '',
       selectedHab: null,
       habitaciones: [],
+      selectedAccount: null,
       cuentas: [],
       selectedTrasOption: 4,
       apiBase: apiUrl + '/expedientes/listHospitalizacion',
@@ -299,6 +333,28 @@ export default {
           titleClass: '',
           dataClass: 'text-muted',
           width: '25%'
+        }
+      ],
+      fieldsAccounts: [
+        {
+          key: 'numero',
+          label: 'Numero',
+          sortable: true
+        },
+        {
+          key: 'motivo',
+          label: 'Motivo',
+          sortable: true
+        },
+        {
+          key: 'total',
+          label: 'Total',
+          sortable: true
+        },
+        {
+          key: 'seleccion',
+          label: 'Selección',
+          sortable: true
         }
       ]
     }
@@ -356,6 +412,7 @@ export default {
       this.form.name = data.nombre
       this.form.state = data.estado
       this.form.id = data.id
+      this.getCuentas(data.id)
     },
     /* Guardar */
     onSave () {
@@ -430,25 +487,40 @@ export default {
         })
     },
     onPatientQuit () {
-      let me = this
-      axios
-        .put(apiUrl + '/expedientes/changeState', {
-          id: this.form.id,
-          estado: 0
-        })
-        .then((response) => {
-          me.alertVariant = 'info'
-          me.showAlert()
-          me.alertText = 'Se ha egresado el paciente ' + me.form.nombres + ' exitosamente'
-          me.$refs.vuetableHosp.refresh()
-          me.$refs['modal-2-egresarHosp'].hide()
-        })
-        .catch((error) => {
-          me.alertVariant = 'danger'
-          me.showAlertError()
-          me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-          console.error('There was an error!', error)
-        })
+      if (this.paymentType === '' && this.selectedAccount === null) {
+        this.alertErrorText = 'Revisa que todos los campos requeridos esten llenos'
+        this.showAlertError()
+      } else {
+        let me = this
+        axios
+          .put(apiUrl + '/expedientes/changeState', {
+            id: this.form.id,
+            estado: 0
+          })
+          .then((response) => {
+            axios.put(apiUrl + '/habitaciones/available',
+              {
+                ocupante: this.form.id
+              }
+            )
+            axios.put(apiUrl + '/cuentas/deactivate',
+              {
+                id: this.selectedAccount,
+                tipo_de_pago: this.paymentType
+              })
+            me.alertVariant = 'info'
+            me.showAlert()
+            me.alertText = 'Se ha egresado el paciente ' + me.form.nombres + ' exitosamente'
+            me.$refs.vuetableHosp.refresh()
+            me.$refs['modal-2-egresarHosp'].hide()
+          })
+          .catch((error) => {
+            me.alertVariant = 'danger'
+            me.showAlertError()
+            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+            console.error('There was an error!', error)
+          })
+      }
     },
     makeQueryParams (sortOrder, currentPage, perPage) {
       return sortOrder[0]
@@ -509,8 +581,13 @@ export default {
         }
       }).then((response) => {
         this.cuentas = response.data
-        console.log(response.data)
       })
+    },
+    inputPaymentType (inptPay) {
+      this.paymentType = inptPay
+    },
+    onRowSelected (items) {
+      this.selectedAccount = items[0].id
     }
   }
 }
