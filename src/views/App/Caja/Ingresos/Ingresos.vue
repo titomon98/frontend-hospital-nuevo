@@ -33,13 +33,16 @@
               <!-- columna -->
               <b-col md="2">
                 <b-form-group label="Nombre:">
+                  <span class="required-asterisk" style="position: absolute; top: 50%; transform: translateY(-50%); right: 5px; color: red;"></span>
                   <b-form-input
                     v-model.trim="$v.form.nombre.$model"
-                    :state="!$v.form.nombre.$error"
+                    :class="{'is-invalid': $v.form.nombre.$error}"
                     placeholder="Ingresar nombre"
+                    required
                   ></b-form-input>
-                  <div v-if="$v.form.nombre.required.$invalid" class="invalid-feedback">
-                    Debe ingresar el nombre
+                  <div v-if="$v.form.nombre.$error" class="invalid-feedback">
+                    <div v-if="!$v.form.nombre.required.$error">Debe ingresar nombre</div>
+                    <div v-if="!$v.form.nombre.ValidateName.$error">El nombre solo debe contener letras mayúsculas y con tildes</div>
                   </div>
                 </b-form-group>
               </b-col>
@@ -48,16 +51,16 @@
                 <b-form-group label="Apellidos:">
                   <b-form-input
                     v-model.trim="$v.form.apellidos.$model"
-                    :state="!$v.form.apellidos.$error"
+                    :class="{'is-invalid': $v.form.apellidos.$error}"
                     placeholder="Ingresar apellidos"
                   ></b-form-input>
                   <div v-if="$v.form.apellidos.required.$invalid" class="invalid-feedback">
-                    Debe ingresar los apellidos
+                    Ingresar los apellidos
                   </div>
                 </b-form-group>
               </b-col>
               <b-col md="2">
-                <b-form-group label="Apellido de casada:">
+                <b-form-group label="Apellido de casada: ">
                   <b-form-input
                     v-model.trim="form.casada"
                     placeholder="Ingresar apellido de casada"
@@ -69,7 +72,7 @@
                   <b-form-input
                     type="date"
                     v-model.trim="$v.form.nacimiento.$model"
-                    :state="!$v.form.nacimiento.$error"
+                    :class="{'is-invalid': $v.form.nacimiento.$error}"
                     placeholder="Ingresar fecha de nacimiento"
                   ></b-form-input>
                 </b-form-group>
@@ -78,7 +81,7 @@
                 <b-form-group label="Telefono:">
                   <b-form-input
                     v-model.trim="$v.form.telefono.$model"
-                    :state="!$v.form.telefono.$error"
+                    :class="{'is-invalid': $v.form.telefono.$error}"
                     placeholder="Ingresar telefono"
                   ></b-form-input>
                   <div v-if="$v.form.telefono.required.$invalid" class="invalid-feedback">
@@ -108,11 +111,14 @@
                 <b-form-group label="CUI:">
                   <b-form-input
                     v-model.trim="$v.form.cui.$model"
-                    :state="!$v.form.cui.$error"
+                    :class="{'is-invalid': $v.form.cui.$error}"
                     placeholder="Ingresar el CUI"
                   ></b-form-input>
                   <div v-if="$v.form.cui.$error" class="invalid-feedback">
                     El valor del CUI debe ser numerico.
+                  </div>
+                  <div v-if="$v.form.cui.numeric.$invalid" class="invalid-feedback">
+                    Debe ingresar unicamente numeros
                   </div>
                 </b-form-group>
               </b-col>
@@ -130,7 +136,7 @@
                 <b-form-group label="Dirección:">
                   <b-form-input
                     v-model.trim="$v.form.direccion.$model"
-                    :state="!$v.form.direccion.$error"
+                    :class="{'is-invalid': $v.form.direccion.$error}"
                     placeholder="Ingresar dirección"
                   ></b-form-input>
                 </b-form-group>
@@ -250,7 +256,7 @@
                 <b-form-group label="Nombre:">
                   <b-form-input
                     v-model.trim="$v.form.nombre_encargado.$model"
-                    :state="!$v.form.nombre_encargado.$error"
+                    :class="{'is-invalid': $v.form.nombre_encargado.$error}"
                     placeholder="Ingresar nombre"
                   ></b-form-input>
                   <div v-if="$v.form.nombre_encargado.required.$invalid" class="invalid-feedback">
@@ -262,7 +268,7 @@
                 <b-form-group label="Telefono:">
                   <b-form-input
                     v-model.trim="$v.form.contacto_encargado.$model"
-                    :state="!$v.form.contacto_encargado.$error"
+                    :class="{'is-invalid': $v.form.contacto_encargado.$error}"
                     placeholder="Ingresar telefono"
                   ></b-form-input>
                   <div v-if="$v.form.contacto_encargado.required.$invalid" class="invalid-feedback">
@@ -278,7 +284,7 @@
                 <b-form-group label="CUI:">
                   <b-form-input
                     v-model.trim="$v.form.cui_encargado.$model"
-                    :state="!$v.form.cui_encargado.$error"
+                    :class="{'is-invalid': $v.form.cui_encargado.$error}"
                     placeholder="Ingresar el CUI"
                   ></b-form-input>
                   <div v-if="$v.form.cui_encargado.required.$invalid" class="invalid-feedback">
@@ -347,9 +353,6 @@
                     v-model.trim="form.telefono_conyuge"
                     placeholder="Ingresar telefono de conyuge"
                   ></b-form-input>
-                  <div v-if="$v.form.telefono_conyuge.numeric.$invalid" class="invalid-feedback">
-                    Debe ingresar unicamente numeros
-                  </div>
                 </b-form-group>
               </b-col>
               <!-- columna -->
@@ -370,10 +373,17 @@
     <b-button block variant="primary" @click="onValidate">Registrar paciente</b-button>
   </b-container>
 </template>
+<style scoped>
+.required-asterisk {
+  color: red;
+  font-size: 12px;
+  margin-right: 1px;
+}
+</style>
 <script>
 import { xray } from '../../../../config/pluginInit'
 import useVuelidate from '@vuelidate/core'
-import { required, numeric } from '@vuelidate/validators'
+import { required, numeric, helpers } from '@vuelidate/validators'
 import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
 import { mapGetters } from 'vuex'
@@ -468,10 +478,10 @@ export default {
     return {
       form: {
         nombre: {
-          required
+          required, ValidateName: helpers.regex(/^[A-ZÁÉÍÓÚÜÑ\s]+$/)
         },
         apellidos: {
-          required
+          required, ValidateName: helpers.regex(/^[A-ZÁÉÍÓÚÜÑ\s]+$/)
         },
         telefono: {
           required, numeric
@@ -486,7 +496,7 @@ export default {
           required
         },
         nombre_encargado: {
-          required
+          required, ValidateName: helpers.regex(/^[A-ZÁÉÍÓÚÜÑ\s]+$/)
         },
         contacto_encargado: {
           required,
