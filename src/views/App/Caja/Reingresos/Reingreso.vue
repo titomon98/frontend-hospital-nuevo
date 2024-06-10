@@ -140,7 +140,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-4-servicios" ref="modal-4-servicios" title="Ingresar paciente">
+    <b-modal id="modal-4-servicios" ref="modal-4-servicios" title="Ingresar paciente" @show="this.selectedHab = null">
       <b-alert
         :show="alertCountDownError"
         dismissible

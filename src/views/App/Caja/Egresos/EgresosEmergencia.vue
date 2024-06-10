@@ -99,7 +99,11 @@
         </div>
       </template>
       <template #modal-footer="{}">
-        <b-button variant="primary" @click="onPatientQuit()"
+        <b-button variant="primary" @click="
+          onPatientQuit()
+          selectedAccount = null
+          paymentType = ''
+        "
           >Aceptar</b-button
         >
         <b-button variant="danger" @click="$bvModal.hide('modal-2-egreso')"
