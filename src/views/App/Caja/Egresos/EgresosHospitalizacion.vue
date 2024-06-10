@@ -10,7 +10,7 @@
     >
       <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
-    <b-modal id="modal-1-traslado" ref="modal-1-traslado" title="Trasladar paciente">
+    <b-modal id="modal-1-trasladoHosp" ref="modal-1-trasladoHosp" title="Trasladar paciente">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -48,16 +48,18 @@
         <b-button
           type="submit"
           variant="primary"
-          @click="onState()
-                  $bvModal.hide('modal-1-traslado')"
+          @click="
+            onValidate()
+            this.selectedHab = null
+          "
           >Ingresar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-1-traslado')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-1-trasladoHosp')"
           >Cancelar</b-button
         >
       </template>
     </b-modal>
-    <b-modal id="modal-2-egreso" ref="modal-2-egreso" title="Egresar paciente">
+    <b-modal id="modal-2-egresarHosp" ref="modal-2-egresarHosp" title="Egresar paciente" size="xl">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -67,12 +69,12 @@
       >
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
-      <h3>¿Desea dar egreso al paciente {{form.nombres}} {{form.apellidos}}?</h3>
+      <h6>¿Desea dar egreso al paciente {{form.nombres}} {{form.apellidos}}?</h6>
       <template #modal-footer="{}">
         <b-button variant="primary" @click="onPatientQuit()"
           >Aceptar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-2-egreso')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-2-egresarHosp')"
           >Cancelar</b-button
         >
       </template>
@@ -154,7 +156,7 @@
             >
             </datatable-heading>
             <vuetable
-              ref="vuetable"
+              ref="vuetableHosp"
               class="table-divided order-with-arrow"
               :api-url="apiBase"
               :query-params="makeQueryParams"
@@ -183,7 +185,7 @@
                   <b-button
                     v-b-tooltip.top="'Egresar'"
                     @click="setData(props.rowData)
-                    $bvModal.show('modal-2-egreso')"
+                    $bvModal.show('modal-2-egresarHosp')"
                     class="mb-2"
                     size="sm"
                     variant="outline-warning"
@@ -193,17 +195,13 @@
                     v-b-tooltip.top="'Trasladar'"
                     @click="
                       setData(props.rowData);
-                      $bvModal.show('modal-1-traslado')
+                      $bvModal.show('modal-1-trasladoHosp')
                     "
                     class="mb-2"
                     size="sm"
-                    :variant="
-                      props.rowData.estado == 1 ? 'outline-danger' : 'outline-info'">
+                    :variant="'outline-danger'">
                     <i
-                      :class="
-                        props.rowData.estado == 1
-                          ? 'fas fa-trash-alt'
-                          : 'fas fa-check'"
+                      :class="'fas fa-heart'"
                   /></b-button>
                 </b-button-group>
               </template>
@@ -241,7 +239,6 @@ export default {
   },
   beforeMount () {
     this.getHabitaciones(0)
-    this.$refs.vuetable.refresh()
   },
   mounted () {
     xray.index()
@@ -269,6 +266,7 @@ export default {
       alertVariant: '',
       selectedHab: null,
       habitaciones: [],
+      cuentas: [],
       selectedTrasOption: 4,
       apiBase: apiUrl + '/expedientes/listHospitalizacion',
       optionsTraslado: [
@@ -336,7 +334,7 @@ export default {
         }
         case 'update': {
           this.$v.$reset()
-          this.$refs['modal-2-egreso'].hide()
+          this.$refs['modal-2-egresarHosp'].hide()
           this.form.id = 0
           this.form.name = ''
           this.form.state = 1
@@ -346,15 +344,12 @@ export default {
     },
     onValidate (action) {
       this.$v.$touch()
-      if (this.$v.$error !== true) {
-        if (action === 'save') {
-          this.onSave()
-        } else if (action === 'update') {
-          this.onUpdate()
-        }
-      } else {
+      if (this.selectedHab === null && (this.selectedTrasOption === 1 || this.selectedTrasOption === 4)) {
         this.alertErrorText = 'Revisa que todos los campos requeridos esten llenos'
         this.showAlertError()
+      } else {
+        this.onState()
+        this.$bvModal.hide('modal-1-trasladoHosp')
       }
     },
     setData (data) {
@@ -371,7 +366,7 @@ export default {
           me.alertVariant = 'success'
           me.showAlert()
           me.alertText = 'Se ha creado el banco ' + me.form.name + ' exitosamente'
-          me.$refs.vuetable.refresh()
+          me.$refs.vuetableHosp.refresh()
           me.closeModal('save')
         })
         .catch((error) => {
@@ -391,7 +386,7 @@ export default {
           me.alertVariant = 'primary'
           me.showAlert()
           me.alertText = 'Se ha actualizado el banco ' + me.form.name + ' exitosamente'
-          me.$refs.vuetable.refresh()
+          me.$refs.vuetableHosp.refresh()
           me.closeModal('update')
         })
         .catch((error) => {
@@ -412,9 +407,9 @@ export default {
           me.alertVariant = 'info'
           me.showAlert()
           me.alertText = 'Se ha trasladado el paciente ' + me.form.nombres + ' exitosamente'
-          me.$refs.vuetable.refresh()
-          me.$refs['modal-1-traslado'].hide()
-          if (this.selectedTrasOption === 1 || this.selectedTrasOption === 5) {
+          me.$refs.vuetableHosp.refresh()
+          me.$refs['modal-1-trasladoHosp'].hide()
+          if (this.selectedTrasOption === 1 || this.selectedTrasOption === 4) {
             axios
               .put(apiUrl + '/habitaciones/inUse', {
                 id: this.selectedHab.id
@@ -444,8 +439,8 @@ export default {
           me.alertVariant = 'info'
           me.showAlert()
           me.alertText = 'Se ha egresado el paciente ' + me.form.nombres + ' exitosamente'
-          me.$refs.vuetable.refresh()
-          me.$refs['modal-2-egreso'].hide()
+          me.$refs.vuetableHosp.refresh()
+          me.$refs['modal-2-egresarHosp'].hide()
         })
         .catch((error) => {
           me.alertVariant = 'danger'
@@ -473,11 +468,11 @@ export default {
     },
     changePageSizes (perPage) {
       this.perPage = perPage
-      this.$refs.vuetable.refresh()
+      this.$refs.vuetableHosp.refresh()
     },
     searchChange (val) {
       this.search = val.toLowerCase()
-      this.$refs.vuetable.refresh()
+      this.$refs.vuetableHosp.refresh()
     },
     onPaginationData (paginationData) {
       this.from = paginationData.from
@@ -488,7 +483,7 @@ export default {
       this.$refs.pagination.setPaginationData(paginationData)
     },
     onChangePage (page) {
-      this.$refs.vuetable.changePage(page)
+      this.$refs.vuetableHosp.changePage(page)
     },
     showAlert () {
       this.alertCountDown = this.alertSecs
@@ -503,6 +498,16 @@ export default {
         }
       }).then((response) => {
         this.habitaciones = response.data
+        console.log(response.data)
+      })
+    },
+    getCuentas (num) {
+      axios.get(apiUrl + '/cuentas/getByExp', {
+        params: {
+          id: num
+        }
+      }).then((response) => {
+        this.cuentas = response.data
         console.log(response.data)
       })
     }
