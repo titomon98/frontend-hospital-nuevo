@@ -412,7 +412,8 @@ export default {
           if (this.selectedTrasOption === 1 || this.selectedTrasOption === 4) {
             axios
               .put(apiUrl + '/habitaciones/inUse', {
-                id: this.selectedHab.id
+                id: this.selectedHab.id,
+                ocupante: this.form.id
               })
               .then((res) => {
                 this.selectedHab = null

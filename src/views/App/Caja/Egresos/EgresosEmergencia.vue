@@ -471,7 +471,8 @@ export default {
           if (this.selectedTrasOption === 1 || this.selectedTrasOption === 4) {
             axios
               .put(apiUrl + '/habitaciones/inUse', {
-                id: this.selectedHab.id
+                id: this.selectedHab.id,
+                ocupante: this.form.id
               })
               .then((res) => {
                 this.selectedHab = null
@@ -499,7 +500,11 @@ export default {
             estado: 0
           })
           .then((response) => {
-            axios.put(apiUrl + '/cuentas/deactivate', { id: this.selectedAccount })
+            axios.put(apiUrl + '/cuentas/deactivate',
+              {
+                id: this.selectedAccount,
+                tipo_de_pago: this.paymentType
+              })
             me.alertVariant = 'info'
             me.showAlert()
             me.alertText = 'Se ha egresado el paciente ' + me.form.nombres + ' exitosamente'

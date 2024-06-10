@@ -186,7 +186,10 @@
         <b-button
           type="submit"
           variant="primary"
-          @click="onValidate()"
+          @click="
+            onValidate()
+            this.selectedHab = null
+          "
           >Ingresar</b-button
         >
         <b-button variant="danger" @click="$bvModal.hide('modal-4-servicios')"
@@ -519,7 +522,8 @@ export default {
           if (this.selectedTrasOption === 1 || this.selectedTrasOption === 4) {
             axios
               .put(apiUrl + '/habitaciones/inUse', {
-                id: this.selectedHab.id
+                id: this.selectedHab.id,
+                ocupante: this.form.id
               })
               .then((res) => {
                 this.selectedHab = null
