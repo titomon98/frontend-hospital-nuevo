@@ -10,7 +10,7 @@
     >
       <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
-    <b-modal id="modal-1-account" ref="modal-1-account" title="Agregar cuenta">
+    <b-modal id="modal-1-servicios" ref="modal-1-servicios" title="Agregar servicio">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -21,50 +21,36 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <b-form @submit="$event.preventDefault()">
-        <b-form-group label="Fecha de ingreso:">
-          <b-form-input
-            type="date"
-            v-model.trim="$v.form.fecha_ingreso.$model"
-            :state="!$v.form.fecha_ingreso.$error"
-            placeholder="Ingresar la fecha de ingreso"
-          ></b-form-input>
-          <div v-if="$v.form.fecha_ingreso.required.$invalid" class="invalid-feedback">
-            Debe ingresar una fecha de ingreso
-          </div>
-        </b-form-group><b-form-group label="Motivo:">
-          <b-form-input
-            v-model.trim="$v.form.motivo.$model"
-            :state="!$v.form.motivo.$error"
-            placeholder="Ingresar motivo"
-          ></b-form-input>
-          <div v-if="$v.form.motivo.required.$invalid" class="invalid-feedback">
-            Debe ingresar un motivo
-          </div>
-        </b-form-group>
         <b-form-group label="Descripción:">
           <b-form-input
             v-model.trim="$v.form.descripcion.$model"
             :state="!$v.form.descripcion.$error"
-            placeholder="Ingresar descripción"
+            placeholder="Ingresar la descripción del servicio"
           ></b-form-input>
+          <div v-if="$v.form.descripcion.required.$invalid" class="invalid-feedback">
+            Debe ingresar la descripción
+          </div>
         </b-form-group>
-        <b-form-group label="Otros:">
+        <b-form-group label="Unidad de medida:">
           <b-form-input
-            v-model.trim="$v.form.otros.$model"
-            :state="!$v.form.otros.$error"
-            placeholder="Ingresar otros"
+            v-model.trim="$v.form.unidadDeMedida.$model"
+            :state="!$v.form.unidadDeMedida.$error"
+            placeholder="Ingresar la unidad de medida del servicio"
           ></b-form-input>
+          <div v-if="$v.form.unidadDeMedida.required.$invalid" class="invalid-feedback">
+            Debe ingresar la unidad de medida
+          </div>
         </b-form-group>
-        <b-form-group label="Expediente:">
-          <v-select
-            name="type"
-            v-model="form.id_expediente"
-            :state="!$v.form.id_expediente.$error"
-            :options="expedientes"
-            :filterable="false"
-            placeholder="Seleccione el expediente"
-            @search="onSearchExpedientes"
-          />
+        <b-form-group label="Precio:">
+          <b-form-input
+            type="number"
+            v-model.trim="$v.form.precio.$model"
+            :state="!$v.form.precio.$error"
+            placeholder="Ingresar precio del servicio"
+          ></b-form-input>
+          <div v-if="$v.form.precio.required.$invalid" class="invalid-feedback">
+            Debe ingresar el precio
+          </div>
         </b-form-group>
       </b-form>
       <template #modal-footer="{}">
@@ -76,7 +62,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-2-account" ref="modal-2-account" title="Editar cuenta">
+    <b-modal id="modal-2-servicios" ref="modal-2-servicios" title="Editar servicio">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -87,42 +73,37 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <b-form @submit="$event.preventDefault()">
-        <b-form-group label="Nombre:"><b-form-group label="Fecha de ingreso:">
-          <b-form-input
-            type="date"
-            v-model.trim="$v.form.fecha_ingreso.$model"
-            :state="!$v.form.fecha_ingreso.$error"
-            placeholder="Ingresar fecha de ingreso"
-          ></b-form-input>
-          <div v-if="$v.form.fecha_ingreso.required.$invalid" class="invalid-feedback">
-            Debe ingresar una fecha válida
-          </div>
-        </b-form-group>
-        <b-form-group label="Motivo:">
-          <b-form-input
-            v-model.trim="$v.form.motivo.$model"
-            :state="!$v.form.motivo.$error"
-            placeholder="Ingresar motivo"
-          ></b-form-input>
-          <div v-if="$v.form.motivo.required.$invalid" class="invalid-feedback">
-            Debe ingresar un motivo
-          </div>
-        </b-form-group>
         <b-form-group label="Descripción:">
           <b-form-input
             v-model.trim="$v.form.descripcion.$model"
             :state="!$v.form.descripcion.$error"
-            placeholder="Ingresar descripción"
+            placeholder="Ingresar descripcion del servicio"
           ></b-form-input>
+          <div v-if="$v.form.descripcion.required.$invalid" class="invalid-feedback">
+            Debe ingresar la descripción
+          </div>
         </b-form-group>
-        <b-form-group label="Otros:">
+        <b-form-group label="Unidad de medida:">
           <b-form-input
-            v-model.trim="$v.form.otros.$model"
-            :state="!$v.form.otros.$error"
-            placeholder="Ingresar otros"
+            v-model.trim="$v.form.unidadDeMedida.$model"
+            :state="!$v.form.unidadDeMedida.$error"
+            placeholder="Ingresar la unidad de medida del servicio"
           ></b-form-input>
+          <div v-if="$v.form.unidadDeMedida.required.$invalid" class="invalid-feedback">
+            Debe ingresar la unidad de medida
+          </div>
         </b-form-group>
-      </b-form-group>
+        <b-form-group label="Precio:">
+          <b-form-input
+            type="number"
+            v-model.trim="$v.form.precio.$model"
+            :state="!$v.form.precio.$error"
+            placeholder="Ingresar precio del servicio"
+          ></b-form-input>
+          <div v-if="$v.form.precio.required.$invalid" class="invalid-feedback">
+            Debe ingresar el precio
+          </div>
+        </b-form-group>
       </b-form>
       <template #modal-footer="{}">
         <b-button variant="primary" @click="onValidate('update')"
@@ -133,7 +114,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-3-account" ref="modal-3-account" title="Desactivar cuenta">
+    <b-modal id="modal-3-servicios" ref="modal-3-servicios" title="Desactivar servicio">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -144,22 +125,22 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6 class="my-4">
-        ¿Desea desactivar la cuenta: {{ form.numero }} ?
+        ¿Desea desactivar el servicio: {{ form.nombre }} ?
       </h6>
       <template #modal-footer="{}">
         <b-button
           type="submit"
           variant="primary"
           @click="onState()
-                  $bvModal.hide('modal-3-account')"
+                  $bvModal.hide('modal-3-servicios')"
           >Desactivar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-3-account')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-3-servicios')"
           >Cancelar</b-button
         >
       </template>
     </b-modal>
-    <b-modal id="modal-4-account" ref="modal-4-account" title="Activar cuenta">
+    <b-modal id="modal-4-servicios" ref="modal-4-servicios" title="Ingresar paciente">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -170,17 +151,38 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6 class="my-4">
-        ¿Desea activar la cuenta: {{ form.numero }} ?
+        ¿Desea ingresar el paciente: {{ form.nombres }} ?
       </h6>
+      <b-form @submit="$event.preventDefault()">
+        <b-col >
+          <b-form-group label="Área a la que desea trasladar:">
+            <b-form-radio-group
+                      id="radio-group-2"
+                      v-model="selectedTrasOption"
+                      :options="optionsTraslado"
+                      name="radio-options"
+                    ></b-form-radio-group>
+            <div v-if="selectedTrasOption==1||selectedTrasOption==4">
+              Habitación
+              <v-select
+              ref="selectHab"
+              v-model="selectedHab"
+              :options="habitaciones"
+              label="numero"
+              value="id"></v-select>
+            </div>
+          </b-form-group>
+        </b-col>
+      </b-form>
       <template #modal-footer="{}">
         <b-button
           type="submit"
           variant="primary"
           @click="onState()
-                  $bvModal.hide('modal-4-account')"
-          >Activar</b-button
+                  $bvModal.hide('modal-4-servicios')"
+          >Ingresar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-4-account')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-4-servicios')"
           >Cancelar</b-button
         >
       </template>
@@ -189,11 +191,18 @@
       <b-col md="12">
         <iq-card>
             <template v-slot:headerTitle>
-              <h4 class="card-title mt-3">Cuentas activas</h4>
+              <h4 class="card-title mt-3">Reingreso</h4>
                <div class="iq-search-bar mt-2">
                 <b-form action="#" class="searchbox">
-                    <b-input id="search" placeholder="Buscar..." @input="(val) => searchChange(val)" />
+                    <b-input v-model="search" placeholder="Buscar..." @input="handleSearchInput" />
                     <a class="search-link" href="#"><i class="ri-search-line"></i></a>
+                    <b-form-radio-group
+                      id="radio-group-1"
+                      v-model="selectedCriteria"
+                      :options="options"
+                      @change="handleSearchInput"
+                      name="radio-options"
+                    ></b-form-radio-group>
                 </b-form>
               </div>
             </template>
@@ -229,7 +238,7 @@
                 </h5>
                 <h5 v-else>
                   <b-badge variant="light"
-                    ><h6 class="danger"><strong>INACTIVO</strong></h6></b-badge
+                    ><h6 class="danger"><strong>FUERA DE HOSPITAL</strong></h6></b-badge
                   >
                 </h5>
               </div>
@@ -237,22 +246,12 @@
               <template slot="actions" slot-scope="props">
                 <b-button-group>
                   <b-button
-                    v-b-tooltip.top="'Editar'"
-                    @click="setData(props.rowData)"
-                    v-b-modal.modal-2-account
-                    class="mb-2"
-                    size="sm"
-                    variant="outline-warning"
-                    ><i :class="'fas fa-pencil-alt'"
-                  /></b-button>
-                  <b-button
-                    v-b-tooltip.top="
-                      props.rowData.estado == 1 ? 'Desactivar' : 'Activar'"
+                    v-b-tooltip.top="'Ingresar'"
                     @click="
-                      setData(props.rowData);
+                      setData(props.rowData)
                       props.rowData.estado == 1
-                        ? $bvModal.show('modal-3-account')
-                        : $bvModal.show('modal-4-account');
+                        ? $bvModal.show('modal-3-servicios')
+                        : $bvModal.show('modal-4-servicios')
                     "
                     class="mb-2"
                     size="sm"
@@ -289,7 +288,7 @@ import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
 
 export default {
-  name: 'CuentasPendientes',
+  name: 'Reingreso',
   components: {
     vuetable: Vuetable,
     'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
@@ -298,9 +297,11 @@ export default {
   setup () {
     return { $v: useVuelidate() }
   },
+  beforeMount () {
+    this.getHabitaciones(0)
+  },
   mounted () {
     xray.index()
-    this.fetchExpedientes()
   },
   data () {
     return {
@@ -308,17 +309,17 @@ export default {
       to: 0,
       total: 0,
       perPage: 5,
-      search: '',
+      search: this.search,
+      selectedCriteria: 'nombres',
+      selectedTrasOption: 1,
       form: {
         id: 0,
-        numero: 0,
-        fecha_ingreso: '',
-        motivo: '',
-        descripcion: '',
-        otros: '',
-        total: 0,
+        nombres: '',
+        apellidos: '',
+        expediente: '',
+        cui: '',
         state: 1,
-        id_expediente: 1
+        habitacion: null
       },
       alertSecs: 5,
       alertCountDown: 0,
@@ -326,7 +327,21 @@ export default {
       alertText: '',
       alertErrorText: '',
       alertVariant: '',
-      apiBase: apiUrl + '/cuentas/list',
+      selectedHab: null,
+      apiBase: apiUrl + '/expedientes/listReingreso',
+      habitaciones: [],
+      options: [
+        { text: 'Nombres', value: 'nombres' },
+        { text: 'Apellidos', value: 'apellidos' },
+        { text: 'Expediente', value: 'expediente' },
+        { text: 'CUI', value: 'cui' }
+      ],
+      optionsTraslado: [
+        { text: 'Hospitalización', value: 1 },
+        { text: 'Quirófano', value: 3 },
+        { text: 'Emergencia', value: 5 },
+        { text: 'Intensivos', value: 4 }
+      ],
       fields: [
         {
           name: '__slot:actions',
@@ -335,45 +350,27 @@ export default {
           dataClass: 'text-muted'
         },
         {
-          name: 'expediente.expediente',
-          sortField: 'expediente.expediente',
+          name: 'nombres',
+          sortField: 'nombres',
+          title: 'Nombres',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'apellidos',
+          sortField: 'apellidos',
+          title: 'Apellidos',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'expediente',
+          sortField: 'expediente',
           title: 'Expediente',
           dataClass: 'list-item-heading'
         },
         {
-          name: 'numero',
-          sortField: 'numero',
-          title: 'Número',
-          dataClass: 'list-item-heading'
-        },
-        {
-          name: 'fecha_ingreso',
-          sortField: 'fecha_ingreso',
-          title: 'Fecha de ingreso',
-          dataClass: 'list-item-heading'
-        },
-        {
-          name: 'motivo',
-          sortField: 'motivo',
-          title: 'Motivo',
-          dataClass: 'list-item-heading'
-        },
-        {
-          name: 'descripcion',
-          sortField: 'descripcion',
-          title: 'Descripción',
-          dataClass: 'list-item-heading'
-        },
-        {
-          name: 'otros',
-          sortField: 'otros',
-          title: 'Otros...',
-          dataClass: 'list-item-heading'
-        },
-        {
-          name: 'total',
-          sortField: 'total',
-          title: 'Total',
+          name: 'cui',
+          sortField: 'cui',
+          title: 'CUI',
           dataClass: 'list-item-heading'
         },
         {
@@ -383,20 +380,15 @@ export default {
           dataClass: 'text-muted',
           width: '25%'
         }
-      ],
-      expedientes: []
+      ]
     }
   },
   validations () {
     return {
       form: {
-        fecha_ingreso: { required },
         descripcion: { required },
-        motivo: { required },
-        otros: { required },
-        total: { required },
-        id_expediente: { required },
-        state: { required }
+        unidadDeMedida: { required },
+        precio: { required }
       }
     }
   },
@@ -406,12 +398,9 @@ export default {
         case 'save': {
           this.$v.$reset()
           this.form.id = 0
-          this.form.fecha_ingreso = ''
           this.form.descripcion = ''
-          this.form.motivo = ''
-          this.form.otros = ''
-          this.form.total = 0
-          this.form.id_expediente = 1
+          this.form.unidadDeMedida = ''
+          this.form.precio = ''
           this.form.state = 1
           break
         }
@@ -421,27 +410,21 @@ export default {
       switch (action) {
         case 'save': {
           this.$v.$reset()
-          this.$refs['modal-1-account'].hide()
+          this.$refs['modal-1-servicios'].hide()
           this.form.id = 0
-          this.form.fecha_ingreso = ''
           this.form.descripcion = ''
-          this.form.motivo = ''
-          this.form.otros = ''
-          this.form.total = 0
-          this.form.id_expediente = 1
+          this.form.unidadDeMedida = ''
+          this.form.precio = ''
           this.form.state = 1
           break
         }
         case 'update': {
           this.$v.$reset()
-          this.$refs['modal-2-account'].hide()
+          this.$refs['modal-2-servicios'].hide()
           this.form.id = 0
-          this.form.fecha_ingreso = ''
           this.form.descripcion = ''
-          this.form.motivo = ''
-          this.form.otros = ''
-          this.form.total = 0
-          this.form.id_expediente = 1
+          this.form.unidadDeMedida = ''
+          this.form.precio = ''
           this.form.state = 1
           break
         }
@@ -461,25 +444,21 @@ export default {
       }
     },
     setData (data) {
-      this.form.numero = data.numero
-      this.form.fecha_ingreso = data.fecha_ingreso
-      this.form.descripcion = data.descripcion
-      this.form.motivo = data.motivo
-      this.form.otros = data.otros
-      this.form.total = data.total
-      this.form.id_expediente = data.id_expediente
+      this.form.nombres = data.nombres
+      this.form.unidadDeMedida = data.unidadDeMedida
+      this.form.precio = data.precio
       this.form.state = data.estado
       this.form.id = data.id
     },
     /* Guardar */
     onSave () {
       const me = this
-      axios.post(apiUrl + '/cuentas/create', {
+      axios.post(apiUrl + '/servicios/create', {
         form: me.form })
         .then((response) => {
           me.alertVariant = 'success'
           me.showAlert()
-          me.alertText = 'Se ha creado la cuenta \'' + me.form.numero + '\' exitosamente'
+          me.alertText = 'Se ha creado el servicio ' + me.form.descripcion + ' exitosamente'
           me.$refs.vuetable.refresh()
           me.closeModal('save')
         })
@@ -490,16 +469,16 @@ export default {
           console.error('Error!', error)
         })
     },
-    /* Guardar */
+    /* Actualizar */
     onUpdate () {
       const me = this
-      // this.$refs["modalSave"].hide();
-      axios.put(apiUrl + '/cuentas/update', {
+      // this.$refs["modalSave"].hide()
+      axios.put(apiUrl + '/servicios/update', {
         form: me.form })
         .then((response) => {
           me.alertVariant = 'primary'
           me.showAlert()
-          me.alertText = 'Se ha actualizado la cuenta \'' + me.form.numero + '\' exitosamente'
+          me.alertText = 'Se ha actualizado el servicio ' + me.form.descripcion + ' exitosamente'
           me.$refs.vuetable.refresh()
           me.closeModal('update')
         })
@@ -511,56 +490,60 @@ export default {
         })
     },
     onState () {
+      const today = new Date()
       let me = this
-      if (this.form.state === 1) {
-        axios
-          .put(apiUrl + '/cuentas/deactivate', {
-            id: this.form.id
-          })
-          .then((response) => {
-            me.alertVariant = 'warning'
-            me.showAlert()
-            me.alertText = 'Se ha desactivado la cuenta \'' + me.form.numero + '\' exitosamente'
-            me.$refs.vuetable.refresh()
-            me.$refs['modal-3-account'].hide()
-          })
-          .catch((error) => {
-            me.alertVariant = 'danger'
-            me.showAlertError()
-            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-            console.error('There was an error!', error)
-          })
-      } else {
-        axios
-          .put(apiUrl + '/cuentas/activate', {
-            id: this.form.id
-          })
-          .then((response) => {
-            me.alertVariant = 'info'
-            me.showAlert()
-            me.alertText = 'Se ha activado la cuenta \'' + me.form.numero + '\' exitosamente'
-            me.$refs.vuetable.refresh()
-            me.$refs['modal-4-account'].hide()
-          })
-          .catch((error) => {
-            me.alertVariant = 'danger'
-            me.showAlertError()
-            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-            console.error('There was an error!', error)
-          })
-      }
+      axios
+        .put(apiUrl + '/expedientes/changeState', {
+          id: this.form.id,
+          estado: this.selectedTrasOption
+        })
+        .then((response) => {
+          me.alertVariant = 'info'
+          me.showAlert()
+          me.alertText = 'Se ha ingresado el paciente ' + me.form.nombres + ' exitosamente'
+          me.$refs.vuetable.refresh()
+          me.$refs['modal-4-servicios'].hide()
+          if (this.selectedTrasOption === 1 || this.selectedTrasOption === 4) {
+            axios
+              .put(apiUrl + '/habitaciones/inUse', {
+                id: this.selectedHab.id
+              })
+              .then((res) => {
+                this.selectedHab = null
+                console.log(this.selectedHab)
+                this.getHabitaciones(0).then(me.$refs.selectHab.refresh())
+              })
+          }
+          axios
+            .create(apiUrl + ('/cuentas/create'), {
+              numero: 1,
+              fecha_ingreso: today,
+              motivo: ' ',
+              descripcion: ' ',
+              otros: ' ',
+              total: 0,
+              estado: 1,
+              id_expediente: this.form.id
+            }).then((resp) => console.log(resp))
+        })
+        .catch((error) => {
+          me.alertVariant = 'danger'
+          me.showAlertError()
+          me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+          console.error('There was an error!', error)
+        })
     },
     makeQueryParams (sortOrder, currentPage, perPage) {
       return sortOrder[0]
         ? {
-          criterio: sortOrder[0] ? sortOrder[0].sortField : 'numero',
+          criterio: sortOrder[0] ? sortOrder[0].sortField : this.selectedCriteria,
           order: sortOrder[0] ? sortOrder[0].direction : 'desc',
           page: currentPage,
           limit: this.perPage,
           search: this.search
         }
         : {
-          criterio: sortOrder[0] ? sortOrder[0].sortField : 'numero',
+          criterio: sortOrder[0] ? sortOrder[0].sortField : this.selectedCriteria,
           order: sortOrder[0] ? sortOrder[0].direction : 'desc',
           page: currentPage,
           limit: this.perPage,
@@ -590,24 +573,32 @@ export default {
       this.alertCountDown = this.alertSecs
     },
     showAlertError () {
-      this.alertC.ountDownError = this.alertSecs
+      this.alertCountDownError = this.alertSecs
     },
-    onSearchExpedientes (search, loading) {
-      if (search.length) {
-        loading(true)
-        this.searchingExpedientes(search, loading)
-      }
+    handleSearchInput () {
+      this.currentPage = 1 // Reiniciar la página actual a 1 cada vez que se cambia la búsqueda
+      this.$refs.vuetable.refresh()
     },
-    searchingExpedientes (search, loading) {
-      axios.get(apiUrl + '/expedientes/getSearch',
-        {
-          params: {
-            search: search
-          }
+    /* handleChangeHab () {
+      this.currentPage = 1 // Reiniciar la página actual a 1 cada vez que se cambia la búsqueda
+      selectedTrasOption==1 ? (this.getHabitaciones(1)) : (this.getHabitaciones(2))
+      this.$refs.vuetable.refresh()
+    }, */
+    handleFilter () {
+      this.currentPage = 1 // Reiniciar la página actual a 1 cada vez que se cambia la búsqueda
+      this.$refs.vuetable.refresh()
+    },
+    handleCancel () {
+      this.$refs.vuetable.refresh()
+    },
+    getHabitaciones (num) {
+      axios.get(apiUrl + '/habitaciones/get', {
+        params: {
+          tipo: num
         }
-      ).then((response) => {
-        this.expedientes = response.data
-        loading(false)
+      }).then((response) => {
+        this.habitaciones = response.data
+        console.log(response.data)
       })
     }
   }
