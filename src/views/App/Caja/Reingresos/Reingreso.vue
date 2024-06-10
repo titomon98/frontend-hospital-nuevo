@@ -171,6 +171,14 @@
               label="numero"
               value="id"></v-select>
             </div>
+            <div>
+              Motivo
+              <b-form-input
+                v-model.trim="varMotivo"
+                :state="!varMotivoError"
+                placeholder="Ingresar precio del servicio">
+              </b-form-input>
+            </div>
           </b-form-group>
         </b-col>
       </b-form>
@@ -178,8 +186,10 @@
         <b-button
           type="submit"
           variant="primary"
-          @click="onState()
-                  $bvModal.hide('modal-4-servicios')"
+          @click="
+            onValidate()
+            this.selectedHab = null
+          "
           >Ingresar</b-button
         >
         <b-button variant="danger" @click="$bvModal.hide('modal-4-servicios')"
@@ -312,6 +322,8 @@ export default {
       search: this.search,
       selectedCriteria: 'nombres',
       selectedTrasOption: 1,
+      varMotivo: '',
+      varMotivoError: 0,
       form: {
         id: 0,
         nombres: '',
@@ -432,15 +444,19 @@ export default {
     },
     onValidate (action) {
       this.$v.$touch()
-      if (this.$v.$error !== true) {
-        if (action === 'save') {
-          this.onSave()
-        } else if (action === 'update') {
-          this.onUpdate()
-        }
-      } else {
+      if (this.selectedHab === null && (this.selectedTrasOption === 1 || this.selectedTrasOption === 4)) {
         this.alertErrorText = 'Revisa que todos los campos requeridos esten llenos'
+        if (this.varMotivo === '') {
+          this.varMotivoError = 1
+        }
         this.showAlertError()
+      } else if (this.varMotivo === '') {
+        this.alertErrorText = 'Revisa que todos los campos requeridos esten llenos'
+        this.varMotivoError = 1
+        this.showAlertError()
+      } else {
+        this.onState()
+        this.$bvModal.hide('modal-4-servicios')
       }
     },
     setData (data) {
@@ -506,7 +522,8 @@ export default {
           if (this.selectedTrasOption === 1 || this.selectedTrasOption === 4) {
             axios
               .put(apiUrl + '/habitaciones/inUse', {
-                id: this.selectedHab.id
+                id: this.selectedHab.id,
+                ocupante: this.form.id
               })
               .then((res) => {
                 this.selectedHab = null
@@ -515,10 +532,10 @@ export default {
               })
           }
           axios
-            .create(apiUrl + ('/cuentas/create'), {
+            .post(apiUrl + ('/cuentas/create'), {
               numero: 1,
               fecha_ingreso: today,
-              motivo: ' ',
+              motivo: this.varMotivo,
               descripcion: ' ',
               otros: ' ',
               total: 0,
