@@ -102,7 +102,7 @@ import EgresosParent from '../views/App/Caja/Egresos/EgresosParent'
 import Expedientes from '../views/App/Caja/Expedientes/Expedientes'
 import CuentasList from '../views/App/Caja/Cuentas/CuentasList'
 import Ingresos from '../views/App/Caja/Ingresos/Ingresos'
-import Reingresos from '../views/App/Caja/Ingresos/IngresoPrevio'
+import Reingresos from '../views/App/Caja/Reingresos/Reingreso'
 
 // enfermeria
 import PedidosFarmaciaParent from '../views/App/Enfermeria/Pedidos/PedidosFarmaciaParent'
@@ -111,6 +111,7 @@ import HospitalizacionParent from '../views/App/Enfermeria/Hospitalizacion/Hospi
 import IntensivoParent from '../views/App/Enfermeria/Intensivo/Intensivo'
 import QuirofanoParent from '../views/App/Enfermeria/Quirofano/Quirofano'
 import Habitaciones from '../views/App/Enfermeria/Habitaciones/Habitaciones'
+import Servicios from '../views/App/Enfermeria/Servicios/Servicios.vue'
 
 // farmacia
 import PedidosPendientesParent from '../views/App/Farmacia/Pedidos/PedidosPendientesParent'
@@ -271,6 +272,12 @@ const EnfermeriaRoutes = (prop, mode) => [
     name: prop + '.habitaciones',
     meta: { dark: mode, auth: true, name: 'habitaciones' },
     component: Habitaciones
+  },
+  {
+    path: 'servicios',
+    name: prop + '.servicios',
+    meta: { dark: mode, auth: true, name: 'servicios' },
+    component: Servicios
   }
 ]
 
