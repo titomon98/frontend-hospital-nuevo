@@ -18,7 +18,7 @@
           </template>
           <template v-slot:body>
             <b-tabs>
-              <b-tab title="Egresos hospitalización" active><EgresosHospitalizacion/></b-tab>
+              <b-tab title="Egresos hospitalización" lazy><EgresosHospitalizacion/></b-tab>
               <b-tab title="Egresos emergencia" lazy><EgresosEmergencia/></b-tab>
             </b-tabs>
           </template>
