@@ -458,6 +458,7 @@ export default {
         telefono_conyuge: '',
         selectedOption: 'hospi',
         tipo_paciente: '0',
+        motivo: ' ',
         habitacion: null
       },
       nacionalidades: ['Guatemala', 'El Salvador', 'México', 'Honduras', 'Belice', 'Otro'],
