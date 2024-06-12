@@ -319,6 +319,7 @@ export default {
       total: 0,
       perPage: 5,
       search: '',
+      totPagado: 0,
       form: {
         id: 0,
         nombres: '',
@@ -400,8 +401,8 @@ export default {
           sortable: true
         },
         {
-          key: 'total',
-          label: 'Total',
+          key: 'pendiente_de_pago',
+          label: 'Total a pagar',
           sortable: true
         },
         {
@@ -422,7 +423,8 @@ export default {
   methods: {
     onRowSelected (items) {
       this.selectedAccount = items[0].id
-      this.totalPayment = items[0].total
+      this.totalPayment = items[0].pendiente_de_pago
+      this.totPagado = items[0].total_pagado
     },
     openModal (modal, action) {
       switch (modal) {
@@ -466,7 +468,7 @@ export default {
       }
     },
     setData (data) {
-      this.form.name = data.nombre
+      this.form.name = data.nombres
       this.form.apellidos = data.apellidos
       this.form.state = data.estado
       this.form.id = data.id
@@ -564,11 +566,25 @@ export default {
               axios.put(apiUrl + '/cuentas/deactivate',
                 {
                   id: this.selectedAccount,
-                  tipo_de_pago: this.paymentType,
-                  total_pagado: parseFloat(this.paymentSum),
-                  total_pendiente: parseFloat(parseFloat(this.totalPayment) - parseFloat(this.paymentSum))
+                  total_pagado: parseFloat(this.totPagado) + parseFloat(this.paymentSum),
+                  pendiente_de_pago: parseFloat(parseFloat(this.totalPayment) - parseFloat(this.paymentSum)),
+                  efectivo: this.paymentType.Efectivo,
+                  tarjeta: this.paymentType.Tarjeta,
+                  deposito: this.paymentType.Deposito,
+                  cheque: this.paymentType.Cheque,
+                  seguro: this.paymentType.Seguro,
+                  total: this.paymentSum,
+                  tipo: 'finiquito'
                 })
-                .then(this.selectedAccount = null)
+                .then(
+                  this.selectedAccount = null,
+                  this.paymentType.Efectivo = 0,
+                  this.paymentType.Tarjeta = 0,
+                  this.paymentType.Deposito = 0,
+                  this.paymentType.Cheque = 0,
+                  this.paymentType.Seguro = 0,
+                  this.paymentSum = 0
+                )
               me.alertVariant = 'info'
               me.showAlert()
               me.alertText = 'Se ha egresado el paciente ' + me.form.nombres + ' exitosamente'
