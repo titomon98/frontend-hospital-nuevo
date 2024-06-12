@@ -220,6 +220,17 @@
         "class_name": "",
         "is_icon_class": true,
         "icon": "ri-hotel-bed-line"
+      },
+      {
+        "title": "Servicios",
+        "name": "Servicios",
+        "is_active": false,
+        "link": {
+          "name" : "enfermeria.servicios"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-customer-service-line"
       }
     ]
   },

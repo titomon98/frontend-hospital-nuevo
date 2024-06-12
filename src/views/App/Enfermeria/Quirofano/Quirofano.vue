@@ -213,6 +213,83 @@
         >
       </template>
     </b-modal>
+    <b-modal id="modal-add-honorarios" size="lg" ref="modal-add-honorarios" title="Agregar honorarios a medico">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <b-form  @submit="$event.preventDefault()">
+        <b-form-group label="Seleccionar Medico">
+          <v-select
+            v-model="honorario.medico"
+            :options="medicos"
+            item-text="nombre"
+            item-value="id"
+            label="nombre"
+            :filterable="false"
+            placeholder="Seleccione un médico"
+            @search="onSearchMedicos"
+            required
+          >
+            <template v-slot:option="option">
+              {{ option.nombre }}
+            </template>
+            <template slot="selected-option" slot-scope="option">
+              {{ option.nombre }}
+            </template>
+          </v-select>
+        </b-form-group>
+        <b-form-group label="Descripción">
+          <b-form-textarea
+            v-model="honorario.descripcion"
+            placeholder="Ingrese una descripción"
+          ></b-form-textarea>
+        </b-form-group>
+        <b-form-group label="Total de honorarios">
+          <b-form-input
+            v-model.trim="honorario.total"
+            placeholder="Ingresar Total Honorarios"
+            type="number"
+            required
+          ></b-form-input>
+        </b-form-group>
+      </b-form>
+        <template #modal-footer>
+          <b-button variant="primary" @click="agregarHonorario()">Guardar</b-button>
+          <b-button variant="danger" @click="closeModal('add-honorarios')">Cancelar</b-button>
+        </template>
+    </b-modal>
+    <b-modal id="modal-ver-honorarios" size="lg" ref="modal-ver-honorarios" title="Ver honorarios">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <b-table striped hover :items="honorarios" :fields="fieldsHonorarios">
+        <template #cell(nombreMedico)="row">
+          {{ row.item.medico.nombre }}
+        </template>
+      </b-table>
+      <b-pagination
+        v-if="pagination.total > 0"
+        v-model="pagination.currentPage"
+        :total-rows="pagination.total"
+        :per-page="pagination.perPage"
+        @change="onChangePageHonorario"
+      ></b-pagination>
+      <template #modal-footer>
+        <b-button variant="danger" @click="closeModal('ver-honorarios')">Cerrar</b-button>
+      </template>
+    </b-modal>
     <b-row>
       <b-col md="12">
         <iq-card>
@@ -289,6 +366,22 @@
                     class="mb-2"
                     size="sm"
                     variant="outline-secondary"
+                    ><i :class="'fas fa-eye'"
+                  /></b-button>
+                  <b-button
+                    v-b-tooltip.top="'Agregar honorarios'"
+                    @click="showModal('modal-add-honorarios'); obtenerIdCuenta(props.rowData.id)"
+                    class="mb-2"
+                    size="sm"
+                    variant="outline-info"
+                    ><i :class="'fas fa-list-alt'"
+                  /></b-button>
+                  <b-button
+                    v-b-tooltip.top="'Ver honorarios'"
+                   @click="showModal('modal-ver-honorarios'); getDataHonorarios(props.rowData.id)"
+                    class="mb-2"
+                    size="sm"
+                    variant="outline-dark"
                     ><i :class="'fas fa-eye'"
                   /></b-button>
                 </b-button-group>
@@ -465,7 +558,27 @@ export default {
           dataClass: 'list-item-heading'
         }
       ],
-      servicios: []
+      servicios: [],
+      honorario: {
+        medico: null,
+        descripcion: '',
+        total: null
+      },
+      idCuentaSeleccionada: null,
+      medicos: [],
+      apiBaseHonorarios: apiUrl + '/detalle_honorarios',
+      honorarios: [],
+      fieldsHonorarios: [
+        { key: 'medico.nombre', label: 'Nombre del Médico' },
+        { key: 'descripcion', label: 'Descripción' },
+        { key: 'total', label: 'Total' }
+      ],
+      pagination: {
+        currentPage: 1,
+        perPage: 10,
+        total: 0
+      },
+      currentExpedienteId: null
     }
   },
   validations () {
@@ -520,6 +633,7 @@ export default {
           this.form.id = 0
           this.form.name = ''
           this.form.state = 1
+          this.form.cantidad = null
           this.servicio = null
           this.form.servicio = null
           break
@@ -527,6 +641,22 @@ export default {
         case 'ver-servicio': {
           this.$v.$reset()
           this.$refs['modal-ver-servicio'].hide()
+          this.form.id = 0
+          this.form.name = ''
+          this.form.state = 1
+          break
+        }
+        case 'ver-honorarios': {
+          this.$v.$reset()
+          this.$refs['modal-ver-honorarios'].hide()
+          this.form.id = 0
+          this.form.name = ''
+          this.form.state = 1
+          break
+        }
+        case 'add-honorarios': {
+          this.$v.$reset()
+          this.$refs['modal-add-honorarios'].hide()
           this.form.id = 0
           this.form.name = ''
           this.form.state = 1
@@ -637,6 +767,37 @@ export default {
       this.getDataConsumos(id)
       this.form.id_consumo = id
     },
+    addhonorarios (id) {
+      this.obtenerIdCuenta(id)// Obtener id_cuenta ANTES de mostrar el modal
+      this.$refs['modal-add-honorarios'].show()
+    },
+    agregarHonorario () {
+      try {
+        axios.post(apiUrl + '/detalle_honorarios/created', {
+          id_medico: this.honorario.medico.id,
+          id_cuenta: this.idCuentaSeleccionada,
+          descripcion: this.honorario.descripcion,
+          total: this.honorario.total
+        })
+        this.$refs['modal-add-honorarios'].hide()
+        this.honorario = {
+          medico: null,
+          descripcion: '',
+          total: null
+        }
+      } catch (error) {
+        console.error(error)
+        this.alertErrorText = 'Error al agregar honorarios'
+        this.showAlertError()
+      }
+    },
+    showModal (modalId) {
+      this.$bvModal.show(modalId)
+    },
+    verHonorarios (id) {
+      this.obtenerIdCuenta(id)
+      this.$refs['modal-ver-honorarios'].show()
+    },
     /* Guardar */
     onUpdate () {
       const me = this
@@ -746,6 +907,24 @@ export default {
         loading(false)
       })
     },
+    searchingMedicos (search, loading) {
+      axios.get(apiUrl + '/medicos/getSearch',
+        {
+          params: {
+            search: search
+          }
+        }
+      ).then((response) => {
+        this.medicos = response.data
+        loading(false)
+      })
+    },
+    onSearchMedicos (search, loading) {
+      if (search.length) {
+        loading(true)
+        this.searchingMedicos(search, loading)
+      }
+    },
     makeQueryParamsConsumo (sortOrder, currentPage, perPage) {
       return sortOrder[0]
         ? {
@@ -775,6 +954,61 @@ export default {
     getDataConsumos (id) {
       this.form.id = id
       this.apiBaseConsumo = apiUrl + `/consumos/getId?id=${id}`
+    },
+    makeQueryParamsHonorarios (sortOrder, currentPage, perPage) {
+      return sortOrder[0]
+        ? {
+          criterio: sortOrder[0] ? sortOrder[0].sortField : 'createdAt',
+          order: sortOrder[0] ? sortOrder[0].direction : 'desc',
+          page: currentPage,
+          limit: perPage
+        }
+        : {
+          criterio: 'createdAt',
+          order: 'desc',
+          page: currentPage,
+          limit: perPage
+        }
+    },
+    onPaginationDataHonorarios (paginationData) {
+      this.honorarios = paginationData.data
+      this.pagination.total = paginationData.total
+      this.pagination.currentPage = Math.floor((paginationData.from - 1) / this.pagination.perPage) + 1
+    },
+    onChangePageHonorario (page) {
+      this.pagination.currentPage = page
+      this.getDataHonorarios(this.currentExpedienteId)
+    },
+    async obtenerIdCuenta (idExpediente) {
+      try {
+        const response = await axios.get(apiUrl + `/cuentas/getSearch?search=${idExpediente}`)
+        if (response.data && response.data.id) {
+          this.idCuentaSeleccionada = response.data.id
+        } else {
+          console.error('En AddHonorarios No se encontró ninguna cuenta para el expediente:', idExpediente)
+          this.alertErrorText = 'No se encontró ninguna cuenta para este paciente'
+          this.showAlertError()
+        }
+      } catch (error) {
+        console.error('Error al obtener la cuenta:', error)
+      }
+    },
+    async getDataHonorarios (idExpediente) {
+      try {
+        this.currentExpedienteId = idExpediente
+        const response = await axios.get(apiUrl + `/cuentas/getSearch?search=${idExpediente}`)
+        if (response.data && response.data.id) {
+          const idcuenta = response.data.id
+          const response2 = await axios.get(apiUrl + `/detalle_honorarios/getSearch?search=${idcuenta}&page=${this.pagination.currentPage}&limit=${this.pagination.perPage}`)
+          this.onPaginationDataHonorarios(response2.data)
+        } else {
+          console.error('En VerHonorarios No se encontró ninguna cuenta para el expediente:', idExpediente)
+          this.alertErrorText = 'No se encontró ninguna cuenta para este paciente'
+          this.showAlertError()
+        }
+      } catch (error) {
+        console.error('Error al obtener los honorarios:', error)
+      }
     }
   }
 }
