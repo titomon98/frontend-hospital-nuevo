@@ -27,9 +27,10 @@
             :options="medicamentos"
             :reduce="med => med.value"
             :state="!$v.formMedicamento.id_medicine.$error"
-            label="text"
+            label='text'
             @input="onChangeMedicamento"
           ></v-select>
+          <label>{{this.existencias_selected_med}}</label>
           <div v-if="$v.formMedicamento.id_medicine.required.$invalid" class="invalid-feedback">
             Debe seleccionar un medicamento
           </div>
@@ -71,7 +72,7 @@
                 <b-form-group label="Código de pedido:">
                   <b-form-input
                     v-model.trim="$v.form.codigoPedido.$model"
-                    :state="!$v.form.codigoPedido.$error"
+                    readonly
                     placeholder="Ingresar código del pedido"
                   ></b-form-input>
                 </b-form-group>
@@ -89,6 +90,18 @@
                   <div v-if="$v.form.fecha.required.$invalid" class="invalid-feedback">
                     Debe ingresar la fecha
                   </div>
+                </b-form-group>
+              </b-col>
+              <b-col md="4">
+                <b-form-group label="Pedido a:">
+                  <b-row md="4">
+                    <input type="radio" id="farmacia" value="0" v-model="$v.form.picked.$model" />
+                    <label for="farmacia" class="mt-2 ml-1">Farmacia</label>
+                  </b-row>
+                  <b-row md="4">
+                    <input type="radio" id="quirofano" value="1" v-model="$v.form.picked.$model" />
+                    <label for="quirofano" class="mt-2 ml-1">Quirófano</label>
+                  </b-row>
                 </b-form-group>
               </b-col>
             </b-row>
@@ -181,11 +194,12 @@ export default {
       pedidos: [],
       total_array: 0,
       max_cant: 0,
+      existencias_selected_med: '',
       formMedicamento: {
-        id_medicine: 0,
+        id_medicine: null,
         cantidad: null,
-        medicine: '',
-        existencias_actuales: 0
+        medicine: null,
+        existencias_actuales: null
       },
       form: {
         id: 0,
@@ -194,6 +208,7 @@ export default {
         fecha: today,
         id_usuario: 0,
         estado: 1,
+        picked: 0,
         medicamentoId: 0
       },
       alertSecs: 5,
@@ -238,7 +253,8 @@ export default {
         codigoPedido: { required },
         fecha: { required },
         cantidadUnidades: { required },
-        medicamentoId: { required }
+        medicamentoId: { required },
+        picked: { required }
       },
       formMedicamento: {
         id_medicine: {
@@ -293,11 +309,11 @@ export default {
           this.showAlertError()
         })
     },
-    addMedicine () {
+    addNewMed () {
       let me = this
       me.total_array = me.total_array + 1
       let medicine_ = me.medicamentos.find(med => med.value === me.formMedicamento.id_medicine)
-      medicine_.existencias_actuales = parseInt(medicine_.existencias_actuales) - parseInt(me.formMedicamento.cantidad)
+
       let medicamento = {
         cantidad: me.formMedicamento.cantidad,
         nombre: medicine_.text,
@@ -307,8 +323,24 @@ export default {
         is_quirurgico: false,
         is_comun: false
       }
-      this.form.cantidadUnidades += me.formMedicamento.cantidad
+      let medicineId_ = me.medicamentos.findIndex(med => med.value === this.formMedicamento.id_medicine)
+      this.medicamentos[medicineId_].existencias_actuales = parseInt(medicine_.existencias_actuales) - parseInt(me.formMedicamento.cantidad)
+      this.form.cantidadUnidades = parseInt(this.form.cantidadUnidades) + parseInt(me.formMedicamento.cantidad)
       me.arrayDetalles.push(medicamento)
+    },
+    addMedicine () {
+      let me = this
+      if (me.arrayDetalles.length > 0) {
+        let medFound = this.arrayDetalles.findIndex(med => med.id_medicine === me.formMedicamento.id_medicine)
+        if (medFound === null || medFound === undefined || medFound < 0) {
+          this.addNewMed()
+        } else {
+          me.arrayDetalles[medFound].cantidad = parseInt(me.arrayDetalles[medFound].cantidad) + parseInt(me.formMedicamento.cantidad)
+          console.log(me.arrayDetalles[medFound])
+        }
+      } else {
+        this.addNewMed()
+      }
       me.closeModal('medicamento')
     },
     deleteDetail (id, total) {
@@ -322,8 +354,9 @@ export default {
       switch (modal) {
         case 'save': {
           this.$v.$reset()
-          this.formMedicamento.id_medicine = 0
-          this.formMedicamento.cantidad = 0
+          this.formMedicamento.id_medicine = null
+          this.formMedicamento.cantidad = null
+          this.existencias_selected_med = null
           break
         }
       }
@@ -331,31 +364,39 @@ export default {
     closeModal (action) {
       switch (action) {
         case 'save' : {
-          this.$v.$reset()
+          this.$v.form.$reset()
+          this.$v.formMedicamento.$reset()
           this.$refs['modal-1-pedidos-med'].hide()
-          this.formMedicamento.id_medicine = 0
-          this.formMedicamento.cantidad = 0
+          this.formMedicamento.id_medicine = null
+          this.formMedicamento.cantidad = null
+          this.existencias_selected_med = ''
+          this.picked = 0
           break
         }
         case 'medicamento': {
           this.$v.formMedicamento.$reset()
           this.$refs['modal-1-pedidos-med'].hide()
-          this.formMedicamento.id_medicine = 0
-          this.formMedicamento.cantidad = 0
+          this.formMedicamento.id_medicine = null
+          this.formMedicamento.cantidad = null
+          this.existencias_selected_med = ''
           break
         }
         case 'update': {
-          this.$v.$reset()
+          this.$v.form.$reset()
+          this.$v.formMedicamento.$reset()
           this.$refs['modal-2-pedidos-med'].hide()
-          this.formMedicamento.id_medicine = 0
-          this.formMedicamento.cantidad = 0
+          this.formMedicamento.id_medicine = null
+          this.formMedicamento.cantidad = null
+          this.existencias_selected_med = ''
           break
         }
         case 'ver': {
-          this.$v.$reset()
+          this.$v.form.$reset()
+          this.$v.formMedicamento.$reset()
           this.$refs['modal-ver-pedidos-med'].hide()
-          this.formMedicamento.id_medicine = 0
-          this.formMedicamento.cantidad = 0
+          this.formMedicamento.id_medicine = null
+          this.formMedicamento.cantidad = null
+          this.existencias_selected_med = ''
           break
         }
       }
@@ -388,7 +429,6 @@ export default {
       if (this.total_array > 0) {
         if (this.$v.$error !== true) {
           this.onSave()
-          this.fetchPedidos()
         } else {
           this.alertText = 'Ha ocurrido un error en el pedido'
           this.showAlertError()
@@ -415,12 +455,14 @@ export default {
         id_usuario: me.currentUser.id,
         estado: 1,
         medicamentoId: 1,
+        picked: me.form.picked,
         cantidadUnidades: me.form.cantidadUnidades
       })
         .then((response) => {
           me.alertVariant = 'success'
           me.showAlert()
           me.alertText = 'Se ha creado el pedido exitosamente'
+          me.fetchPedidos()
           me.closeModal('save')
           me.arrayDetalles = []
           me.paciente = null
@@ -515,7 +557,7 @@ export default {
     onChangeMedicamento () {
       let medicine_ = this.medicamentos.find(med => med.value === this.formMedicamento.id_medicine)
       this.max_cant = medicine_.existencias_actuales
-      this.formMedicamento.cantidad = 0
+      this.existencias_selected_med = medicine_.existencias_actuales + ' unidades en existencia.'
     }
   }
 }

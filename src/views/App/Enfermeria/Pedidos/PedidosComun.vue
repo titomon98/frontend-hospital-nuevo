@@ -30,6 +30,7 @@
             label="text"
             @input="onChangeComun"
           ></v-select>
+          <label>{{this.existencias_selected_com}}</label>
           <div v-if="$v.formComun.id_comun.required.$invalid" class="invalid-feedback">
             Debe seleccionar un producto común
           </div>
@@ -71,7 +72,7 @@
                 <b-form-group label="Código de pedido:">
                   <b-form-input
                     v-model.trim="$v.form.codigoPedido.$model"
-                    :state="!$v.form.codigoPedido.$error"
+                    readonly
                     placeholder="Ingresar código del pedido"
                   ></b-form-input>
                 </b-form-group>
@@ -89,6 +90,18 @@
                   <div v-if="$v.form.fecha.required.$invalid" class="invalid-feedback">
                     Debe ingresar la fecha
                   </div>
+                </b-form-group>
+              </b-col>
+              <b-col md="4">
+                <b-form-group label="Pedido a:">
+                  <b-row md="4">
+                    <input type="radio" id="farmacia" value="0" v-model="$v.form.picked.$model" />
+                    <label for="farmacia" class="mt-2 ml-1">Farmacia</label>
+                  </b-row>
+                  <b-row md="4">
+                    <input type="radio" id="quirofano" value="1" v-model="$v.form.picked.$model" />
+                    <label for="quirofano" class="mt-2 ml-1">Quirófano</label>
+                  </b-row>
                 </b-form-group>
               </b-col>
             </b-row>
@@ -181,11 +194,12 @@ export default {
       pedidos: [],
       total_array: 0,
       max_cant: 0,
+      existencias_selected_com: '',
       formComun: {
-        id_comun: 0,
+        id_comun: null,
         cantidad: null,
-        comun: '',
-        existencias_actuales: 0
+        comun: null,
+        existencias_actuales: null
       },
       form: {
         id: 0,
@@ -194,6 +208,7 @@ export default {
         fecha: today,
         id_usuario: 0,
         estado: 1,
+        picked: 0,
         comunId: 0
       },
       alertSecs: 5,
@@ -238,7 +253,8 @@ export default {
         codigoPedido: { required },
         fecha: { required },
         cantidadUnidades: { required },
-        comunId: { required }
+        comunId: { required },
+        picked: { required }
       },
       formComun: {
         id_comun: {
@@ -293,11 +309,11 @@ export default {
           this.showAlertError()
         })
     },
-    addComun () {
+    addNewCom () {
       let me = this
       me.total_array = me.total_array + 1
       let comun_ = me.comunes.find(com => com.value === me.formComun.id_comun)
-      comun_.existencias_actuales = parseInt(comun_.existencias_actuales) - parseInt(me.formComun.cantidad)
+
       let comun = {
         cantidad: me.formComun.cantidad,
         nombre: comun_.text,
@@ -307,8 +323,24 @@ export default {
         is_quirurgico: false,
         is_comun: true
       }
-      this.form.cantidadUnidades += me.formComun.cantidad
+      let comunId_ = me.comunes.findIndex(com => com.value === this.formComun.id_comun)
+      this.comunes[comunId_].existencias_actuales = parseInt(comun_.existencias_actuales) - parseInt(me.formComun.cantidad)
+      this.form.cantidadUnidades = parseInt(this.form.cantidadUnidades) + parseInt(me.formComun.cantidad)
       me.arrayDetalles.push(comun)
+    },
+    addComun () {
+      let me = this
+      if (me.arrayDetalles.length > 0) {
+        let comFound = this.arrayDetalles.findIndex(com => com.comun === me.formComun.comun)
+        if (comFound === null || comFound === undefined || comFound < 0) {
+          this.addNewCom()
+        } else {
+          me.arrayDetalles[comFound].cantidad = parseInt(me.arrayDetalles[comFound].cantidad) + parseInt(me.formComun.cantidad)
+          console.log(me.arrayDetalles[comFound])
+        }
+      } else {
+        this.addNewCom()
+      }
       me.closeModal('comun')
     },
     deleteDetail (id, total) {
@@ -322,8 +354,9 @@ export default {
       switch (modal) {
         case 'save': {
           this.$v.$reset()
-          this.formComun.id_comun = 0
-          this.formComun.cantidad = 0
+          this.formComun.id_comun = null
+          this.formComun.cantidad = null
+          this.existencias_selected_com = ''
           break
         }
       }
@@ -333,29 +366,34 @@ export default {
         case 'save' : {
           this.$v.$reset()
           this.$refs['modal-1-pedidos-com'].hide()
-          this.formComun.id_comun = 0
-          this.formComun.cantidad = 0
+          this.formComun.id_comun = null
+          this.formComun.cantidad = null
+          this.existencias_selected_com = ''
+          this.picked = 0
           break
         }
         case 'comun': {
           this.$v.formComun.$reset()
           this.$refs['modal-1-pedidos-com'].hide()
-          this.formComun.id_comun = 0
-          this.formComun.cantidad = 0
+          this.formComun.id_comun = null
+          this.formComun.cantidad = null
+          this.existencias_selected_com = ''
           break
         }
         case 'update': {
           this.$v.$reset()
           this.$refs['modal-2-pedidos-com'].hide()
-          this.formComun.id_comun = 0
-          this.formComun.cantidad = 0
+          this.formComun.id_comun = null
+          this.formComun.cantidad = null
+          this.existencias_selected_com = ''
           break
         }
         case 'ver': {
           this.$v.$reset()
           this.$refs['modal-ver-pedidos-com'].hide()
-          this.formComun.id_comun = 0
-          this.formComun.cantidad = 0
+          this.formComun.id_comun = null
+          this.formComun.cantidad = null
+          this.existencias_selected_com = ''
           break
         }
       }
@@ -388,8 +426,8 @@ export default {
       this.$v.form.$touch()
       if (this.total_array > 0) {
         if (this.$v.$error !== true) {
-          this.onSave()
           this.fetchPedidos()
+          this.onSave()
         } else {
           this.alertText = 'Ha ocurrido un error en el pedido'
           this.showAlertError()
@@ -422,6 +460,7 @@ export default {
           me.alertVariant = 'success'
           me.showAlert()
           me.alertText = 'Se ha creado el pedido exitosamente'
+          me.fetchPedidos()
           me.closeModal('save')
           me.arrayDetalles = []
           me.paciente = null
@@ -516,7 +555,7 @@ export default {
     onChangeComun () {
       let comun_ = this.comunes.find(com => com.value === this.formComun.id_comun)
       this.max_cant = comun_.existencias_actuales
-      this.formComun.cantidad = 0
+      this.existencias_selected_com = comun_.existencias_actuales + ' unidades en existencia.'
     }
   }
 }
