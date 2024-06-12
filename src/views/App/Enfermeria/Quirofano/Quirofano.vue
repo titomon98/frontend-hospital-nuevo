@@ -644,6 +644,14 @@ export default {
           this.form.id = 0
           this.form.name = ''
           this.form.state = 1
+          this.honorarios = []
+          this.pagination.currentPage = 1
+          this.pagination.total = 0
+          this.honorario = {
+            medico: null,
+            descripcion: '',
+            total: null
+          }
           break
         }
         case 'ver-honorarios': {
