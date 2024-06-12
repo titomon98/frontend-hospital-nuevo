@@ -93,16 +93,51 @@
                   </template>
                 </template>
               </b-table>
-              <b-input id="paymentTypeInput" ref="paymentTypeInput" placeholder="Ingresar tipo de pago" @input="(val) => inputPaymentType(val)" />
+              <b-form-group label="Seleccione métodos para pagar:" v-slot="{ ariaDescribedby }">
+                <b-form-checkbox-group
+                  id="checkbox-group-1"
+                  v-model="selectedPayment"
+                  :options="paymentOptions"
+                  :aria-describedby="ariaDescribedby"
+                  name="flavour-1"
+                ></b-form-checkbox-group>
+              </b-form-group>
+              <div v-if="selectedPayment.indexOf(1) !== -1">
+                Efectivo
+                <b-input :type="'number'" id="CashTypeInput" ref="CashTypeInput" v-model="paymentType.Efectivo" />
+              </div>
+              <div v-if="selectedPayment.indexOf(2) !== -1">
+                Tarjeta
+                <b-input :type="'number'" id="CardTypeInput" ref="CardTypeInput" v-model="paymentType.Tarjeta" />
+              </div>
+              <div v-if="selectedPayment.indexOf(3) !== -1">
+                Depósito
+                <b-input :type="'number'" id="DepositTypeInput" ref="DepositTypeInput" v-model="paymentType.Deposito" />
+              </div>
+              <div v-if="selectedPayment.indexOf(4) !== -1">
+                Cheque
+                <b-input :type="'number'" id="CheckTypeInput" ref="CheckTypeInput" v-model="paymentType.Cheque" />
+              </div>
+              <div v-if="selectedPayment.indexOf(5) !== -1">
+                Seguro
+                <b-input :type="'number'" id="InsuranceTypeInput" ref="InsuranceTypeInput" v-model="paymentType.Seguro" />
+              </div>
+              <div>
+                <strong> TOTAL INGRESADO: {{ parseFloat(this.paymentType.Efectivo) + parseFloat(this.paymentType.Tarjeta) + parseFloat(this.paymentType.Deposito) + parseFloat(this.paymentType.Cheque) + parseFloat(this.paymentType.Seguro) }}</strong>
+              </div>
+              <div>
+                <strong> TOTAL A PAGAR: {{ this.totalPayment }}</strong>
+              </div>
             </b-card-body>
+            <div>
+
+            </div>
           </b-card>
         </div>
       </template>
       <template #modal-footer="{}">
         <b-button variant="primary" @click="
           onPatientQuit()
-          selectedAccount = null
-          paymentType = ''
         "
           >Aceptar</b-button
         >
@@ -284,6 +319,7 @@ export default {
       total: 0,
       perPage: 5,
       search: '',
+      totPagado: 0,
       form: {
         id: 0,
         nombres: '',
@@ -297,11 +333,27 @@ export default {
       alertCountDownError: 0,
       alertText: '',
       alertErrorText: '',
-      paymentType: '',
+      selectedPayment: [], // Must be an array reference!
+      paymentOptions: [
+        { text: 'Efectivo', value: 1 },
+        { text: 'Tarjeta', value: 2 },
+        { text: 'Depósito', value: 3 },
+        { text: 'Cheque', value: 4 },
+        { text: 'Seguro', value: 5 }
+      ],
+      paymentType: {
+        Efectivo: 0,
+        Tarjeta: 0,
+        Deposito: 0,
+        Cheque: 0,
+        Seguro: 0
+      },
+      paymentSum: 0,
       alertVariant: '',
       selectedHab: null,
       habitaciones: [],
       selectedAccount: null,
+      totalPayment: 0,
       cuentas: [],
       selectedTrasOption: 1,
       optionsTraslado: [
@@ -349,8 +401,8 @@ export default {
           sortable: true
         },
         {
-          key: 'total',
-          label: 'Total',
+          key: 'pendiente_de_pago',
+          label: 'Total a pagar',
           sortable: true
         },
         {
@@ -371,6 +423,8 @@ export default {
   methods: {
     onRowSelected (items) {
       this.selectedAccount = items[0].id
+      this.totalPayment = items[0].pendiente_de_pago
+      this.totPagado = items[0].total_pagado
     },
     openModal (modal, action) {
       switch (modal) {
@@ -414,7 +468,7 @@ export default {
       }
     },
     setData (data) {
-      this.form.name = data.nombre
+      this.form.name = data.nombres
       this.form.apellidos = data.apellidos
       this.form.state = data.estado
       this.form.id = data.id
@@ -493,34 +547,57 @@ export default {
         })
     },
     onPatientQuit () {
-      if (this.paymentType === '' && this.selectedAccount === null) {
+      this.paymentSum = parseFloat(this.paymentType.Efectivo) + parseFloat(this.paymentType.Tarjeta) + parseFloat(this.paymentType.Deposito) + parseFloat(this.paymentType.Cheque) + parseFloat(this.paymentType.Seguro)
+      if (this.selectedAccount === null) {
         this.alertErrorText = 'Revisa que todos los campos requeridos esten llenos'
         this.showAlertError()
       } else {
-        let me = this
-        axios
-          .put(apiUrl + '/expedientes/changeState', {
-            id: this.form.id,
-            estado: 0
-          })
-          .then((response) => {
-            axios.put(apiUrl + '/cuentas/deactivate',
-              {
-                id: this.selectedAccount,
-                tipo_de_pago: this.paymentType
-              })
-            me.alertVariant = 'info'
-            me.showAlert()
-            me.alertText = 'Se ha egresado el paciente ' + me.form.nombres + ' exitosamente'
-            me.$refs.vuetable.refresh()
-            me.$refs['modal-2-egreso'].hide()
-          })
-          .catch((error) => {
-            me.alertVariant = 'danger'
-            me.showAlertError()
-            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-            console.error('There was an error!', error)
-          })
+        if (this.paymentSum !== parseFloat(this.totalPayment)) {
+          this.alertErrorText = 'El total a pagar no concuerda con el total ingresado'
+          this.showAlertError()
+        } else {
+          let me = this
+          axios
+            .put(apiUrl + '/expedientes/changeState', {
+              id: this.form.id,
+              estado: 0
+            })
+            .then((response) => {
+              axios.put(apiUrl + '/cuentas/deactivate',
+                {
+                  id: this.selectedAccount,
+                  total_pagado: parseFloat(this.totPagado) + parseFloat(this.paymentSum),
+                  pendiente_de_pago: parseFloat(parseFloat(this.totalPayment) - parseFloat(this.paymentSum)),
+                  efectivo: this.paymentType.Efectivo,
+                  tarjeta: this.paymentType.Tarjeta,
+                  deposito: this.paymentType.Deposito,
+                  cheque: this.paymentType.Cheque,
+                  seguro: this.paymentType.Seguro,
+                  total: this.paymentSum,
+                  tipo: 'finiquito'
+                })
+                .then(
+                  this.selectedAccount = null,
+                  this.paymentType.Efectivo = 0,
+                  this.paymentType.Tarjeta = 0,
+                  this.paymentType.Deposito = 0,
+                  this.paymentType.Cheque = 0,
+                  this.paymentType.Seguro = 0,
+                  this.paymentSum = 0
+                )
+              me.alertVariant = 'info'
+              me.showAlert()
+              me.alertText = 'Se ha egresado el paciente ' + me.form.nombres + ' exitosamente'
+              me.$refs.vuetable.refresh()
+              me.$refs['modal-2-egreso'].hide()
+            })
+            .catch((error) => {
+              me.alertVariant = 'danger'
+              me.showAlertError()
+              me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+              console.error('There was an error!', error)
+            })
+        }
       }
     },
     makeQueryParams (sortOrder, currentPage, perPage) {
