@@ -633,6 +633,7 @@ export default {
           this.form.id = 0
           this.form.name = ''
           this.form.state = 1
+          this.form.cantidad = null
           this.servicio = null
           this.form.servicio = null
           break
