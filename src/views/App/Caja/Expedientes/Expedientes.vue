@@ -415,7 +415,7 @@ export default {
       }
     },
     setData (data) {
-      this.form.name = data.nombres
+      this.form.name = data.nombres + ' ' + data.apellidos
       this.form.state = data.estado
       this.form.id = data.id
       this.getCuentas(data.id)
@@ -521,7 +521,7 @@ export default {
             this.paymentSum = 0,
             me.alertVariant = 'info',
             me.showAlert(),
-            me.alertText = 'Se ha pagado por adelantado la cuenta del paciente ' + me.form.nombres + ' exitosamente',
+            me.alertText = 'Se ha pagado por adelantado la cuenta del paciente ' + me.form.name + ' exitosamente',
             me.$refs.vuetable.refresh(),
             me.$refs['modal-1-pago'].hide()
           )

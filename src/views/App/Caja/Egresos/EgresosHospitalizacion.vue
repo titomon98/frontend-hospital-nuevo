@@ -550,7 +550,7 @@ export default {
           axios
             .put(apiUrl + '/expedientes/changeState', {
               id: this.form.id,
-              estado: 0
+              estado: 2
             })
             .then((response) => {
               axios.put(apiUrl + '/habitaciones/available',
