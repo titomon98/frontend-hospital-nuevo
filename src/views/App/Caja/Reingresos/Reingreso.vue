@@ -176,7 +176,36 @@
               <b-form-input
                 v-model.trim="varMotivo"
                 :state="!varMotivoError"
-                placeholder="Ingresar precio del servicio">
+                placeholder="Ingresar motivo del ingreso">
+              </b-form-input>
+            </div>
+            <div>
+              <strong>
+                ENCARGADO
+              </strong>
+              Nombre
+              <b-form-input
+                v-model.trim="varNombreEncargado"
+                :state="!varNombreEncargadoError"
+                placeholder="Ingresar nombre del encargado">
+              </b-form-input>
+              Contacto
+              <b-form-input
+                v-model.trim="varContactoEncargado"
+                :state="!varContactoEncargadoError"
+                placeholder="Ingresar teléfono del encargado">
+              </b-form-input>
+              Parentesco
+              <b-form-input
+                v-model.trim="varParentescoEncargado"
+                :state="!varParentescoEncargadoError"
+                placeholder="Ingresar parentesco del encargado">
+              </b-form-input>
+              CUI
+              <b-form-input
+                v-model.trim="varCuiEncargado"
+                :state="!varCuiEncargadoError"
+                placeholder="Ingresar cui del encargado">
               </b-form-input>
             </div>
           </b-form-group>
@@ -461,8 +490,11 @@ export default {
     },
     setData (data) {
       this.form.nombres = data.nombres
-      this.form.unidadDeMedida = data.unidadDeMedida
-      this.form.precio = data.precio
+      this.form.apellidos = data.apellidos
+      this.varNombreEncargado = data.nombre_encargado
+      this.varContactoEncargado = data.contacto_encargado
+      this.varCuiEncargado = data.cui_encargado
+      this.varParentescoEncargado = data.parentesco_encargado
       this.form.state = data.estado
       this.form.id = data.id
     },
@@ -511,7 +543,11 @@ export default {
       axios
         .put(apiUrl + '/expedientes/changeState', {
           id: this.form.id,
-          estado: this.selectedTrasOption
+          estado: this.selectedTrasOption,
+          nombre_encargado: this.varNombreEncargado,
+          contacto_encargado: this.varContactoEncargado,
+          cui_encargado: this.varCuiEncargado,
+          parentesco_encargado: this.varParentescoEncargado
         })
         .then((response) => {
           me.alertVariant = 'info'
