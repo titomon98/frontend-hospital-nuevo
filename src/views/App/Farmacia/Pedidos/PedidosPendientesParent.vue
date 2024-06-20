@@ -10,7 +10,7 @@
     >
       <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
-    <b-modal id="modal-4-pedido" ref="modal-4-pedido" title="Cambiar estado">
+    <b-modal id="modal-4-pedido" ref="modal-4-pedido" title="Cambiar estado" size="xl">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -22,31 +22,15 @@
       </b-alert>
       <template>
         <div>
-          <b-table striped hover :items="this.form.pedido_detail"></b-table>
+          <b-table
+            striped hover
+            :items="form.pedido_detail"
+            :fields="pedido_detail_fields">
+
+          </b-table>
         </div>
       </template>
       <template>
-       <!--  <datatable-heading
-          :searchChange="searchChange"
-          :from="from"
-          :to="to"
-          :total="total"
-          :perPage="perPage"
-        ></datatable-heading> -->
-        <vuetable
-        key="{{form.id_pedido}}"
-        ref="pedido_detail"
-        class="table-divided order-with-arrow"
-        :api-url="apiBaseDetail"
-        :query-params="makeDetailQueryParams"
-        :per-page="perPage"
-        :reactive-api-url="true"
-        :fields="detailFields"
-      >
-      <template slot="checkbox" slot-scope="props">
-        <b-form-checkbox v-model="props.rowData.selected" :value="props.rowData.id"></b-form-checkbox>
-      </template>
-      </vuetable>
       </template>
       <h6 class="my-4">
         ¿Desea cambiar el estado del pedido: {{ form.codigoPedido }} ?
@@ -197,6 +181,28 @@ export default {
       alertVariant: '',
       apiBase: apiUrl + '/pedidos/list',
       apiBaseDetail: apiUrl + '/detalle_pedidos/list',
+      pedido_detail_fields: [
+        {
+          key: 'descripcion',
+          label: 'Descripción',
+          sortable: true
+        },
+        {
+          key: 'medicamento.nombre',
+          label: 'Medicamento',
+          sortable: true
+        },
+        {
+          key: 'quirurgico.nombre',
+          label: 'Material quirúrgico',
+          sortable: true
+        },
+        {
+          key: 'comune.nombre',
+          label: 'Material común',
+          sortable: true
+        }
+      ],
       fields: [
         {
           name: '__slot:actions',
@@ -290,6 +296,7 @@ export default {
       this.form.codigoPedido = data.codigoPedido
       this.form.state = data.estado
       this.form.id = data.id
+      this.getDetail(data.id)
     },
     /* Guardar */
     onSave () {
@@ -430,6 +437,16 @@ export default {
     },
     showAlertError () {
       this.alertCountDownError = this.alertSecs
+    },
+    getDetail (num) {
+      axios.get(apiUrl + '/detalle_pedidos/getByAccount', {
+        params: {
+          id: num
+        }
+      }).then((response) => {
+        this.form.pedido_detail = response.data
+        console.log(response.data)
+      })
     }
   }
 }

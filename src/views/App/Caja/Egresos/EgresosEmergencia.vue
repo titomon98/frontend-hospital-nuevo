@@ -456,7 +456,8 @@ export default {
       axios
         .put(apiUrl + '/expedientes/changeState', {
           id: this.form.id,
-          estado: this.selectedTrasOption
+          estado: this.selectedTrasOption,
+          estado_anterior: 5
         })
         .then((response) => {
           me.alertVariant = 'info'
@@ -490,7 +491,8 @@ export default {
           axios
             .put(apiUrl + '/expedientes/changeState', {
               id: this.form.id,
-              estado: 2
+              estado: 2,
+              estado_anterior: 4
             })
             .then((response) => {
               me.alertVariant = 'info'

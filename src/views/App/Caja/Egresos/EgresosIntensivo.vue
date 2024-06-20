@@ -533,7 +533,8 @@ export default {
       axios
         .put(apiUrl + '/expedientes/changeState', {
           id: this.form.id,
-          estado: this.selectedTrasOption
+          estado: this.selectedTrasOption,
+          estado_anterior: 4
         })
         .then((response) => {
           me.alertVariant = 'info'
@@ -577,7 +578,8 @@ export default {
           axios
             .put(apiUrl + '/expedientes/changeState', {
               id: this.form.id,
-              estado: this.selectedQuitOption
+              estado: this.selectedQuitOption,
+              estado_anterior: 4
             })
             .then((response) => {
               /* axios.put(apiUrl + '/cuentas/deactivate',
