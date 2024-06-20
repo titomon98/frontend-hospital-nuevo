@@ -547,7 +547,8 @@ export default {
           nombre_encargado: this.varNombreEncargado,
           contacto_encargado: this.varContactoEncargado,
           cui_encargado: this.varCuiEncargado,
-          parentesco_encargado: this.varParentescoEncargado
+          parentesco_encargado: this.varParentescoEncargado,
+          estado_anterior: 2
         })
         .then((response) => {
           me.alertVariant = 'info'
