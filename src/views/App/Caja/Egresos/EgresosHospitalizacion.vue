@@ -73,8 +73,6 @@
       <template #modal-footer="{}">
         <b-button variant="primary" @click="
             onPatientQuit()
-            selectedAccount = null
-            paymentType = ''
           "
           >Aceptar</b-button
         >

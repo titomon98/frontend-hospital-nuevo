@@ -30,6 +30,7 @@
             label="text"
             @input="onChangeQuirurgico"
           ></v-select>
+          <label>{{this.existencias_selected_qui}}</label>
           <div v-if="$v.formQuirurgico.id_quirurgico.required.$invalid" class="invalid-feedback">
             Debe seleccionar un producto quirúrgico
           </div>
@@ -71,7 +72,7 @@
                 <b-form-group label="Código de pedido:">
                   <b-form-input
                     v-model.trim="$v.form.codigoPedido.$model"
-                    :state="!$v.form.codigoPedido.$error"
+                    readonly
                     placeholder="Ingresar código del pedido"
                   ></b-form-input>
                 </b-form-group>
@@ -89,6 +90,18 @@
                   <div v-if="$v.form.fecha.required.$invalid" class="invalid-feedback">
                     Debe ingresar la fecha
                   </div>
+                </b-form-group>
+              </b-col>
+              <b-col md="4">
+                <b-form-group label="Pedido a:">
+                  <b-row md="4">
+                    <input type="radio" id="farmacia" value="0" v-model="$v.form.picked.$model" />
+                    <label for="farmacia" class="mt-2 ml-1">Farmacia</label>
+                  </b-row>
+                  <b-row md="4">
+                    <input type="radio" id="quirofano" value="1" v-model="$v.form.picked.$model" />
+                    <label for="quirofano" class="mt-2 ml-1">Quirófano</label>
+                  </b-row>
                 </b-form-group>
               </b-col>
             </b-row>
@@ -181,11 +194,12 @@ export default {
       pedidos: [],
       total_array: 0,
       max_cant: 0,
+      existencias_selected_qui: '',
       formQuirurgico: {
-        id_quirurgico: 0,
+        id_quirurgico: null,
         cantidad: null,
-        quirurgico: '',
-        existencias_actuales: 0
+        quirurgico: null,
+        existencias_actuales: null
       },
       form: {
         id: 0,
@@ -194,6 +208,7 @@ export default {
         fecha: today,
         id_usuario: 0,
         estado: 1,
+        picked: 0,
         quirurgicoId: 0
       },
       alertSecs: 5,
@@ -238,7 +253,8 @@ export default {
         codigoPedido: { required },
         fecha: { required },
         cantidadUnidades: { required },
-        quirurgicoId: { required }
+        quirurgicoId: { required },
+        picked: { required }
       },
       formQuirurgico: {
         id_quirurgico: {
@@ -293,11 +309,11 @@ export default {
           this.showAlertError()
         })
     },
-    addQuirurgico () {
+    addNewQui () {
       let me = this
       me.total_array = me.total_array + 1
       let quirurgico_ = me.quirurgicos.find(qui => qui.value === me.formQuirurgico.id_quirurgico)
-      console.log(parseInt(quirurgico_.existencias_actuales) - parseInt(me.formQuirurgico.cantidad))
+
       let quirurgico = {
         cantidad: me.formQuirurgico.cantidad,
         nombre: quirurgico_.text,
@@ -307,8 +323,25 @@ export default {
         is_medicine: false,
         is_comun: false
       }
-      this.form.cantidadUnidades += me.formQuirurgico.cantidad
+      let quirurgicoId_ = me.quirurgicos.findIndex(qui => qui.value === this.formQuirurgico.id_quirurgico)
+      this.quirurgicos[quirurgicoId_].existencias_actuales = parseInt(quirurgico_.existencias_actuales) - parseInt(me.formQuirurgico.cantidad)
+
+      this.form.cantidadUnidades = parseInt(this.form.cantidadUnidades) + parseInt(me.formQuirurgico.cantidad)
       me.arrayDetalles.push(quirurgico)
+    },
+    addQuirurgico () {
+      let me = this
+      if (me.arrayDetalles.length > 0) {
+        let quiFound = this.arrayDetalles.findIndex(qui => qui.id_quirurgico === me.formQuirurgico.id_quirurgico)
+        if (quiFound === null || quiFound === undefined || quiFound < 0) {
+          this.addNewQui()
+        } else {
+          me.arrayDetalles[quiFound].cantidad = parseInt(me.arrayDetalles[quiFound].cantidad) + parseInt(me.formQuirurgico.cantidad)
+          console.log(me.arrayDetalles[quiFound])
+        }
+      } else {
+        this.addNewQui()
+      }
       me.closeModal('quirurgico')
     },
     deleteDetail (id, total) {
@@ -322,8 +355,9 @@ export default {
       switch (modal) {
         case 'save': {
           this.$v.$reset()
-          this.formQuirurgico.id_quirurgico = 0
-          this.formQuirurgico.cantidad = 0
+          this.formQuirurgico.id_quirurgico = null
+          this.formQuirurgico.cantidad = null
+          this.existencias_selected_qui = null
           break
         }
       }
@@ -333,29 +367,34 @@ export default {
         case 'save' : {
           this.$v.$reset()
           this.$refs['modal-1-pedidos-qui'].hide()
-          this.formQuirurgico.id_quirurgico = 0
-          this.formQuirurgico.cantidad = 0
+          this.formQuirurgico.id_quirurgico = null
+          this.formQuirurgico.cantidad = null
+          this.existencias_selected_qui = null
+          this.picked = 0
           break
         }
         case 'quirurgico': {
           this.$v.formQuirurgico.$reset()
           this.$refs['modal-1-pedidos-qui'].hide()
-          this.formQuirurgico.id_quirurgico = 0
-          this.formQuirurgico.cantidad = 0
+          this.formQuirurgico.id_quirurgico = null
+          this.formQuirurgico.cantidad = null
+          this.existencias_selected_qui = null
           break
         }
         case 'update': {
           this.$v.$reset()
           this.$refs['modal-2-pedidos-qui'].hide()
-          this.formQuirurgico.id_quirurgico = 0
-          this.formQuirurgico.cantidad = 0
+          this.formQuirurgico.id_quirurgico = null
+          this.formQuirurgico.cantidad = null
+          this.existencias_selected_qui = null
           break
         }
         case 'ver': {
           this.$v.$reset()
           this.$refs['modal-ver-pedidos-qui'].hide()
-          this.formQuirurgico.id_quirurgico = 0
-          this.formQuirurgico.cantidad = 0
+          this.formQuirurgico.id_quirurgico = null
+          this.formQuirurgico.cantidad = null
+          this.existencias_selected_qui = null
           break
         }
       }
@@ -422,6 +461,7 @@ export default {
           me.alertVariant = 'success'
           me.showAlert()
           me.alertText = 'Se ha creado el pedido exitosamente'
+          me.fetchPedidos()
           me.closeModal('save')
           me.arrayDetalles = []
           me.paciente = null
@@ -516,8 +556,7 @@ export default {
     onChangeQuirurgico () {
       let quirurgico_ = this.quirurgicos.find(qui => qui.value === this.formQuirurgico.id_quirurgico)
       this.max_cant = quirurgico_.existencias_actuales
-      console.log(quirurgico_.existencias_actuales)
-      this.formQuirurgico.cantidad = 0
+      this.existencias_selected_qui = quirurgico_.existencias_actuales + ' unidades en existencia.'
     }
   }
 }
