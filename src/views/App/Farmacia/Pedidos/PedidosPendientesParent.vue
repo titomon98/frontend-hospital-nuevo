@@ -25,35 +25,28 @@
           <b-table striped hover :items="this.form.pedido_detail"></b-table>
         </div>
       </template>
-      <template v-slot:body>
-        <datatable-heading
-          :changePageSize="changePageSizes"
+      <template>
+       <!--  <datatable-heading
           :searchChange="searchChange"
           :from="from"
           :to="to"
           :total="total"
           :perPage="perPage"
-          :id_pedido="this.form.id_pedido"
-        >
-        </datatable-heading>
+        ></datatable-heading> -->
         <vuetable
-          key="this.form.id_pedido"
-          ref="vuetable_details"
-          class="table-divided order-with-arrow"
-          :api-url="apiBaseDetail"
-          :query-params="makeQueryParams"
-          :per-page="perPage"
-          :reactive-api-url="true"
-          :fields="detailFields"
-          pagination-path
-          @vuetable:pagination-data="onPaginationData"
-        >
-          <!-- Paginacion -->
-        </vuetable>
-        <vuetable-pagination-bootstrap
-            ref="pagination"
-            @vuetable-pagination:change-page="onChangePage"
-          />
+        key="{{form.id_pedido}}"
+        ref="pedido_detail"
+        class="table-divided order-with-arrow"
+        :api-url="apiBaseDetail"
+        :query-params="makeDetailQueryParams"
+        :per-page="perPage"
+        :reactive-api-url="true"
+        :fields="detailFields"
+      >
+      <template slot="checkbox" slot-scope="props">
+        <b-form-checkbox v-model="props.rowData.selected" :value="props.rowData.id"></b-form-checkbox>
+      </template>
+      </vuetable>
       </template>
       <h6 class="my-4">
         ¿Desea cambiar el estado del pedido: {{ form.codigoPedido }} ?
@@ -113,9 +106,24 @@
                     ><h6 class="success"><strong>PENDIENTE DE SURTIR</strong></h6></b-badge
                   >
                 </h5>
+                <h5 v-else-if="props.rowData.estado == 2">
+                  <b-badge variant="light"
+                    ><h6 class="danger"><strong>PENDIENTE DE CARGA A INVENTARIO</strong></h6></b-badge
+                  >
+                </h5>
+                <h5 v-else-if="props.rowData.estado == 3">
+                  <b-badge variant="light"
+                    ><h6 class="danger"><strong>NO DISPONIBLE EN BODEGA</strong></h6></b-badge
+                  >
+                </h5>
+                <h5 v-else-if="props.rowData.estado == 3">
+                  <b-badge variant="light"
+                    ><h6 class="danger"><strong>PENDIENTE DE COMPRA PARA BODEGA</strong></h6></b-badge
+                  >
+                </h5>
                 <h5 v-else>
                   <b-badge variant="light"
-                    ><h6 class="danger"><strong>SURTIDO</strong></h6></b-badge
+                    ><h6 class="danger"><strong>ENTREGADO Y CARGADO A INVENTARIO</strong></h6></b-badge
                   >
                 </h5>
               </div>
@@ -377,6 +385,25 @@ export default {
           page: currentPage,
           limit: this.perPage,
           search: this.search
+        }
+    },
+    makeDetailQueryParams (sortOrder, currentPage, perPage) {
+      return sortOrder[0]
+        ? {
+          criterio: sortOrder[0] ? sortOrder[0].sortField : 'created_At',
+          order: sortOrder[0] ? sortOrder[0].direction : 'desc',
+          page: currentPage,
+          limit: this.perPage,
+          search: this.search,
+          id_pedido: this.id_pedido
+        }
+        : {
+          criterio: sortOrder[0] ? sortOrder[0].sortField : 'created_At',
+          order: sortOrder[0] ? sortOrder[0].direction : 'desc',
+          page: currentPage,
+          limit: this.perPage,
+          search: this.search,
+          id_pedido: this.id_pedido
         }
     },
     changePageSizes (perPage) {
