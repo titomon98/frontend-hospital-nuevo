@@ -10,7 +10,7 @@
     >
       <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
-    <b-modal id="modal-4-pedido" ref="modal-4-pedido" title="Cambiar estado">
+    <b-modal id="modal-4-pedido" ref="modal-4-pedido" title="Cambiar estado" size="xl">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -22,38 +22,15 @@
       </b-alert>
       <template>
         <div>
-          <b-table striped hover :items="this.form.pedido_detail"></b-table>
+          <b-table
+            striped hover
+            :items="form.pedido_detail"
+            :fields="pedido_detail_fields">
+
+          </b-table>
         </div>
       </template>
-      <template v-slot:body>
-        <datatable-heading
-          :changePageSize="changePageSizes"
-          :searchChange="searchChange"
-          :from="from"
-          :to="to"
-          :total="total"
-          :perPage="perPage"
-          :id_pedido="this.form.id_pedido"
-        >
-        </datatable-heading>
-        <vuetable
-          key="this.form.id_pedido"
-          ref="vuetable_details"
-          class="table-divided order-with-arrow"
-          :api-url="apiBaseDetail"
-          :query-params="makeQueryParams"
-          :per-page="perPage"
-          :reactive-api-url="true"
-          :fields="detailFields"
-          pagination-path
-          @vuetable:pagination-data="onPaginationData"
-        >
-          <!-- Paginacion -->
-        </vuetable>
-        <vuetable-pagination-bootstrap
-            ref="pagination"
-            @vuetable-pagination:change-page="onChangePage"
-          />
+      <template>
       </template>
       <h6 class="my-4">
         ¿Desea cambiar el estado del pedido: {{ form.codigoPedido }} ?
@@ -110,12 +87,27 @@
               <div slot="estado" slot-scope="props">
                 <h5 v-if="props.rowData.estado == 1">
                   <b-badge variant="light"
-                    ><h6 class="success"><strong>ACTIVO</strong></h6></b-badge
+                    ><h6 class="success"><strong>PENDIENTE DE SURTIR</strong></h6></b-badge
+                  >
+                </h5>
+                <h5 v-else-if="props.rowData.estado == 2">
+                  <b-badge variant="light"
+                    ><h6 class="danger"><strong>PENDIENTE DE CARGA A INVENTARIO</strong></h6></b-badge
+                  >
+                </h5>
+                <h5 v-else-if="props.rowData.estado == 3">
+                  <b-badge variant="light"
+                    ><h6 class="danger"><strong>NO DISPONIBLE EN BODEGA</strong></h6></b-badge
+                  >
+                </h5>
+                <h5 v-else-if="props.rowData.estado == 3">
+                  <b-badge variant="light"
+                    ><h6 class="danger"><strong>PENDIENTE DE COMPRA PARA BODEGA</strong></h6></b-badge
                   >
                 </h5>
                 <h5 v-else>
                   <b-badge variant="light"
-                    ><h6 class="danger"><strong>INACTIVO</strong></h6></b-badge
+                    ><h6 class="danger"><strong>ENTREGADO Y CARGADO A INVENTARIO</strong></h6></b-badge
                   >
                 </h5>
               </div>
@@ -189,6 +181,33 @@ export default {
       alertVariant: '',
       apiBase: apiUrl + '/pedidos/list',
       apiBaseDetail: apiUrl + '/detalle_pedidos/list',
+      pedido_detail_fields: [
+        {
+          key: 'descripcion',
+          label: 'Descripción',
+          sortable: true
+        },
+        {
+          key: 'cantidad',
+          label: 'Cantidad',
+          sortable: true
+        },
+        {
+          key: 'medicamento.nombre',
+          label: 'Medicamento',
+          sortable: true
+        },
+        {
+          key: 'quirurgico.nombre',
+          label: 'Material quirúrgico',
+          sortable: true
+        },
+        {
+          key: 'comune.nombre',
+          label: 'Material común',
+          sortable: true
+        }
+      ],
       fields: [
         {
           name: '__slot:actions',
@@ -282,6 +301,7 @@ export default {
       this.form.codigoPedido = data.codigoPedido
       this.form.state = data.estado
       this.form.id = data.id
+      this.getDetail(data.id)
     },
     /* Guardar */
     onSave () {
@@ -379,6 +399,25 @@ export default {
           search: this.search
         }
     },
+    makeDetailQueryParams (sortOrder, currentPage, perPage) {
+      return sortOrder[0]
+        ? {
+          criterio: sortOrder[0] ? sortOrder[0].sortField : 'created_At',
+          order: sortOrder[0] ? sortOrder[0].direction : 'desc',
+          page: currentPage,
+          limit: this.perPage,
+          search: this.search,
+          id_pedido: this.id_pedido
+        }
+        : {
+          criterio: sortOrder[0] ? sortOrder[0].sortField : 'created_At',
+          order: sortOrder[0] ? sortOrder[0].direction : 'desc',
+          page: currentPage,
+          limit: this.perPage,
+          search: this.search,
+          id_pedido: this.id_pedido
+        }
+    },
     changePageSizes (perPage) {
       this.perPage = perPage
       this.$refs.vuetable.refresh()
@@ -403,6 +442,16 @@ export default {
     },
     showAlertError () {
       this.alertCountDownError = this.alertSecs
+    },
+    getDetail (num) {
+      axios.get(apiUrl + '/detalle_pedidos/getByAccount', {
+        params: {
+          id: num
+        }
+      }).then((response) => {
+        this.form.pedido_detail = response.data
+        console.log(response.data)
+      })
     }
   }
 }

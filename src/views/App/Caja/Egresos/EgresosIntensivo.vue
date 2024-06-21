@@ -10,7 +10,7 @@
     >
       <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
-    <b-modal id="modal-1-traslado" ref="modal-1-traslado" title="Trasladar paciente">
+    <b-modal id="modal-1-traslado-uci" ref="modal-1-traslado-uci" title="Trasladar paciente">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -53,12 +53,12 @@
           "
           >Ingresar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-1-traslado')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-1-traslado-uci')"
           >Cancelar</b-button
         >
       </template>
     </b-modal>
-    <b-modal id="modal-2-account" ref="modal-2-account" title="Egresar paciente" size="xl">
+    <b-modal id="modal-2-uciegreso" ref="modal-2-uciegreso" title="Egresar paciente">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -71,7 +71,15 @@
       <h6>¿Desea dar egreso al paciente {{this.form.nombres}} {{this.form.apellidos}}?</h6>
       <template>
         <div>
-          <h6>Cuentas activas para {{this.form.nombres}} {{this.form.apellidos}}</h6>
+          <b-form-group label="Motivo del egreso:">
+            <b-form-radio-group
+                      id="radio-group-egreso"
+                      v-model="selectedQuitOption"
+                      :options="optionsQuit"
+                      name="radio-options-2"
+                    ></b-form-radio-group>
+          </b-form-group>
+          <!-- <h6>Cuentas activas para {{this.form.nombres}} {{this.form.apellidos}}</h6>
           <b-card>
             <b-card-body>
               <b-table
@@ -80,7 +88,18 @@
                 :fields="fieldsAccounts"
                 :select-mode="'single'"
                 selectable
+                @row-selected="onRowSelected"
               >
+                <template #cell(seleccion)="{ rowSelected }">
+                  <template v-if="rowSelected">
+                    <span aria-hidden="true">&check;</span>
+                    <span class="sr-only">Selected</span>
+                  </template>
+                  <template v-else>
+                    <span aria-hidden="true">&nbsp;</span>
+                    <span class="sr-only">Not selected</span>
+                  </template>
+                </template>
               </b-table>
               <b-form-group label="Seleccione métodos para pagar:" v-slot="{ ariaDescribedby }">
                 <b-form-checkbox-group
@@ -111,12 +130,8 @@
                 Seguro
                 <b-input :type="'number'" id="InsuranceTypeInput" ref="InsuranceTypeInput" v-model="paymentType.Seguro" />
               </div>
-              <div v-if="selectedPayment.indexOf(6) !== -1">
-                Transferencia
-                <b-input :type="'number'" id="InsuranceTypeInput" ref="InsuranceTypeInput" v-model="paymentType.Transferencia" />
-              </div>
               <div>
-                <strong> TOTAL INGRESADO: {{ parseFloat(this.paymentType.Efectivo) + parseFloat(this.paymentType.Tarjeta) + parseFloat(this.paymentType.Deposito) + parseFloat(this.paymentType.Cheque) + parseFloat(this.paymentType.Seguro) + parseFloat(this.paymentType.Transferencia) }}</strong>
+                <strong> TOTAL INGRESADO: {{ parseFloat(this.paymentType.Efectivo) + parseFloat(this.paymentType.Tarjeta) + parseFloat(this.paymentType.Deposito) + parseFloat(this.paymentType.Cheque) + parseFloat(this.paymentType.Seguro) }}</strong>
               </div>
               <div>
                 <strong> TOTAL A PAGAR: {{ this.totalPayment }}</strong>
@@ -125,7 +140,7 @@
             <div>
 
             </div>
-          </b-card>
+          </b-card> -->
         </div>
       </template>
       <template #modal-footer="{}">
@@ -134,7 +149,7 @@
         "
           >Aceptar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-2-account')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-2-uciegreso')"
           >Cancelar</b-button
         >
       </template>
@@ -195,7 +210,7 @@
       <b-col md="12">
         <iq-card>
             <template v-slot:headerTitle>
-              <h4 class="card-title mt-3">Cuentas por cobrar</h4>
+              <h4 class="card-title mt-3">Egresos Unidad de Cuidados Intensivos</h4>
                <div class="iq-search-bar mt-2">
                 <b-form action="#" class="searchbox">
                     <b-input id="search" placeholder="Buscar..." @input="(val) => searchChange(val)" />
@@ -216,7 +231,7 @@
             >
             </datatable-heading>
             <vuetable
-              ref="vuetable"
+              ref="vuetableUci"
               class="table-divided order-with-arrow"
               :api-url="apiBase"
               :query-params="makeQueryParams"
@@ -230,12 +245,12 @@
               <div slot="estado" slot-scope="props">
                 <h5 v-if="props.rowData.estado == 1">
                   <b-badge variant="light"
-                    ><h6 class="success"><strong>PENDIENTE DE PAGO</strong></h6></b-badge
+                    ><h6 class="success"><strong></strong></h6></b-badge
                   >
                 </h5>
                 <h5 v-else>
                   <b-badge variant="light"
-                    ><h6 class="danger"><strong>EN EMERGENCIAS</strong></h6></b-badge
+                    ><h6 class="danger"><strong>EN UCI</strong></h6></b-badge
                   >
                 </h5>
               </div>
@@ -243,15 +258,27 @@
               <template slot="actions" slot-scope="props">
                 <b-button-group>
                   <b-button
-                    v-b-tooltip.top="'Pagar'"
+                    v-b-tooltip.top="'Egresar paciente'"
                     @click="
                       setData(props.rowData)
-                      $bvModal.show('modal-2-account')
+                      $bvModal.show('modal-2-uciegreso')
                     "
                     class="mb-2"
                     size="sm"
                     variant="outline-warning"
-                    ><i :class="'fas fa-money'"
+                    ><i :class="'fas fa-pencil-alt'"
+                  /></b-button>
+                  <b-button
+                    v-b-tooltip.top="'Trasladar paciente'"
+                    @click="
+                      setData(props.rowData);
+                      $bvModal.show('modal-1-traslado-uci');
+                    "
+                    class="mb-2"
+                    size="sm"
+                    :variant="'outline-danger'">
+                    <i
+                      :class="'fas fa-heart'"
                   /></b-button>
                 </b-button-group>
               </template>
@@ -307,11 +334,7 @@ export default {
         apellidos: '',
         expediente: '',
         cui: '',
-        state: 1,
-        numero: 1,
-        total_pagado: 0,
-        pendiente_de_pago: 0,
-        total: 0
+        state: 1
       },
       alertSecs: 5,
       alertCountDown: 0,
@@ -342,13 +365,18 @@ export default {
       selectedAccount: null,
       totalPayment: 0,
       cuentas: [],
+      selectedQuitOption: 6,
+      optionsQuit: [
+        { text: 'Fallecido', value: 0 },
+        { text: 'Desahuciado', value: 6 }
+      ],
       selectedTrasOption: 1,
       optionsTraslado: [
         { text: 'Quirófano', value: 3 },
         { text: 'Hospitalización', value: 1 },
-        { text: 'Intensivos', value: 4 }
+        { text: 'Emergencia', value: 5 }
       ],
-      apiBase: apiUrl + '/cuentas/debtList',
+      apiBase: apiUrl + '/expedientes/listIntensivo',
       fields: [
         {
           name: '__slot:actions',
@@ -357,39 +385,15 @@ export default {
           dataClass: 'text-muted'
         },
         {
-          name: 'expediente.nombres',
-          sortField: 'expediente.nombres',
-          title: 'Nombres',
+          name: 'nombres',
+          sortField: 'nombres',
+          title: 'Nombre',
           dataClass: 'list-item-heading'
         },
         {
-          name: 'expediente.apellidos',
-          sortField: 'expediente.apellidos',
+          name: 'apellidos',
+          sortField: 'appellidos',
           title: 'Apellidos',
-          dataClass: 'list-item-heading'
-        },
-        {
-          name: 'numero',
-          sortField: 'numero',
-          title: 'Numero de Cuenta',
-          dataClass: 'list-item-heading'
-        },
-        {
-          name: 'motivo',
-          sortField: 'motivo',
-          title: 'Motivo',
-          dataClass: 'list-item-heading'
-        },
-        {
-          name: 'total',
-          sortField: 'total',
-          title: 'Total',
-          dataClass: 'list-item-heading'
-        },
-        {
-          name: 'pendiente_de_pago',
-          sortField: 'pendiente_de_pago',
-          title: 'Pendiente de pago',
           dataClass: 'list-item-heading'
         },
         {
@@ -417,8 +421,8 @@ export default {
           sortable: true
         },
         {
-          key: 'total',
-          label: 'Total',
+          key: 'seleccion',
+          label: 'Selección',
           sortable: true
         }
       ]
@@ -452,7 +456,7 @@ export default {
       switch (action) {
         case 'save': {
           this.$v.$reset()
-          this.$refs['modal-1-traslado'].hide()
+          this.$refs['modal-1-traslado-uci'].hide()
           this.form.id = 0
           this.form.name = ''
           this.form.state = 1
@@ -460,7 +464,7 @@ export default {
         }
         case 'update': {
           this.$v.$reset()
-          this.$refs['modal-2-account'].hide()
+          this.$refs['modal-2-uciegreso'].hide()
           this.form.id = 0
           this.form.name = ''
           this.form.state = 1
@@ -475,7 +479,7 @@ export default {
         this.showAlertError()
       } else {
         this.onState()
-        this.$bvModal.hide('modal-1-traslado')
+        this.$bvModal.hide('modal-1-traslado-uci')
       }
     },
     setData (data) {
@@ -483,16 +487,7 @@ export default {
       this.form.apellidos = data.apellidos
       this.form.state = data.estado
       this.form.id = data.id
-      this.form.numero = data.numero
-      this.form.total_pagado = data.total_pagado
-      this.form.pendiente_de_pago = data.pendiente_de_pago
-      this.form.total = data.total
-      this.cuentas[0] = data
-      this.selectedAccount = data.id
-      this.totalPayment = data.pendiente_de_pago
-      this.totPagado = data.total_pagado
-      console.log(this.cuentas)
-      //this.getCuentas(data.id)
+      this.getCuentas(data.id)
     },
     /* Guardar */
     onSave () {
@@ -503,7 +498,7 @@ export default {
           me.alertVariant = 'success'
           me.showAlert()
           me.alertText = 'Se ha creado el banco ' + me.form.name + ' exitosamente'
-          me.$refs.vuetable.refresh()
+          me.$refs.vuetableUci.refresh()
           me.closeModal('save')
         })
         .catch((error) => {
@@ -523,7 +518,7 @@ export default {
           me.alertVariant = 'primary'
           me.showAlert()
           me.alertText = 'Se ha actualizado el banco ' + me.form.name + ' exitosamente'
-          me.$refs.vuetable.refresh()
+          me.$refs.vuetableUci.refresh()
           me.closeModal('update')
         })
         .catch((error) => {
@@ -538,14 +533,15 @@ export default {
       axios
         .put(apiUrl + '/expedientes/changeState', {
           id: this.form.id,
-          estado: this.selectedTrasOption
+          estado: this.selectedTrasOption,
+          estado_anterior: 4
         })
         .then((response) => {
           me.alertVariant = 'info'
           me.showAlert()
           me.alertText = 'Se ha trasladado el paciente ' + me.form.nombres + ' exitosamente'
-          me.$refs.vuetable.refresh()
-          me.$refs['modal-1-traslado'].hide()
+          me.$refs.vuetableUci.refresh()
+          me.$refs['modal-1-traslado-uci'].hide()
           if (this.selectedTrasOption === 1 || this.selectedTrasOption === 4) {
             axios
               .put(apiUrl + '/habitaciones/inUse', {
@@ -567,51 +563,61 @@ export default {
         })
     },
     onPatientQuit () {
-      this.paymentSum = parseFloat(this.paymentType.Efectivo) + parseFloat(this.paymentType.Tarjeta) + parseFloat(this.paymentType.Deposito) + parseFloat(this.paymentType.Cheque) + parseFloat(this.paymentType.Seguro) + parseFloat(this.paymentType.Transferencia)
-      if (this.paymentSum !== parseFloat(this.totalPayment)) {
-        this.alertErrorText = 'El total a pagar no concuerda con el total ingresado'
+      //this.paymentSum = parseFloat(this.paymentType.Efectivo) + parseFloat(this.paymentType.Tarjeta) + parseFloat(this.paymentType.Deposito) + parseFloat(this.paymentType.Cheque) + parseFloat(this.paymentType.Seguro)
+      this.paymentSum = 0
+      this.totalPayment = 0
+      if (this.selectedAccount !== null) {
+        this.alertErrorText = 'Revisa que todos los campos requeridos esten llenos'
         this.showAlertError()
       } else {
-        let me = this
-
-        axios.put(apiUrl + '/cuentas/deactivate',
-            {
-              id: this.selectedAccount,
-              total_pagado: parseFloat(this.totPagado) + parseFloat(this.paymentSum),
-              pendiente_de_pago: parseFloat(parseFloat(this.totalPayment) - parseFloat(this.paymentSum)),
-              efectivo: this.paymentType.Efectivo,
-              tarjeta: this.paymentType.Tarjeta,
-              deposito: this.paymentType.Deposito,
-              cheque: this.paymentType.Cheque,
-              seguro: this.paymentType.Seguro,
-              transferencia: this.paymentType.Transferencia,
-              total: this.paymentSum,
-              tipo: 'finiquito'
+        if (this.paymentSum !== parseFloat(this.totalPayment)) {
+          this.alertErrorText = 'El total a pagar no concuerda con el total ingresado'
+          this.showAlertError()
+        } else {
+          let me = this
+          axios
+            .put(apiUrl + '/expedientes/changeState', {
+              id: this.form.id,
+              estado: this.selectedQuitOption,
+              estado_anterior: 4
             })
-            .then(
-              this.selectedAccount = null,
-              this.paymentType.Efectivo = 0,
-              this.paymentType.Tarjeta = 0,
-              this.paymentType.Deposito = 0,
-              this.paymentType.Cheque = 0,
-              this.paymentType.Seguro = 0,
-              this.paymentType.transferencia = 0,
-              this.paymentSum = 0
-            )
-          me.alertVariant = 'info'
-          me.showAlert()
-          me.alertText = 'Se ha egresado el paciente ' + me.form.nombres + ' exitosamente'
-          me.$refs.vuetable.refresh()
-          me.$refs['modal-2-account'].hide()
-
-        .catch((error) => {
-            me.alertVariant = 'danger'
-            me.showAlertError()
-            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-            console.error('There was an error!', error)
-          })
+            .then((response) => {
+              /* axios.put(apiUrl + '/cuentas/deactivate',
+                {
+                  id: this.selectedAccount,
+                  total_pagado: parseFloat(this.totPagado) + parseFloat(this.paymentSum),
+                  pendiente_de_pago: parseFloat(parseFloat(this.totalPayment) - parseFloat(this.paymentSum)),
+                  efectivo: this.paymentType.Efectivo,
+                  tarjeta: this.paymentType.Tarjeta,
+                  deposito: this.paymentType.Deposito,
+                  cheque: this.paymentType.Cheque,
+                  seguro: this.paymentType.Seguro,
+                  total: this.paymentSum,
+                  tipo: 'finiquito'
+                })
+                .then(
+                  this.selectedAccount = null,
+                  this.paymentType.Efectivo = 0,
+                  this.paymentType.Tarjeta = 0,
+                  this.paymentType.Deposito = 0,
+                  this.paymentType.Cheque = 0,
+                  this.paymentType.Seguro = 0,
+                  this.paymentSum = 0
+                ) */
+              me.alertVariant = 'info'
+              me.showAlert()
+              me.alertText = 'Se ha egresado el paciente ' + me.form.nombres + ' exitosamente'
+              me.$refs.vuetableUci.refresh()
+              me.$refs['modal-2-uciegreso'].hide()
+            })
+            .catch((error) => {
+              me.alertVariant = 'danger'
+              me.showAlertError()
+              me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+              console.error('There was an error!', error)
+            })
+        }
       }
-
     },
     makeQueryParams (sortOrder, currentPage, perPage) {
       return sortOrder[0]
@@ -632,11 +638,11 @@ export default {
     },
     changePageSizes (perPage) {
       this.perPage = perPage
-      this.$refs.vuetable.refresh()
+      this.$refs.vuetableUci.refresh()
     },
     searchChange (val) {
       this.search = val.toLowerCase()
-      this.$refs.vuetable.refresh()
+      this.$refs.vuetableUci.refresh()
     },
     onPaginationData (paginationData) {
       this.from = paginationData.from
@@ -647,7 +653,7 @@ export default {
       this.$refs.pagination.setPaginationData(paginationData)
     },
     onChangePage (page) {
-      this.$refs.vuetable.changePage(page)
+      this.$refs.vuetableUci.changePage(page)
     },
     showAlert () {
       this.alertCountDown = this.alertSecs
@@ -672,7 +678,6 @@ export default {
         }
       }).then((response) => {
         this.cuentas = response.data
-        console.log(response.data)
       })
     },
     inputPaymentType (inptPay) {
