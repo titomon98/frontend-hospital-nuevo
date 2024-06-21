@@ -20,7 +20,6 @@
             <b-tabs>
               <b-tab title="Usuarios" active><Users/></b-tab>
               <b-tab title="Personal" lazy><Personal/></b-tab>
-              <b-tab title="Cuartos" lazy><Cuartos/></b-tab>
               <b-tab title="Asuetos" lazy><Asuetos/></b-tab>
             </b-tabs>
           </template>
@@ -35,7 +34,6 @@ import axios from 'axios'
 import { apiUrl } from '../../../config/constant'
 import Users from './Users.vue'
 import Personal from './Personal.vue'
-import Cuartos from './Cuartos.vue'
 import Asuetos from './Asuetos.vue'
 
 export default {
@@ -43,7 +41,6 @@ export default {
   components: {
     Users,
     Personal,
-    Cuartos,
     Asuetos
   },
   data () {

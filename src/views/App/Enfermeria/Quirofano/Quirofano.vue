@@ -290,6 +290,183 @@
         <b-button variant="danger" @click="closeModal('ver-honorarios')">Cerrar</b-button>
       </template>
     </b-modal>
+    <b-modal id="modal-sala-operaciones" size="lg" ref="modal-sala-operaciones" title="Servicio sala de operaciones">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <b-form  @submit="$event.preventDefault()">
+        <b-form-group label="Ingresar el costo por hora y la duración (en horas) del uso de la sala de operaciones.">
+          <b-form-input
+            v-model.trim="salaOperaciones.precio"
+            placeholder="Ingresar el costo"
+            type="number"
+            required
+          ></b-form-input>
+        </b-form-group>
+        <b-form-group label="Ingresar el total de horas">
+          <b-form-input
+            v-model.trim="salaOperaciones.horas"
+            placeholder="horas"
+            type="number"
+            required
+          ></b-form-input>
+        </b-form-group>
+      </b-form>
+      <template #modal-footer>
+          <b-button variant="primary" @click="addSalaOperaciones()">Cobrar</b-button>
+          <b-button variant="danger" @click="closeModal('sala-operaciones')">Cancelar</b-button>
+        </template>
+    </b-modal>
+    <b-modal id="modal-1-movimiento" ref="modal-1-movimiento" title="Agregar Consumo Medicamentos">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <b-form @submit="$event.preventDefault()">
+        <b-form-group label="Medicamento:">
+            <v-select
+              name="medicamentos"
+              v-model="formMe.medicamento"
+              :options="medicamentos"
+              :filterable="false"
+              placeholder="Seleccione la medicamento"
+              @search="onSearchMedicamentos"
+            >
+              <template v-slot:spinner="{ loading }">
+                <div v-show="loading">Cargando...</div>
+              </template>
+              <template v-slot:option="option">
+                {{ 'Nombre: '+ option.nombre + ' Existencia: ' + option.existencia_actual }}
+              </template>
+              <template slot="selected-option" slot-scope="option">
+                {{ 'Nombre: '+ option.nombre + ' Existencia: ' + option.existencia_actual }}
+              </template>
+            </v-select>
+          </b-form-group>
+          <b-form-group label="Cantidad:">
+            <b-form-input
+              type="number"
+              v-model.trim="formMe.cantidad"
+              placeholder="Ingresar cantidad"
+            ></b-form-input>
+          </b-form-group>
+      </b-form>
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click=" onSave()"
+          >Guardar</b-button
+        >
+        <b-button variant="danger" @click="closeModal('save')"
+          >Cancelar</b-button
+        >
+      </template>
+    </b-modal>
+    <b-modal id="modal-2-movimiento" ref="modal-2-movimiento" title="Agregar Consumo Material Quirurgico">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <b-form @submit="$event.preventDefault()">
+        <b-form-group label="Insumos Quirofano:">
+            <v-select
+              name="Insumos Quirofano"
+              v-model="formQui.quirurgico"
+              :options="Quirurgicos"
+              :filterable="false"
+              placeholder="Seleccione un insumo"
+              @search="onSearchQuirugicos"
+            >
+              <template v-slot:spinner="{ loading }">
+                <div v-show="loading">Cargando...</div>
+              </template>
+              <template v-slot:option="option">
+                {{ 'Nombre: '+ option.nombre + ' Existencia: ' + option.existencia_actual }}
+              </template>
+              <template slot="selected-option" slot-scope="option">
+                {{ 'Nombre: '+ option.nombre + ' Existencia: ' + option.existencia_actual }}
+              </template>
+            </v-select>
+          </b-form-group>
+          <b-form-group label="Cantidad:">
+            <b-form-input
+              type="number"
+              v-model.trim="formQui.cantidad"
+              placeholder="Ingresar cantidad"
+            ></b-form-input>
+          </b-form-group>
+      </b-form>
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click=" onSaveQuirurgico()"
+          >Guardar</b-button
+        >
+        <b-button variant="danger" @click="closeModal('SaveQuirurgico')"
+          >Cancelar</b-button
+        >
+      </template>
+    </b-modal>
+    <b-modal id="modal-3-movimiento" ref="modal-3-movimiento" title="Agregar Consumo Material Comun">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <b-form @submit="$event.preventDefault()">
+        <b-form-group label="Material Comun:">
+            <v-select
+              name="Material Comun"
+              v-model="formCom.comun"
+              :options="Comunes"
+              :filterable="false"
+              placeholder="Seleccione un material"
+              @search="onSearchMaterialComun"
+            >
+              <template v-slot:spinner="{ loading }">
+                <div v-show="loading">Cargando...</div>
+              </template>
+              <template v-slot:option="option">
+                {{ 'Nombre: '+ option.nombre + ' Existencia: ' + option.existencia_actual }}
+              </template>
+              <template slot="selected-option" slot-scope="option">
+                {{ 'Nombre: '+ option.nombre + ' Existencia: ' + option.existencia_actual }}
+              </template>
+            </v-select>
+          </b-form-group>
+          <b-form-group label="Cantidad:">
+            <b-form-input
+              type="number"
+              v-model.trim="formCom.cantidad"
+              placeholder="Ingresar cantidad"
+            ></b-form-input>
+          </b-form-group>
+      </b-form>
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click=" onSaveComunes()"
+          >Guardar</b-button
+        >
+        <b-button variant="danger" @click="closeModal('SaveComunes')"
+          >Cancelar</b-button
+        >
+      </template>
+    </b-modal>
     <b-row>
       <b-col md="12">
         <iq-card>
@@ -384,7 +561,43 @@
                     variant="outline-dark"
                     ><i :class="'fas fa-eye'"
                   /></b-button>
-                </b-button-group>
+                <b-button
+                    v-b-tooltip.top="'Cobro Sala Operaciones'"
+                   @click="showModal('modal-sala-operaciones'); obtenerIdCuenta(props.rowData.id)"
+                    class="mb-2"
+                    size="sm"
+                    variant="outline-dark">
+                    <i
+                      :class="
+                        props.rowData.estado == 1
+                          ? 'fas fa-trash-alt'
+                          : 'fas fa-check'"
+                /></b-button>
+                  <b-button
+                    v-b-tooltip.top="'Aregar Medicamentos'"
+                    @click="showModal('modal-1-movimiento'); obtenerIdCuenta(props.rowData.id)"
+                    class="mb-2"
+                    size="sm"
+                    variant="outline-warning"
+                    ><i :class="'fas fa-pencil-alt'"
+                  /></b-button>
+                  <b-button
+                    v-b-tooltip.top="'Aregar Insumos Quirofano'"
+                    @click="showModal('modal-2-movimiento'); obtenerIdCuenta(props.rowData.id)"
+                    class="mb-2"
+                    size="sm"
+                    variant="outline-warning"
+                    ><i :class="'fas fa-pencil-alt'" style="color: #FFC107;"
+                  /></b-button>
+                  <b-button
+                    v-b-tooltip.top="'Aregar Material Comun'"
+                    @click="showModal('modal-3-movimiento'); obtenerIdCuenta(props.rowData.id)"
+                    class="mb-2"
+                    size="sm"
+                    variant="outline-warning"
+                    ><i :class="'fas fa-pencil-alt'" style="color: #FFC107;"
+                  /></b-button>
+              </b-button-group>
               </template>
               <!-- Paginacion -->
             </vuetable>
@@ -578,7 +791,32 @@ export default {
         perPage: 10,
         total: 0
       },
-      currentExpedienteId: null
+      currentExpedienteId: null,
+      salaOperaciones: {
+        precio: null,
+        horas: null
+      },
+      Quirurgicos: [],
+      formQui: {
+        id_cuenta: 0,
+        cantidad: 0,
+        quirurgico: null,
+        movimiento: 'SALIDAQ'
+      },
+      medicamentos: [],
+      formMe: {
+        id_cuenta: 0,
+        cantidad: 0,
+        medicamento: null,
+        movimiento: 'SALIDAQ'
+      },
+      Comunes: [],
+      formCom: {
+        id_cuenta: 0,
+        cantidad: 0,
+        comun: null,
+        movimiento: 'SALIDAQ'
+      }
     }
   },
   validations () {
@@ -670,6 +908,41 @@ export default {
           this.form.state = 1
           break
         }
+        case 'sala-operaciones': {
+          this.$v.$reset()
+          this.$refs['modal-sala-operaciones'].hide()
+          this.form.id = 0
+          this.form.name = ''
+          this.form.state = 1
+          break
+        }
+        case 'save': {
+          this.$v.$reset()
+          this.$refs['modal-1-movimiento'].hide()
+          this.formMe.id_cuenta = 0
+          this.formMe.cantidad = 0
+          this.formMe.medicamento = null
+          this.formMe.movimiento = 'SALIDAQ'
+          break
+        }
+        case 'SaveQuirurgico': {
+          this.$v.$reset()
+          this.$refs['modal-2-movimiento'].hide()
+          this.formQui.id_cuenta = 0
+          this.formQui.cantidad = 0
+          this.formQui.quirurgico = null
+          this.formQui.movimiento = 'SALIDAQ'
+          break
+        }
+        case 'SaveComunes': {
+          this.$v.$reset()
+          this.$refs['modal-3-movimiento'].hide()
+          this.formCom.id_cuenta = 0
+          this.formCom.cantidad = 0
+          this.formCom.quirurgico = null
+          this.formCom.movimiento = 'SALIDAQ'
+          break
+        }
       }
     },
     onValidate (action) {
@@ -684,6 +957,69 @@ export default {
         this.alertErrorText = 'Revisa que todos los campos requeridos esten llenos'
         this.showAlertError()
       }
+    },
+    onSave () {
+      const me = this
+      me.formMe.id_cuenta = me.idCuentaSeleccionada
+      const currentUser = this.currentUser
+      axios.post(apiUrl + '/detalle_consumo_medicamentos/create', {
+        form: me.formMe,
+        currentUser: currentUser
+      })
+        .then((response) => {
+          me.alertVariant = 'success'
+          me.showAlert()
+          me.alertText = 'Se ha creado el movimiento exitosamente'
+          me.$refs.vuetable.refresh()
+          me.closeModal('save')
+        })
+        .catch((error) => {
+          me.alertVariant = 'danger'
+          me.showAlertError()
+          console.error('Error!', error)
+        })
+    },
+    onSaveQuirurgico () {
+      const me = this
+      me.formQui.id_cuenta = me.idCuentaSeleccionada
+      const currentUser = this.currentUser
+      axios.post(apiUrl + '/detalle_consumo_quirugicos/create', {
+        form: me.formQui,
+        currentUser: currentUser
+      })
+        .then((response) => {
+          me.alertVariant = 'success'
+          me.showAlert()
+          me.alertText = 'Se ha creado el movimiento exitosamente'
+          me.$refs.vuetable.refresh()
+          me.closeModal('save')
+        })
+        .catch((error) => {
+          me.alertVariant = 'danger'
+          me.showAlertError()
+          console.error('Error!', error)
+        })
+    },
+    onSaveComunes () {
+      const me = this
+      me.formCom.id_cuenta = me.idCuentaSeleccionada
+      const currentUser = this.currentUser
+      axios.post(apiUrl + '/detalle_consumo_comun/create', {
+        form: me.formCom,
+        currentUser: currentUser
+      })
+        .then((response) => {
+          me.alertVariant = 'success'
+          me.showAlert()
+          me.alertText = 'Se ha creado el movimiento exitosamente'
+          me.$refs.vuetable.refresh()
+          me.closeModal('save')
+        })
+        .catch((error) => {
+          me.alertVariant = 'danger'
+          me.showAlertError()
+          console.error('Error!', error)
+        })
     },
     traslado (id) {
       this.$refs['modal-traslado'].show()
@@ -792,6 +1128,24 @@ export default {
           medico: null,
           descripcion: '',
           total: null
+        }
+      } catch (error) {
+        console.error(error)
+        this.alertErrorText = 'Error al agregar honorarios'
+        this.showAlertError()
+      }
+    },
+    addSalaOperaciones () {
+      try {
+        axios.post(apiUrl + '/salaOperaciones/created', {
+          precio: this.salaOperaciones.precio,
+          horas: this.salaOperaciones.horas,
+          id_cuenta: this.idCuentaSeleccionada
+        })
+        this.$refs['modal-sala-operaciones'].hide()
+        this.salaOperaciones = {
+          precio: null,
+          horas: null
         }
       } catch (error) {
         console.error(error)
@@ -1017,6 +1371,60 @@ export default {
       } catch (error) {
         console.error('Error al obtener los honorarios:', error)
       }
+    },
+    onSearchMedicamentos (search, loading) {
+      if (search.length) {
+        loading(true)
+        this.searchingMedicamentos(search, loading)
+      }
+    },
+    searchingMedicamentos (search, loading) {
+      axios.get(apiUrl + '/medicamentos/getSearch',
+        {
+          params: {
+            search: search
+          }
+        }
+      ).then((response) => {
+        this.medicamentos = response.data
+        loading(false)
+      })
+    },
+    onSearchQuirugicos (search, loading) {
+      if (search.length) {
+        loading(true)
+        this.searchingQuirurgico(search, loading)
+      }
+    },
+    searchingQuirurgico (search, loading) {
+      axios.get(apiUrl + '/quirurgico/getSearch',
+        {
+          params: {
+            search: search
+          }
+        }
+      ).then((response) => {
+        this.Quirurgicos = response.data
+        loading(false)
+      })
+    },
+    onSearchMaterialComun (search, loading) {
+      if (search.length) {
+        loading(true)
+        this.searchingComunes(search, loading)
+      }
+    },
+    searchingComunes (search, loading) {
+      axios.get(apiUrl + '/comun/getSearch',
+        {
+          params: {
+            search: search
+          }
+        }
+      ).then((response) => {
+        this.Quirurgicos = response.data
+        loading(false)
+      })
     }
   }
 }
