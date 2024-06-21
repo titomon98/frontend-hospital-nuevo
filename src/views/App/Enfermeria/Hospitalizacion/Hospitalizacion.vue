@@ -290,6 +290,54 @@
         <b-button variant="danger" @click="closeModal('ver-honorarios')">Cerrar</b-button>
       </template>
     </b-modal>
+    <b-modal id="modal-1-movimiento" ref="modal-1-movimiento" title="Agregar Consumo Medicamentos">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <b-form @submit="$event.preventDefault()">
+        <b-form-group label="Medicamento:">
+            <v-select
+              name="medicamentos"
+              v-model="formMe.medicamento"
+              :options="medicamentos"
+              :filterable="false"
+              placeholder="Seleccione la medicamento"
+              @search="onSearchMedicamentos"
+            >
+              <template v-slot:spinner="{ loading }">
+                <div v-show="loading">Cargando...</div>
+              </template>
+              <template v-slot:option="option">
+                {{ 'Nombre: '+ option.nombre + ' Existencia: ' + option.existencia_actual }}
+              </template>
+              <template slot="selected-option" slot-scope="option">
+                {{ 'Nombre: '+ option.nombre + ' Existencia: ' + option.existencia_actual }}
+              </template>
+            </v-select>
+          </b-form-group>
+          <b-form-group label="Cantidad:">
+            <b-form-input
+              type="number"
+              v-model.trim="formMe.cantidad"
+              placeholder="Ingresar cantidad"
+            ></b-form-input>
+          </b-form-group>
+      </b-form>
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click=" onSave()"
+          >Guardar</b-button
+        >
+        <b-button variant="danger" @click="closeModal('save')"
+          >Cancelar</b-button
+        >
+      </template>
+    </b-modal>
     <b-row>
       <b-col md="12">
         <iq-card>
@@ -383,6 +431,14 @@
                     size="sm"
                     variant="outline-dark"
                     ><i :class="'fas fa-eye'"
+                  /></b-button>
+                  <b-button
+                    v-b-tooltip.top="'Aregar Medicamentos'"
+                    @click="showModal('modal-1-movimiento'); obtenerIdCuenta(props.rowData.id)"
+                    class="mb-2"
+                    size="sm"
+                    variant="outline-warning"
+                    ><i :class="'fas fa-pencil-alt'"
                   /></b-button>
                 </b-button-group>
               </template>
@@ -578,7 +634,14 @@ export default {
         perPage: 10,
         total: 0
       },
-      currentExpedienteId: null
+      currentExpedienteId: null,
+      medicamentos: [],
+      formMe: {
+        id_cuenta: 0,
+        cantidad: 0,
+        medicamento: null,
+        movimiento: 'SALIDAH'
+      }
     }
   },
   validations () {
@@ -670,6 +733,15 @@ export default {
           this.form.state = 1
           break
         }
+        case 'save': {
+          this.$v.$reset()
+          this.$refs['modal-1-movimiento'].hide()
+          this.formMe.id_cuenta = 0
+          this.formMe.cantidad = 0
+          this.formMe.medicamento = null
+          this.formMe.movimiento = 'SALIDAH'
+          break
+        }
       }
     },
     onValidate (action) {
@@ -684,6 +756,27 @@ export default {
         this.alertErrorText = 'Revisa que todos los campos requeridos esten llenos'
         this.showAlertError()
       }
+    },
+    onSave () {
+      const me = this
+      me.formMe.id_cuenta = me.idCuentaSeleccionada
+      const currentUser = this.currentUser
+      axios.post(apiUrl + '/detalle_consumo_medicamentos/create', {
+        form: me.formMe,
+        currentUser: currentUser
+      })
+        .then((response) => {
+          me.alertVariant = 'success'
+          me.showAlert()
+          me.alertText = 'Se ha creado el movimiento exitosamente'
+          me.$refs.vuetable.refresh()
+          me.closeModal('save')
+        })
+        .catch((error) => {
+          me.alertVariant = 'danger'
+          me.showAlertError()
+          console.error('Error!', error)
+        })
     },
     traslado (id) {
       this.$refs['modal-traslado'].show()
@@ -1017,6 +1110,24 @@ export default {
       } catch (error) {
         console.error('Error al obtener los honorarios:', error)
       }
+    },
+    onSearchMedicamentos (search, loading) {
+      if (search.length) {
+        loading(true)
+        this.searchingMedicamentos(search, loading)
+      }
+    },
+    searchingMedicamentos (search, loading) {
+      axios.get(apiUrl + '/medicamentos/getSearch',
+        {
+          params: {
+            search: search
+          }
+        }
+      ).then((response) => {
+        this.medicamentos = response.data
+        loading(false)
+      })
     }
   }
 }

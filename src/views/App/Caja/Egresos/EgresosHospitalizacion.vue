@@ -59,7 +59,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-2-egresarHosp" ref="modal-2-egresarHosp" title="Egresar paciente" size="xl">
+    <b-modal id="modal-2-egresarHosp" ref="modal-2-egresarHosp" title="Egresar paciente">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -70,69 +70,6 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6>¿Desea dar egreso al paciente {{form.nombres}} {{form.apellidos}}?</h6>
-      <template>
-        <div>
-          <h6>Cuentas activas para {{this.form.nombres}} {{this.form.apellidos}}</h6>
-          <b-card>
-            <b-card-body>
-              <b-table
-                hover
-                :items="cuentas"
-                :fields="fieldsAccounts"
-                :select-mode="'single'"
-                selectable
-                @row-selected="onRowSelected"
-              >
-                <template #cell(seleccion)="{ rowSelected }">
-                  <template v-if="rowSelected">
-                    <span aria-hidden="true">&check;</span>
-                    <span class="sr-only">Selected</span>
-                  </template>
-                  <template v-else>
-                    <span aria-hidden="true">&nbsp;</span>
-                    <span class="sr-only">Not selected</span>
-                  </template>
-                </template>
-              </b-table>
-              <b-form-group label="Seleccione métodos para pagar:" v-slot="{ ariaDescribedby }">
-                <b-form-checkbox-group
-                  id="checkbox-group-1"
-                  v-model="selectedPayment"
-                  :options="paymentOptions"
-                  :aria-describedby="ariaDescribedby"
-                  name="flavour-1"
-                ></b-form-checkbox-group>
-              </b-form-group>
-              <div v-if="selectedPayment.indexOf(1) !== -1">
-                Efectivo
-                <b-input :type="'number'" id="CashTypeInput" ref="CashTypeInput" v-model="paymentType.Efectivo" />
-              </div>
-              <div v-if="selectedPayment.indexOf(2) !== -1">
-                Tarjeta
-                <b-input :type="'number'" id="CardTypeInput" ref="CardTypeInput" v-model="paymentType.Tarjeta" />
-              </div>
-              <div v-if="selectedPayment.indexOf(3) !== -1">
-                Depósito
-                <b-input :type="'number'" id="DepositTypeInput" ref="DepositTypeInput" v-model="paymentType.Deposito" />
-              </div>
-              <div v-if="selectedPayment.indexOf(4) !== -1">
-                Cheque
-                <b-input :type="'number'" id="CheckTypeInput" ref="CheckTypeInput" v-model="paymentType.Cheque" />
-              </div>
-              <div v-if="selectedPayment.indexOf(5) !== -1">
-                Seguro
-                <b-input :type="'number'" id="InsuranceTypeInput" ref="InsuranceTypeInput" v-model="paymentType.Seguro" />
-              </div>
-              <div>
-                <strong> TOTAL INGRESADO: {{ parseFloat(this.paymentType.Efectivo) + parseFloat(this.paymentType.Tarjeta) + parseFloat(this.paymentType.Deposito) + parseFloat(this.paymentType.Cheque) + parseFloat(this.paymentType.Seguro) }}</strong>
-              </div>
-              <div>
-                <strong> TOTAL A PAGAR: {{ this.totalPayment }}</strong>
-              </div>
-            </b-card-body>
-          </b-card>
-        </div>
-      </template>
       <template #modal-footer="{}">
         <b-button variant="primary" @click="
             onPatientQuit()
@@ -341,14 +278,16 @@ export default {
         { text: 'Tarjeta', value: 2 },
         { text: 'Depósito', value: 3 },
         { text: 'Cheque', value: 4 },
-        { text: 'Seguro', value: 5 }
+        { text: 'Seguro', value: 5 },
+        { text: 'Transferencia', value: 6 }
       ],
       paymentType: {
         Efectivo: 0,
         Tarjeta: 0,
         Deposito: 0,
         Cheque: 0,
-        Seguro: 0
+        Seguro: 0,
+        Transferencia: 0
       },
       paymentSum: 0,
       totalPayment: 0,
@@ -508,7 +447,8 @@ export default {
       axios
         .put(apiUrl + '/expedientes/changeState', {
           id: this.form.id,
-          estado: this.selectedTrasOption
+          estado: this.selectedTrasOption,
+          estado_anterior: 1
         })
         .then((response) => {
           me.alertVariant = 'info'
@@ -537,11 +477,7 @@ export default {
         })
     },
     onPatientQuit () {
-      this.paymentSum = parseFloat(this.paymentType.Efectivo) + parseFloat(this.paymentType.Tarjeta) + parseFloat(this.paymentType.Deposito) + parseFloat(this.paymentType.Cheque) + parseFloat(this.paymentType.Seguro)
-      if (this.selectedAccount === null) {
-        this.alertErrorText = 'Revisa que todos los campos requeridos esten llenos'
-        this.showAlertError()
-      } else {
+
         if (this.paymentSum !== parseFloat(this.totalPayment)) {
           this.alertErrorText = 'El total a pagar no concuerda con el total ingresado'
           this.showAlertError()
@@ -550,34 +486,14 @@ export default {
           axios
             .put(apiUrl + '/expedientes/changeState', {
               id: this.form.id,
-              estado: 2
+              estado: 2,
+              estado_anterior: 1
             })
             .then((response) => {
               axios.put(apiUrl + '/habitaciones/available',
                 {
                   ocupante: this.form.id
                 }
-              )
-              axios.put(apiUrl + '/cuentas/deactivate',
-                {
-                  id: this.selectedAccount,
-                  total_pagado: parseFloat(this.totPagado) + parseFloat(this.paymentSum),
-                  pendiente_de_pago: parseFloat(parseFloat(this.totalPayment) - parseFloat(this.paymentSum)),
-                  efectivo: this.paymentType.Efectivo,
-                  tarjeta: this.paymentType.Tarjeta,
-                  deposito: this.paymentType.Deposito,
-                  cheque: this.paymentType.Cheque,
-                  seguro: this.paymentType.Seguro,
-                  total: this.paymentSum,
-                  tipo: 'finiquito'
-                }).then(
-                this.selectedAccount = null,
-                this.paymentType.Efectivo = 0,
-                this.paymentType.Tarjeta = 0,
-                this.paymentType.Deposito = 0,
-                this.paymentType.Cheque = 0,
-                this.paymentType.Seguro = 0,
-                this.paymentSum = 0
               )
               me.alertVariant = 'info'
               me.showAlert()
@@ -592,7 +508,7 @@ export default {
               console.error('There was an error!', error)
             })
         }
-      }
+
     },
     makeQueryParams (sortOrder, currentPage, perPage) {
       return sortOrder[0]

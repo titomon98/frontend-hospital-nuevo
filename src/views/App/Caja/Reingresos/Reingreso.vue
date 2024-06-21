@@ -176,7 +176,36 @@
               <b-form-input
                 v-model.trim="varMotivo"
                 :state="!varMotivoError"
-                placeholder="Ingresar precio del servicio">
+                placeholder="Ingresar motivo del ingreso">
+              </b-form-input>
+            </div>
+            <div>
+              <strong>
+                ENCARGADO
+              </strong>
+              Nombre
+              <b-form-input
+                v-model.trim="varNombreEncargado"
+                :state="!varNombreEncargadoError"
+                placeholder="Ingresar nombre del encargado">
+              </b-form-input>
+              Contacto
+              <b-form-input
+                v-model.trim="varContactoEncargado"
+                :state="!varContactoEncargadoError"
+                placeholder="Ingresar teléfono del encargado">
+              </b-form-input>
+              Parentesco
+              <b-form-input
+                v-model.trim="varParentescoEncargado"
+                :state="!varParentescoEncargadoError"
+                placeholder="Ingresar parentesco del encargado">
+              </b-form-input>
+              CUI
+              <b-form-input
+                v-model.trim="varCuiEncargado"
+                :state="!varCuiEncargadoError"
+                placeholder="Ingresar cui del encargado">
               </b-form-input>
             </div>
           </b-form-group>
@@ -252,27 +281,44 @@
                   >
                 </h5>
               </div>
+              <div slot="solvencia" slot-scope="props">
+                <h5 v-if="props.rowData.solvencia == 1">
+                  <b-badge variant="light"
+                    ><h6 class="success"><strong>SOLVENTE</strong></h6></b-badge
+                  >
+                </h5>
+                <h5 v-else>
+                  <b-badge variant="warning"
+                    ><h6 class="danger"><strong>CON CUENTAS POR PAGAR</strong></h6></b-badge
+                  >
+                </h5>
+              </div>
               <!-- Botones -->
               <template slot="actions" slot-scope="props">
                 <b-button-group>
-                  <b-button
-                    v-b-tooltip.top="'Ingresar'"
-                    @click="
-                      setData(props.rowData)
-                      props.rowData.estado == 1
-                        ? $bvModal.show('modal-3-servicios')
-                        : $bvModal.show('modal-4-servicios')
-                    "
-                    class="mb-2"
-                    size="sm"
-                    :variant="
-                      props.rowData.estado == 1 ? 'outline-danger' : 'outline-info'">
-                    <i
-                      :class="
+                  <div v-if="props.rowData.solvencia == 1">
+                    <b-button
+                      v-b-tooltip.top="'Ingresar'"
+                      @click="
+                        setData(props.rowData)
                         props.rowData.estado == 1
-                          ? 'fas fa-trash-alt'
-                          : 'fas fa-check'"
-                  /></b-button>
+                          ? $bvModal.show('modal-3-servicios')
+                          : $bvModal.show('modal-4-servicios')
+                      "
+                      class="mb-2"
+                      size="sm"
+                      :variant="
+                        props.rowData.estado == 1 ? 'outline-danger' : 'outline-info'">
+                      <i
+                        :class="
+                          props.rowData.estado == 1
+                            ? 'fas fa-trash-alt'
+                            : 'fas fa-check'"
+                    /></b-button>
+                  </div>
+                  <div v-if="props.rowData.solvencia == 0">
+                    DEBE DE ESTAR SOLVENTE PARA INGRESAR AL PACIENTE
+                  </div>
                 </b-button-group>
               </template>
               <!-- Paginacion -->
@@ -391,6 +437,13 @@ export default {
           titleClass: '',
           dataClass: 'text-muted',
           width: '25%'
+        },
+        {
+          name: '__slot:solvencia',
+          title: 'Solvencia',
+          titleClass: '',
+          dataClass: 'text-muted',
+          width: '25%'
         }
       ]
     }
@@ -461,8 +514,11 @@ export default {
     },
     setData (data) {
       this.form.nombres = data.nombres
-      this.form.unidadDeMedida = data.unidadDeMedida
-      this.form.precio = data.precio
+      this.form.apellidos = data.apellidos
+      this.varNombreEncargado = data.nombre_encargado
+      this.varContactoEncargado = data.contacto_encargado
+      this.varCuiEncargado = data.cui_encargado
+      this.varParentescoEncargado = data.parentesco_encargado
       this.form.state = data.estado
       this.form.id = data.id
     },
@@ -511,7 +567,12 @@ export default {
       axios
         .put(apiUrl + '/expedientes/changeState', {
           id: this.form.id,
-          estado: this.selectedTrasOption
+          estado: this.selectedTrasOption,
+          nombre_encargado: this.varNombreEncargado,
+          contacto_encargado: this.varContactoEncargado,
+          cui_encargado: this.varCuiEncargado,
+          parentesco_encargado: this.varParentescoEncargado,
+          estado_anterior: 2
         })
         .then((response) => {
           me.alertVariant = 'info'
