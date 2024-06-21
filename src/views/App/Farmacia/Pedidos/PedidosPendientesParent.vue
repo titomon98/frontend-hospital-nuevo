@@ -188,6 +188,11 @@ export default {
           sortable: true
         },
         {
+          key: 'cantidad',
+          label: 'Cantidad',
+          sortable: true
+        },
+        {
           key: 'medicamento.nombre',
           label: 'Medicamento',
           sortable: true
