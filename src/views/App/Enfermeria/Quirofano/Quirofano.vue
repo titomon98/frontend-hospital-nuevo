@@ -324,7 +324,7 @@
           <b-button variant="danger" @click="closeModal('sala-operaciones')">Cancelar</b-button>
         </template>
     </b-modal>
-    <b-modal id="modal-1-movimiento" ref="modal-1-movimiento" title="Agregar Consumo Medicamentos">
+    <b-modal id="modal-1-movimiento" ref="modal-1-movimiento" title="Agregar Consumo de Insumos">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -378,102 +378,6 @@
           >Guardar</b-button
         >
         <b-button variant="danger" @click="closeModal('save')"
-          >Cancelar</b-button
-        >
-      </template>
-    </b-modal>
-    <b-modal id="modal-2-movimiento" ref="modal-2-movimiento" title="Agregar Consumo Material Quirurgico">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
-      >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
-      </b-alert>
-      <b-form @submit="$event.preventDefault()">
-        <b-form-group label="Insumos Quirofano:">
-            <v-select
-              name="Insumos Quirofano"
-              v-model="formQui.quirurgico"
-              :options="Quirurgicos"
-              :filterable="false"
-              placeholder="Seleccione un insumo"
-              @search="onSearchQuirugicos"
-            >
-              <template v-slot:spinner="{ loading }">
-                <div v-show="loading">Cargando...</div>
-              </template>
-              <template v-slot:option="option">
-                {{ option.nombre + ' Existencia: ' + option.existencia_actual }}
-              </template>
-              <template slot="selected-option" slot-scope="option">
-                {{ option.nombre + ' Existencia: ' + option.existencia_actual }}
-              </template>
-            </v-select>
-          </b-form-group>
-          <b-form-group label="Cantidad:">
-            <b-form-input
-              type="number"
-              v-model.trim="formQui.cantidad"
-              placeholder="Ingresar cantidad"
-            ></b-form-input>
-          </b-form-group>
-      </b-form>
-      <template #modal-footer="{}">
-        <b-button variant="primary" @click=" onSaveQuirurgico()"
-          >Guardar</b-button
-        >
-        <b-button variant="danger" @click="closeModal('SaveQuirurgico')"
-          >Cancelar</b-button
-        >
-      </template>
-    </b-modal>
-    <b-modal id="modal-3-movimiento" ref="modal-3-movimiento" title="Agregar Consumo Material Comun">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
-      >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
-      </b-alert>
-      <b-form @submit="$event.preventDefault()">
-        <b-form-group label="Material Comun:">
-            <v-select
-              name="Material Comun"
-              v-model="formCom.comun"
-              :options="Comunes"
-              :filterable="false"
-              placeholder="Seleccione un material"
-              @search="onSearchMaterialComun"
-            >
-              <template v-slot:spinner="{ loading }">
-                <div v-show="loading">Cargando...</div>
-              </template>
-              <template v-slot:option="option">
-                {{ option.nombre + ' Existencia: ' + option.existencia_actual }}
-              </template>
-              <template slot="selected-option" slot-scope="option">
-                {{ option.nombre + ' Existencia: ' + option.existencia_actual }}
-              </template>
-            </v-select>
-          </b-form-group>
-          <b-form-group label="Cantidad:">
-            <b-form-input
-              type="number"
-              v-model.trim="formCom.cantidad"
-              placeholder="Ingresar cantidad"
-            ></b-form-input>
-          </b-form-group>
-      </b-form>
-      <template #modal-footer="{}">
-        <b-button variant="primary" @click=" onSaveComunes()"
-          >Guardar</b-button
-        >
-        <b-button variant="danger" @click="closeModal('SaveComunes')"
           >Cancelar</b-button
         >
       </template>
@@ -585,7 +489,7 @@
                           : 'fas fa-check'"
                 /></b-button>
                   <b-button
-                    v-b-tooltip.top="'Aregar Medicamentos'"
+                    v-b-tooltip.top="'Agregar consumo'"
                     @click="showModal('modal-1-movimiento'); obtenerIdCuenta(props.rowData.id)"
                     class="mb-2"
                     size="sm"
@@ -969,7 +873,7 @@ export default {
         }
         case 'SaveQuirurgico': {
           this.$v.$reset()
-          this.$refs['modal-2-movimiento'].hide()
+          this.$refs['modal-1-movimiento'].hide()
           this.formQui.id_cuenta = 0
           this.formQui.cantidad = 0
           this.formQui.quirurgico = null
@@ -979,7 +883,7 @@ export default {
         }
         case 'SaveComunes': {
           this.$v.$reset()
-          this.$refs['modal-3-movimiento'].hide()
+          this.$refs['modal-1-movimiento'].hide()
           this.formCom.id_cuenta = 0
           this.formCom.cantidad = 0
           this.formCom.quirurgico = null
@@ -1465,7 +1369,8 @@ export default {
         this.medicamentos = response.data.map(medicamento => ({
           value: medicamento.id,
           text: medicamento.nombre,
-          existencias_actuales: medicamento.existencia_actual
+          existencias_actuales: medicamento.existencia_actual,
+          precio_venta: medicamento.precio_venta
         }))
       })
     },
@@ -1482,7 +1387,8 @@ export default {
         this.medicamentos = response.data.map(medicamento => ({
           value: medicamento.id,
           text: medicamento.nombre,
-          existencias_actuales: medicamento.existencia_actual
+          existencias_actuales: medicamento.existencia_actual,
+          precio_venta: medicamento.precio_venta
         }))
         loading(false)
       })
