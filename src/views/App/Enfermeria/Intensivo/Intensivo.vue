@@ -660,7 +660,7 @@ export default {
         state: 1,
         precio_venta: 0,
         existencias_actuales: null,
-        movimiento: 'SALIDAQ'
+        movimiento: 'SALIDAI'
       }
     }
   },
