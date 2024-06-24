@@ -385,72 +385,64 @@
             >
               <!-- Botones -->
               <template slot="actions" slot-scope="props">
-                <b-button-group>
+                <div class="button-container">
                   <b-button
-                    v-b-tooltip.top="'Trasladar'"
                     @click="traslado(props.rowData.id)"
-                    class="mb-2"
+                    class="mb-2 button-spacing"
                     size="sm"
-                    variant="outline-primary"
-                    ><i :class="'fas fa-heart'"
-                  /></b-button>
+                    variant="dark"
+                  >Trasladar</b-button>
+
                   <b-button
-                    v-b-tooltip.top="'Agregar receta'"
                     @click="addReceta(props.rowData.id)"
-                    class="mb-2"
+                    class="mb-2 button-spacing"
                     size="sm"
-                    variant="outline-dark"
-                    ><i :class="'fas fa-list-alt'"
-                  /></b-button>
+                    variant="success"
+                  >Agregar receta</b-button>
+
                   <b-button
-                    v-b-tooltip.top="'Ver recetas'"
                     @click="verReceta(props.rowData.id)"
-                    class="mb-2"
+                    class="mb-2 button-spacing"
                     size="sm"
-                    variant="outline-warning"
-                    ><i :class="'fas fa-eye'"
-                  /></b-button>
+                    variant="dark"
+                  >Ver recetas</b-button>
+
                   <b-button
-                    v-b-tooltip.top="'Agregar servicios'"
                     @click="addServicio(props.rowData.id)"
-                    class="mb-2"
+                    class="mb-2 button-spacing"
                     size="sm"
-                    variant="outline-success"
-                    ><i :class="'fas fa-list-alt'"
-                  /></b-button>
+                    variant="success"
+                  >Agregar servicios</b-button>
+
                   <b-button
-                    v-b-tooltip.top="'Ver servicios'"
                     @click="verServicio(props.rowData.id)"
-                    class="mb-2"
+                    class="mb-2 button-spacing"
                     size="sm"
-                    variant="outline-secondary"
-                    ><i :class="'fas fa-eye'"
-                  /></b-button>
+                    variant="dark"
+                  >Ver servicios</b-button>
+
                   <b-button
-                    v-b-tooltip.top="'Agregar honorarios'"
                     @click="showModal('modal-add-honorarios'); obtenerIdCuenta(props.rowData.id)"
-                    class="mb-2"
+                    class="mb-2 button-spacing"
                     size="sm"
-                    variant="outline-info"
-                    ><i :class="'fas fa-list-alt'"
-                  /></b-button>
+                    variant="success"
+                  >Agregar honorarios</b-button>
+
                   <b-button
-                    v-b-tooltip.top="'Ver honorarios'"
-                   @click="showModal('modal-ver-honorarios'); getDataHonorarios(props.rowData.id)"
-                    class="mb-2"
+                    @click="showModal('modal-ver-honorarios'); getDataHonorarios(props.rowData.id)"
+                    class="mb-2 button-spacing"
                     size="sm"
-                    variant="outline-dark"
-                    ><i :class="'fas fa-eye'"
-                  /></b-button>
+                    variant="dark"
+                  >Ver honorarios</b-button>
+
                   <b-button
                     v-b-tooltip.top="'Agregar consumo'"
                     @click="showModal('modal-1-movimiento'); obtenerIdCuenta(props.rowData.id)"
-                    class="mb-2"
+                    class="mb-2 button-spacing"
                     size="sm"
-                    variant="outline-warning"
-                    ><i :class="'fas fa-pencil-alt'"
-                  /></b-button>
-                </b-button-group>
+                    variant="primary"
+                  >Agregar medicamentos</b-button>
+                </div>
               </template>
               <!-- Paginacion -->
             </vuetable>
