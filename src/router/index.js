@@ -103,6 +103,7 @@ import Expedientes from '../views/App/Caja/Expedientes/Expedientes'
 import CuentasList from '../views/App/Caja/Cuentas/CuentasList'
 import Ingresos from '../views/App/Caja/Ingresos/Ingresos'
 import Reingresos from '../views/App/Caja/Reingresos/Reingreso'
+import CajaChica from '../views/App/Caja/CajaChica/CajaChicaParent'
 
 // enfermeria
 import PedidosFarmaciaParent from '../views/App/Enfermeria/Pedidos/PedidosFarmaciaParent'
@@ -112,6 +113,7 @@ import IntensivoParent from '../views/App/Enfermeria/Intensivo/Intensivo'
 import QuirofanoParent from '../views/App/Enfermeria/Quirofano/Quirofano'
 import Habitaciones from '../views/App/Enfermeria/Habitaciones/Habitaciones'
 import Servicios from '../views/App/Enfermeria/Servicios/Servicios.vue'
+import IngresosEnfermeria from '../views/App/Enfermeria/Ingresos/IngresosEnfermeria.vue'
 
 // farmacia
 import PedidosPendientesParent from '../views/App/Farmacia/Pedidos/PedidosPendientesParent'
@@ -205,12 +207,6 @@ const CajaRoutes = (prop, mode) => [
     component: CuentasParent
   },
   {
-    path: 'egresos',
-    name: prop + '.egresos',
-    meta: { dark: mode, auth: true, name: 'egresos' },
-    component: EgresosParent
-  },
-  {
     path: 'expedientes',
     name: prop + '.expedientes',
     meta: { dark: mode, auth: true, name: 'expedientes' },
@@ -233,6 +229,12 @@ const CajaRoutes = (prop, mode) => [
     name: prop + '.reingresos',
     meta: { dark: mode, auth: true, name: 'reingresos' },
     component: Reingresos
+  },
+  {
+    path: 'cajachica',
+    name: prop + '.cajachica',
+    meta: { dark: mode, auth: true, name: 'cajachica' },
+    component: CajaChica
   }
 ]
 
@@ -278,6 +280,24 @@ const EnfermeriaRoutes = (prop, mode) => [
     name: prop + '.servicios',
     meta: { dark: mode, auth: true, name: 'servicios' },
     component: Servicios
+  },
+  {
+    path: 'ingresos',
+    name: prop + '.ingresos',
+    meta: { dark: mode, auth: true, name: 'ingresos' },
+    component: IngresosEnfermeria
+  },
+  {
+    path: 'reingresos',
+    name: prop + '.reingresos',
+    meta: { dark: mode, auth: true, name: 'reingresos' },
+    component: Reingresos
+  },
+  {
+    path: 'egresos',
+    name: prop + '.egresos',
+    meta: { dark: mode, auth: true, name: 'egresos' },
+    component: EgresosParent
   }
 ]
 

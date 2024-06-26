@@ -151,8 +151,6 @@
         </b-form-group>
         <b-form-group label="Cantidad:">
           <b-form-input
-            v-model.trim="form.cantidad"
-            placeholder="Ingresar cantidad utilizada"
             type="number"
           ></b-form-input>
         </b-form-group>
@@ -336,7 +334,7 @@
           <b-button variant="danger" @click="closeModal('sala-operaciones')">Cancelar</b-button>
         </template>
     </b-modal>
-    <b-modal id="modal-1-movimiento" ref="modal-1-movimiento" title="Agregar Consumo Medicamentos">
+    <b-modal id="modal-1-movimiento" ref="modal-1-movimiento" title="Agregar Consumo de Insumos">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -347,31 +345,41 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <b-form @submit="$event.preventDefault()">
-        <b-form-group label="Medicamento:">
+        <b-form-group label="Agregar Insumo:">
+            <b-row md="3" class="ml-5 mt-negativo-r1">
+              <input type="radio" id="medicamento" value="0" v-model="$v.form.selected_insumo.$model" @change="this.onSelectChange"/>
+              <label for="medicamento" class="mt-2 ml-1">Medicamento</label>
+            </b-row>
+            <b-row md="3" class="ml-5 mt-negativo">
+              <input type="radio" id="quirurgico" value="1" v-model="$v.form.selected_insumo.$model" @change="this.onSelectChange"/>
+              <label for="quirurgico" class="mt-2 ml-1">Quirúrgico</label>
+            </b-row>
+            <b-row md="3" class="ml-5 mt-negativo">
+              <input type="radio" id="uso_comun" value="2" v-model="$v.form.selected_insumo.$model" @change="this.onSelectChange" />
+              <label for="uso_comun" class="mt-2 ml-1">Uso común</label>
+            </b-row>
             <v-select
               name="medicamentos"
-              v-model="formMe.medicamento"
+              v-model.trim="$v.formMe.id_medicine.$model"
               :options="medicamentos"
               :filterable="false"
-              placeholder="Seleccione la medicamento"
-              @search="onSearchMedicamentos"
+              :reduce="med => med.value"
+              :state="!$v.formMe.id_medicine.$error"
+              placeholder="Seleccione el insumo"
+              label='text'
+              @input="onChangeMedicamento"
             >
-              <template v-slot:spinner="{ loading }">
-                <div v-show="loading">Cargando...</div>
-              </template>
-              <template v-slot:option="option">
-                {{ 'Nombre: '+ option.nombre + ' Existencia: ' + option.existencia_actual }}
-              </template>
-              <template slot="selected-option" slot-scope="option">
-                {{ 'Nombre: '+ option.nombre + ' Existencia: ' + option.existencia_actual }}
-              </template>
             </v-select>
+            <label>{{this.existencias_selected_med}}</label>
           </b-form-group>
           <b-form-group label="Cantidad:">
             <b-form-input
               type="number"
-              v-model.trim="formMe.cantidad"
-              placeholder="Ingresar cantidad"
+              v-model.trim="$v.formMe.cantidad.$model"
+              :state="!$v.formMe.cantidad.$error"
+              :min=1
+              :max="max_cant"
+              placeholder="Ingresar Cantidad"
             ></b-form-input>
           </b-form-group>
       </b-form>
@@ -380,102 +388,6 @@
           >Guardar</b-button
         >
         <b-button variant="danger" @click="closeModal('save')"
-          >Cancelar</b-button
-        >
-      </template>
-    </b-modal>
-    <b-modal id="modal-2-movimiento" ref="modal-2-movimiento" title="Agregar Consumo Material Quirurgico">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
-      >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
-      </b-alert>
-      <b-form @submit="$event.preventDefault()">
-        <b-form-group label="Insumos Quirofano:">
-            <v-select
-              name="Insumos Quirofano"
-              v-model="formQui.quirurgico"
-              :options="Quirurgicos"
-              :filterable="false"
-              placeholder="Seleccione un insumo"
-              @search="onSearchQuirugicos"
-            >
-              <template v-slot:spinner="{ loading }">
-                <div v-show="loading">Cargando...</div>
-              </template>
-              <template v-slot:option="option">
-                {{ 'Nombre: '+ option.nombre + ' Existencia: ' + option.existencia_actual }}
-              </template>
-              <template slot="selected-option" slot-scope="option">
-                {{ 'Nombre: '+ option.nombre + ' Existencia: ' + option.existencia_actual }}
-              </template>
-            </v-select>
-          </b-form-group>
-          <b-form-group label="Cantidad:">
-            <b-form-input
-              type="number"
-              v-model.trim="formQui.cantidad"
-              placeholder="Ingresar cantidad"
-            ></b-form-input>
-          </b-form-group>
-      </b-form>
-      <template #modal-footer="{}">
-        <b-button variant="primary" @click=" onSaveQuirurgico()"
-          >Guardar</b-button
-        >
-        <b-button variant="danger" @click="closeModal('SaveQuirurgico')"
-          >Cancelar</b-button
-        >
-      </template>
-    </b-modal>
-    <b-modal id="modal-3-movimiento" ref="modal-3-movimiento" title="Agregar Consumo Material Comun">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
-      >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
-      </b-alert>
-      <b-form @submit="$event.preventDefault()">
-        <b-form-group label="Material Comun:">
-            <v-select
-              name="Material Comun"
-              v-model="formCom.comun"
-              :options="Comunes"
-              :filterable="false"
-              placeholder="Seleccione un material"
-              @search="onSearchMaterialComun"
-            >
-              <template v-slot:spinner="{ loading }">
-                <div v-show="loading">Cargando...</div>
-              </template>
-              <template v-slot:option="option">
-                {{ 'Nombre: '+ option.nombre + ' Existencia: ' + option.existencia_actual }}
-              </template>
-              <template slot="selected-option" slot-scope="option">
-                {{ 'Nombre: '+ option.nombre + ' Existencia: ' + option.existencia_actual }}
-              </template>
-            </v-select>
-          </b-form-group>
-          <b-form-group label="Cantidad:">
-            <b-form-input
-              type="number"
-              v-model.trim="formCom.cantidad"
-              placeholder="Ingresar cantidad"
-            ></b-form-input>
-          </b-form-group>
-      </b-form>
-      <template #modal-footer="{}">
-        <b-button variant="primary" @click=" onSaveComunes()"
-          >Guardar</b-button
-        >
-        <b-button variant="danger" @click="closeModal('SaveComunes')"
           >Cancelar</b-button
         >
       </template>
@@ -517,100 +429,83 @@
             >
               <!-- Botones -->
               <template slot="actions" slot-scope="props">
-                <b-button-group>
+                <div class="button-container">
                   <b-button
-                    v-b-tooltip.top="'Trasladar'"
                     @click="traslado(props.rowData.id)"
-                    class="mb-2"
+                    class="mb-2 button-spacing"
                     size="sm"
-                    variant="outline-primary"
-                    ><i :class="'fas fa-heart'"
-                  /></b-button>
+                    variant="dark"
+                  >Trasladar</b-button>
+
                   <b-button
-                    v-b-tooltip.top="'Agregar receta'"
                     @click="addReceta(props.rowData.id)"
-                    class="mb-2"
+                    class="mb-2 button-spacing"
                     size="sm"
-                    variant="outline-dark"
-                    ><i :class="'fas fa-list-alt'"
-                  /></b-button>
+                    variant="success"
+                  >Agregar receta</b-button>
+
                   <b-button
-                    v-b-tooltip.top="'Ver recetas'"
                     @click="verReceta(props.rowData.id)"
-                    class="mb-2"
+                    class="mb-2 button-spacing"
                     size="sm"
-                    variant="outline-warning"
-                    ><i :class="'fas fa-eye'"
-                  /></b-button>
+                    variant="dark"
+                  >Ver recetas</b-button>
+
                   <b-button
-                    v-b-tooltip.top="'Agregar servicios'"
                     @click="addServicio(props.rowData.id)"
-                    class="mb-2"
+                    class="mb-2 button-spacing"
                     size="sm"
-                    variant="outline-success"
-                    ><i :class="'fas fa-list-alt'"
-                  /></b-button>
+                    variant="success"
+                  >Agregar servicios</b-button>
+
                   <b-button
-                    v-b-tooltip.top="'Ver servicios'"
                     @click="verServicio(props.rowData.id)"
-                    class="mb-2"
+                    class="mb-2 button-spacing"
                     size="sm"
-                    variant="outline-secondary"
-                    ><i :class="'fas fa-eye'"
-                  /></b-button>
+                    variant="dark"
+                  >Ver servicios</b-button>
+
                   <b-button
-                    v-b-tooltip.top="'Agregar honorarios'"
                     @click="showModal('modal-add-honorarios'); obtenerIdCuenta(props.rowData.id)"
-                    class="mb-2"
+                    class="mb-2 button-spacing"
                     size="sm"
-                    variant="outline-info"
-                    ><i :class="'fas fa-list-alt'"
-                  /></b-button>
+                    variant="success"
+                  >Agregar honorarios</b-button>
+
                   <b-button
-                    v-b-tooltip.top="'Ver honorarios'"
-                   @click="showModal('modal-ver-honorarios'); getDataHonorarios(props.rowData.id)"
-                    class="mb-2"
+                    @click="showModal('modal-ver-honorarios'); getDataHonorarios(props.rowData.id)"
+                    class="mb-2 button-spacing"
                     size="sm"
-                    variant="outline-dark"
-                    ><i :class="'fas fa-eye'"
-                  /></b-button>
-                <b-button
-                    v-b-tooltip.top="'Cobro Sala Operaciones'"
-                   @click="showModal('modal-sala-operaciones'); obtenerIdCuenta(props.rowData.id)"
-                    class="mb-2"
-                    size="sm"
-                    variant="outline-dark">
-                    <i
-                      :class="
-                        props.rowData.estado == 1
-                          ? 'fas fa-trash-alt'
-                          : 'fas fa-check'"
-                /></b-button>
+                    variant="dark"
+                  >Ver honorarios</b-button>
+
                   <b-button
-                    v-b-tooltip.top="'Aregar Medicamentos'"
-                    @click="showModal('modal-1-movimiento'); obtenerIdCuenta(props.rowData.id)"
-                    class="mb-2"
+                    @click="showModal('modal-sala-operaciones'); obtenerIdCuenta(props.rowData.id)"
+                    class="mb-2 button-spacing"
+                    v-b-tooltip.top="'Agregar consumo'"
                     size="sm"
                     variant="outline-warning"
                     ><i :class="'fas fa-pencil-alt'"
                   /></b-button>
-                  <b-button
+                  <!-- <b-button
                     v-b-tooltip.top="'Aregar Insumos Quirofano'"
                     @click="showModal('modal-2-movimiento'); obtenerIdCuenta(props.rowData.id)"
                     class="mb-2"
                     size="sm"
-                    variant="outline-warning"
-                    ><i :class="'fas fa-pencil-alt'" style="color: #FFC107;"
-                  /></b-button>
+                    variant="warning"
+                  >Cobro Sala Operaciones</b-button>
+
                   <b-button
-                    v-b-tooltip.top="'Aregar Material Comun'"
-                    @click="showModal('modal-3-movimiento'); obtenerIdCuenta(props.rowData.id)"
-                    class="mb-2"
+                    @click="showModal('modal-1-movimiento'); obtenerIdCuenta(props.rowData.id)"
+                    class="mb-2 button-spacing"
                     size="sm"
+                    variant="primary"
+                  >Agregar medicamentos</b-button>
+                </div>
                     variant="outline-warning"
                     ><i :class="'fas fa-pencil-alt'" style="color: #FFC107;"
-                  /></b-button>
-              </b-button-group>
+                  /></b-button> -->
+                </div>
               </template>
               <!-- Paginacion -->
             </vuetable>
@@ -646,6 +541,9 @@ export default {
   setup () {
     return { $v: useVuelidate() }
   },
+  beforeMount () {
+    this.searchingMedicamentos()
+  },
   mounted () {
     xray.index()
   },
@@ -669,6 +567,8 @@ export default {
       },
       perPage: 5,
       search: '',
+      existencias_selected_med: null,
+      max_cant: 0,
       form: {
         id: 0,
         name: '',
@@ -676,7 +576,8 @@ export default {
         selectedOption: 'hospi',
         receta: null,
         id_receta: null,
-        cantidad: null
+        cantidad: null,
+        selected_insumo: '0'
       },
       servicio: null,
       alertSecs: 5,
@@ -817,13 +718,18 @@ export default {
         id_cuenta: 0,
         cantidad: 0,
         quirurgico: null,
+        state: 1,
         movimiento: 'SALIDAQ'
       },
       medicamentos: [],
       formMe: {
         id_cuenta: 0,
-        cantidad: 0,
+        id_medicine: null,
+        cantidad: null,
         medicamento: null,
+        state: 1,
+        precio_venta: 0,
+        existencias_actuales: null,
         movimiento: 'SALIDAQ'
       },
       Comunes: [],
@@ -831,6 +737,7 @@ export default {
         id_cuenta: 0,
         cantidad: 0,
         comun: null,
+        state: 1,
         movimiento: 'SALIDAQ'
       }
     }
@@ -838,7 +745,16 @@ export default {
   validations () {
     return {
       form: {
-        name: { required }
+        name: { required },
+        selected_insumo: { required }
+      },
+      formMe: {
+        id_medicine: {
+          required
+        },
+        cantidad: {
+          required
+        }
       }
     }
   },
@@ -875,6 +791,10 @@ export default {
           this.form.id = 0
           this.form.name = ''
           this.form.state = 1
+          this.form.selected_insumo = '0'
+          this.existencias_selected_med = null
+          this.formMe.precio_venta = 0
+          this.formMe.existencias_actuales = null
           break
         }
       }
@@ -887,6 +807,7 @@ export default {
           this.form.id = 0
           this.form.name = ''
           this.form.state = 1
+          this.form.selected_insumo = '0'
           break
         }
         case 'add-receta': {
@@ -895,6 +816,7 @@ export default {
           this.form.id = 0
           this.form.name = ''
           this.form.state = 1
+          this.form.selected_insumo = '0'
           break
         }
         case 'ver-receta': {
@@ -904,6 +826,7 @@ export default {
           this.form.name = ''
           this.form.state = 1
           this.form.id_receta = null
+          this.form.selected_insumo = '0'
           break
         }
         case 'add-servicio': {
@@ -915,6 +838,7 @@ export default {
           this.form.cantidad = null
           this.servicio = null
           this.form.servicio = null
+          this.form.selected_insumo = '0'
           break
         }
         case 'ver-servicio': {
@@ -964,24 +888,28 @@ export default {
           this.formMe.cantidad = 0
           this.formMe.medicamento = null
           this.formMe.movimiento = 'SALIDAQ'
+          this.form.selected_insumo = '0'
+          this.existencias_selected_med = null
           break
         }
         case 'SaveQuirurgico': {
           this.$v.$reset()
-          this.$refs['modal-2-movimiento'].hide()
+          this.$refs['modal-1-movimiento'].hide()
           this.formQui.id_cuenta = 0
           this.formQui.cantidad = 0
           this.formQui.quirurgico = null
           this.formQui.movimiento = 'SALIDAQ'
+          this.existencias_selected_med = null
           break
         }
         case 'SaveComunes': {
           this.$v.$reset()
-          this.$refs['modal-3-movimiento'].hide()
+          this.$refs['modal-1-movimiento'].hide()
           this.formCom.id_cuenta = 0
           this.formCom.cantidad = 0
           this.formCom.quirurgico = null
           this.formCom.movimiento = 'SALIDAQ'
+          this.existencias_selected_med = null
           break
         }
       }
@@ -1000,6 +928,25 @@ export default {
       }
     },
     onSave () {
+      if (this.formMe.cantidad > 0) {
+        if (this.formMe.cantidad <= this.max_cant) {
+          if (this.form.selected_insumo === '0') {
+            this.onSaveMedicamento()
+          } else if (this.form.selected_insumo === '1') {
+            this.onSaveQuirurgico()
+          } else {
+            this.onSaveComunes()
+          }
+        } else {
+          this.alertErrorText = 'La cantidad de producto debe ser menor a la existencia actual del producto (' + this.max_cant + ').'
+          this.showAlertError()
+        }
+      } else {
+        this.alertErrorText = 'La cantidad de producto debe ser mayor a 0.'
+        this.showAlertError()
+      }
+    },
+    onSaveMedicamento () {
       const me = this
       me.formMe.id_cuenta = me.idCuentaSeleccionada
       const currentUser = this.currentUser
@@ -1022,10 +969,10 @@ export default {
     },
     onSaveQuirurgico () {
       const me = this
-      me.formQui.id_cuenta = me.idCuentaSeleccionada
+      me.formMe.id_cuenta = me.idCuentaSeleccionada
       const currentUser = this.currentUser
       axios.post(apiUrl + '/detalle_consumo_quirugicos/create', {
-        form: me.formQui,
+        form: me.formMe,
         currentUser: currentUser
       })
       console.log(me.formQui)
@@ -1044,10 +991,10 @@ export default {
     },
     onSaveComunes () {
       const me = this
-      me.formCom.id_cuenta = me.idCuentaSeleccionada
+      me.formMe.id_cuenta = me.idCuentaSeleccionada
       const currentUser = this.currentUser
       axios.post(apiUrl + '/detalle_consumo_comun/create', {
-        form: me.formCom,
+        form: me.formMe,
         currentUser: currentUser
       })
         .then((response) => {
@@ -1427,16 +1374,16 @@ export default {
       }
     },
     searchingMedicamentos (search, loading) {
-      axios.get(apiUrl + '/medicamentos/getSearch',
-        {
-          params: {
-            search: search
-          }
-        }
-      ).then((response) => {
-        this.medicamentos = response.data
-        loading(false)
-      })
+      axios.get(apiUrl + '/medicamentos/list')
+        .then((response) => {
+          this.medicamentos = response.data.map(medicamento => ({
+            value: medicamento.id,
+            text: medicamento.nombre,
+            existencias_actuales: medicamento.existencia_actual,
+            precio_venta: medicamento.precio_venta
+          }))
+          loading(false)
+        })
     },
     onSearchQuirugicos (search, loading) {
       if (search.length) {
@@ -1445,16 +1392,14 @@ export default {
       }
     },
     searchingQuirurgico (search, loading) {
-      axios.get(apiUrl + '/quirurgico/getSearch',
-        {
-          params: {
-            search: search
-          }
-        }
+      axios.get(apiUrl + '/quirurgico/list'
       ).then((response) => {
-        console.log(response.data)
-        this.Quirurgicos = response.data
-        loading(false)
+        this.medicamentos = response.data.map(medicamento => ({
+          value: medicamento.id,
+          text: medicamento.nombre,
+          existencias_actuales: medicamento.existencia_actual,
+          precio_venta: medicamento.precio_venta
+        }))
       })
     },
     onSearchMaterialComun (search, loading) {
@@ -1462,19 +1407,30 @@ export default {
         loading(true)
         this.searchingComunes(search, loading)
       }
+      loading(false)
     },
     searchingComunes (search, loading) {
-      axios.get(apiUrl + '/comun/getSearch',
-        {
-          params: {
-            search: search
-          }
-        }
+      axios.get(apiUrl + '/comun/list'
       ).then((response) => {
-        console.log(response.data)
-        this.Comunes = response.data
+        this.Quirurgicos = response.data
         loading(false)
       })
+    },
+    onSelectChange () {
+      if (this.form.selected_insumo === '0') {
+        this.searchingMedicamentos()
+      } else if (this.form.selected_insumo === '1') {
+        this.searchingQuirurgico()
+      } else {
+        this.searchingComunes()
+      }
+    },
+    onChangeMedicamento () {
+      let medicine_ = this.medicamentos.find(med => med.value === this.formMe.id_medicine)
+      this.max_cant = medicine_.existencias_actuales
+      this.existencias_selected_med = medicine_.existencias_actuales + ' unidades en existencia.'
+      this.formMe.precio_venta = medicine_.precio_venta
+      this.formMe.existencias_actuales = medicine_.existencias_actuales
     }
   }
 }
@@ -1485,5 +1441,11 @@ export default {
 }
 .custom-editor .ql-editor {
   color: #333; /* Adjust the color value to make the text darker */
+}
+.mt-negativo {
+  margin-top: -4%;
+}
+.mt-negativo-r1{
+  margin-top: -2%;
 }
 </style>

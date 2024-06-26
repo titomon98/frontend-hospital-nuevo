@@ -44,17 +44,6 @@
     "icon": "ri-briefcase-4-fill",
     "children": [
       {
-        "title": "Cortes",
-        "name": "Cortes",
-        "is_active": false,
-        "link": {
-          "name" : "caja.cortes"
-        },
-        "class_name": "",
-        "is_icon_class": true,
-        "icon": "ri-file-reduce-line"
-      },
-      {
         "title": "Nuevo Ingreso",
         "name": "Nuevo Ingreso",
         "is_active": false,
@@ -110,22 +99,11 @@
         "icon": "ri-file-lock-line"
       },
       {
-        "title": "Egresos",
-        "name": "Egresos",
-        "is_active": false,
-        "link": {
-          "name" : "caja.egresos"
-        },
-        "class_name": "",
-        "is_icon_class": true,
-        "icon": "ri-file-transfer-line"
-      },
-      {
         "title": "Liquidaciones caja chica",
         "name": "Liquidaciones caja chica",
         "is_active": false,
         "link": {
-          "name" : "caja.liquidacionesmaestro"
+          "name" : "caja.cajachica"
         },
         "class_name": "",
         "is_icon_class": true,
@@ -231,6 +209,39 @@
         "class_name": "",
         "is_icon_class": true,
         "icon": "ri-customer-service-line"
+      },
+      {
+        "title": "Nuevo Ingreso",
+        "name": "Nuevo Ingreso",
+        "is_active": false,
+        "link": {
+          "name" : "enfermeria.ingresos"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-user-add-fill"
+      },
+      {
+        "title": "Reingreso",
+        "name": "Reingreso",
+        "is_active": false,
+        "link": {
+          "name" : "enfermeria.reingresos"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-user-add-fill"
+      },
+      {
+        "title": "Egresos",
+        "name": "Egresos",
+        "is_active": false,
+        "link": {
+          "name" : "enfermeria.egresos"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-file-transfer-line"
       }
     ]
   },
