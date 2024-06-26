@@ -1310,6 +1310,7 @@ export default {
 .button-spacing {
   flex: 1 1 calc(25% - 10px); /* Ajusta el tamaño de los botones para que 4 quepan en una fila */
   margin: 5px; /* Ajusta el margen según tus necesidades */
+}
 .mt-negativo {
   margin-top: -4%;
 }
