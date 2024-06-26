@@ -473,14 +473,14 @@
                   >Agregar honorarios</b-button>
 
                   <b-button
-                    @click="showModal('modal-ver-honorarios'); getDataHonorarios(props.rowData.id)"
+                   @click="showModal('modal-ver-honorarios'); getDataHonorarios(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="dark"
                   >Ver honorarios</b-button>
 
-                  <b-button
-                    @click="showModal('modal-sala-operaciones'); obtenerIdCuenta(props.rowData.id)"
+                <b-button
+                   @click="showModal('modal-sala-operaciones'); obtenerIdCuenta(props.rowData.id)"
                     class="mb-2 button-spacing"
                     v-b-tooltip.top="'Agregar consumo'"
                     size="sm"
