@@ -4,7 +4,7 @@
       <b-col md="12">
         <iq-card>
           <template v-slot:headerTitle>
-            <h4 class="card-title mt-3">Gerencia</h4>
+            <h4 class="card-title mt-3">Caja chica</h4>
             <div class="iq-search-bar mt-2">
               <div class="row">
                 <div class="col-sm">
@@ -18,10 +18,8 @@
           </template>
           <template v-slot:body>
             <b-tabs>
-              <b-tab title="Usuarios" active><Users/></b-tab>
-              <b-tab title="Personal" lazy><Personal/></b-tab>
-              <b-tab title="Asuetos" lazy><Asuetos/></b-tab>
-              <b-tab title="Efectivo" lazy><Efectivo/></b-tab>
+              <b-tab title="Registro de caja chica" active><CajaChica/></b-tab>
+              <b-tab title="Rubros" lazy><Rubros/></b-tab>
             </b-tabs>
           </template>
         </iq-card>
@@ -30,21 +28,17 @@
   </b-container>
 </template>
 <script>
-import { xray } from '../../../config/pluginInit'
+import { xray } from '../../../../config/pluginInit'
 import axios from 'axios'
-import { apiUrl } from '../../../config/constant'
-import Users from './Users.vue'
-import Personal from './Personal.vue'
-import Asuetos from './Asuetos.vue'
-import Efectivo from './Efectivo.vue'
+import { apiUrl } from '../../../../config/constant'
+import CajaChica from './CajaChica.vue'
+import Rubros from './Rubros.vue'
 
 export default {
-  name: 'AdminParent',
+  name: 'CajaChicaParent',
   components: {
-    Users,
-    Personal,
-    Asuetos,
-    Efectivo
+    CajaChica,
+    Rubros
   },
   data () {
     return {

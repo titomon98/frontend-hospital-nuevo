@@ -281,27 +281,44 @@
                   >
                 </h5>
               </div>
+              <div slot="solvencia" slot-scope="props">
+                <h5 v-if="props.rowData.solvencia == 1">
+                  <b-badge variant="light"
+                    ><h6 class="success"><strong>SOLVENTE</strong></h6></b-badge
+                  >
+                </h5>
+                <h5 v-else>
+                  <b-badge variant="warning"
+                    ><h6 class="danger"><strong>CON CUENTAS POR PAGAR</strong></h6></b-badge
+                  >
+                </h5>
+              </div>
               <!-- Botones -->
               <template slot="actions" slot-scope="props">
                 <b-button-group>
-                  <b-button
-                    v-b-tooltip.top="'Ingresar'"
-                    @click="
-                      setData(props.rowData)
-                      props.rowData.estado == 1
-                        ? $bvModal.show('modal-3-servicios')
-                        : $bvModal.show('modal-4-servicios')
-                    "
-                    class="mb-2"
-                    size="sm"
-                    :variant="
-                      props.rowData.estado == 1 ? 'outline-danger' : 'outline-info'">
-                    <i
-                      :class="
+                  <div v-if="props.rowData.solvencia == 1">
+                    <b-button
+                      v-b-tooltip.top="'Ingresar'"
+                      @click="
+                        setData(props.rowData)
                         props.rowData.estado == 1
-                          ? 'fas fa-trash-alt'
-                          : 'fas fa-check'"
-                  /></b-button>
+                          ? $bvModal.show('modal-3-servicios')
+                          : $bvModal.show('modal-4-servicios')
+                      "
+                      class="mb-2"
+                      size="sm"
+                      :variant="
+                        props.rowData.estado == 1 ? 'outline-danger' : 'outline-info'">
+                      <i
+                        :class="
+                          props.rowData.estado == 1
+                            ? 'fas fa-trash-alt'
+                            : 'fas fa-check'"
+                    /></b-button>
+                  </div>
+                  <div v-if="props.rowData.solvencia == 0">
+                    DEBE DE ESTAR SOLVENTE PARA INGRESAR AL PACIENTE
+                  </div>
                 </b-button-group>
               </template>
               <!-- Paginacion -->
@@ -417,6 +434,13 @@ export default {
         {
           name: '__slot:estado',
           title: 'Estado',
+          titleClass: '',
+          dataClass: 'text-muted',
+          width: '25%'
+        },
+        {
+          name: '__slot:solvencia',
+          title: 'Solvencia',
           titleClass: '',
           dataClass: 'text-muted',
           width: '25%'
