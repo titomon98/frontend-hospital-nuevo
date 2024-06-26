@@ -300,24 +300,37 @@
       >
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
-      <b-form  @submit="$event.preventDefault()">
-        <b-form-group label="Ingresar el costo por hora y la duración (en horas) del uso de la sala de operaciones.">
-          <b-form-input
-            v-model.trim="salaOperaciones.precio"
-            placeholder="Ingresar el costo"
-            type="number"
-            required
-          ></b-form-input>
-        </b-form-group>
-        <b-form-group label="Ingresar el total de horas">
-          <b-form-input
-            v-model.trim="salaOperaciones.horas"
-            placeholder="horas"
-            type="number"
-            required
-          ></b-form-input>
-        </b-form-group>
-      </b-form>
+      <b-row class="ml-2">
+            <b-col md="6">
+              <b-form-group label="Categoria sala operaciones">
+                <b-form-radio v-model="salaOperaciones.categoria" value="Cmenor" @change="changeCheck" name="customRadio1">Cirugía menor</b-form-radio>
+                <b-form-radio v-model="salaOperaciones.categoria" value="Cmedia" @change="changeCheck" name="customRadio1">Cirugía media</b-form-radio>
+                <b-form-radio v-model="salaOperaciones.categoria" value="Cmayor" @change="changeCheck" name="customRadio1">Cirugía mayor </b-form-radio>
+                <b-form-radio v-model="salaOperaciones.categoria" value="Parto" @change="changeCheck" name="customRadio1">Parto</b-form-radio>
+                <b-form-radio v-model="salaOperaciones.categoria" value="Legrado" @change="changeCheck" name="customRadio1">Legrado</b-form-radio>
+              </b-form-group>
+            </b-col>
+            <b-col md="6">
+              <b-form-group v-if="isCirugiaMayorOMedia" label="Cobro Oximetro / Cauterio">
+                <b-form-checkbox v-model="salaOperaciones.oximetro" :disabled="isCirugiaMayorOMedia">Oxímetro </b-form-checkbox>
+                <b-form-checkbox v-model="salaOperaciones.cauterio" :disabled="isCirugiaMayorOMedia">Cauterio </b-form-checkbox>
+              </b-form-group>
+              <b-form-group v-else label="Oxímetro / Cauterio">
+                <b-form-checkbox v-model="salaOperaciones.oximetro">Oxímetro</b-form-checkbox>
+                <b-form-checkbox v-model="salaOperaciones.cauterio">Cauterio</b-form-checkbox>
+              </b-form-group>
+              <b-form-group label="Duración Horas : Minutos">
+                <b-row>
+                  <b-col md="6">
+                    <b-form-input type="number" v-model="salaOperaciones.horas" min="0" placeholder="Horas"></b-form-input>
+                  </b-col>
+                  <b-col md="6">
+                    <b-form-input type="number" v-model="salaOperaciones.minutos" min="0" max="59" placeholder="Minutos"></b-form-input>
+                  </b-col>
+                </b-row>
+              </b-form-group>
+            </b-col>
+      </b-row>
       <template #modal-footer>
           <b-button variant="primary" @click="addSalaOperaciones()">Cobrar</b-button>
           <b-button variant="danger" @click="closeModal('sala-operaciones')">Cancelar</b-button>
@@ -793,8 +806,11 @@ export default {
       },
       currentExpedienteId: null,
       salaOperaciones: {
-        precio: null,
-        horas: null
+        oximetro: false,
+        cauterio: false,
+        horas: null,
+        minutos: null,
+        categoria: null
       },
       Quirurgicos: [],
       formQui: {
@@ -826,7 +842,32 @@ export default {
       }
     }
   },
+  computed: {
+    isCirugiaMayorOMedia () {
+      return this.salaOperaciones.categoria === 'Cmedia' || this.salaOperaciones.categoria === 'Cmayor'
+    }
+  },
+  watch: {
+    salaOperaciones: {
+      deep: true,
+      handler (newVal) {
+        if (this.isCirugiaMayorOMedia) {
+          this.salaOperaciones.oximetro = true
+          this.salaOperaciones.cauterio = true
+        } else {
+          this.salaOperaciones.oximetro = false
+          this.salaOperaciones.cauterio = false
+        }
+      }
+    }
+  },
   methods: {
+    changeCheck () {
+      if (!this.isCirugiaMayorOMedia) {
+        this.salaOperaciones.oximetro = false
+        this.salaOperaciones.cauterio = false
+      }
+    },
     openModal (modal, action) {
       switch (modal) {
         case 'save': {
@@ -987,6 +1028,7 @@ export default {
         form: me.formQui,
         currentUser: currentUser
       })
+      console.log(me.formQui)
         .then((response) => {
           me.alertVariant = 'success'
           me.showAlert()
@@ -1138,14 +1180,20 @@ export default {
     addSalaOperaciones () {
       try {
         axios.post(apiUrl + '/salaOperaciones/created', {
-          precio: this.salaOperaciones.precio,
+          oximetro: this.salaOperaciones.oximetro,
+          cauterio: this.salaOperaciones.cauterio,
           horas: this.salaOperaciones.horas,
+          minutos: this.salaOperaciones.minutos,
+          categoria: this.salaOperaciones.categoria,
           id_cuenta: this.idCuentaSeleccionada
         })
         this.$refs['modal-sala-operaciones'].hide()
         this.salaOperaciones = {
-          precio: null,
-          horas: null
+          oximetro: false,
+          cauterio: false,
+          horas: null,
+          minutos: null,
+          categoria: null
         }
       } catch (error) {
         console.error(error)
@@ -1404,6 +1452,7 @@ export default {
           }
         }
       ).then((response) => {
+        console.log(response.data)
         this.Quirurgicos = response.data
         loading(false)
       })
@@ -1422,7 +1471,8 @@ export default {
           }
         }
       ).then((response) => {
-        this.Quirurgicos = response.data
+        console.log(response.data)
+        this.Comunes = response.data
         loading(false)
       })
     }
