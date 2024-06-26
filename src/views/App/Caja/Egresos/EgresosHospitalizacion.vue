@@ -70,6 +70,18 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6>¿Desea dar egreso al paciente {{form.nombres}} {{form.apellidos}}?</h6>
+      <template>
+        <div>
+          <b-form-group label="Motivo del egreso:">
+            <b-form-radio-group
+                      id="radio-group-egreso"
+                      v-model="selectedQuitOption"
+                      :options="optionsQuit"
+                      name="radio-options-2"
+                    ></b-form-radio-group>
+          </b-form-group>
+        </div>
+      </template>
       <template #modal-footer="{}">
         <b-button variant="primary" @click="
             onPatientQuit()
@@ -271,6 +283,13 @@ export default {
       habitaciones: [],
       selectedAccount: null,
       cuentas: [],
+      selectedQuitOption: 6,
+      optionsQuit: [
+        { text: 'Fallecido', value: 0 },
+        { text: 'Egreso normal', value: 7 },
+        { text: 'Contraindicado', value: 8 },
+        { text: 'Referido', value: 9 }
+      ],
       selectedTrasOption: 4,
       selectedPayment: [],
       paymentOptions: [
@@ -486,7 +505,7 @@ export default {
           axios
             .put(apiUrl + '/expedientes/changeState', {
               id: this.form.id,
-              estado: 2,
+              estado: this.selectedQuitOption,
               estado_anterior: 1
             })
             .then((response) => {

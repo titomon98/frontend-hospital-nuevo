@@ -95,6 +95,18 @@
       <h6 class="my-4">
         ¿Desea desactivar el banco: {{ form.name }} ?
       </h6>
+      <template>
+        <div>
+          <b-form-group label="Motivo del egreso:">
+            <b-form-radio-group
+                      id="radio-group-egreso"
+                      v-model="selectedQuitOption"
+                      :options="optionsQuit"
+                      name="radio-options-2"
+                    ></b-form-radio-group>
+          </b-form-group>
+        </div>
+      </template>
       <template #modal-footer="{}">
         <b-button
           type="submit"
@@ -293,6 +305,13 @@ export default {
       selectedAccount: null,
       totalPayment: 0,
       cuentas: [],
+      selectedQuitOption: 6,
+      optionsQuit: [
+        { text: 'Fallecido', value: 0 },
+        { text: 'Egreso normal', value: 7 },
+        { text: 'Contraindicado', value: 8 },
+        { text: 'Referido', value: 9 }
+      ],
       selectedTrasOption: 1,
       optionsTraslado: [
         { text: 'Quirófano', value: 3 },
@@ -491,7 +510,7 @@ export default {
           axios
             .put(apiUrl + '/expedientes/changeState', {
               id: this.form.id,
-              estado: 2,
+              estado: this.selectedQuitOption,
               estado_anterior: 4
             })
             .then((response) => {
