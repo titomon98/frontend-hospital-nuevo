@@ -113,6 +113,7 @@ import IntensivoParent from '../views/App/Enfermeria/Intensivo/Intensivo'
 import QuirofanoParent from '../views/App/Enfermeria/Quirofano/Quirofano'
 import Habitaciones from '../views/App/Enfermeria/Habitaciones/Habitaciones'
 import Servicios from '../views/App/Enfermeria/Servicios/Servicios.vue'
+import IngresosEnfermeria from '../views/App/Enfermeria/Ingresos/IngresosEnfermeria.vue'
 
 // farmacia
 import PedidosPendientesParent from '../views/App/Farmacia/Pedidos/PedidosPendientesParent'
@@ -284,7 +285,7 @@ const EnfermeriaRoutes = (prop, mode) => [
     path: 'ingresos',
     name: prop + '.ingresos',
     meta: { dark: mode, auth: true, name: 'ingresos' },
-    component: Ingresos
+    component: IngresosEnfermeria
   },
   {
     path: 'reingresos',
