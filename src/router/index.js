@@ -95,6 +95,7 @@ import Cuartos from '../views/App/Admin/Cuartos.vue'
 import Users from '../views/App/Admin/Users'
 
 // caja
+import Seguros from '../views/App/Caja/Seguros/Seguros.vue'
 import Contratos from '../views/App/Caja/Contratos/Contratos'
 import CortesParent from '../views/App/Caja/Cortes/CortesParent'
 import CuentasParent from '../views/App/Caja/Cuentas/CuentasParent'
@@ -205,6 +206,12 @@ const CajaRoutes = (prop, mode) => [
     name: prop + '.cuentas',
     meta: { dark: mode, auth: true, name: 'cuentas' },
     component: CuentasParent
+  },
+  {
+    path: 'seguros',
+    name: prop + '.seguros',
+    meta: { dark: mode, auth: true, name: 'seguros' },
+    component: Seguros
   },
   {
     path: 'expedientes',

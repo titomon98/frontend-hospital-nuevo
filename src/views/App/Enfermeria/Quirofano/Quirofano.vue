@@ -473,8 +473,6 @@
                     @click="showModal('modal-sala-operaciones'); obtenerIdCuenta(props.rowData.id)"
                     class="mb-2 button-spacing"
                     v-b-tooltip.top="'Agregar consumo'"
-                    @click="showModal('modal-1-movimiento'); obtenerIdCuenta(props.rowData.id)"
-                    class="mb-2"
                     size="sm"
                     variant="outline-warning"
                     ><i :class="'fas fa-pencil-alt'"
@@ -496,8 +494,9 @@
                 </div>
                     variant="outline-warning"
                     ><i :class="'fas fa-pencil-alt'" style="color: #FFC107;"
-                  /></b-button> -->
-              </b-button-group>
+                  /></b-button>
+              </b-button-group>-->
+              </div>
               </template>
               <!-- Paginacion -->
             </vuetable>
