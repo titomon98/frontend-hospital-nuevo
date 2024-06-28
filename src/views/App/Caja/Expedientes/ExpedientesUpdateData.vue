@@ -23,7 +23,7 @@
       <b-col md="12">
         <iq-card>
           <template v-slot:headerTitle>
-            <h4 class="card-title mt-3">Primer ingreso de paciente</h4>
+            <h4 class="card-title mt-3">Edición de expediente</h4>
           </template>
 
           <template v-slot:body>
