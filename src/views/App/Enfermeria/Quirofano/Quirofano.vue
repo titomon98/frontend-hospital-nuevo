@@ -472,6 +472,7 @@
                   <b-button
                     @click="showModal('modal-sala-operaciones'); obtenerIdCuenta(props.rowData.id)"
                     class="mb-2 button-spacing"
+                    v-b-tooltip.top="'Agregar consumo'"
                     size="sm"
                     variant="success"
                   >Agregar sala de operaciones</b-button>
