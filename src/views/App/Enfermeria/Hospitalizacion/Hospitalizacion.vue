@@ -1283,6 +1283,7 @@ export default {
       } else {
         this.searchingComunes()
       }
+      this.formMe.id_medicine = null
     },
     onChangeMedicamento () {
       let medicine_ = this.medicamentos.find(med => med.value === this.formMe.id_medicine)
