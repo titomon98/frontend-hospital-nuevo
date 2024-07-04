@@ -323,7 +323,7 @@
                     <b-form-input type="number" v-model="salaOperaciones.horas" min="0" placeholder="Horas"></b-form-input>
                   </b-col>
                   <b-col md="6">
-                    <b-form-input type="number" v-model="salaOperaciones.minutos" min="1" max="59" placeholder="Minutos" required ></b-form-input>
+                    <b-form-input type="number"  v-model.trim="$v.salaOperaciones.minutos.$model" :state="!$v.salaOperaciones.minutos.$error" :min=1 :max=59 placeholder="Minutos"></b-form-input>
                   </b-col>
                 </b-row>
               </b-form-group>
@@ -769,6 +769,14 @@ export default {
         cantidad: {
           required
         }
+      },
+      salaOperaciones: {
+        minutos: {
+          required
+        },
+        categoria: {
+          required
+        }
       }
     }
   },
@@ -1025,7 +1033,6 @@ export default {
         form: me.formMe,
         currentUser: currentUser
       })
-      console.log(me.formQui)
         .then((response) => {
           me.alertVariant = 'success'
           me.showAlert()
@@ -1175,26 +1182,31 @@ export default {
       }
     },
     addSalaOperaciones () {
-      try {
-        axios.post(apiUrl + '/salaOperaciones/created', {
-          oximetro: this.salaOperaciones.oximetro,
-          cauterio: this.salaOperaciones.cauterio,
-          horas: this.salaOperaciones.horas,
-          minutos: this.salaOperaciones.minutos,
-          categoria: this.salaOperaciones.categoria,
-          id_cuenta: this.idCuentaSeleccionada
-        })
-        this.$refs['modal-sala-operaciones'].hide()
-        this.salaOperaciones = {
-          oximetro: false,
-          cauterio: false,
-          horas: null,
-          minutos: null,
-          categoria: null
+      if (this.salaOperaciones.minutos > 0) {
+        try {
+          axios.post(apiUrl + '/salaOperaciones/created', {
+            oximetro: this.salaOperaciones.oximetro,
+            cauterio: this.salaOperaciones.cauterio,
+            horas: this.salaOperaciones.horas,
+            minutos: this.salaOperaciones.minutos,
+            categoria: this.salaOperaciones.categoria,
+            id_cuenta: this.idCuentaSeleccionada
+          })
+          this.$refs['modal-sala-operaciones'].hide()
+          this.salaOperaciones = {
+            oximetro: false,
+            cauterio: false,
+            horas: null,
+            minutos: null,
+            categoria: null
+          }
+        } catch (error) {
+          console.error(error)
+          this.alertErrorText = 'Error al agregar honorarios'
+          this.showAlertError()
         }
-      } catch (error) {
-        console.error(error)
-        this.alertErrorText = 'Error al agregar honorarios'
+      } else {
+        this.alertErrorText = 'Debe ingresar el tiempo que se utilizo la sala.'
         this.showAlertError()
       }
     },
