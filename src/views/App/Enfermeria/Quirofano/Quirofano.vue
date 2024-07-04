@@ -473,13 +473,11 @@
                     @click="showModal('modal-sala-operaciones'); obtenerIdCuenta(props.rowData.id)"
                     class="mb-2 button-spacing"
                     v-b-tooltip.top="'Agregar consumo'"
-                    @click="showModal('modal-1-movimiento'); obtenerIdCuenta(props.rowData.id)"
-                    class="mb-2"
                     size="sm"
-                    variant="outline-warning"
-                    ><i :class="'fas fa-pencil-alt'"
-                  /></b-button>
-                  <!-- <b-button
+                    variant="success"
+                  >Agregar sala de operaciones</b-button>
+
+                  <b-button
                     v-b-tooltip.top="'Aregar Insumos Quirofano'"
                     @click="showModal('modal-2-movimiento'); obtenerIdCuenta(props.rowData.id)"
                     class="mb-2"
@@ -494,11 +492,7 @@
                     variant="primary"
                   >Agregar medicamentos</b-button>
                 </div>
-                    variant="outline-warning"
-                    ><i :class="'fas fa-pencil-alt'" style="color: #FFC107;"
-                  /></b-button> -->
-              </b-button-group>
-              </template>
+            </template>
               <!-- Paginacion -->
             </vuetable>
             <vuetable-pagination-bootstrap
@@ -1331,7 +1325,8 @@ export default {
       }
     },
     searchingMedicamentos (search, loading) {
-      axios.get(apiUrl + '/medicamentos/list')
+      console.log('ok')
+      axios.get(apiUrl + '/medicamentos/list2')
         .then((response) => {
           this.medicamentos = response.data.map(medicamento => ({
             value: medicamento.id,

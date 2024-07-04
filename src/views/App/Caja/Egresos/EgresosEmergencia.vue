@@ -44,6 +44,12 @@
           </b-form-group>
         </b-col>
       </b-form>
+      <div>
+          Ingrese un motivo para el traslado
+        </div>
+        <div>
+          <b-input id="motivoTraslado" ref="motivoTraslado" v-model="motivoTrasladoEmergencia" />
+        </div>
       <template #modal-footer="{}">
         <b-button
           type="submit"
@@ -70,6 +76,22 @@
       </b-alert>
       <h6>¿Desea dar egreso al paciente {{this.form.nombres}} {{this.form.apellidos}}?</h6>
       <template>
+        <div>
+          <b-form-group label="Motivo del egreso:">
+            <b-form-radio-group
+                      id="radio-group-egreso"
+                      v-model="selectedQuitOption"
+                      :options="optionsQuit"
+                      name="radio-options-2"
+                    ></b-form-radio-group>
+          </b-form-group>
+        </div>
+        <div>
+          Ingrese un motivo para el egreso
+        </div>
+        <div>
+          <b-input id="motivoEgreso" ref="motivoEgreso" v-model="motivoEgresoEmergencia" />
+        </div>
       </template>
       <template #modal-footer="{}">
         <b-button variant="primary" @click="
@@ -95,6 +117,18 @@
       <h6 class="my-4">
         ¿Desea desactivar el banco: {{ form.name }} ?
       </h6>
+      <template>
+        <div>
+          <b-form-group label="Motivo del egreso:">
+            <b-form-radio-group
+                      id="radio-group-egreso"
+                      v-model="selectedQuitOption"
+                      :options="optionsQuit"
+                      name="radio-options-2"
+                    ></b-form-radio-group>
+          </b-form-group>
+        </div>
+      </template>
       <template #modal-footer="{}">
         <b-button
           type="submit"
@@ -265,6 +299,8 @@ export default {
         state: 1
       },
       alertSecs: 5,
+      motivoEgresoEmergencia: '',
+      motivoTrasladoEmergencia: '',
       alertCountDown: 0,
       alertCountDownError: 0,
       alertText: '',
@@ -293,6 +329,13 @@ export default {
       selectedAccount: null,
       totalPayment: 0,
       cuentas: [],
+      selectedQuitOption: 6,
+      optionsQuit: [
+        { text: 'Fallecido', value: 0 },
+        { text: 'Egreso normal', value: 7 },
+        { text: 'Contraindicado', value: 8 },
+        { text: 'Referido', value: 9 }
+      ],
       selectedTrasOption: 1,
       optionsTraslado: [
         { text: 'Quirófano', value: 3 },
@@ -457,7 +500,8 @@ export default {
         .put(apiUrl + '/expedientes/changeState', {
           id: this.form.id,
           estado: this.selectedTrasOption,
-          estado_anterior: 5
+          estado_anterior: 5,
+          motivo: this.motivoTrasladoEmergencia
         })
         .then((response) => {
           me.alertVariant = 'info'
@@ -491,8 +535,9 @@ export default {
           axios
             .put(apiUrl + '/expedientes/changeState', {
               id: this.form.id,
-              estado: 2,
-              estado_anterior: 4
+              estado: this.selectedQuitOption,
+              estado_anterior: 4,
+              motivo: this.motivoEgresoEmergencia
             })
             .then((response) => {
               me.alertVariant = 'info'
