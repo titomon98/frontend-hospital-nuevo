@@ -493,7 +493,8 @@
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="primary"
-                  >Agregar medicamentos</b-button>
+                   >Agregar consumo</b-button>
+
                   <!-- <b-button
                     v-b-tooltip.top="'Aregar Insumos Quirofano'"
                     @click="showModal('modal-2-movimiento'); obtenerIdCuenta(props.rowData.id)"
@@ -743,7 +744,7 @@ export default {
         state: 1,
         precio_venta: 0,
         existencias_actuales: null,
-        movimiento: 'SALIDAQ'
+        movimiento: 'SALIDAH'
       },
       Comunes: [],
       formCom: {
