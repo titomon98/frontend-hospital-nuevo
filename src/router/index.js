@@ -114,6 +114,7 @@ import QuirofanoParent from '../views/App/Enfermeria/Quirofano/Quirofano'
 import Habitaciones from '../views/App/Enfermeria/Habitaciones/Habitaciones'
 import Servicios from '../views/App/Enfermeria/Servicios/Servicios.vue'
 import IngresosEnfermeria from '../views/App/Enfermeria/Ingresos/IngresosEnfermeria.vue'
+import CategoriaSalaOperaciones from '../views/App/Enfermeria/CategoriaSalaOperaciones/CategoriaSalaOperaciones.vue'
 
 // farmacia
 import PedidosPendientesParent from '../views/App/Farmacia/Pedidos/PedidosPendientesParent'
@@ -280,6 +281,12 @@ const EnfermeriaRoutes = (prop, mode) => [
     name: prop + '.servicios',
     meta: { dark: mode, auth: true, name: 'servicios' },
     component: Servicios
+  },
+  {
+    path: 'CategoriaSalaOperaciones',
+    name: prop + '.CategoriaSalaOperaciones',
+    meta: { dark: mode, auth: true, name: 'CategoriaSalaOperaciones' },
+    component: CategoriaSalaOperaciones
   },
   {
     path: 'ingresos',

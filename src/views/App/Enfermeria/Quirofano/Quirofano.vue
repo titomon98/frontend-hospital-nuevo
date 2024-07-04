@@ -301,9 +301,9 @@
       <b-row class="ml-2">
             <b-col md="6">
               <b-form-group label="Categoria sala operaciones">
-                <b-form-radio v-model="salaOperaciones.categoria" value="Cmenor" @change="changeCheck" name="customRadio1">Cirugía menor</b-form-radio>
-                <b-form-radio v-model="salaOperaciones.categoria" value="Cmedia" @change="changeCheck" name="customRadio1">Cirugía media</b-form-radio>
-                <b-form-radio v-model="salaOperaciones.categoria" value="Cmayor" @change="changeCheck" name="customRadio1">Cirugía mayor </b-form-radio>
+                <b-form-radio v-model="salaOperaciones.categoria" value="Cirugia menor" @change="changeCheck" name="customRadio1">Cirugía menor</b-form-radio>
+                <b-form-radio v-model="salaOperaciones.categoria" value="Cirugia media" @change="changeCheck" name="customRadio1">Cirugía media</b-form-radio>
+                <b-form-radio v-model="salaOperaciones.categoria" value="Cirugia mayor" @change="changeCheck" name="customRadio1">Cirugía mayor </b-form-radio>
                 <b-form-radio v-model="salaOperaciones.categoria" value="Parto" @change="changeCheck" name="customRadio1">Parto</b-form-radio>
                 <b-form-radio v-model="salaOperaciones.categoria" value="Legrado" @change="changeCheck" name="customRadio1">Legrado</b-form-radio>
               </b-form-group>
@@ -313,9 +313,9 @@
                 <b-form-checkbox v-model="salaOperaciones.oximetro" :disabled="isCirugiaMayorOMedia">Oxímetro </b-form-checkbox>
                 <b-form-checkbox v-model="salaOperaciones.cauterio" :disabled="isCirugiaMayorOMedia">Cauterio </b-form-checkbox>
               </b-form-group>
-              <b-form-group v-else label="Oxímetro / Cauterio">
-                <b-form-checkbox v-model="salaOperaciones.oximetro">Oxímetro</b-form-checkbox>
-                <b-form-checkbox v-model="salaOperaciones.cauterio">Cauterio</b-form-checkbox>
+              <b-form-group v-if="!isCirugiaMayorOMedia" label="Oxímetro / Cauterio">
+                <b-form-checkbox v-model="salaOperaciones.oximetro" >Oxímetro</b-form-checkbox>
+                <b-form-checkbox v-model="salaOperaciones.cauterio" >Cauterio</b-form-checkbox>
               </b-form-group>
               <b-form-group label="Duración Horas : Minutos">
                 <b-row>
@@ -323,13 +323,14 @@
                     <b-form-input type="number" v-model="salaOperaciones.horas" min="0" placeholder="Horas"></b-form-input>
                   </b-col>
                   <b-col md="6">
-                    <b-form-input type="number" v-model="salaOperaciones.minutos" min="0" max="59" placeholder="Minutos"></b-form-input>
+                    <b-form-input type="number" v-model="salaOperaciones.minutos" min="1" max="59" placeholder="Minutos" required ></b-form-input>
                   </b-col>
                 </b-row>
               </b-form-group>
             </b-col>
       </b-row>
       <template #modal-footer>
+        <div class="ml-auto"> <span class="mr-2">Total: Q{{ TotalAPagar }}</span></div>
           <b-button variant="primary" @click="addSalaOperaciones()">Cobrar</b-button>
           <b-button variant="danger" @click="closeModal('sala-operaciones')">Cancelar</b-button>
         </template>
@@ -479,14 +480,20 @@
                     variant="dark"
                   >Ver honorarios</b-button>
 
-                <b-button
-                   @click="showModal('modal-sala-operaciones'); obtenerIdCuenta(props.rowData.id)"
+                  <b-button
+                    @click="showModal('modal-sala-operaciones'); obtenerIdCuenta(props.rowData.id)"
                     class="mb-2 button-spacing"
-                    v-b-tooltip.top="'Agregar consumo'"
                     size="sm"
-                    variant="outline-warning"
-                    ><i :class="'fas fa-pencil-alt'"
-                  /></b-button>
+                    variant="success"
+                  >Sala Operaciones</b-button>
+
+                  <b-button
+                    v-b-tooltip.top="'Aregar consumo'"
+                    @click="showModal('modal-1-movimiento'); obtenerIdCuenta(props.rowData.id)"
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="primary"
+                  >Agregar medicamentos</b-button>
                   <!-- <b-button
                     v-b-tooltip.top="'Aregar Insumos Quirofano'"
                     @click="showModal('modal-2-movimiento'); obtenerIdCuenta(props.rowData.id)"
@@ -546,6 +553,7 @@ export default {
   },
   mounted () {
     xray.index()
+    this.cargarPreciosServicios()
   },
   data () {
     return {
@@ -713,6 +721,11 @@ export default {
         minutos: null,
         categoria: null
       },
+      preciosCategorias: {},
+      preciosServicios: {},
+      TotalAPagar: 0,
+      tiempoBase: 150,
+      tarifaHoraExtra: 0,
       Quirurgicos: [],
       formQui: {
         id_cuenta: 0,
@@ -760,28 +773,25 @@ export default {
   },
   computed: {
     isCirugiaMayorOMedia () {
-      return this.salaOperaciones.categoria === 'Cmedia' || this.salaOperaciones.categoria === 'Cmayor'
+      return this.salaOperaciones.categoria === 'Cirugia media' || this.salaOperaciones.categoria === 'Cirugia mayor'
     }
   },
+
   watch: {
-    salaOperaciones: {
-      deep: true,
-      handler (newVal) {
-        if (this.isCirugiaMayorOMedia) {
-          this.salaOperaciones.oximetro = true
-          this.salaOperaciones.cauterio = true
-        } else {
-          this.salaOperaciones.oximetro = false
-          this.salaOperaciones.cauterio = false
-        }
-      }
-    }
+    'salaOperaciones.categoria': 'calcularTotalAPagar',
+    'salaOperaciones.oximetro': 'calcularTotalAPagar',
+    'salaOperaciones.cauterio': 'calcularTotalAPagar',
+    'salaOperaciones.horas': 'calcularTotalAPagar',
+    'salaOperaciones.minutos': 'calcularTotalAPagar'
   },
   methods: {
     changeCheck () {
       if (!this.isCirugiaMayorOMedia) {
         this.salaOperaciones.oximetro = false
         this.salaOperaciones.cauterio = false
+      } else if (this.isCirugiaMayorOMedia) {
+        this.salaOperaciones.oximetro = true
+        this.salaOperaciones.cauterio = true
       }
     },
     openModal (modal, action) {
@@ -876,9 +886,11 @@ export default {
         case 'sala-operaciones': {
           this.$v.$reset()
           this.$refs['modal-sala-operaciones'].hide()
-          this.form.id = 0
-          this.form.name = ''
-          this.form.state = 1
+          this.salaOperaciones.oximetro = false
+          this.salaOperaciones.cauterio = false
+          this.salaOperaciones.horas = null
+          this.salaOperaciones.minutos = null
+          this.salaOperaciones.categoria = null
           break
         }
         case 'save': {
@@ -925,6 +937,43 @@ export default {
       } else {
         this.alertErrorText = 'Revisa que todos los campos requeridos esten llenos'
         this.showAlertError()
+      }
+    },
+    async calcularTotalAPagar () {
+      try {
+        let total = 0
+        if (this.salaOperaciones.categoria) {
+          const response = await axios.get(apiUrl + `/Categorias_Sala_Operaciones/getSearch?search=${this.salaOperaciones.categoria}`)
+          console.log(response.data[0].precio)
+          total += parseFloat(response.data[0].precio)
+          this.tarifaHoraExtra = parseFloat(response.data[0].cobro_extra)
+        }
+
+        if (this.salaOperaciones.oximetro) total += parseFloat(this.preciosServicios['Oximetro']) || 0
+        if (this.salaOperaciones.cauterio) total += parseFloat(this.preciosServicios['Cauterio']) || 0
+
+        const horas = parseFloat(this.salaOperaciones.horas) || 0
+        const minutos = parseFloat(this.salaOperaciones.minutos) || 0
+        const tiempoTotalMinutos = horas * 60 + minutos
+
+        if (tiempoTotalMinutos > this.tiempoBase) {
+          total += parseFloat(this.tarifaHoraExtra) * Math.ceil((tiempoTotalMinutos - this.tiempoBase) / 60)
+        }
+        this.TotalAPagar = parseFloat(total)
+      } catch (error) {
+        console.error('Error al calcular el total a pagar:', error)
+        this.TotalAPagar = 0
+      }
+    },
+    async cargarPreciosServicios () {
+      try {
+        const response = await axios.get(apiUrl + '/servicios/get')
+        this.preciosServicios = response.data.reduce((acc, servicio) => {
+          acc[servicio.descripcion] = servicio.precio
+          return acc
+        }, {})
+      } catch (error) {
+        console.error('Error al obtener precios de servicios:', error)
       }
     },
     onSave () {

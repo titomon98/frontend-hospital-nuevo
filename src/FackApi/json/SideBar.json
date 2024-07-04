@@ -211,6 +211,17 @@
         "icon": "ri-customer-service-line"
       },
       {
+        "title": "Sala Operaciones",
+        "name": "Sala Operaciones",
+        "is_active": false,
+        "link": {
+          "name" : "enfermeria.CategoriaSalaOperaciones"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-home-heart-line"
+      },
+      {
         "title": "Nuevo Ingreso",
         "name": "Nuevo Ingreso",
         "is_active": false,
