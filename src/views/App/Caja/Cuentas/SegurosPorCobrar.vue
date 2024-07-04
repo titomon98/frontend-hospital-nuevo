@@ -139,7 +139,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-3-bank" ref="modal-3-bank" title="Desactivar banco">
+    <b-modal id="modal-3-deactivate" ref="modal-3-deactivate" title="Desactivar seguro">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -150,17 +150,17 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6 class="my-4">
-        ¿Desea desactivar el banco: {{ form.name }} ?
+        ¿Desea desactivar el seguro: {{ form.id }} ?
       </h6>
       <template #modal-footer="{}">
         <b-button
           type="submit"
           variant="primary"
-          @click="onState()
-                  $bvModal.hide('modal-3-bank')"
+          @click="onDeactivate()
+                  $bvModal.hide('modal-3-deactivate')"
           >Desactivar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-3-bank')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-3-deactivate')"
           >Cancelar</b-button
         >
       </template>
@@ -228,14 +228,19 @@
             >
               <!-- Estado -->
               <div slot="estado" slot-scope="props">
-                <h5 v-if="props.rowData.estado == 1">
+                <h5 v-if="props.rowData.solvente == 1">
+                  <b-badge variant="light"
+                    ><h6 class="success"><strong>SOLVENTE</strong></h6></b-badge
+                  >
+                </h5>
+                <h5 v-else-if="props.rowData.solvente == 0">
                   <b-badge variant="light"
                     ><h6 class="success"><strong>PENDIENTE DE PAGO</strong></h6></b-badge
                   >
                 </h5>
                 <h5 v-else>
                   <b-badge variant="light"
-                    ><h6 class="danger"><strong>EN EMERGENCIAS</strong></h6></b-badge
+                    ><h6 class="danger"><strong>DESACTIVADO</strong></h6></b-badge
                   >
                 </h5>
               </div>
@@ -252,6 +257,18 @@
                     size="sm"
                     variant="outline-warning"
                     ><i :class="'fas fa-money'"
+                  /></b-button>
+                  <b-button
+                    v-if="props.rowData.solvente <= 1"
+                    v-b-tooltip.top="'Desactivar'"
+                    @click="
+                      setData(props.rowData)
+                      $bvModal.show('modal-3-deactivate')
+                    "
+                    class="mb-2"
+                    size="sm"
+                    variant="outline-warning"
+                    ><i :class="'fa fa-trash'"
                   /></b-button>
                 </b-button-group>
               </template>
@@ -303,6 +320,7 @@ export default {
       totPagado: 0,
       form: {
         id: 0,
+        assurance: 0,
         nombres: '',
         apellidos: '',
         expediente: '',
@@ -348,7 +366,7 @@ export default {
         { text: 'Hospitalización', value: 1 },
         { text: 'Intensivos', value: 4 }
       ],
-      apiBase: apiUrl + '/pagoSeguros/list',
+      apiBase: apiUrl + '/seguros/debtList',
       fields: [
         {
           name: '__slot:actions',
@@ -369,27 +387,27 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
-          name: 'numero',
-          sortField: 'numero',
-          title: 'Numero de Cuenta',
+          name: 'no_poliza',
+          sortField: 'no_poliza',
+          title: 'Numero de Póliza',
           dataClass: 'list-item-heading'
         },
         {
-          name: 'motivo',
-          sortField: 'motivo',
-          title: 'Motivo',
+          name: 'aseguradora.nombre',
+          sortField: 'aseguradora.nombre',
+          title: 'Aseguradora',
           dataClass: 'list-item-heading'
         },
         {
-          name: 'total',
-          sortField: 'total',
-          title: 'Total',
+          name: 'aseguradora.telefono',
+          sortField: 'aseguradora.telefono',
+          title: 'Teléfono de la aseguradora',
           dataClass: 'list-item-heading'
         },
         {
-          name: 'pendiente_de_pago',
-          sortField: 'pendiente_de_pago',
-          title: 'Pendiente de pago',
+          name: 'nombre_asegurado',
+          sortField: 'nombre_asegurado',
+          title: 'Persona asegurada',
           dataClass: 'list-item-heading'
         },
         {
@@ -531,6 +549,34 @@ export default {
           me.showAlertError()
           me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
           console.error('Error!', error)
+        })
+    },
+    onDeactivate () {
+      console.log(this.form.id)
+      let me = this
+      axios
+        .put(apiUrl + '/seguro/deactivate', {
+          id: this.form.id
+        })
+        .then((response) => {
+          me.alertVariant = 'warning'
+          me.showAlert()
+          me.alertText = 'Se ha desactivado el banco ' + me.form.name + ' exitosamente'
+          me.$refs.vuetable.refresh()
+        })
+    },
+    onPay () {
+      console.log(this.form.id)
+      let me = this
+      axios
+        .put(apiUrl + '/seguro/deactivate', {
+          id: this.form.id
+        })
+        .then((response) => {
+          me.alertVariant = 'warning'
+          me.showAlert()
+          me.alertText = 'Se ha desactivado el banco ' + me.form.name + ' exitosamente'
+          me.$refs.vuetable.refresh()
         })
     },
     onState () {
