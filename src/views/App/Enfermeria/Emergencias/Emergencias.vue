@@ -401,7 +401,7 @@
                   <b-button @click="showModal('modal-ver-honorarios'); getDataHonorarios(props.rowData.id)"
                     class="mb-2 button-spacing" size="sm" variant="dark">Ver honorarios</b-button>
                   <b-button @click="showModal('modal-1-movimiento'); obtenerIdCuenta(props.rowData.id)" class="mb-2 button-spacing"
-                    size="sm" variant="primary">Agregar medicamentos</b-button>
+                    size="sm" variant="success">Agregar consumo</b-button>
                 </div>
               </template>
               <!-- Paginacion -->
@@ -1204,7 +1204,7 @@ export default {
       }
     },
     searchingMedicamentos (search, loading) {
-      axios.get(apiUrl + '/medicamentos/list')
+      axios.get(apiUrl + '/medicamentos/list2')
         .then((response) => {
           this.medicamentos = response.data.map(medicamento => ({
             value: medicamento.id,
@@ -1259,6 +1259,7 @@ export default {
       } else {
         this.searchingComunes()
       }
+      this.formMe.id_medicine = null
     },
     onChangeMedicamento () {
       let medicine_ = this.medicamentos.find(med => med.value === this.formMe.id_medicine)

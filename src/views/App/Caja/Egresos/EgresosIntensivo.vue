@@ -44,6 +44,12 @@
           </b-form-group>
         </b-col>
       </b-form>
+      <div>
+          Ingrese un motivo para el traslado
+        </div>
+        <div>
+          <b-input id="motivoTraslado" ref="motivoTraslado" v-model="motivoTrasladoIntensivo" />
+        </div>
       <template #modal-footer="{}">
         <b-button
           type="submit"
@@ -79,68 +85,12 @@
                       name="radio-options-2"
                     ></b-form-radio-group>
           </b-form-group>
-          <!-- <h6>Cuentas activas para {{this.form.nombres}} {{this.form.apellidos}}</h6>
-          <b-card>
-            <b-card-body>
-              <b-table
-                hover
-                :items="cuentas"
-                :fields="fieldsAccounts"
-                :select-mode="'single'"
-                selectable
-                @row-selected="onRowSelected"
-              >
-                <template #cell(seleccion)="{ rowSelected }">
-                  <template v-if="rowSelected">
-                    <span aria-hidden="true">&check;</span>
-                    <span class="sr-only">Selected</span>
-                  </template>
-                  <template v-else>
-                    <span aria-hidden="true">&nbsp;</span>
-                    <span class="sr-only">Not selected</span>
-                  </template>
-                </template>
-              </b-table>
-              <b-form-group label="Seleccione métodos para pagar:" v-slot="{ ariaDescribedby }">
-                <b-form-checkbox-group
-                  id="checkbox-group-1"
-                  v-model="selectedPayment"
-                  :options="paymentOptions"
-                  :aria-describedby="ariaDescribedby"
-                  name="flavour-1"
-                ></b-form-checkbox-group>
-              </b-form-group>
-              <div v-if="selectedPayment.indexOf(1) !== -1">
-                Efectivo
-                <b-input :type="'number'" id="CashTypeInput" ref="CashTypeInput" v-model="paymentType.Efectivo" />
-              </div>
-              <div v-if="selectedPayment.indexOf(2) !== -1">
-                Tarjeta
-                <b-input :type="'number'" id="CardTypeInput" ref="CardTypeInput" v-model="paymentType.Tarjeta" />
-              </div>
-              <div v-if="selectedPayment.indexOf(3) !== -1">
-                Depósito
-                <b-input :type="'number'" id="DepositTypeInput" ref="DepositTypeInput" v-model="paymentType.Deposito" />
-              </div>
-              <div v-if="selectedPayment.indexOf(4) !== -1">
-                Cheque
-                <b-input :type="'number'" id="CheckTypeInput" ref="CheckTypeInput" v-model="paymentType.Cheque" />
-              </div>
-              <div v-if="selectedPayment.indexOf(5) !== -1">
-                Seguro
-                <b-input :type="'number'" id="InsuranceTypeInput" ref="InsuranceTypeInput" v-model="paymentType.Seguro" />
-              </div>
-              <div>
-                <strong> TOTAL INGRESADO: {{ parseFloat(this.paymentType.Efectivo) + parseFloat(this.paymentType.Tarjeta) + parseFloat(this.paymentType.Deposito) + parseFloat(this.paymentType.Cheque) + parseFloat(this.paymentType.Seguro) }}</strong>
-              </div>
-              <div>
-                <strong> TOTAL A PAGAR: {{ this.totalPayment }}</strong>
-              </div>
-            </b-card-body>
-            <div>
-
-            </div>
-          </b-card> -->
+        </div>
+        <div>
+          Ingrese un motivo para el egreso
+        </div>
+        <div>
+          <b-input id="motivoEgreso" ref="motivoEgreso" v-model="motivoEgresoIntensivo" />
         </div>
       </template>
       <template #modal-footer="{}">
@@ -337,6 +287,8 @@ export default {
         state: 1
       },
       alertSecs: 5,
+      motivoEgresoIntensivo: '',
+      motivoTrasladoIntensivo: '',
       alertCountDown: 0,
       alertCountDownError: 0,
       alertText: '',
@@ -534,9 +486,15 @@ export default {
         .put(apiUrl + '/expedientes/changeState', {
           id: this.form.id,
           estado: this.selectedTrasOption,
-          estado_anterior: 4
+          estado_anterior: 4,
+          motivo: this.motivoTrasladoIntensivo
         })
         .then((response) => {
+          axios.put(apiUrl + '/habitaciones/available',
+            {
+              ocupante: this.form.id
+            }
+          )
           me.alertVariant = 'info'
           me.showAlert()
           me.alertText = 'Se ha trasladado el paciente ' + me.form.nombres + ' exitosamente'
@@ -550,7 +508,7 @@ export default {
               })
               .then((res) => {
                 this.selectedHab = null
-                console.log(this.selectedHab)
+                /* eslint-disable */console.log(...oo_oo(`2046176019_511_16_511_45_4`,this.selectedHab))
                 this.getHabitaciones(0).then(me.$refs.selectHab.refresh())
               })
           }
@@ -579,9 +537,15 @@ export default {
             .put(apiUrl + '/expedientes/changeState', {
               id: this.form.id,
               estado: this.selectedQuitOption,
-              estado_anterior: 4
+              estado_anterior: 4,
+              motivo: this.motivoEgresoIntensivo
             })
             .then((response) => {
+              axios.put(apiUrl + '/habitaciones/available',
+                {
+                  ocupante: this.form.id
+                }
+              )
               /* axios.put(apiUrl + '/cuentas/deactivate',
                 {
                   id: this.selectedAccount,
@@ -668,7 +632,7 @@ export default {
         }
       }).then((response) => {
         this.habitaciones = response.data
-        console.log(response.data)
+        /* eslint-disable */console.log(...oo_oo(`2046176019_635_8_635_34_4`,response.data))
       })
     },
     getCuentas (num) {

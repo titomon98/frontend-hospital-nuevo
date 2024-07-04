@@ -28,6 +28,7 @@
             :reduce="com => com.value"
             :state="!$v.formComun.id_comun.$error"
             label="text"
+            placeholder="Seleccione el producto común"
             @input="onChangeComun"
           ></v-select>
           <label>{{this.existencias_selected_com}}</label>

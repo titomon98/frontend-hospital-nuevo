@@ -494,6 +494,7 @@
                     size="sm"
                     variant="primary"
                   >Agregar medicamentos</b-button>
+                  
                   <!-- <b-button
                     v-b-tooltip.top="'Aregar Insumos Quirofano'"
                     @click="showModal('modal-2-movimiento'); obtenerIdCuenta(props.rowData.id)"
@@ -1423,7 +1424,8 @@ export default {
       }
     },
     searchingMedicamentos (search, loading) {
-      axios.get(apiUrl + '/medicamentos/list')
+      console.log('ok')
+      axios.get(apiUrl + '/medicamentos/list2')
         .then((response) => {
           this.medicamentos = response.data.map(medicamento => ({
             value: medicamento.id,
@@ -1473,6 +1475,7 @@ export default {
       } else {
         this.searchingComunes()
       }
+      this.formMe.id_medicine = null
     },
     onChangeMedicamento () {
       let medicine_ = this.medicamentos.find(med => med.value === this.formMe.id_medicine)

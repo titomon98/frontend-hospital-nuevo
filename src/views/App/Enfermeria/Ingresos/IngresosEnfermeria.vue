@@ -31,7 +31,7 @@
             <h4 class="card-title mt-3">Datos de ingreso</h4>
             <b-row class="ml-2">
               <b-col md="2">
-                <b-form-group label="Fecha:">
+                <b-form-group label="Fecha de ingreso:">
                   <b-form-input
                     type="date"
                     v-model.trim="$v.form.fecha.$model"
@@ -41,7 +41,7 @@
                 </b-form-group>
               </b-col>
               <b-col md="2">
-                <b-form-group label="Hora:">
+                <b-form-group label="Hora de ingreso:">
                   <b-form-input
                     type="time"
                     v-model.trim="$v.form.hora.$model"
