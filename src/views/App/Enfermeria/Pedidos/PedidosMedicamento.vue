@@ -28,6 +28,7 @@
             :reduce="med => med.value"
             :state="!$v.formMedicamento.id_medicine.$error"
             label='text'
+            placeholder="Seleccione el medicamento"
             @input="onChangeMedicamento"
           ></v-select>
           <label>{{this.existencias_selected_med}}</label>
@@ -268,7 +269,7 @@ export default {
   },
   methods: {
     fetchMedicamentos () {
-      axios.get(apiUrl + '/medicamentos/list')
+      axios.get(apiUrl + '/medicamentos/list2')
         .then((response) => {
           this.medicamentos = response.data.map(medicamento => ({
             value: medicamento.id,

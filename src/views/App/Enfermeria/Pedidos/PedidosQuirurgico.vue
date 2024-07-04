@@ -28,6 +28,7 @@
             :reduce="quir => quir.value"
             :state="!$v.formQuirurgico.id_quirurgico.$error"
             label="text"
+            placeholder="Seleccione el producto quirúrgico"
             @input="onChangeQuirurgico"
           ></v-select>
           <label>{{this.existencias_selected_qui}}</label>

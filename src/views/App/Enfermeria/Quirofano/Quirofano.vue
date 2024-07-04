@@ -152,9 +152,6 @@
         <b-form-group label="Cantidad:">
           <b-form-input
             type="number"
-            :min=1
-            :max="max_cant"
-            placeholder="Ingresar Cantidad"
           ></b-form-input>
         </b-form-group>
       </b-form>
@@ -301,25 +298,39 @@
       >
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
-      <b-form  @submit="$event.preventDefault()">
-        <b-form-group label="Ingresar el costo por hora y la duración (en horas) del uso de la sala de operaciones.">
-          <b-form-input
-            v-model.trim="salaOperaciones.precio"
-            placeholder="Ingresar el costo"
-            type="number"
-            required
-          ></b-form-input>
-        </b-form-group>
-        <b-form-group label="Ingresar el total de horas">
-          <b-form-input
-            v-model.trim="salaOperaciones.horas"
-            placeholder="horas"
-            type="number"
-            required
-          ></b-form-input>
-        </b-form-group>
-      </b-form>
+      <b-row class="ml-2">
+            <b-col md="6">
+              <b-form-group label="Categoria sala operaciones">
+                <b-form-radio v-model="salaOperaciones.categoria" value="Cirugia menor" @change="changeCheck" name="customRadio1">Cirugía menor</b-form-radio>
+                <b-form-radio v-model="salaOperaciones.categoria" value="Cirugia media" @change="changeCheck" name="customRadio1">Cirugía media</b-form-radio>
+                <b-form-radio v-model="salaOperaciones.categoria" value="Cirugia mayor" @change="changeCheck" name="customRadio1">Cirugía mayor </b-form-radio>
+                <b-form-radio v-model="salaOperaciones.categoria" value="Parto" @change="changeCheck" name="customRadio1">Parto</b-form-radio>
+                <b-form-radio v-model="salaOperaciones.categoria" value="Legrado" @change="changeCheck" name="customRadio1">Legrado</b-form-radio>
+              </b-form-group>
+            </b-col>
+            <b-col md="6">
+              <b-form-group v-if="isCirugiaMayorOMedia" label="Cobro Oximetro / Cauterio">
+                <b-form-checkbox v-model="salaOperaciones.oximetro" :disabled="isCirugiaMayorOMedia">Oxímetro </b-form-checkbox>
+                <b-form-checkbox v-model="salaOperaciones.cauterio" :disabled="isCirugiaMayorOMedia">Cauterio </b-form-checkbox>
+              </b-form-group>
+              <b-form-group v-if="!isCirugiaMayorOMedia" label="Oxímetro / Cauterio">
+                <b-form-checkbox v-model="salaOperaciones.oximetro" >Oxímetro</b-form-checkbox>
+                <b-form-checkbox v-model="salaOperaciones.cauterio" >Cauterio</b-form-checkbox>
+              </b-form-group>
+              <b-form-group label="Duración Horas : Minutos">
+                <b-row>
+                  <b-col md="6">
+                    <b-form-input type="number" v-model="salaOperaciones.horas" min="0" placeholder="Horas"></b-form-input>
+                  </b-col>
+                  <b-col md="6">
+                    <b-form-input type="number"  v-model.trim="$v.salaOperaciones.minutos.$model" :state="!$v.salaOperaciones.minutos.$error" :min=1 :max=59 placeholder="Minutos"></b-form-input>
+                  </b-col>
+                </b-row>
+              </b-form-group>
+            </b-col>
+      </b-row>
       <template #modal-footer>
+        <div class="ml-auto"> <span class="mr-2">Total: Q{{ TotalAPagar }}</span></div>
           <b-button variant="primary" @click="addSalaOperaciones()">Cobrar</b-button>
           <b-button variant="danger" @click="closeModal('sala-operaciones')">Cancelar</b-button>
         </template>
@@ -463,7 +474,7 @@
                   >Agregar honorarios</b-button>
 
                   <b-button
-                    @click="showModal('modal-ver-honorarios'); getDataHonorarios(props.rowData.id)"
+                   @click="showModal('modal-ver-honorarios'); getDataHonorarios(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="dark"
@@ -472,13 +483,18 @@
                   <b-button
                     @click="showModal('modal-sala-operaciones'); obtenerIdCuenta(props.rowData.id)"
                     class="mb-2 button-spacing"
-                    v-b-tooltip.top="'Agregar consumo'"
-                    @click="showModal('modal-1-movimiento'); obtenerIdCuenta(props.rowData.id)"
-                    class="mb-2"
                     size="sm"
-                    variant="outline-warning"
-                    ><i :class="'fas fa-pencil-alt'"
-                  /></b-button>
+                    variant="success"
+                  >Sala Operaciones</b-button>
+
+                  <b-button
+                    v-b-tooltip.top="'Aregar consumo'"
+                    @click="showModal('modal-1-movimiento'); obtenerIdCuenta(props.rowData.id)"
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="primary"
+                   >Agregar consumo</b-button>
+
                   <!-- <b-button
                     v-b-tooltip.top="'Aregar Insumos Quirofano'"
                     @click="showModal('modal-2-movimiento'); obtenerIdCuenta(props.rowData.id)"
@@ -497,7 +513,7 @@
                     variant="outline-warning"
                     ><i :class="'fas fa-pencil-alt'" style="color: #FFC107;"
                   /></b-button> -->
-              </b-button-group>
+                </div>
               </template>
               <!-- Paginacion -->
             </vuetable>
@@ -538,6 +554,7 @@ export default {
   },
   mounted () {
     xray.index()
+    this.cargarPreciosServicios()
   },
   data () {
     return {
@@ -699,9 +716,17 @@ export default {
       },
       currentExpedienteId: null,
       salaOperaciones: {
-        precio: null,
-        horas: null
+        oximetro: false,
+        cauterio: false,
+        horas: null,
+        minutos: null,
+        categoria: null
       },
+      preciosCategorias: {},
+      preciosServicios: {},
+      TotalAPagar: 0,
+      tiempoBase: 150,
+      tarifaHoraExtra: 0,
       Quirurgicos: [],
       formQui: {
         id_cuenta: 0,
@@ -719,7 +744,7 @@ export default {
         state: 1,
         precio_venta: 0,
         existencias_actuales: null,
-        movimiento: 'SALIDAQ'
+        movimiento: 'SALIDAH'
       },
       Comunes: [],
       formCom: {
@@ -744,10 +769,40 @@ export default {
         cantidad: {
           required
         }
+      },
+      salaOperaciones: {
+        minutos: {
+          required
+        },
+        categoria: {
+          required
+        }
       }
     }
   },
+  computed: {
+    isCirugiaMayorOMedia () {
+      return this.salaOperaciones.categoria === 'Cirugia media' || this.salaOperaciones.categoria === 'Cirugia mayor'
+    }
+  },
+
+  watch: {
+    'salaOperaciones.categoria': 'calcularTotalAPagar',
+    'salaOperaciones.oximetro': 'calcularTotalAPagar',
+    'salaOperaciones.cauterio': 'calcularTotalAPagar',
+    'salaOperaciones.horas': 'calcularTotalAPagar',
+    'salaOperaciones.minutos': 'calcularTotalAPagar'
+  },
   methods: {
+    changeCheck () {
+      if (!this.isCirugiaMayorOMedia) {
+        this.salaOperaciones.oximetro = false
+        this.salaOperaciones.cauterio = false
+      } else if (this.isCirugiaMayorOMedia) {
+        this.salaOperaciones.oximetro = true
+        this.salaOperaciones.cauterio = true
+      }
+    },
     openModal (modal, action) {
       switch (modal) {
         case 'save': {
@@ -840,9 +895,11 @@ export default {
         case 'sala-operaciones': {
           this.$v.$reset()
           this.$refs['modal-sala-operaciones'].hide()
-          this.form.id = 0
-          this.form.name = ''
-          this.form.state = 1
+          this.salaOperaciones.oximetro = false
+          this.salaOperaciones.cauterio = false
+          this.salaOperaciones.horas = null
+          this.salaOperaciones.minutos = null
+          this.salaOperaciones.categoria = null
           break
         }
         case 'save': {
@@ -889,6 +946,43 @@ export default {
       } else {
         this.alertErrorText = 'Revisa que todos los campos requeridos esten llenos'
         this.showAlertError()
+      }
+    },
+    async calcularTotalAPagar () {
+      try {
+        let total = 0
+        if (this.salaOperaciones.categoria) {
+          const response = await axios.get(apiUrl + `/Categorias_Sala_Operaciones/getSearch?search=${this.salaOperaciones.categoria}`)
+          console.log(response.data[0].precio)
+          total += parseFloat(response.data[0].precio)
+          this.tarifaHoraExtra = parseFloat(response.data[0].cobro_extra)
+        }
+
+        if (this.salaOperaciones.oximetro) total += parseFloat(this.preciosServicios['Oximetro']) || 0
+        if (this.salaOperaciones.cauterio) total += parseFloat(this.preciosServicios['Cauterio']) || 0
+
+        const horas = parseFloat(this.salaOperaciones.horas) || 0
+        const minutos = parseFloat(this.salaOperaciones.minutos) || 0
+        const tiempoTotalMinutos = horas * 60 + minutos
+
+        if (tiempoTotalMinutos > this.tiempoBase) {
+          total += parseFloat(this.tarifaHoraExtra) * Math.ceil((tiempoTotalMinutos - this.tiempoBase) / 60)
+        }
+        this.TotalAPagar = parseFloat(total)
+      } catch (error) {
+        console.error('Error al calcular el total a pagar:', error)
+        this.TotalAPagar = 0
+      }
+    },
+    async cargarPreciosServicios () {
+      try {
+        const response = await axios.get(apiUrl + '/servicios/get')
+        this.preciosServicios = response.data.reduce((acc, servicio) => {
+          acc[servicio.descripcion] = servicio.precio
+          return acc
+        }, {})
+      } catch (error) {
+        console.error('Error al obtener precios de servicios:', error)
       }
     },
     onSave () {
@@ -1088,20 +1182,31 @@ export default {
       }
     },
     addSalaOperaciones () {
-      try {
-        axios.post(apiUrl + '/salaOperaciones/created', {
-          precio: this.salaOperaciones.precio,
-          horas: this.salaOperaciones.horas,
-          id_cuenta: this.idCuentaSeleccionada
-        })
-        this.$refs['modal-sala-operaciones'].hide()
-        this.salaOperaciones = {
-          precio: null,
-          horas: null
+      if (this.salaOperaciones.minutos > 0) {
+        try {
+          axios.post(apiUrl + '/salaOperaciones/created', {
+            oximetro: this.salaOperaciones.oximetro,
+            cauterio: this.salaOperaciones.cauterio,
+            horas: this.salaOperaciones.horas,
+            minutos: this.salaOperaciones.minutos,
+            categoria: this.salaOperaciones.categoria,
+            id_cuenta: this.idCuentaSeleccionada
+          })
+          this.$refs['modal-sala-operaciones'].hide()
+          this.salaOperaciones = {
+            oximetro: false,
+            cauterio: false,
+            horas: null,
+            minutos: null,
+            categoria: null
+          }
+        } catch (error) {
+          console.error(error)
+          this.alertErrorText = 'Error al agregar honorarios'
+          this.showAlertError()
         }
-      } catch (error) {
-        console.error(error)
-        this.alertErrorText = 'Error al agregar honorarios'
+      } else {
+        this.alertErrorText = 'Debe ingresar el tiempo que se utilizo la sala.'
         this.showAlertError()
       }
     },
@@ -1331,7 +1436,8 @@ export default {
       }
     },
     searchingMedicamentos (search, loading) {
-      axios.get(apiUrl + '/medicamentos/list')
+      console.log('ok')
+      axios.get(apiUrl + '/medicamentos/list2')
         .then((response) => {
           this.medicamentos = response.data.map(medicamento => ({
             value: medicamento.id,
@@ -1369,12 +1475,7 @@ export default {
     searchingComunes (search, loading) {
       axios.get(apiUrl + '/comun/list'
       ).then((response) => {
-        this.medicamentos = response.data.map(medicamento => ({
-          value: medicamento.id,
-          text: medicamento.nombre,
-          existencias_actuales: medicamento.existencia_actual,
-          precio_venta: medicamento.precio_venta
-        }))
+        this.Quirurgicos = response.data
         loading(false)
       })
     },
@@ -1386,6 +1487,7 @@ export default {
       } else {
         this.searchingComunes()
       }
+      this.formMe.id_medicine = null
     },
     onChangeMedicamento () {
       let medicine_ = this.medicamentos.find(med => med.value === this.formMe.id_medicine)
