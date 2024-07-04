@@ -88,6 +88,17 @@
         "icon": "ri-wallet-3-fill"
       },
       {
+        "title": "Seguros",
+        "name": "Seguros",
+        "is_active": false,
+        "link": {
+          "name" : "caja.seguros"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-wallet-3-fill"
+      },
+      {
         "title": "Contratos",
         "name": "Contratos",
         "is_active": false,

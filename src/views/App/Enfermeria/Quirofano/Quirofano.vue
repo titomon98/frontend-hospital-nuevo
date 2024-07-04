@@ -494,7 +494,6 @@
                     size="sm"
                     variant="primary"
                   >Agregar medicamentos</b-button>
-                  
                   <!-- <b-button
                     v-b-tooltip.top="'Aregar Insumos Quirofano'"
                     @click="showModal('modal-2-movimiento'); obtenerIdCuenta(props.rowData.id)"
