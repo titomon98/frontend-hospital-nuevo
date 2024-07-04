@@ -40,6 +40,13 @@
               :options="aseguradoras"
               label="nombre"
               value="id"></v-select>
+        <div>Pacientes</div>
+        <v-select
+              ref="selectAseg"
+              v-model="selectedExp"
+              :options="expedientes"
+              label="nombres"
+              value="id"></v-select>
       </b-form>
       <template #modal-footer="{}">
         <b-button variant="primary" @click="onValidate('save')"
@@ -154,7 +161,7 @@
               </div>
             </template>
             <template v-slot:headerAction>
-            <b-button variant="primary" @click="getInsurancesCompanies()" v-b-modal.modal-1-create>AGREGAR NUEVO</b-button>
+            <b-button variant="primary" @click="getInsurancesCompanies(); getExpedients()" v-b-modal.modal-1-create>AGREGAR NUEVO</b-button>
           </template>
           <template v-slot:body>
             <datatable-heading
@@ -300,6 +307,8 @@ export default {
       apiBase: apiUrl + '/seguros/list',
       selectedAseg: null,
       aseguradoras: [],
+      expedientes: [],
+      selectedExp: null,
       fields: [
         {
           name: '__slot:actions',
@@ -368,7 +377,7 @@ export default {
     },
     onValidate (action) {
       this.$v.$touch()
-      if (this.selectedAseg !== null && this.poliza !== '' && this.nombreAsegurado !== '') {
+      if (this.selectedAseg !== null && this.poliza !== '' && this.nombreAsegurado !== '' && this.selectedExp !== null) {
         if (action === 'save') {
           this.onSave()
         } else if (action === 'update') {
@@ -389,7 +398,7 @@ export default {
     onSave () {
       const me = this
       axios.post(apiUrl + '/seguros/create', {
-        id_expediente: 1,
+        id_expediente: this.selectedExp,
         id_aseguradora: this.selectedAseg,
         no_poliza: this.poliza,
         nombre_asegurado: this.nombreAsegurado,
@@ -397,6 +406,12 @@ export default {
         correo_asegurado: this.correoAsegurado
       })
         .then((response) => {
+          me.selectAseg = null
+          me.selectedExp = null
+          me.no_poliza = ''
+          me.nombre_asegurado = ''
+          me.tel_asegurado = ''
+          me.correoAsegurado = ''
           me.alertVariant = 'success'
           me.showAlert()
           me.alertText = 'Se ha creado el contrato exitosamente'
@@ -515,6 +530,12 @@ export default {
     getInsurancesCompanies () {
       axios.get(apiUrl + '/aseguradoras/get').then((response) => {
         this.aseguradoras = response.data
+        console.log(response.data)
+      })
+    },
+    getExpedients () {
+      axios.get(apiUrl + '/expedientes/getAll').then((response) => {
+        this.expedientes = response.data
         console.log(response.data)
       })
     }
