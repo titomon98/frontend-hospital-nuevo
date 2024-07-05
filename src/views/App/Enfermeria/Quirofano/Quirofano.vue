@@ -323,7 +323,7 @@
                     <b-form-input type="number" v-model="salaOperaciones.horas" min="0" placeholder="Horas"></b-form-input>
                   </b-col>
                   <b-col md="6">
-                    <b-form-input type="number"  v-model.trim="$v.salaOperaciones.minutos.$model" :state="!$v.salaOperaciones.minutos.$error" :min=1 :max=59 placeholder="Minutos"></b-form-input>
+                    <b-form-input type="number"  v-model.trim="$v.salaOperaciones.minutos.$model" :min=1 :max=59 placeholder="Minutos"></b-form-input>
                   </b-col>
                 </b-row>
               </b-form-group>
@@ -1475,7 +1475,12 @@ export default {
     searchingComunes (search, loading) {
       axios.get(apiUrl + '/comun/list'
       ).then((response) => {
-        this.Quirurgicos = response.data
+        this.medicamentos = response.data.map(medicamento => ({
+          value: medicamento.id,
+          text: medicamento.nombre,
+          existencias_actuales: medicamento.existencia_actual,
+          precio_venta: medicamento.precio_venta
+        }))
         loading(false)
       })
     },
@@ -1491,6 +1496,7 @@ export default {
     },
     onChangeMedicamento () {
       let medicine_ = this.medicamentos.find(med => med.value === this.formMe.id_medicine)
+      console.log(medicine_)
       this.max_cant = medicine_.existencias_actuales
       this.existencias_selected_med = medicine_.existencias_actuales + ' unidades en existencia.'
       this.formMe.precio_venta = medicine_.precio_venta
