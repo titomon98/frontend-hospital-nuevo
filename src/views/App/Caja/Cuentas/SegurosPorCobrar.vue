@@ -600,7 +600,6 @@ export default {
             console.error('There was an error!', error)
           })
       }
-
     },
     makeQueryParams (sortOrder, currentPage, perPage) {
       return sortOrder[0]
