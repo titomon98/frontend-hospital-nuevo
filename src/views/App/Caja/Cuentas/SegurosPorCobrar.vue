@@ -189,6 +189,7 @@
               <template slot="actions" slot-scope="props">
                 <b-button-group>
                   <b-button
+                  v-if="props.rowData.solvente === 0"
                     v-b-tooltip.top="'Pagar'"
                     @click="
                       setData(props.rowData)

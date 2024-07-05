@@ -1167,6 +1167,7 @@ export default {
       this.getDataHonorarios(this.currentExpedienteId)
     },
     async obtenerIdCuenta (idExpediente) {
+      console.log("CUENTA")
       try {
         const response = await axios.get(apiUrl + `/cuentas/getSearch?search=${idExpediente}`)
         if (response.data && response.data.id) {
