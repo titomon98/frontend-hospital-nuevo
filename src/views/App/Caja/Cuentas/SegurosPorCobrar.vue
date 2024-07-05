@@ -515,7 +515,8 @@ export default {
           id: this.form.id
         })
         .then((response) => {
-          me.alertVariant = 'warning'
+          me.$refs['modal-2-pay'].hide()
+          me.alertVariant = 'info'
           me.showAlert()
           me.alertText = 'Se ha desactivado el banco ' + me.form.name + ' exitosamente'
           me.$refs.vuetable.refresh()

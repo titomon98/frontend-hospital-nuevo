@@ -606,6 +606,7 @@ export default {
               seguro: this.paymentType.Seguro,
               transferencia: this.paymentType.Transferencia,
               total: this.paymentSum,
+              id_seguro: this.selectAssurance.id,
               tipo: 'finiquito'
             })
             .then(
@@ -616,7 +617,8 @@ export default {
               this.paymentType.Cheque = 0,
               this.paymentType.Seguro = 0,
               this.paymentType.transferencia = 0,
-              this.paymentSum = 0
+              this.paymentSum = 0,
+              this.selectAssurance = null
             )
           me.alertVariant = 'info'
           me.showAlert()
