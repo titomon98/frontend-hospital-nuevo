@@ -423,7 +423,7 @@
         </b-tab>
         <b-tab title="Quirúrgico">
           <vuetable
-            ref="vuetableConsumoInsumos"
+            ref="vuetableConsumoQuirurgicos"
             class="table-divided table-responsive order-with-arrow"
             :api-url="apiBaseConsumoQuirurgico"
             :query-params="makeQueryParamsConsumoInsumo"
@@ -441,7 +441,7 @@
         </b-tab>
         <b-tab title="Común">
           <vuetable
-            ref="vuetableConsumoInsumos"
+            ref="vuetableConsumoComunes"
             class="table-divided table-responsive order-with-arrow"
             :api-url="apiBaseConsumoComun"
             :query-params="makeQueryParamsConsumoInsumo"
@@ -458,11 +458,6 @@
           />
         </b-tab>
       </b-tabs>
-      <template #modal-footer="{}">
-        <b-button variant="danger" @click="closeModal('ver-servicio')"
-          >Cancelar</b-button
-        >
-      </template>
     </b-modal>
     <b-row>
       <b-col md="12">
@@ -777,8 +772,8 @@ export default {
       ],
       fieldsConsumoInsumo: [
         {
-          name: 'consumo.descripcion',
-          sortField: 'consumo.descripcion',
+          name: 'descripcion',
+          sortField: 'descripcion',
           title: 'Nombre del insumo',
           dataClass: 'list-item-heading'
         },
@@ -789,8 +784,14 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
-          name: 'subtotal',
-          sortField: 'subtotal',
+          name: 'precio_venta',
+          sortField: 'precio_venta',
+          title: 'Precio unitario',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'total',
+          sortField: 'total',
           title: 'Subtotal',
           dataClass: 'list-item-heading'
         }
@@ -1032,6 +1033,16 @@ export default {
           this.formCom.quirurgico = null
           this.formCom.movimiento = 'SALIDAQ'
           this.existencias_selected_med = null
+          break
+        }
+        case 'ver-consumo': {
+          this.$v.$reset()
+          this.$refs['modal-ver-consumo'].hide()
+          this.form.id = 0
+          this.form.name = ''
+          this.form.state = 1
+          this.form.id_receta = null
+          this.form.selected_insumo = '0'
           break
         }
       }
@@ -1501,6 +1512,12 @@ export default {
     onChangePageConsumoInsumo (page) {
       this.$refs.vuetableConsumoInsumos.changePage(page)
     },
+    onChangePageConsumoQuirurgicos (page) {
+      this.$refs.vuetableConsumoQuirurgicos.changePage(page)
+    },
+    onChangePageConsumoComunes (page) {
+      this.$refs.vuetableConsumoComunes.changePage(page)
+    },
     getDataConsumoInsumos (id) {
       this.form.id = id
       this.apiBaseConsumoInsumo = apiUrl + `/consumos/getId?id=${id}`
@@ -1634,37 +1651,22 @@ export default {
       this.formMe.existencias_actuales = medicine_.existencias_actuales
     },
     async getConsumoMedicamentos (id) {
-
       try {
         const response = await axios.get(apiUrl + `/cuentas/getSearch?search=${id}`)
         if (response.data && response.data.id) {
           this.idCuentaSeleccionada = response.data.id
-          console.log(response.data.id),
-          this.apiBaseConsumoMedicamento = apiUrl + `/detalle_consumo_medicamentos/list/${response.data.id}`,
-          this.$refs['modal-ver-consumos'].show(),
-          console.log(this.form),
-          console.log('oka')
+          this.apiBaseConsumoMedicamento = apiUrl + `/detalle_consumo_medicamentos/list/${response.data.id}`
+          this.apiBaseConsumoQuirurgico = apiUrl + `/detalle_consumo_quirugicos/list/${response.data.id}`
+          this.apiBaseConsumoComun = apiUrl + `/detalle_consumo_comun/list/${response.data.id}`
+          this.$refs['modal-ver-consumos'].show()
         } else {
-          console.error('En AddHonorarios No se encontró ninguna cuenta para el expediente:', id)
+          console.error('No se encontró ninguna cuenta para el expediente:', id)
           this.alertErrorText = 'No se encontró ninguna cuenta para este paciente'
           this.showAlertError()
         }
       } catch (error) {
         console.error('Error al obtener la cuenta:', error)
       }
-      //this.form.id = id
-      /* axios.get(apiUrl + '/detalle_consumo_medicamentos/list',
-        {
-          params: {
-            id: id
-          }
-        }
-      ).then((response) => {
-        this.consumos = response.data
-        console.log(this.consumos)
-      }) */
-
-
     }
   }
 }
