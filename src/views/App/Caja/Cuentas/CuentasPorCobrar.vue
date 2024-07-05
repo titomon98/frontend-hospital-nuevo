@@ -58,7 +58,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-2-account" ref="modal-2-account" title="Egresar paciente" size="xl">
+    <b-modal id="modal-2-account" ref="modal-2-account" title="Pagar cuenta" size="xl">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -110,6 +110,13 @@
               <div v-if="selectedPayment.indexOf(5) !== -1">
                 Seguro
                 <b-input :type="'number'" id="InsuranceTypeInput" ref="InsuranceTypeInput" v-model="paymentType.Seguro" />
+                Seleccione un seguro
+                <v-select
+                  ref="selectAssurance"
+                  v-model="selectAssurance"
+                  :options="assurances"
+                  label="no_poliza"
+                  value="id"></v-select>
               </div>
               <div v-if="selectedPayment.indexOf(6) !== -1">
                 Transferencia
@@ -301,6 +308,8 @@ export default {
       perPage: 5,
       search: '',
       totPagado: 0,
+      assurances: [],
+      selectAssurance: null,
       form: {
         id: 0,
         nombres: '',
@@ -492,6 +501,7 @@ export default {
       this.totalPayment = data.pendiente_de_pago
       this.totPagado = data.total_pagado
       console.log(this.cuentas)
+      this.onLoadAssurances(data.id_expediente)
       //this.getCuentas(data.id)
     },
     /* Guardar */
@@ -566,6 +576,16 @@ export default {
           console.error('There was an error!', error)
         })
     },
+    onLoadAssurances (data) {
+      console.log(data)
+      axios.get(apiUrl + '/seguros/getByExp',{
+        params:{id_expediente: data}
+      })
+      .then((resp) => {
+        this.assurances = resp.data
+        console.log(resp)
+      })
+    },
     onPatientQuit () {
       this.paymentSum = parseFloat(this.paymentType.Efectivo) + parseFloat(this.paymentType.Tarjeta) + parseFloat(this.paymentType.Deposito) + parseFloat(this.paymentType.Cheque) + parseFloat(this.paymentType.Seguro) + parseFloat(this.paymentType.Transferencia)
       if (this.paymentSum !== parseFloat(this.totalPayment)) {
@@ -586,6 +606,7 @@ export default {
               seguro: this.paymentType.Seguro,
               transferencia: this.paymentType.Transferencia,
               total: this.paymentSum,
+              id_seguro: this.selectAssurance.id,
               tipo: 'finiquito'
             })
             .then(
@@ -596,7 +617,8 @@ export default {
               this.paymentType.Cheque = 0,
               this.paymentType.Seguro = 0,
               this.paymentType.transferencia = 0,
-              this.paymentSum = 0
+              this.paymentSum = 0,
+              this.selectAssurance = null
             )
           me.alertVariant = 'info'
           me.showAlert()

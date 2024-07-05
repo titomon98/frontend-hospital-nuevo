@@ -148,6 +148,34 @@
         >
       </template>
     </b-modal>
+    <b-modal id="modal-5-create" ref="modal-5-create" title="Agregar seguro">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <b-form @submit="$event.preventDefault()">
+        <b-form-group label="Nombre:">
+          <b-input id="placeName" ref="placeName" v-model="placeName" />
+        </b-form-group>
+        <b-form-group label="placePhone:">
+          <b-input id="placePhone" ref="placePhone" v-model="placePhone" />
+        </b-form-group>
+
+      </b-form>
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click="onValidateAseguradora()"
+          >Guardar</b-button
+        >
+        <b-button variant="danger" @click="closeModal('save')"
+          >Cancelar</b-button
+        >
+      </template>
+    </b-modal>
     <b-row>
       <b-col md="12">
         <iq-card>
@@ -161,7 +189,8 @@
               </div>
             </template>
             <template v-slot:headerAction>
-            <b-button variant="primary" @click="getInsurancesCompanies(); getExpedients()" v-b-modal.modal-1-create>AGREGAR NUEVO</b-button>
+            <b-button variant="primary" @click="getInsurancesCompanies(); getExpedients()" v-b-modal.modal-1-create>AGREGAR SEGURO</b-button>
+            <b-button variant="primary" @click="getInsurancesCompanies(); getExpedients()" v-b-modal.modal-5-create>AGREGAR ASEGURADORA</b-button>
           </template>
           <template v-slot:body>
             <datatable-heading
@@ -185,15 +214,20 @@
               @vuetable:pagination-data="onPaginationData"
             >
               <!-- Estado -->
-              <div slot="solvente" slot-scope="props">
+              <div slot="estado" slot-scope="props">
                 <h5 v-if="props.rowData.solvente == 1">
                   <b-badge variant="light"
                     ><h6 class="success"><strong>SOLVENTE</strong></h6></b-badge
                   >
                 </h5>
+                <h5 v-else-if="props.rowData.solvente == 0">
+                  <b-badge variant="light"
+                    ><h6 class="success"><strong>PENDIENTE DE PAGO</strong></h6></b-badge
+                  >
+                </h5>
                 <h5 v-else>
                   <b-badge variant="light"
-                    ><h6 class="danger"><strong>CON DEUDA</strong></h6></b-badge
+                    ><h6 class="danger"><strong>DESACTIVADO</strong></h6></b-badge
                   >
                 </h5>
               </div>
@@ -311,20 +345,44 @@ export default {
       selectedExp: null,
       fields: [
         {
-          name: '__slot:actions',
-          title: 'Acciones',
-          titleClass: '',
-          dataClass: 'text-muted'
+          name: 'expediente.nombres',
+          sortField: 'expediente.nombres',
+          title: 'Nombres',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'expediente.apellidos',
+          sortField: 'expediente.apellidos',
+          title: 'Apellidos',
+          dataClass: 'list-item-heading'
         },
         {
           name: 'no_poliza',
           sortField: 'no_poliza',
-          title: 'Póliza',
+          title: 'Numero de Póliza',
           dataClass: 'list-item-heading'
         },
         {
-          name: '__slot:solvente',
-          title: 'Solvente',
+          name: 'aseguradora.nombre',
+          sortField: 'aseguradora.nombre',
+          title: 'Aseguradora',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'aseguradora.telefono',
+          sortField: 'aseguradora.telefono',
+          title: 'Teléfono de la aseguradora',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'nombre_asegurado',
+          sortField: 'nombre_asegurado',
+          title: 'Persona asegurada',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: '__slot:estado',
+          title: 'Estado',
           titleClass: '',
           dataClass: 'text-muted',
           width: '25%'
@@ -373,6 +431,15 @@ export default {
           this.form.state = 1
           break
         }
+        case 'place': {
+          this.$v.$reset()
+          this.$refs['modal52-create'].hide()
+          this.form.id = 0
+          this.form.contrato = ''
+          this.form.nombre = ''
+          this.form.state = 1
+          break
+        }
       }
     },
     onValidate (action) {
@@ -395,6 +462,17 @@ export default {
       this.form.id = data.id
     },
     /* Guardar */
+    onValidateAseguradora () {
+      axios.post(apiUrl + '/aseguradoras/create', {
+        telefono: this.placePhone,
+        nombre: this.placeName
+      }).then((res) => {
+        this.$refs['modal-5-create'].hide()
+        this.alertVariant = 'success'
+        this.showAlert()
+        this.alertText = 'Se ha creado la aseguradora exitosamente'
+      })
+    },
     onSave () {
       const me = this
       axios.post(apiUrl + '/seguros/create', {
