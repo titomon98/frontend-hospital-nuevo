@@ -20,7 +20,6 @@
       >
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
-      <h6>¿Desea dar egreso al paciente {{this.form.nombres}} {{this.form.apellidos}}?</h6>
       <template>
         <div>
           <h6>Cuentas activas para {{this.form.nombres}} {{this.form.apellidos}}</h6>
@@ -45,6 +44,7 @@
                   </template>
                 </template>
               </b-table>
+              <div>Total por pagar: {{this.totalSUM}}</div>
               <b-form-group label="Seleccione métodos para pagar:" v-slot="{ ariaDescribedby }">
                 <b-form-checkbox-group
                   id="checkbox-group-1"
@@ -257,6 +257,7 @@ export default {
   data () {
     return {
       from: 0,
+      totalSUM: 0,
       to: 0,
       total: 0,
       perPage: 5,
@@ -488,11 +489,16 @@ export default {
       this.alertCountDownError = this.alertSecs
     },
     getCuentas (num) {
+      this.totalSUM = 0
       axios.get(apiUrl + '/cuentas/getByExp', {
         params: {
           id: num
         }
       }).then((response) => {
+        this.totalSUM = response.data
+          .map(item => item.pendiente_de_pago)
+          .reduce((sum, value) => sum + value, 0)
+
         this.cuentas = response.data
       })
     },

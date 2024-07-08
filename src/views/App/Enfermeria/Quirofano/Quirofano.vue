@@ -164,7 +164,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-ver-servicio" size="lg" ref="modal-ver-servicio" title="Ver consumos">
+    <b-modal id="modal-ver-servicio" size="lg" ref="modal-ver-servicio" title="Ver servicios">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -393,6 +393,72 @@
         >
       </template>
     </b-modal>
+    <b-modal id="modal-ver-consumos" size="lg" ref="modal-ver-consumos" title="Ver consumos">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <b-tabs content-class="mt-3">
+        <b-tab title="Medicamento" active>
+          <vuetable
+            ref="vuetableConsumoInsumos"
+            class="table-divided table-responsive order-with-arrow"
+            :api-url="apiBaseConsumoMedicamento"
+            :query-params="makeQueryParamsConsumoInsumo"
+            :per-page="perPage"
+            :reactive-api-url="true"
+            :fields="fieldsConsumoInsumo"
+
+          >
+          </vuetable>
+          <vuetable-pagination-bootstrap
+            ref="paginationConsumo"
+            @vuetable-pagination:change-page="onChangePageConsumo"
+          />
+        </b-tab>
+        <b-tab title="Quirúrgico">
+          <vuetable
+            ref="vuetableConsumoQuirurgicos"
+            class="table-divided table-responsive order-with-arrow"
+            :api-url="apiBaseConsumoQuirurgico"
+            :query-params="makeQueryParamsConsumoInsumo"
+            :per-page="perPage"
+            :reactive-api-url="true"
+            :fields="fieldsConsumoInsumo"
+            pagination-path
+            @vuetable:pagination-data="onPaginationDataConsumoInsumo"
+          >
+          </vuetable>
+          <vuetable-pagination-bootstrap
+            ref="paginationConsumo"
+            @vuetable-pagination:change-page="onChangePageConsumo"
+          />
+        </b-tab>
+        <b-tab title="Común">
+          <vuetable
+            ref="vuetableConsumoComunes"
+            class="table-divided table-responsive order-with-arrow"
+            :api-url="apiBaseConsumoComun"
+            :query-params="makeQueryParamsConsumoInsumo"
+            :per-page="perPage"
+            :reactive-api-url="true"
+            :fields="fieldsConsumoInsumo"
+            pagination-path
+            @vuetable:pagination-data="onPaginationDataConsumoInsumo"
+          >
+          </vuetable>
+          <vuetable-pagination-bootstrap
+            ref="paginationConsumo"
+            @vuetable-pagination:change-page="onChangePageConsumo"
+          />
+        </b-tab>
+      </b-tabs>
+    </b-modal>
     <b-row>
       <b-col md="12">
         <iq-card>
@@ -488,13 +554,20 @@
                   >Sala Operaciones</b-button>
 
                   <b-button
-                    v-b-tooltip.top="'Aregar consumo'"
+                    v-b-tooltip.top="'Agregar consumo'"
                     @click="showModal('modal-1-movimiento'); obtenerIdCuenta(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
-                    variant="primary"
+                    variant="dark"
                    >Agregar consumo</b-button>
 
+                  <b-button
+                    v-b-tooltip.top="'Ver consumos'"
+                    @click="getConsumoMedicamentos(props.rowData.id);"
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="success"
+                   >Ver consumo</b-button>
                   <!-- <b-button
                     v-b-tooltip.top="'Aregar Insumos Quirofano'"
                     @click="showModal('modal-2-movimiento'); obtenerIdCuenta(props.rowData.id)"
@@ -598,6 +671,9 @@ export default {
       apiBase: apiUrl + '/expedientes/listQuirofano',
       apiBaseReceta: '',
       apiBaseConsumo: '',
+      apiBaseConsumoMedicamento: '',
+      apiBaseConsumoQuirurgico: '',
+      apiBaseConsumoComun: '',
       fields: [
         {
           name: '__slot:actions',
@@ -691,6 +767,32 @@ export default {
           name: 'createdAt',
           sortField: 'createdAt',
           title: 'Creación',
+          dataClass: 'list-item-heading'
+        }
+      ],
+      fieldsConsumoInsumo: [
+        {
+          name: 'descripcion',
+          sortField: 'descripcion',
+          title: 'Nombre del insumo',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'cantidad',
+          sortField: 'cantidad',
+          title: 'Cantidad',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'precio_venta',
+          sortField: 'precio_venta',
+          title: 'Precio unitario',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'total',
+          sortField: 'total',
+          title: 'Subtotal',
           dataClass: 'list-item-heading'
         }
       ],
@@ -931,6 +1033,16 @@ export default {
           this.formCom.quirurgico = null
           this.formCom.movimiento = 'SALIDAQ'
           this.existencias_selected_med = null
+          break
+        }
+        case 'ver-consumo': {
+          this.$v.$reset()
+          this.$refs['modal-ver-consumo'].hide()
+          this.form.id = 0
+          this.form.name = ''
+          this.form.state = 1
+          this.form.id_receta = null
+          this.form.selected_insumo = '0'
           break
         }
       }
@@ -1374,6 +1486,42 @@ export default {
       this.form.id = id
       this.apiBaseConsumo = apiUrl + `/consumos/getId?id=${id}`
     },
+    makeQueryParamsConsumoInsumo (sortOrder, currentPage, perPage) {
+      return sortOrder[0]
+        ? {
+          criterio: sortOrder[0] ? sortOrder[0].sortField : 'createdAt',
+          order: sortOrder[0] ? sortOrder[0].direction : 'desc',
+          page: currentPage,
+          limit: this.perPage
+        }
+        : {
+          criterio: sortOrder[0] ? sortOrder[0].sortField : 'createdAt',
+          order: sortOrder[0] ? sortOrder[0].direction : 'desc',
+          page: currentPage,
+          limit: this.perPage
+        }
+    },
+    onPaginationDataConsumoInsumo (paginationData) {
+      this.fromP = paginationData.from
+      this.toP = paginationData.to
+      this.totalP = paginationData.total
+      this.lastPageP = paginationData.last_page
+      this.items = paginationData.data
+      this.$refs.paginationConsumoInsumo.setPaginationData(paginationData)
+    },
+    onChangePageConsumoInsumo (page) {
+      this.$refs.vuetableConsumoInsumos.changePage(page)
+    },
+    onChangePageConsumoQuirurgicos (page) {
+      this.$refs.vuetableConsumoQuirurgicos.changePage(page)
+    },
+    onChangePageConsumoComunes (page) {
+      this.$refs.vuetableConsumoComunes.changePage(page)
+    },
+    getDataConsumoInsumos (id) {
+      this.form.id = id
+      this.apiBaseConsumoInsumo = apiUrl + `/consumos/getId?id=${id}`
+    },
     makeQueryParamsHonorarios (sortOrder, currentPage, perPage) {
       return sortOrder[0]
         ? {
@@ -1421,7 +1569,7 @@ export default {
           const response2 = await axios.get(apiUrl + `/detalle_honorarios/getSearch?search=${idcuenta}&page=${this.pagination.currentPage}&limit=${this.pagination.perPage}`)
           this.onPaginationDataHonorarios(response2.data)
         } else {
-          console.error('En VerHonorarios No se encontró ninguna cuenta para el expediente:', idExpediente)
+          console.error('En Ver Honorarios No se encontró ninguna cuenta para el expediente:', idExpediente)
           this.alertErrorText = 'No se encontró ninguna cuenta para este paciente'
           this.showAlertError()
         }
@@ -1501,6 +1649,24 @@ export default {
       this.existencias_selected_med = medicine_.existencias_actuales + ' unidades en existencia.'
       this.formMe.precio_venta = medicine_.precio_venta
       this.formMe.existencias_actuales = medicine_.existencias_actuales
+    },
+    async getConsumoMedicamentos (id) {
+      try {
+        const response = await axios.get(apiUrl + `/cuentas/getSearch?search=${id}`)
+        if (response.data && response.data.id) {
+          this.idCuentaSeleccionada = response.data.id
+          this.apiBaseConsumoMedicamento = apiUrl + `/detalle_consumo_medicamentos/list/${response.data.id}`
+          this.apiBaseConsumoQuirurgico = apiUrl + `/detalle_consumo_quirugicos/list/${response.data.id}`
+          this.apiBaseConsumoComun = apiUrl + `/detalle_consumo_comun/list/${response.data.id}`
+          this.$refs['modal-ver-consumos'].show()
+        } else {
+          console.error('No se encontró ninguna cuenta para el expediente:', id)
+          this.alertErrorText = 'No se encontró ninguna cuenta para este paciente'
+          this.showAlertError()
+        }
+      } catch (error) {
+        console.error('Error al obtener la cuenta:', error)
+      }
     }
   }
 }

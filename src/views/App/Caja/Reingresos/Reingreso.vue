@@ -609,7 +609,7 @@ export default {
           me.alertVariant = 'danger'
           me.showAlertError()
           me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-          console.error('There was an error!', error)
+          console.error('There was an error!!', error)
         })
     },
     makeQueryParams (sortOrder, currentPage, perPage) {

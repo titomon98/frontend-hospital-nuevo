@@ -189,6 +189,7 @@
               <template slot="actions" slot-scope="props">
                 <b-button-group>
                   <b-button
+                  v-if="props.rowData.solvente === 0"
                     v-b-tooltip.top="'Pagar'"
                     @click="
                       setData(props.rowData)
@@ -514,7 +515,8 @@ export default {
           id: this.form.id
         })
         .then((response) => {
-          me.alertVariant = 'warning'
+          me.$refs['modal-2-pay'].hide()
+          me.alertVariant = 'info'
           me.showAlert()
           me.alertText = 'Se ha desactivado el banco ' + me.form.name + ' exitosamente'
           me.$refs.vuetable.refresh()
