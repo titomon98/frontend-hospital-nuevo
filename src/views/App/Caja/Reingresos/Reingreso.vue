@@ -572,7 +572,8 @@ export default {
           contacto_encargado: this.varContactoEncargado,
           cui_encargado: this.varCuiEncargado,
           parentesco_encargado: this.varParentescoEncargado,
-          estado_anterior: 2
+          estado_anterior: 2,
+          habitaciones: this.selectedHab.id
         })
         .then((response) => {
           me.alertVariant = 'info'

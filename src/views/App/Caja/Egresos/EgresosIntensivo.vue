@@ -538,7 +538,8 @@ export default {
               id: this.form.id,
               estado: this.selectedQuitOption,
               estado_anterior: 4,
-              motivo: this.motivoEgresoIntensivo
+              motivo: this.motivoEgresoIntensivo,
+              habitaciones: 0
             })
             .then((response) => {
               axios.put(apiUrl + '/habitaciones/available',
