@@ -142,7 +142,77 @@ import LiquidacionParent from '../views/App/Liquidaciones/LiquidacionesParent'
 // pacientes
 import PacientesParent from '../views/App/Pacientes/PacientesParent'
 
+// Laboratorio
+// Caja
+import Cortes from '../views/App/Laboratorio/Caja/Cortes.vue'
+import CuentasPorCobrar from '../views/App/Laboratorio/Caja/CuentasPorCobrar.vue'
+
+// Examenes
+import Examenes from '../views/App/Laboratorio/Examenes.vue'
+import ExamenesAlmacenados from '../views/App/Laboratorio/ExamenesAlmacenados.vue'
+
+// Estadistica
+import ExamenesInternos from '../views/App/Laboratorio/Estadisticas/ExamenesInternos.vue'
+import Incentivos from '../views/App/Laboratorio/Estadisticas/Incentivos.vue'
+
+// Inventario
+import Equipo from '../views/App/Laboratorio/Inventario/Equipo.vue'
+
+// Encargados
+import Encargados from '../views/App/Laboratorio/Encargados.vue'
+
 Vue.use(VueRouter)
+
+const LaboratorioRoutes = (prop, mode) => [
+  {
+    path: 'cortes',
+    name: prop + '.cortes',
+    meta: { dark: mode, auth: true, name: 'cortes' },
+    component: Cortes
+  },
+  {
+    path: 'cuentas',
+    name: prop + '.cuentas',
+    meta: { dark: mode, auth: true, name: 'cuentas' },
+    component: CuentasPorCobrar
+  },
+  {
+    path: 'examenes',
+    name: prop + '.examenes',
+    meta: { dark: mode, auth: true, name: 'examenes' },
+    component: Examenes
+  },
+  {
+    path: 'examenesalmacenados',
+    name: prop + '.examenesalmacenados',
+    meta: { dark: mode, auth: true, name: 'examenesalmacenados' },
+    component: ExamenesAlmacenados
+  },
+  {
+    path: 'examenesinternos',
+    name: prop + '.examenesinternos',
+    meta: { dark: mode, auth: true, name: 'examenesinternos' },
+    component: ExamenesInternos
+  },
+  {
+    path: 'incentivos',
+    name: prop + '.incentivos',
+    meta: { dark: mode, auth: true, name: 'incentivos' },
+    component: Incentivos
+  },
+  {
+    path: 'equipo',
+    name: prop + '.equipo',
+    meta: { dark: mode, auth: true, name: 'equipo' },
+    component: Equipo
+  },
+  {
+    path: 'encargados',
+    name: prop + '.encargados',
+    meta: { dark: mode, auth: true, name: 'encargados' },
+    component: Encargados
+  }
+]
 
 const AdminRoutes = (prop, mode) => [
   {
@@ -877,6 +947,13 @@ const pluginsChildRoute = (prop, mode = false) => [
 ]
 
 const routes = [
+  {
+    path: '/laboratorio',
+    name: 'laboratorio',
+    component: Layout1,
+    meta: { auth: true },
+    children: LaboratorioRoutes('laboratorio')
+  },
   {
     path: '/gerencia',
     name: 'gerencia',

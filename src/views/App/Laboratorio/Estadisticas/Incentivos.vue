@@ -238,7 +238,7 @@
       <b-col md="12">
         <iq-card>
             <template v-slot:headerTitle>
-              <h4 class="card-title mt-3">Exámenes realizados por laboratorio</h4>
+              <h4 class="card-title mt-3">Incentivos</h4>
                <div class="iq-search-bar mt-2">
                 <b-form action="#" class="searchbox">
                     <b-input id="search" placeholder="Buscar..." @input="(val) => searchChange(val)" />
@@ -329,17 +329,17 @@
   </b-container>
 </template>
 <script>
-import { xray } from '../../../config/pluginInit'
-import DatatableHeading from '../../Tables/DatatableHeading'
+import { xray } from '../../../../config/pluginInit'
+import DatatableHeading from '../../../Tables/DatatableHeading'
 import Vuetable from 'vuetable-2/src/components/Vuetable'
-import VuetablePaginationBootstrap from '../../../components/common/VuetablePaginationBootstrap'
+import VuetablePaginationBootstrap from '../../../../components/common/VuetablePaginationBootstrap'
 import useVuelidate from '@vuelidate/core'
 import { required } from '@vuelidate/validators'
 import axios from 'axios'
-import { apiUrl } from '../../../config/constant'
+import { apiUrl } from '../../../../config/constant'
 
 export default {
-  name: 'Examenes',
+  name: 'Incentivos',
   components: {
     vuetable: Vuetable,
     'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
