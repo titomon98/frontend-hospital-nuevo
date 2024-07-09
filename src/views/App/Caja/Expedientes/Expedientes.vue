@@ -536,6 +536,7 @@ export default {
         name: '',
         nombre: '',
         apellidos: '',
+        expediente: '',
         casada: '',
         nacimiento: null,
         cui: null,
@@ -782,6 +783,7 @@ export default {
       this.form.nombre_conyuge = data.nombre_conyuge
       this.form.direccion_conyuge = data.direccion_conyuge
       this.form.telefono_conyuge = data.telefono_conyuge
+      this.form.expediente = data.expediente
       this.form.state = data.estado
       this.form.id = data.id
       this.getCuentas(data.id)
