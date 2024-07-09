@@ -310,6 +310,7 @@ export default {
       totPagado: 0,
       assurances: [],
       selectAssurance: null,
+      expediente: 0,
       form: {
         id: 0,
         nombres: '',
@@ -500,6 +501,7 @@ export default {
       this.selectedAccount = data.id
       this.totalPayment = data.pendiente_de_pago
       this.totPagado = data.total_pagado
+      this.expediente = data.id_expediente
       console.log(this.cuentas)
       this.onLoadAssurances(data.id_expediente)
       //this.getCuentas(data.id)
@@ -593,7 +595,8 @@ export default {
         this.showAlertError()
       } else {
         let me = this
-
+        console.log(this.selectedAccount)
+        console.log(this.id_seguro)
         axios.put(apiUrl + '/cuentas/deactivate',
             {
               id: this.selectedAccount,
@@ -606,7 +609,8 @@ export default {
               seguro: this.paymentType.Seguro,
               transferencia: this.paymentType.Transferencia,
               total: this.paymentSum,
-              id_seguro: this.selectAssurance.id,
+              id_seguro: this.seguro>0?this.selectAssurance.id:0,
+              id_expediente: this.expediente,
               tipo: 'finiquito'
             })
             .then(
@@ -620,6 +624,9 @@ export default {
               this.paymentSum = 0,
               this.selectAssurance = null
             )
+            .catch((error)=>{
+              console.error(error)
+            })
           me.alertVariant = 'info'
           me.showAlert()
           me.alertText = 'Se ha egresado el paciente ' + me.form.nombres + ' exitosamente'
