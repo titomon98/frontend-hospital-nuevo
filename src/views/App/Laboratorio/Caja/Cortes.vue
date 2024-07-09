@@ -10,7 +10,7 @@
     >
       <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
-    <b-modal id="modal-1-equipo" ref="modal-1-equipo" title="Agregar equipo">
+    <b-modal id="modal-1-bank" ref="modal-1-bank" title="Agregar banco">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -23,67 +23,12 @@
       <b-form @submit="$event.preventDefault()">
         <b-form-group label="Nombre:">
           <b-form-input
-            v-model.trim="$v.form.nombre.$model"
-            :state="!$v.form.nombre.$error"
-            placeholder="Ingresar nombre del equipo"
+            v-model.trim="$v.form.name.$model"
+            :state="!$v.form.name.$error"
+            placeholder="Ingresar nombre del banco"
           ></b-form-input>
-          <div v-if="$v.form.nombre.required.$invalid" class="invalid-feedback">
+          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
             Debe ingresar el nombre
-          </div>
-        </b-form-group>
-        <b-form-group label="Cantidad de usos actual:">
-          <b-form-input
-            type="number"
-            v-model.trim="$v.form.cantidad_usos.$model"
-            :state="!$v.form.cantidad_usos.$error"
-            placeholder="Ingresar cantidad de usos actual del equipo"
-          ></b-form-input>
-          <div v-if="$v.form.cantidad_usos.required.$invalid" class="invalid-feedback">
-            Debe ingresar la cantidad de usos
-          </div>
-        </b-form-group>
-        <b-form-group label="Precio público:">
-          <b-form-input
-            type="number"
-            v-model.trim="$v.form.precio_publico.$model"
-            :state="!$v.form.precio_publico.$error"
-            placeholder="Ingresar precio público del equipo"
-          ></b-form-input>
-          <div v-if="$v.form.precio_publico.required.$invalid" class="invalid-feedback">
-            Debe ingresar el precio público
-          </div>
-        </b-form-group>
-        <b-form-group label="Gasto único:">
-          <b-form-input
-            type="number"
-            v-model.trim="$v.form.gasto_unico.$model"
-            :state="!$v.form.gasto_unico.$error"
-            placeholder="Ingresar gasto único del equipo"
-          ></b-form-input>
-          <div v-if="$v.form.gasto_unico.required.$invalid" class="invalid-feedback">
-            Debe ingresar el gasto único
-          </div>
-        </b-form-group>
-        <b-form-group label="Fecha de adquisición:">
-          <b-form-input
-            type="date"
-            v-model.trim="$v.form.fecha_adquisicion.$model"
-            :state="!$v.form.fecha_adquisicion.$error"
-            placeholder="Ingresar fecha de adquisición del equipo"
-          ></b-form-input>
-          <div v-if="$v.form.fecha_adquisicion.required.$invalid" class="invalid-feedback">
-            Debe ingresar la fecha de adquisición
-          </div>
-        </b-form-group>
-        <b-form-group label="Existencia:">
-          <b-form-input
-            type="number"
-            v-model.trim="$v.form.existencia.$model"
-            :state="!$v.form.existencia.$error"
-            placeholder="Ingresar existencia del equipo"
-          ></b-form-input>
-          <div v-if="$v.form.existencia.required.$invalid" class="invalid-feedback">
-            Debe ingresar la existencia
           </div>
         </b-form-group>
       </b-form>
@@ -96,7 +41,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-2-equipo" ref="modal-2-equipo" title="Editar equipo">
+    <b-modal id="modal-2-bank" ref="modal-2-bank" title="Editar banco">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -109,67 +54,12 @@
       <b-form @submit="$event.preventDefault()">
         <b-form-group label="Nombre:">
           <b-form-input
-            v-model.trim="$v.form.nombre.$model"
-            :state="!$v.form.nombre.$error"
-            placeholder="Ingresar nombre del equipo"
+            v-model.trim="$v.form.name.$model"
+            :state="!$v.form.name.$error"
+            placeholder="Ingresar nombre de banco"
           ></b-form-input>
-          <div v-if="$v.form.nombre.required.$invalid" class="invalid-feedback">
+          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
             Debe ingresar el nombre
-          </div>
-        </b-form-group>
-        <b-form-group label="Cantidad de usos actual:">
-          <b-form-input
-            type="number"
-            v-model.trim="$v.form.cantidad_usos.$model"
-            :state="!$v.form.cantidad_usos.$error"
-            placeholder="Ingresar cantidad de usos actual del equipo"
-          ></b-form-input>
-          <div v-if="$v.form.cantidad_usos.required.$invalid" class="invalid-feedback">
-            Debe ingresar la cantidad de usos
-          </div>
-        </b-form-group>
-        <b-form-group label="Precio público:">
-          <b-form-input
-            type="number"
-            v-model.trim="$v.form.precio_publico.$model"
-            :state="!$v.form.precio_publico.$error"
-            placeholder="Ingresar precio público del equipo"
-          ></b-form-input>
-          <div v-if="$v.form.precio_publico.required.$invalid" class="invalid-feedback">
-            Debe ingresar el precio público
-          </div>
-        </b-form-group>
-        <b-form-group label="Gasto único:">
-          <b-form-input
-            type="number"
-            v-model.trim="$v.form.gasto_unico.$model"
-            :state="!$v.form.gasto_unico.$error"
-            placeholder="Ingresar gasto único del equipo"
-          ></b-form-input>
-          <div v-if="$v.form.gasto_unico.required.$invalid" class="invalid-feedback">
-            Debe ingresar el gasto único
-          </div>
-        </b-form-group>
-        <b-form-group label="Fecha de adquisición:">
-          <b-form-input
-            type="date"
-            v-model.trim="$v.form.fecha_adquisicion.$model"
-            :state="!$v.form.fecha_adquisicion.$error"
-            placeholder="Ingresar fecha de adquisición del equipo"
-          ></b-form-input>
-          <div v-if="$v.form.fecha_adquisicion.required.$invalid" class="invalid-feedback">
-            Debe ingresar la fecha de adquisición
-          </div>
-        </b-form-group>
-        <b-form-group label="Existencia:">
-          <b-form-input
-            type="number"
-            v-model.trim="$v.form.existencia.$model"
-            :state="!$v.form.existencia.$error"
-            placeholder="Ingresar existencia del equipo"
-          ></b-form-input>
-          <div v-if="$v.form.existencia.required.$invalid" class="invalid-feedback">
-            Debe ingresar la existencia
           </div>
         </b-form-group>
       </b-form>
@@ -182,7 +72,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-3-equipo" ref="modal-3-equipo" title="Desactivar equipo">
+    <b-modal id="modal-3-bank" ref="modal-3-bank" title="Desactivar banco">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -193,22 +83,22 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6 class="my-4">
-        ¿Desea desactivar el equipo: {{ form.nombre }} ?
+        ¿Desea desactivar el banco: {{ form.name }} ?
       </h6>
       <template #modal-footer="{}">
         <b-button
           type="submit"
           variant="primary"
           @click="onState()
-                  $bvModal.hide('modal-3-equipo')"
+                  $bvModal.hide('modal-3-bank')"
           >Desactivar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-3-equipo')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-3-bank')"
           >Cancelar</b-button
         >
       </template>
     </b-modal>
-    <b-modal id="modal-4-equipo" ref="modal-4-equipo" title="Activar equipo">
+    <b-modal id="modal-4-bank" ref="modal-4-bank" title="Activar banco">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -219,17 +109,17 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6 class="my-4">
-        ¿Desea activar al equipo: {{ form.nombre }} ?
+        ¿Desea activar al banco: {{ form.name }} ?
       </h6>
       <template #modal-footer="{}">
         <b-button
           type="submit"
           variant="primary"
           @click="onState()
-                  $bvModal.hide('modal-4-equipo')"
+                  $bvModal.hide('modal-4-bank')"
           >Activar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-4-equipo')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-4-bank')"
           >Cancelar</b-button
         >
       </template>
@@ -238,7 +128,7 @@
       <b-col md="12">
         <iq-card>
             <template v-slot:headerTitle>
-              <h4 class="card-title mt-3">Exámenes realizados por laboratorio</h4>
+              <h4 class="card-title mt-3">Cortes</h4>
                <div class="iq-search-bar mt-2">
                 <b-form action="#" class="searchbox">
                     <b-input id="search" placeholder="Buscar..." @input="(val) => searchChange(val)" />
@@ -247,7 +137,7 @@
               </div>
             </template>
             <template v-slot:headerAction>
-            <b-button variant="primary"  v-b-modal.modal-1-equipo>AGREGAR NUEVO</b-button>
+            <b-button variant="primary"  v-b-modal.modal-1-bank>AGREGAR NUEVO</b-button>
           </template>
           <template v-slot:body>
             <datatable-heading
@@ -289,7 +179,7 @@
                   <b-button
                     v-b-tooltip.top="'Editar'"
                     @click="setData(props.rowData)"
-                    v-b-modal.modal-2-equipo
+                    v-b-modal.modal-2-bank
                     class="mb-2"
                     size="sm"
                     variant="outline-warning"
@@ -301,8 +191,8 @@
                     @click="
                       setData(props.rowData);
                       props.rowData.estado == 1
-                        ? $bvModal.show('modal-3-equipo')
-                        : $bvModal.show('modal-4-equipo');
+                        ? $bvModal.show('modal-3-bank')
+                        : $bvModal.show('modal-4-bank');
                     "
                     class="mb-2"
                     size="sm"
@@ -329,17 +219,17 @@
   </b-container>
 </template>
 <script>
-import { xray } from '../../../config/pluginInit'
-import DatatableHeading from '../../Tables/DatatableHeading'
+import { xray } from '../../../../config/pluginInit'
+import DatatableHeading from '../../../Tables/DatatableHeading'
 import Vuetable from 'vuetable-2/src/components/Vuetable'
-import VuetablePaginationBootstrap from '../../../components/common/VuetablePaginationBootstrap'
+import VuetablePaginationBootstrap from '../../../../components/common/VuetablePaginationBootstrap'
 import useVuelidate from '@vuelidate/core'
 import { required } from '@vuelidate/validators'
 import axios from 'axios'
-import { apiUrl } from '../../../config/constant'
+import { apiUrl } from '../../../../config/constant'
 
 export default {
-  name: 'Examenes',
+  name: 'Bank',
   components: {
     vuetable: Vuetable,
     'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
@@ -360,12 +250,7 @@ export default {
       search: '',
       form: {
         id: 0,
-        nombre: '',
-        cantidad_usos: 0,
-        precio_publico: 0.0,
-        gasto_unico: 0.0,
-        fecha_adquisicion: '',
-        existencia: 0,
+        name: '',
         state: 1
       },
       alertSecs: 5,
@@ -374,7 +259,7 @@ export default {
       alertText: '',
       alertErrorText: '',
       alertVariant: '',
-      apiBase: apiUrl + '/equipos/list',
+      apiBase: apiUrl + '/banco/list',
       fields: [
         {
           name: '__slot:actions',
@@ -384,32 +269,8 @@ export default {
         },
         {
           name: 'nombre',
-          sortField: 'nombre',
+          sortField: 'name',
           title: 'Nombre',
-          dataClass: 'list-item-heading'
-        },
-        {
-          name: 'cantidad_usos',
-          sortField: 'cantidad_usos',
-          title: 'Cantidad de usos',
-          dataClass: 'list-item-heading'
-        },
-        {
-          name: 'gasto_unico',
-          sortField: 'gasto_unico',
-          title: 'Gasto único',
-          dataClass: 'list-item-heading'
-        },
-        {
-          name: 'fecha_adquisicion',
-          sortField: 'fecha_adquisicion',
-          title: 'Fecha de adquisición',
-          dataClass: 'list-item-heading'
-        },
-        {
-          name: 'existencia',
-          sortField: 'existencia',
-          title: 'Existencia',
           dataClass: 'list-item-heading'
         },
         {
@@ -425,12 +286,7 @@ export default {
   validations () {
     return {
       form: {
-        nombre: { required },
-        cantidad_usos: { required },
-        precio_publico: { required },
-        gasto_unico: { required },
-        fecha_adquisicion: { required },
-        existencia: { required }
+        name: { required }
       }
     }
   },
@@ -440,12 +296,7 @@ export default {
         case 'save': {
           this.$v.$reset()
           this.form.id = 0
-          this.form.nombre = ''
-          this.form.cantidad_usos = 0
-          this.form.precio_publico = 0
-          this.form.gasto_unico = 0
-          this.form.fecha_adquisicion = ''
-          this.form.existencia = 0
+          this.form.name = ''
           this.form.state = 1
           break
         }
@@ -455,27 +306,17 @@ export default {
       switch (action) {
         case 'save': {
           this.$v.$reset()
-          this.$refs['modal-1-equipo'].hide()
+          this.$refs['modal-1-bank'].hide()
           this.form.id = 0
-          this.form.nombre = ''
-          this.form.cantidad_usos = 0
-          this.form.precio_publico = 0
-          this.form.gasto_unico = 0
-          this.form.fecha_adquisicion = ''
-          this.form.existencia = 0
+          this.form.name = ''
           this.form.state = 1
           break
         }
         case 'update': {
           this.$v.$reset()
-          this.$refs['modal-2-equipo'].hide()
+          this.$refs['modal-2-bank'].hide()
           this.form.id = 0
-          this.form.nombre = ''
-          this.form.cantidad_usos = 0
-          this.form.precio_publico = 0
-          this.form.gasto_unico = 0
-          this.form.fecha_adquisicion = ''
-          this.form.existencia = 0
+          this.form.name = ''
           this.form.state = 1
           break
         }
@@ -495,24 +336,19 @@ export default {
       }
     },
     setData (data) {
-      this.form.nombre = data.nombre
-      this.form.cantidad_usos = data.cantidad_usos
-      this.form.precio_publico = data.precio_publico
-      this.form.gasto_unico = data.gasto_unico
-      this.form.fecha_adquisicion = data.fecha_adquisicion
-      this.form.existencia = data.existencia
+      this.form.name = data.nombre
       this.form.state = data.estado
       this.form.id = data.id
     },
     /* Guardar */
     onSave () {
       const me = this
-      axios.post(apiUrl + '/equipos/create', {
+      axios.post(apiUrl + '/banco/create', {
         form: me.form })
         .then((response) => {
           me.alertVariant = 'success'
           me.showAlert()
-          me.alertText = 'Se ha creado el equipo ' + me.form.nombre + ' exitosamente'
+          me.alertText = 'Se ha creado el banco ' + me.form.name + ' exitosamente'
           me.$refs.vuetable.refresh()
           me.closeModal('save')
         })
@@ -527,12 +363,12 @@ export default {
     onUpdate () {
       const me = this
       // this.$refs["modalSave"].hide();
-      axios.put(apiUrl + '/equipos/update', {
+      axios.put(apiUrl + '/banco/update', {
         form: me.form })
         .then((response) => {
           me.alertVariant = 'primary'
           me.showAlert()
-          me.alertText = 'Se ha actualizado el equipo ' + me.form.nombre + ' exitosamente'
+          me.alertText = 'Se ha actualizado el banco ' + me.form.name + ' exitosamente'
           me.$refs.vuetable.refresh()
           me.closeModal('update')
         })
@@ -547,15 +383,15 @@ export default {
       let me = this
       if (this.form.state === 1) {
         axios
-          .put(apiUrl + '/equipos/deactivate', {
+          .put(apiUrl + '/banco/deactivate', {
             id: this.form.id
           })
           .then((response) => {
             me.alertVariant = 'warning'
             me.showAlert()
-            me.alertText = 'Se ha desactivado el equipo ' + me.form.nombre + ' exitosamente'
+            me.alertText = 'Se ha desactivado el banco ' + me.form.name + ' exitosamente'
             me.$refs.vuetable.refresh()
-            me.$refs['modal-3-equipo'].hide()
+            me.$refs['modal-3-bank'].hide()
           })
           .catch((error) => {
             me.alertVariant = 'danger'
@@ -565,15 +401,15 @@ export default {
           })
       } else {
         axios
-          .put(apiUrl + '/equipos/activate', {
+          .put(apiUrl + '/banco/activate', {
             id: this.form.id
           })
           .then((response) => {
             me.alertVariant = 'info'
             me.showAlert()
-            me.alertText = 'Se ha activado el equipo ' + me.form.nombre + ' exitosamente'
+            me.alertText = 'Se ha activado el banco ' + me.form.name + ' exitosamente'
             me.$refs.vuetable.refresh()
-            me.$refs['modal-4-equipo'].hide()
+            me.$refs['modal-4-bank'].hide()
           })
           .catch((error) => {
             me.alertVariant = 'danger'

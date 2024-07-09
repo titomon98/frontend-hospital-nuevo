@@ -285,7 +285,7 @@ import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
 
 export default {
-  name: 'CuentasPorCobrarHospital',
+  name: 'CuentasPorCobrarLab',
   components: {
     vuetable: Vuetable,
     'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
