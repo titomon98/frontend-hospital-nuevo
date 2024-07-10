@@ -1427,7 +1427,7 @@ export default {
           page: currentPage,
           limit: this.perPage
         }
-    },
+    }
   }
 }
 </script>

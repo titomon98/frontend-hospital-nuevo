@@ -564,6 +564,12 @@ export default {
     onState () {
       const today = new Date()
       let me = this
+      let habitacion = null
+      if (this.selectedHab == null) {
+        habitacion = 0
+      } else {
+        habitacion = this.selectedHab.id
+      }
       axios
         .put(apiUrl + '/expedientes/changeState', {
           id: this.form.id,
@@ -573,7 +579,7 @@ export default {
           cui_encargado: this.varCuiEncargado,
           parentesco_encargado: this.varParentescoEncargado,
           estado_anterior: 2,
-          habitaciones: this.selectedHab.id
+          habitaciones: habitacion
         })
         .then((response) => {
           me.alertVariant = 'info'
