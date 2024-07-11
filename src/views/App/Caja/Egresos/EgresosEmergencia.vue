@@ -536,7 +536,8 @@ export default {
           id: this.form.id,
           estado: this.selectedQuitOption,
           estado_anterior: 4,
-          motivo: this.motivoEgresoEmergencia
+          motivo: this.motivoEgresoEmergencia,
+          habitaciones: 0
         })
         .then((response) => {
           me.alertVariant = 'info'
