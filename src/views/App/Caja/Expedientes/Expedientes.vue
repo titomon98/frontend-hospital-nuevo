@@ -609,6 +609,7 @@ export default {
         direccion_conyuge: '',
         telefono_conyuge: '',
         selectedOption: 'hospi',
+        assignedDoctor: 0,
         tipo_paciente: '0',
         motivo: ' ',
         fecha: null,
@@ -792,6 +793,10 @@ export default {
           this.form.state = 1
           break
         }
+        case 'assignDoctor': {
+          this.$refs['modal-3-medico'].hide()
+          break
+        }
       }
     },
     onValidate (action) {
@@ -808,6 +813,7 @@ export default {
       }
     },
     setData (data) {
+      this.form.id = data.id
       this.form.name = data.nombres + ' ' + data.apellidos
       this.form.nombre = data.nombres
       this.form.apellidos = data.apellidos
@@ -983,14 +989,16 @@ export default {
       this.totPagado = items[0].total_pagado
     },
     onDoctorAssignment () {
-      axios.put(apiUrl + '/expedientes/update', {
+      this.form.assignedDoctor = this.selectedDoctor
+      console.log(this.form.id)
+      axios.put(apiUrl + '/expedientes/assignDoctor', {
         form: this.form })
         .then((response) => {
           this.alertVariant = 'primary'
           this.showAlert()
-          this.alertText = 'Se ha actualizado el expediente ' + this.form.nombre + ' exitosamente'
+          this.alertText = 'Se ha actualizado el expediente ' + this.form.expediente + ' exitosamente'
           this.$refs.vuetable.refresh()
-          this.closeModal('update')
+          this.closeModal('assignDoctor')
         })
         .catch((error) => {
           this.alertVariant = 'danger'
