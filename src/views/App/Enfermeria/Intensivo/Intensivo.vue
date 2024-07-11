@@ -20,32 +20,46 @@
       >
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
+      <h6 class="my-4">
+        ¿Desea trasladar el paciente: {{ form.nombres }} ?
+      </h6>
       <b-form @submit="$event.preventDefault()">
         <b-col >
           <b-form-group label="Área a la que desea trasladar:">
-            <b-form-radio
-              v-model="form.selectedOption"
-              value="hospi"
-              name="customRadio1"
-            >Hospitalización</b-form-radio>
-            <b-form-radio
-              v-model="form.selectedOption"
-              value="emergencia"
-              name="customRadio1"
-            >Emergencia</b-form-radio>
-            <b-form-radio
-              v-model="form.selectedOption"
-              value="quirofano"
-              name="customRadio1"
-            >Quirófano</b-form-radio>
+            <b-form-radio-group
+                      id="radio-group-2"
+                      v-model="selectedTrasOption"
+                      :options="optionsTraslado"
+                      name="radio-options"
+                    ></b-form-radio-group>
+            <div v-if="selectedTrasOption==1 || selectedTrasOption==4">
+              Habitación
+              <v-select
+              ref="selectHab"
+              v-model="selectedHab"
+              :options="habitaciones"
+              label="numero"
+              value="id"></v-select>
+            </div>
           </b-form-group>
         </b-col>
       </b-form>
+      <div>
+          Ingrese un motivo para el traslado
+        </div>
+        <div>
+          <b-input id="motivoTraslado" ref="motivoTraslado" v-model="motivoTrasladoIntensivo" />
+        </div>
       <template #modal-footer="{}">
-        <b-button variant="primary" @click="saveTraslado('traslado')"
-          >Guardar</b-button
+        <b-button
+          type="submit"
+          variant="primary"
+          @click="onRelocate()
+                  this.selectedHab = null
+          "
+          >Ingresar</b-button
         >
-        <b-button variant="danger" @click="closeModal('traslado')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-traslado')"
           >Cancelar</b-button
         >
       </template>
@@ -453,7 +467,9 @@
               <template slot="actions" slot-scope="props">
                 <div class="button-container">
                   <b-button
-                    @click="traslado(props.rowData.id)"
+                    @click="
+                    setData(props.rowData)
+                    traslado(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="dark"
@@ -553,6 +569,7 @@ export default {
     return { $v: useVuelidate() }
   },
   beforeMount () {
+    this.getHabitaciones(0)
     this.searchingMedicamentos()
   },
   mounted () {
@@ -580,9 +597,19 @@ export default {
       search: '',
       existencias_selected_med: null,
       max_cant: 0,
+      selectedTrasOption: 1,
+      selectedHab: null,
+      motivoTrasladoIntensivo: '',
+      habitaciones: [],
+      optionsTraslado: [
+        { text: 'Quirófano', value: 3 },
+        { text: 'Hospitalización', value: 1 },
+        { text: 'Emergencia', value: 5 }
+      ],
       form: {
         id: 0,
         name: '',
+        nombres: '',
         state: 1,
         selectedOption: 'hospi',
         receta: null,
@@ -1438,6 +1465,72 @@ export default {
       } catch (error) {
         console.error('Error al obtener la cuenta:', error)
       }
+    },
+    getHabitaciones (num) {
+      axios.get(apiUrl + '/habitaciones/get', {
+        params: {
+          tipo: num
+        }
+      }).then((response) => {
+        this.habitaciones = response.data
+        /* eslint-disable */console.log(...oo_oo(`2046176019_635_8_635_34_4`,response.data))
+      })
+    },
+    onState () {
+      let me = this
+      axios
+        .put(apiUrl + '/expedientes/changeState', {
+          id: this.form.id,
+          estado: this.selectedTrasOption,
+          estado_anterior: 4,
+          motivo: this.motivoTrasladoIntensivo
+        })
+        .then((response) => {
+          axios.put(apiUrl + '/habitaciones/available',
+            {
+              ocupante: this.form.id
+            }
+          )
+          me.alertVariant = 'info'
+          me.showAlert()
+          me.alertText = 'Se ha trasladado el paciente ' + me.form.nombres + ' exitosamente'
+          me.$refs.vuetable.refresh()
+          me.$refs['modal-traslado'].hide()
+          if (this.selectedTrasOption === 1 || this.selectedTrasOption === 4) {
+            axios
+              .put(apiUrl + '/habitaciones/inUse', {
+                id: this.selectedHab.id,
+                ocupante: this.form.id
+              })
+              .then((res) => {
+                this.selectedHab = null
+                /* eslint-disable */console.log(...oo_oo(`2046176019_511_16_511_45_4`,this.selectedHab))
+                this.getHabitaciones(0).then(me.$refs.selectHab.refresh())
+              })
+          }
+        })
+        .catch((error) => {
+          me.alertVariant = 'danger'
+          me.showAlertError()
+          me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+          console.error('There was an error!', error)
+        })
+    },
+    onRelocate (action) {
+      this.$v.$touch()
+      if (this.selectedHab === null && (this.selectedTrasOption === 1 || this.selectedTrasOption === 4)) {
+        this.alertErrorText = 'Revisa que todos los campos requeridos esten llenos'
+        this.showAlertError()
+      } else {
+        this.onState()
+        this.$bvModal.hide('modal-1-traslado-uci')
+      }
+    },
+    setData (data) {
+      this.form.name = data.nombres + ' ' + data.apellidos
+      this.form.apellidos = data.apellidos
+      this.form.state = data.estado
+      this.form.id = data.id
     }
   }
 }
