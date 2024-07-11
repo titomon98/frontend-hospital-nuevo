@@ -174,9 +174,7 @@
             <div>
               Motivo
               <b-form-input
-                v-model.trim="varMotivo"
-                :state="!varMotivoError"
-                placeholder="Ingresar motivo del ingreso">
+                v-model.trim="varMotivo">
               </b-form-input>
             </div>
             <div>
@@ -499,13 +497,6 @@ export default {
       this.$v.$touch()
       if (this.selectedHab === null && (this.selectedTrasOption === 1 || this.selectedTrasOption === 4)) {
         this.alertErrorText = 'Revisa que todos los campos requeridos esten llenos'
-        if (this.varMotivo === '') {
-          this.varMotivoError = 1
-        }
-        this.showAlertError()
-      } else if (this.varMotivo === '') {
-        this.alertErrorText = 'Revisa que todos los campos requeridos esten llenos'
-        this.varMotivoError = 1
         this.showAlertError()
       } else {
         this.onState()

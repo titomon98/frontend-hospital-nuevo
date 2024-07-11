@@ -98,7 +98,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-2-expediente" ref="modal-2-expediente" title="Editar expediente">
+    <b-modal id="modal-2-expediente" ref="modal-2-expediente" size="xl" title="Editar expediente">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -109,22 +109,328 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <b-form @submit="$event.preventDefault()">
-        <b-form-group label="Nombre:">
-          <b-form-input
-            v-model.trim="$v.form.name.$model"
-            :state="!$v.form.name.$error"
-            placeholder="Ingresar nombre de banco"
-          ></b-form-input>
-          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
-            Debe ingresar el nombre
-          </div>
-        </b-form-group>
+        <div>
+          <b-tabs content-class="mt-3">
+            <b-tab title="Paciente" active>
+              <b-row class="ml-2">
+                <b-col md="2">
+                  <b-form-group label="Nombre:">
+                    <span class="required-asterisk" style="position: absolute; top: 50%; transform: translateY(-50%); right: 5px; color: red;"></span>
+                    <b-form-input
+                      v-model.trim="$v.form.nombre.$model"
+                      :class="{'is-invalid': $v.form.nombre.$error}"
+                      placeholder="Ingresar nombre"
+                      required
+                    ></b-form-input>
+                    <div v-if="$v.form.nombre.$error" class="invalid-feedback">
+                      <div v-if="!$v.form.nombre.required.$error">Debe ingresar nombre</div>
+                      <div v-if="!$v.form.nombre.ValidateName.$error">El nombre solo debe contener letras mayúsculas y con tildes</div>
+                    </div>
+                  </b-form-group>
+                </b-col>
+                <b-col md="2">
+                  <b-form-group label="Apellidos:">
+                    <b-form-input
+                      v-model.trim="$v.form.apellidos.$model"
+                      :class="{'is-invalid': $v.form.apellidos.$error}"
+                      placeholder="Ingresar apellidos"
+                    ></b-form-input>
+                    <div v-if="$v.form.apellidos.required.$invalid" class="invalid-feedback">
+                      Ingresar los apellidos
+                    </div>
+                  </b-form-group>
+                </b-col>
+                <b-col md="2">
+                  <b-form-group label="Apellido de casada: ">
+                    <b-form-input
+                      v-model.trim="form.casada"
+                      placeholder="Ingresar apellido de casada"
+                    ></b-form-input>
+                  </b-form-group>
+                </b-col>
+                <b-col md="2">
+                  <b-form-group label="Fecha de nacimiento:">
+                    <b-form-input
+                      type="date"
+                      v-model.trim="$v.form.nacimiento.$model"
+                      :class="{'is-invalid': $v.form.nacimiento.$error}"
+                      placeholder="Ingresar fecha de nacimiento"
+                    ></b-form-input>
+                  </b-form-group>
+                </b-col>
+                <b-col md="2">
+                  <b-form-group label="Telefono:">
+                    <b-form-input
+                      v-model.trim="$v.form.telefono.$model"
+                      :class="{'is-invalid': $v.form.telefono.$error}"
+                      placeholder="Ingresar telefono"
+                    ></b-form-input>
+                    <div v-if="$v.form.telefono.required.$invalid" class="invalid-feedback">
+                      Debe ingresar el telefono
+                    </div>
+                    <div v-if="$v.form.telefono.numeric.$invalid" class="invalid-feedback">
+                      Debe ingresar unicamente numeros
+                    </div>
+                  </b-form-group>
+                </b-col>
+                <!-- columna -->
+                <b-col md="2">
+                  <b-form-group label="Sexo:">
+                    <v-select
+                      name="type"
+                      v-model="form.generos"
+                      :options="generos"
+                      placeholder="Seleccione el sexo"
+                    />
+                  </b-form-group>
+                </b-col>
+
+              </b-row>
+              <b-row class="ml-2">
+                <!-- columna -->
+                <b-col md="2">
+                  <b-form-group label="CUI:">
+                    <b-form-input
+                      v-model.trim="$v.form.cui.$model"
+                      :class="{'is-invalid': $v.form.cui.$error}"
+                      placeholder="Ingresar el CUI"
+                    ></b-form-input>
+                    <div v-if="$v.form.cui.$error" class="invalid-feedback">
+                      El valor del CUI debe ser numerico.
+                    </div>
+                    <div v-if="$v.form.cui.numeric.$invalid" class="invalid-feedback">
+                      Debe ingresar unicamente numeros
+                    </div>
+                  </b-form-group>
+                </b-col>
+                <b-col md="2">
+                  <b-form-group label="Nacionalidad:">
+                    <v-select
+                      name="type"
+                      v-model="form.nacionalidad"
+                      :options="nacionalidades"
+                      placeholder="Seleccione nacionalidad"
+                    />
+                  </b-form-group>
+                </b-col>
+                <b-col md="2">
+                  <b-form-group label="Dirección:">
+                    <b-form-input
+                      v-model.trim="$v.form.direccion.$model"
+                      :class="{'is-invalid': $v.form.direccion.$error}"
+                      placeholder="Ingresar dirección"
+                    ></b-form-input>
+                  </b-form-group>
+                </b-col>
+                <b-col md="2">
+                  <b-form-group label="Lugar de nacimiento:">
+                    <b-form-input
+                      v-model.trim="form.lugar_nacimiento"
+                      placeholder="Ingresar lugar de nacimiento"
+                    ></b-form-input>
+                  </b-form-group>
+                </b-col>
+                <b-col md="2">
+                  <b-form-group label="Profesión u oficio:">
+                    <b-form-input
+                      v-model.trim="form.profesion"
+                      placeholder="Ingresar profesión"
+                    ></b-form-input>
+                  </b-form-group>
+                </b-col>
+                <b-col md="2">
+                  <b-form-group label="Estado civil:">
+                    <v-select
+                      name="type"
+                      v-model="form.estado_civil"
+                      :options="estados_civiles"
+                      placeholder="Seleccione estado civil"
+                    />
+                  </b-form-group>
+                </b-col>
+              </b-row>
+              <b-row  class="ml-2">
+                <b-col md="2">
+                  <b-form-group label="Nombre del padre:">
+                    <b-form-input
+                      v-model.trim="form.nombre_padre"
+                      placeholder="Ingresar nombre del padre"
+                    ></b-form-input>
+                  </b-form-group>
+                </b-col>
+                <b-col md="2">
+                  <b-form-group label="Nombre de la madre:">
+                    <b-form-input
+                      v-model.trim="form.nombre_madre"
+                      placeholder="Ingresar nombre de la madre"
+                    ></b-form-input>
+                  </b-form-group>
+                </b-col>
+              </b-row>
+            </b-tab>
+            <b-tab title="Encargado">
+              <b-row class="ml-2">
+              <!-- columna -->
+              <b-col md="4">
+                <b-form-group label="Nombre:">
+                  <b-form-input
+                    v-model.trim="$v.form.nombre_encargado.$model"
+                    :class="{'is-invalid': $v.form.nombre_encargado.$error}"
+                    placeholder="Ingresar nombre"
+                  ></b-form-input>
+                  <div v-if="$v.form.nombre_encargado.required.$invalid" class="invalid-feedback">
+                    Debe ingresar el nombre del encargado
+                  </div>
+                </b-form-group>
+              </b-col>
+              <b-col md="2">
+                <b-form-group label="Telefono:">
+                  <b-form-input
+                    v-model.trim="$v.form.contacto_encargado.$model"
+                    :class="{'is-invalid': $v.form.contacto_encargado.$error}"
+                    placeholder="Ingresar telefono"
+                  ></b-form-input>
+                  <div v-if="$v.form.contacto_encargado.required.$invalid" class="invalid-feedback">
+                    Debe ingresar el telefono
+                  </div>
+                  <div v-if="$v.form.contacto_encargado.numeric.$invalid" class="invalid-feedback">
+                    Debe ingresar unicamente numeros
+                  </div>
+                </b-form-group>
+              </b-col>
+              <!-- columna -->
+              <b-col md="2">
+                <b-form-group label="CUI:">
+                  <b-form-input
+                    v-model.trim="$v.form.cui_encargado.$model"
+                    :class="{'is-invalid': $v.form.cui_encargado.$error}"
+                    placeholder="Ingresar el CUI"
+                  ></b-form-input>
+                  <div v-if="$v.form.cui_encargado.required.$invalid" class="invalid-feedback">
+                    Debe ingresar el CUI del encargado
+                  </div>
+                  <div v-if="$v.form.cui_encargado.$error" class="invalid-feedback">
+                    El valor del CUI debe ser numerico.
+                  </div>
+                </b-form-group>
+              </b-col>
+              <b-col md="2">
+                <b-form-group label="Estado civil:">
+                  <v-select
+                    name="type"
+                    v-model="form.estado_civil_encargado"
+                    :options="estados_civiles"
+                    placeholder="Seleccione estado civil de encargado"
+                  />
+                </b-form-group>
+              </b-col>
+              <b-col md="2">
+                <b-form-group label="Parentesco:">
+                  <v-select
+                    name="type"
+                    v-model="form.parentesco_encargado"
+                    :options="parentescos"
+                    placeholder="Seleccione parentesco"
+                  />
+                </b-form-group>
+              </b-col>
+              <!-- columna -->
+            </b-row>
+            <b-row class="ml-2">
+              <b-col md="4">
+                <b-form-group label="Dirección de encargado:">
+                  <b-form-input
+                    v-model.trim="form.direccion_encargado"
+                    placeholder="Ingresar dirección"
+                  ></b-form-input>
+                </b-form-group>
+              </b-col>
+              <b-col md="4">
+                <b-form-group label="Profesión u oficio de encargado:">
+                  <b-form-input
+                    v-model.trim="form.profesion_encargado"
+                    placeholder="Ingresar profesión u oficio"
+                  ></b-form-input>
+                </b-form-group>
+              </b-col>
+            </b-row>
+            </b-tab>
+            <b-tab title="Cónyugue">
+              <b-row class="ml-2">
+              <!-- columna -->
+              <b-col md="2">
+                <b-form-group label="Nombre:">
+                  <b-form-input
+                    v-model.trim="form.nombre_conyuge"
+                    placeholder="Ingresar nombre de conyuge"
+                  ></b-form-input>
+                </b-form-group>
+              </b-col>
+              <b-col md="2">
+                <b-form-group label="Telefono:">
+                  <b-form-input
+                    v-model.trim="form.telefono_conyuge"
+                    placeholder="Ingresar telefono de conyuge"
+                  ></b-form-input>
+                </b-form-group>
+              </b-col>
+              <!-- columna -->
+              <b-col md="4">
+                <b-form-group label="Dirección de conyuge:">
+                  <b-form-input
+                    v-model.trim="form.direccion_conyuge"
+                    placeholder="Ingresar dirección de conyuge"
+                  ></b-form-input>
+                </b-form-group>
+              </b-col>
+              <!-- columna -->
+            </b-row>
+          </b-tab>
+          </b-tabs>
+        </div>
       </b-form>
       <template #modal-footer="{}">
         <b-button variant="primary" @click="onValidate('update')"
           >Guardar</b-button
         >
         <b-button variant="danger" @click="closeModal('update')"
+          >Cancelar</b-button
+        >
+      </template>
+    </b-modal>
+    <b-modal id="modal-3-medico" ref="modal-3-medico" title="Asignar médico" size="md">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <template>
+        <div>
+          <b-card>
+            <b-card-body>
+              <v-select
+                name="type"
+                v-model = "selectedDoctor"
+                :options="doctors"
+                :reduce="doc => doc.value"
+                placeholder="Seleccione un médico"
+                label='text'
+                @search="onSearchMedicos"/>
+            </b-card-body>
+          </b-card>
+        </div>
+      </template>
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click="
+          onDoctorAssignment()
+        "
+          >Asignar</b-button
+        >
+        <b-button variant="danger" @click="$bvModal.hide('modal-3-medico')"
           >Cancelar</b-button
         >
       </template>
@@ -173,7 +479,7 @@
                 <button v-if="props.rowData.estado === 4" type="button" class="btn btn-success" disabled>INGRESADO EN INTENSIVO</button>
                 <button v-if="props.rowData.estado === 5" type="button" class="btn btn-success" disabled>INGRESADO EN EMERGENCIA</button>
                 <button v-if="props.rowData.estado === 6" type="button" class="btn btn-dark" disabled>DESAHUCIADO</button>
-                <button v-if="props.rowData.estado === 7" type="button" class="btn btn-dark" disabled>ALTA MÉDICOA</button>
+                <button v-if="props.rowData.estado === 7" type="button" class="btn btn-dark" disabled>ALTA MÉDICA</button>
                 <button v-if="props.rowData.estado === 8" type="button" class="btn btn-dark" disabled>EGRESO CONTRAINDICADO</button>
                 <button v-if="props.rowData.estado === 9" type="button" class="btn btn-dark" disabled>REFERIDO A OTRA UBICACIÓN</button>
                 <button v-if="props.rowData.estado === 10" type="button" class="btn btn-dark" disabled>PENDIENTE DE REGISTRO</button>
@@ -217,6 +523,16 @@
                     variant="outline-success"
                     ><i :class="'fas fa-money'"
                   /></b-button>
+                  <b-button
+                    v-b-tooltip.top="'Asignar médico'"
+                    @click="setData(props.rowData)
+                    $bvModal.show('modal-3-medico')
+                    getDoctors()"
+                    class="mb-2"
+                    size="sm"
+                    variant="outline-primary"
+                    ><i :class="'fas fa-stethoscope'"
+                  /></b-button>
                 </b-button-group>
               </template>
               <!-- Paginacion -->
@@ -237,7 +553,7 @@ import DatatableHeading from '../../../Tables/DatatableHeading'
 import Vuetable from 'vuetable-2/src/components/Vuetable'
 import VuetablePaginationBootstrap from '../../../../components/common/VuetablePaginationBootstrap'
 import useVuelidate from '@vuelidate/core'
-import { required } from '@vuelidate/validators'
+import { helpers, numeric, required } from '@vuelidate/validators'
 import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
 
@@ -265,8 +581,45 @@ export default {
       form: {
         id: 0,
         name: '',
-        state: 1
+        nombre: '',
+        apellidos: '',
+        expediente: '',
+        casada: '',
+        nacimiento: null,
+        cui: null,
+        nacionalidad: null,
+        telefono: '',
+        direccion: '',
+        generos: '',
+        nombre_encargado: '',
+        contacto_encargado: '',
+        parentesco_encargado: '',
+        state: 1,
+        id_usuario: null,
+        estado_civil: null,
+        profesion: '',
+        nombre_madre: '',
+        nombre_padre: '',
+        lugar_nacimiento: '',
+        estado_civil_encargado: null,
+        profesion_encargado: '',
+        direccion_encargado: '',
+        cui_encargado: '',
+        nombre_conyuge: '',
+        direccion_conyuge: '',
+        telefono_conyuge: '',
+        selectedOption: 'hospi',
+        tipo_paciente: '0',
+        motivo: ' ',
+        fecha: null,
+        hora: null
       },
+      selectedDoctor: [],
+      nacionalidades: ['Guatemala', 'El Salvador', 'México', 'Honduras', 'Belice', 'Otro'],
+      generos: ['Masculino', 'Femenino'],
+      parentescos: ['Padre/Madre', 'Hermano/a', 'Hijo/a', 'Cónyuge', 'Otro'],
+      estados_civiles: ['Soltero/a', 'Casado/a', 'Viudo/a', 'Separado/a', 'Divorciado/a', 'Otro'],
+      doctors: [],
       totPagado: 0,
       alertSecs: 5,
       alertCountDown: 0,
@@ -379,7 +732,38 @@ export default {
   validations () {
     return {
       form: {
-        name: { required }
+        name: { required },
+        nombre: {
+          required, ValidateName: helpers.regex(/^[A-ZÁÉÍÓÚÜÑ\s]+$/)
+        },
+        apellidos: {
+          required, ValidateName: helpers.regex(/^[A-ZÁÉÍÓÚÜÑ\s]+$/)
+        },
+        telefono: {
+          required, numeric
+        },
+        nacimiento: {
+          required
+        },
+        cui: {
+          numeric, required
+        },
+        direccion: {
+          required
+        },
+        nombre_encargado: {
+          required, ValidateName: helpers.regex(/^[A-ZÁÉÍÓÚÜÑ\s]+$/)
+        },
+        contacto_encargado: {
+          required,
+          numeric
+        },
+        cui_encargado: {
+          required, numeric
+        },
+        telefono_conyuge: {
+          numeric
+        }
       }
     }
   },
@@ -391,6 +775,9 @@ export default {
           this.form.id = 0
           this.form.name = ''
           this.form.state = 1
+          break
+        }
+        case 'update': {
           break
         }
       }
@@ -422,6 +809,30 @@ export default {
     },
     setData (data) {
       this.form.name = data.nombres + ' ' + data.apellidos
+      this.form.nombre = data.nombres
+      this.form.apellidos = data.apellidos
+      this.form.casada = data.casada
+      this.form.nacimiento = data.nacimiento
+      this.form.cui = data.cui
+      this.form.nacionalidad = data.nacionalidad
+      this.form.telefono = data.telefono
+      this.form.direccion = data.direccion
+      this.form.generos = data.generos
+      this.form.nombre_encargado = data.nombre_encargado
+      this.form.contacto_encargado = data.contacto_encargado
+      this.form.parentesco_encargado = data.parentesco_encargado
+      this.form.estado_civil = data.estado_civil
+      this.form.profesion = data.profesion
+      this.form.nombre_madre = data.nombre_madre
+      this.form.nombre_padre = data.nombre_padre
+      this.form.lugar_nacimiento = data.lugar_nacimiento
+      this.form.estado_civil_encargado = data.estado_civil_encargado
+      this.form.cui_encargado = data.cui_encargado
+      this.form.profesion_encargado = data.profesion_encargado
+      this.form.nombre_conyuge = data.nombre_conyuge
+      this.form.direccion_conyuge = data.direccion_conyuge
+      this.form.telefono_conyuge = data.telefono_conyuge
+      this.form.expediente = data.expediente
       this.form.state = data.estado
       this.form.id = data.id
       this.getCuentas(data.id)
@@ -502,6 +913,28 @@ export default {
         this.cuentas = response.data
       })
     },
+    getDoctors (search, loading) {
+      axios.get(apiUrl + '/medicos/getSearch',
+        {
+          params: {
+            search: search
+          }
+        }
+      ).then((response) => {
+        this.doctors = response.data.map(medico => ({
+          value: medico.id,
+          text: medico.nombre
+        }))
+        console.log(this.doctors)
+        loading(false)
+      })
+    },
+    onSearchMedicos (search, loading) {
+      if (search.length) {
+        loading(true)
+        this.getDoctors(search, loading)
+      }
+    },
     onPatientQuit () {
       this.paymentSum = parseFloat(this.paymentType.Efectivo) + parseFloat(this.paymentType.Tarjeta) + parseFloat(this.paymentType.Deposito) + parseFloat(this.paymentType.Cheque) + parseFloat(this.paymentType.Seguro)
       if (this.selectedAccount === null) {
@@ -548,6 +981,23 @@ export default {
       this.selectedAccount = items[0].id
       this.totalPayment = items[0].pendiente_de_pago
       this.totPagado = items[0].total_pagado
+    },
+    onDoctorAssignment () {
+      axios.put(apiUrl + '/expedientes/update', {
+        form: this.form })
+        .then((response) => {
+          this.alertVariant = 'primary'
+          this.showAlert()
+          this.alertText = 'Se ha actualizado el expediente ' + this.form.nombre + ' exitosamente'
+          this.$refs.vuetable.refresh()
+          this.closeModal('update')
+        })
+        .catch((error) => {
+          this.alertVariant = 'danger'
+          this.showAlertError()
+          this.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+          console.error('Error!', error)
+        })
     }
   }
 }

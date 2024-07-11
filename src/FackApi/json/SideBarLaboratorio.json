@@ -36,7 +36,7 @@
         "name": "Cortes",
         "is_active": false,
         "link": {
-          "name" : "caja.cortes_lab"
+          "name" : "laboratorio.cortes"
         },
         "class_name": "",
         "is_icon_class": true,
@@ -47,7 +47,7 @@
         "name": "Cuentas por cobrar",
         "is_active": false,
         "link": {
-          "name" : "caja.cuentas_lab"
+          "name" : "laboratorio.cuentas"
         },
         "class_name": "",
         "is_icon_class": true,
@@ -56,12 +56,12 @@
     ]
   },
   {
-    "title": "Exámenes",
-    "name": "Exámenes",
+    "title": "Exámenes realizados",
+    "name": "Exámenes realizados",
     "is_heading": false,
     "is_active": false,
     "link": {
-      "name" : "examenes.examenesparent"
+      "name" : "laboratorio.examenes"
     },
     "class_name": "",
     "is_icon_class": true,
@@ -83,7 +83,7 @@
         "name": "Exámenes internos",
         "is_active": false,
         "link": {
-          "name" : "estadistica.estadistica_internos"
+          "name" : "laboratorio.examenesinternos"
         },
         "class_name": "",
         "is_icon_class": true,
@@ -94,13 +94,25 @@
         "name": "Incentivos",
         "is_active": false,
         "link": {
-          "name" : "estadistica.estadistica_incentivos"
+          "name" : "laboratorio.incentivos"
         },
         "class_name": "",
         "is_icon_class": true,
         "icon": "ri-shopping-cart-fill"
       }
     ]
+  },
+  {
+    "title": "Exámenes disponibles",
+    "name": "Exámenes disponibles",
+    "is_heading": false,
+    "is_active": false,
+    "link": {
+      "name" : "laboratorio.examenesalmacenados"
+    },
+    "class_name": "",
+    "is_icon_class": true,
+    "icon": "ri-briefcase-4-fill"
   },
   {
     "title": "Inventario",
@@ -108,34 +120,11 @@
     "is_heading": false,
     "is_active": false,
     "link": {
+      "name" : "laboratorio.equipo"
     },
     "class_name": "",
     "is_icon_class": true,
-    "icon": "ri-briefcase-4-fill",
-    "children": [
-      {
-        "title": "Insumos",
-        "name": "Insumos",
-        "is_active": false,
-        "link": {
-          "name" : "inventario.insumos"
-        },
-        "class_name": "",
-        "is_icon_class": true,
-        "icon": "ri-shopping-cart-fill"
-      },
-      {
-        "title": "Equipos de laboratorio",
-        "name": "Equipos de laboratorio",
-        "is_active": false,
-        "link": {
-          "name" : "inventario.equipos"
-        },
-        "class_name": "",
-        "is_icon_class": true,
-        "icon": "ri-shopping-cart-fill"
-      }
-    ]
+    "icon": "ri-briefcase-4-fill"
   },
   {
     "title": "Encargados",
@@ -143,7 +132,7 @@
     "is_heading": false,
     "is_active": false,
     "link": {
-      "name" : "encargados.encargadosparent"
+      "name" : "laboratorio.encargados"
     },
     "class_name": "",
     "is_icon_class": true,
