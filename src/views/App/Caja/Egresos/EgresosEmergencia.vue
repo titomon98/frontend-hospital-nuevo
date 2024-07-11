@@ -449,7 +449,7 @@ export default {
       }
     },
     setData (data) {
-      this.form.name = data.nombres
+      this.form.name = data.nombres + ' ' + data.apellidos
       this.form.apellidos = data.apellidos
       this.form.state = data.estado
       this.form.id = data.id
@@ -530,29 +530,27 @@ export default {
         })
     },
     onPatientQuit () {
-
-          let me = this
-          axios
-            .put(apiUrl + '/expedientes/changeState', {
-              id: this.form.id,
-              estado: this.selectedQuitOption,
-              estado_anterior: 4,
-              motivo: this.motivoEgresoEmergencia
-            })
-            .then((response) => {
-              me.alertVariant = 'info'
-              me.showAlert()
-              me.alertText = 'Se ha egresado el paciente ' + me.form.nombres + ' exitosamente'
-              me.$refs.vuetable.refresh()
-              me.$refs['modal-2-egreso'].hide()
-            })
-            .catch((error) => {
-              me.alertVariant = 'danger'
-              me.showAlertError()
-              me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-              console.error('There was an error!', error)
-            })
-
+      let me = this
+      axios
+        .put(apiUrl + '/expedientes/changeState', {
+          id: this.form.id,
+          estado: this.selectedQuitOption,
+          estado_anterior: 4,
+          motivo: this.motivoEgresoEmergencia
+        })
+        .then((response) => {
+          me.alertVariant = 'info'
+          me.showAlert()
+          me.alertText = 'Se ha egresado el paciente ' + me.form.nombres + ' exitosamente'
+          me.$refs.vuetable.refresh()
+          me.$refs['modal-2-egreso'].hide()
+        })
+        .catch((error) => {
+          me.alertVariant = 'danger'
+          me.showAlertError()
+          me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+          console.error('There was an error!', error)
+        })
     },
     makeQueryParams (sortOrder, currentPage, perPage) {
       return sortOrder[0]
