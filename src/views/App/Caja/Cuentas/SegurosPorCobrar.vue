@@ -452,7 +452,7 @@ export default {
       this.totalPayment = data.pendiente_de_pago
       this.totPagado = data.total_pagado
       console.log(this.cuentas)
-      //this.getCuentas(data.id)
+      // this.getCuentas(data.id)
     },
     /* Guardar */
     onSave () {
