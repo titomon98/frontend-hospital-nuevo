@@ -564,36 +564,36 @@ export default {
         let me = this
 
         axios.put(apiUrl + '/cuentas/deactivate',
-            {
-              id: this.selectedAccount,
-              total_pagado: parseFloat(this.totPagado) + parseFloat(this.paymentSum),
-              pendiente_de_pago: parseFloat(parseFloat(this.totalPayment) - parseFloat(this.paymentSum)),
-              efectivo: this.paymentType.Efectivo,
-              tarjeta: this.paymentType.Tarjeta,
-              deposito: this.paymentType.Deposito,
-              cheque: this.paymentType.Cheque,
-              seguro: this.paymentType.Seguro,
-              transferencia: this.paymentType.Transferencia,
-              total: this.paymentSum,
-              tipo: 'finiquito'
-            })
-            .then(
-              this.selectedAccount = null,
-              this.paymentType.Efectivo = 0,
-              this.paymentType.Tarjeta = 0,
-              this.paymentType.Deposito = 0,
-              this.paymentType.Cheque = 0,
-              this.paymentType.Seguro = 0,
-              this.paymentType.transferencia = 0,
-              this.paymentSum = 0
-            )
-          me.alertVariant = 'info'
-          me.showAlert()
-          me.alertText = 'Se ha egresado el paciente ' + me.form.nombres + ' exitosamente'
-          me.$refs.vuetable.refresh()
-          me.$refs['modal-2-pay'].hide()
+          {
+            id: this.selectedAccount,
+            total_pagado: parseFloat(this.totPagado) + parseFloat(this.paymentSum),
+            pendiente_de_pago: parseFloat(parseFloat(this.totalPayment) - parseFloat(this.paymentSum)),
+            efectivo: this.paymentType.Efectivo,
+            tarjeta: this.paymentType.Tarjeta,
+            deposito: this.paymentType.Deposito,
+            cheque: this.paymentType.Cheque,
+            seguro: this.paymentType.Seguro,
+            transferencia: this.paymentType.Transferencia,
+            total: this.paymentSum,
+            tipo: 'finiquito'
+          })
+          .then(
+            this.selectedAccount = null,
+            this.paymentType.Efectivo = 0,
+            this.paymentType.Tarjeta = 0,
+            this.paymentType.Deposito = 0,
+            this.paymentType.Cheque = 0,
+            this.paymentType.Seguro = 0,
+            this.paymentType.transferencia = 0,
+            this.paymentSum = 0
+          )
+        me.alertVariant = 'info'
+        me.showAlert()
+        me.alertText = 'Se ha egresado el paciente ' + me.form.nombres + ' exitosamente'
+        me.$refs.vuetable.refresh()
+        me.$refs['modal-2-pay'].hide()
 
-        .catch((error) => {
+          .catch((error) => {
             me.alertVariant = 'danger'
             me.showAlertError()
             me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
