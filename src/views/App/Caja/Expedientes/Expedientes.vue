@@ -398,6 +398,43 @@
         >
       </template>
     </b-modal>
+    <b-modal id="modal-3-medico" ref="modal-3-medico" title="Asignar médico" size="md">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <template>
+        <div>
+          <b-card>
+            <b-card-body>
+              <v-select
+                name="type"
+                v-model = "selectedDoctor"
+                :options="doctors"
+                :reduce="doc => doc.value"
+                placeholder="Seleccione un médico"
+                label='text'
+                @search="onSearchMedicos"/>
+            </b-card-body>
+          </b-card>
+        </div>
+      </template>
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click="
+          onDoctorAssignment()
+        "
+          >Asignar</b-button
+        >
+        <b-button variant="danger" @click="$bvModal.hide('modal-3-medico')"
+          >Cancelar</b-button
+        >
+      </template>
+    </b-modal>
     <b-row>
       <b-col md="12">
         <iq-card>
@@ -486,6 +523,16 @@
                     variant="outline-success"
                     ><i :class="'fas fa-money'"
                   /></b-button>
+                  <b-button
+                    v-b-tooltip.top="'Asignar médico'"
+                    @click="setData(props.rowData)
+                    $bvModal.show('modal-3-medico')
+                    getDoctors()"
+                    class="mb-2"
+                    size="sm"
+                    variant="outline-primary"
+                    ><i :class="'fas fa-stethoscope'"
+                  /></b-button>
                 </b-button-group>
               </template>
               <!-- Paginacion -->
@@ -562,15 +609,18 @@ export default {
         direccion_conyuge: '',
         telefono_conyuge: '',
         selectedOption: 'hospi',
+        assignedDoctor: 0,
         tipo_paciente: '0',
         motivo: ' ',
         fecha: null,
         hora: null
       },
+      selectedDoctor: [],
       nacionalidades: ['Guatemala', 'El Salvador', 'México', 'Honduras', 'Belice', 'Otro'],
       generos: ['Masculino', 'Femenino'],
       parentescos: ['Padre/Madre', 'Hermano/a', 'Hijo/a', 'Cónyuge', 'Otro'],
       estados_civiles: ['Soltero/a', 'Casado/a', 'Viudo/a', 'Separado/a', 'Divorciado/a', 'Otro'],
+      doctors: [],
       totPagado: 0,
       alertSecs: 5,
       alertCountDown: 0,
@@ -743,6 +793,10 @@ export default {
           this.form.state = 1
           break
         }
+        case 'assignDoctor': {
+          this.$refs['modal-3-medico'].hide()
+          break
+        }
       }
     },
     onValidate (action) {
@@ -759,6 +813,7 @@ export default {
       }
     },
     setData (data) {
+      this.form.id = data.id
       this.form.name = data.nombres + ' ' + data.apellidos
       this.form.nombre = data.nombres
       this.form.apellidos = data.apellidos
@@ -864,6 +919,28 @@ export default {
         this.cuentas = response.data
       })
     },
+    getDoctors (search, loading) {
+      axios.get(apiUrl + '/medicos/getSearch',
+        {
+          params: {
+            search: search
+          }
+        }
+      ).then((response) => {
+        this.doctors = response.data.map(medico => ({
+          value: medico.id,
+          text: medico.nombre
+        }))
+        console.log(this.doctors)
+        loading(false)
+      })
+    },
+    onSearchMedicos (search, loading) {
+      if (search.length) {
+        loading(true)
+        this.getDoctors(search, loading)
+      }
+    },
     onPatientQuit () {
       this.paymentSum = parseFloat(this.paymentType.Efectivo) + parseFloat(this.paymentType.Tarjeta) + parseFloat(this.paymentType.Deposito) + parseFloat(this.paymentType.Cheque) + parseFloat(this.paymentType.Seguro)
       if (this.selectedAccount === null) {
@@ -910,6 +987,25 @@ export default {
       this.selectedAccount = items[0].id
       this.totalPayment = items[0].pendiente_de_pago
       this.totPagado = items[0].total_pagado
+    },
+    onDoctorAssignment () {
+      this.form.assignedDoctor = this.selectedDoctor
+      console.log(this.form.id)
+      axios.put(apiUrl + '/expedientes/assignDoctor', {
+        form: this.form })
+        .then((response) => {
+          this.alertVariant = 'primary'
+          this.showAlert()
+          this.alertText = 'Se ha actualizado el expediente ' + this.form.expediente + ' exitosamente'
+          this.$refs.vuetable.refresh()
+          this.closeModal('assignDoctor')
+        })
+        .catch((error) => {
+          this.alertVariant = 'danger'
+          this.showAlertError()
+          this.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+          console.error('Error!', error)
+        })
     }
   }
 }
