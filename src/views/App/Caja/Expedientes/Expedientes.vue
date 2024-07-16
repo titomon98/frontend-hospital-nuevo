@@ -471,7 +471,6 @@
               @vuetable:pagination-data="onPaginationData"
             >
               <!-- Estado -->
-              <!-- Estado -->
               <div slot="estado" slot-scope="props">
                 <button v-if="props.rowData.estado === 1" type="button" class="btn btn-success" disabled>INGRESADO EN HOSPITAL</button>
                 <button v-if="props.rowData.estado === 2" type="button" class="btn btn-warning" disabled>EGRESADO</button>
@@ -694,6 +693,11 @@ export default {
           name: 'expediente',
           sortField: 'expediente',
           title: 'Expediente',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'medico.nombre',
+          title: 'Médico asignado',
           dataClass: 'list-item-heading'
         },
         {

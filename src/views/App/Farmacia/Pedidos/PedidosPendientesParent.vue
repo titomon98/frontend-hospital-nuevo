@@ -26,7 +26,6 @@
             striped hover
             :items="form.pedido_detail"
             :fields="pedido_detail_fields">
-
           </b-table>
         </div>
       </template>
@@ -205,6 +204,11 @@ export default {
         {
           key: 'comune.nombre',
           label: 'Material común',
+          sortable: true
+        },
+        {
+          key: 'estado',
+          label: 'Surtido',
           sortable: true
         }
       ],
