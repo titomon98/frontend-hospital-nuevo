@@ -530,7 +530,8 @@ export default {
               id: this.form.id,
               estado: this.selectedQuitOption,
               estado_anterior: 1,
-              motivo: this.motivoEgresoHospi
+              motivo: this.motivoEgresoHospi,
+              habitaciones: 0
             })
             .then((response) => {
               this.motivoEgresoHospi = ''

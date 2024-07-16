@@ -1520,9 +1520,8 @@ export default {
         this.$bvModal.hide('modal-traslado')
       }
     },
-
+    }
   }
-}
 </script>
 <style>
 .custom-editor {
