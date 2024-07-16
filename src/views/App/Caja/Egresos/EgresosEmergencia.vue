@@ -329,7 +329,7 @@ export default {
       selectedAccount: null,
       totalPayment: 0,
       cuentas: [],
-      selectedQuitOption: 6,
+      selectedQuitOption: 0,
       optionsQuit: [
         { text: 'Fallecido', value: 0 },
         { text: 'Egreso normal', value: 7 },
@@ -440,7 +440,7 @@ export default {
     },
     onValidate (action) {
       this.$v.$touch()
-      if (this.selectedHab === null && (this.selectedTrasOption === 1 || this.selectedTrasOption === 4)) {
+      if ((this.selectedHab === null && (this.selectedTrasOption === 1 || this.selectedTrasOption === 4)) || this.motivoTrasladoEmergencia === '') {
         this.alertErrorText = 'Revisa que todos los campos requeridos esten llenos'
         this.showAlertError()
       } else {
@@ -504,6 +504,7 @@ export default {
           motivo: this.motivoTrasladoEmergencia
         })
         .then((response) => {
+          this.motivoTrasladoEmergencia = ''
           me.alertVariant = 'info'
           me.showAlert()
           me.alertText = 'Se ha trasladado el paciente ' + me.form.nombres + ' exitosamente'
@@ -530,27 +531,33 @@ export default {
         })
     },
     onPatientQuit () {
-      let me = this
-      axios
-        .put(apiUrl + '/expedientes/changeState', {
-          id: this.form.id,
-          estado: this.selectedQuitOption,
-          estado_anterior: 4,
-          motivo: this.motivoEgresoEmergencia
-        })
-        .then((response) => {
-          me.alertVariant = 'info'
-          me.showAlert()
-          me.alertText = 'Se ha egresado el paciente ' + me.form.nombres + ' exitosamente'
-          me.$refs.vuetable.refresh()
-          me.$refs['modal-2-egreso'].hide()
-        })
-        .catch((error) => {
-          me.alertVariant = 'danger'
-          me.showAlertError()
-          me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-          console.error('There was an error!', error)
-        })
+      if (this.motivoEgresoEmergencia === '') {
+        this.alertErrorText = 'No has ingresado un motivo'
+        this.showAlertError()
+      } else {
+        let me = this
+        axios
+          .put(apiUrl + '/expedientes/changeState', {
+            id: this.form.id,
+            estado: this.selectedQuitOption,
+            estado_anterior: 4,
+            motivo: this.motivoEgresoEmergencia
+          })
+          .then((response) => {
+            this.motivoEgresoEmergencia = ''
+            me.alertVariant = 'info'
+            me.showAlert()
+            me.alertText = 'Se ha egresado el paciente ' + me.form.nombres + ' exitosamente'
+            me.$refs.vuetable.refresh()
+            me.$refs['modal-2-egreso'].hide()
+          })
+          .catch((error) => {
+            me.alertVariant = 'danger'
+            me.showAlertError()
+            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+            console.error('There was an error!', error)
+          })
+      }
     },
     makeQueryParams (sortOrder, currentPage, perPage) {
       return sortOrder[0]
