@@ -69,12 +69,15 @@
       <b-row class="ml-2">
         <b-col md="6">
         <b-form-group label="Tipo de encargado:">
-            <b-form-input
-            type="text"
-            v-model.trim="$v.form.contacto.$model"
-            :class="{'is-invalid': $v.form.contacto.$error}"
-            placeholder="Ingresar contacto"
-            ></b-form-input>
+          <label for="type">Tipo de encargado</label>
+          <v-select
+            name="type"
+            v-model = "selectedType"
+            :options="tipos"
+            :reduce="type => type.value"
+            placeholder="Seleccione un tipo de encargado"
+            label='text'
+            @search="onSearchType"/>
         </b-form-group>
         </b-col>
       </b-row>
@@ -82,9 +85,9 @@
         <b-button
           type="submit"
           variant="primary"
-          @click="onState()
+          @click="onSave()
                   $bvModal.hide('modal-1-encargados')"
-          >Activar</b-button
+          >Guardar</b-button
         >
         <b-button variant="danger" @click="$bvModal.hide('modal-1-encargados')"
           >Cancelar</b-button
@@ -200,7 +203,7 @@
               <!-- Botones -->
               <template slot="actions" slot-scope="props">
                 <b-button-group>
-                  <b-button
+                  <!-- <b-button
                     v-b-tooltip.top="'Editar'"
                     @click="setData(props.rowData)"
                     v-b-modal.modal-2-encargados
@@ -208,7 +211,7 @@
                     size="sm"
                     variant="outline-warning"
                     ><i :class="'fas fa-pencil-alt'"
-                  /></b-button>
+                  /></b-button> -->
                   <b-button
                     v-b-tooltip.top="
                       props.rowData.estado == 1 ? 'Desactivar' : 'Activar'"
@@ -262,6 +265,9 @@ export default {
   setup () {
     return { $v: useVuelidate() }
   },
+  beforeMount () {
+    this.fetchTypes()
+  },
   mounted () {
     xray.index()
   },
@@ -281,6 +287,8 @@ export default {
         id_tipo_usuario: 0,
         state: 1
       },
+      tipos: [],
+      selectedType: '',
       alertSecs: 5,
       alertCountDown: 0,
       alertCountDownError: 0,
@@ -296,27 +304,33 @@ export default {
           dataClass: 'text-muted'
         },
         {
-          name: 'numero',
-          sortField: 'numero',
-          title: 'Numero',
+          name: 'nombres',
+          sortField: 'nombres',
+          title: 'Nombres',
           dataClass: 'list-item-heading'
         },
         {
-          name: 'tipo',
+          name: 'apellidos',
+          sortField: 'apellidos',
+          title: 'Apellidos',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'usuario',
+          sortField: 'usuario',
+          title: 'Usuario',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'contacto',
+          sortField: 'contacto',
+          title: 'Contacto',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'tipo.tipo',
           sortField: 'tipo',
-          title: 'Tipo de habitación',
-          dataClass: 'list-item-heading'
-        },
-        {
-          name: 'costo_diario',
-          sortField: 'costo_diario',
-          title: 'Costo de habitación',
-          dataClass: 'list-item-heading'
-        },
-        {
-          name: 'costo_ambulatorio',
-          sortField: 'costo_ambulatorio',
-          title: 'Costo ambulatorio',
+          title: 'Tipo de encargado',
           dataClass: 'list-item-heading'
         },
         {
@@ -359,6 +373,12 @@ export default {
           this.$refs['modal-1-encargados'].hide()
           this.form.id = 0
           this.form.name = ''
+          this.form.nombres = ''
+          this.form.apellidos = ''
+          this.form.usuarios = ''
+          this.form.id_tipo_encargado = 0
+          this.selectedType = 0
+          this.form.contacto = ''
           this.form.state = 1
           break
         }
@@ -367,6 +387,12 @@ export default {
           this.$refs['modal-2-encargados'].hide()
           this.form.id = 0
           this.form.name = ''
+          this.form.nombres = ''
+          this.form.apellidos = ''
+          this.form.usuarios = ''
+          this.form.id_tipo_encargado = 0
+          this.selectedType = 0
+          this.form.contacto = ''
           this.form.state = 1
           break
         }
@@ -393,12 +419,13 @@ export default {
     /* Guardar */
     onSave () {
       const me = this
+      me.form.id_tipo_encargado = me.selectedType
       axios.post(apiUrl + '/encargados/create', {
         form: me.form })
         .then((response) => {
           me.alertVariant = 'success'
           me.showAlert()
-          me.alertText = 'Se ha creado la habitación ' + me.form.name + ' exitosamente'
+          me.alertText = 'Se ha creado al encargado ' + me.form.nombre + ' exitosamente'
           me.$refs.vuetable.refresh()
           me.closeModal('save')
         })
@@ -510,6 +537,27 @@ export default {
     },
     showAlertError () {
       this.alertCountDownError = this.alertSecs
+    },
+    fetchTypes (search, loading) {
+      axios.get(apiUrl + '/tipos_encargados/get',
+        {
+          params: {
+            search: search
+          }
+        }).then((response) => {
+        this.tipos = response.data.map(tipo => ({
+          value: tipo.id,
+          text: tipo.tipo
+        }),
+        console.log(this.tipos))
+        loading(false)
+      })
+    },
+    onSearchType (search, loading) {
+      if (search.length) {
+        loading(true)
+        this.fetchTypes(search, loading)
+      }
     }
   }
 }
