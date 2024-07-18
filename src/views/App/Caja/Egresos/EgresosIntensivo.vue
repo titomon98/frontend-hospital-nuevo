@@ -426,7 +426,7 @@ export default {
     },
     onValidate (action) {
       this.$v.$touch()
-      if (this.selectedHab === null && (this.selectedTrasOption === 1 || this.selectedTrasOption === 4)) {
+      if ((this.selectedHab === null && (this.selectedTrasOption === 1 || this.selectedTrasOption === 4)) || this.motivoTrasladoIntensivo === '') {
         this.alertErrorText = 'Revisa que todos los campos requeridos esten llenos'
         this.showAlertError()
       } else {
@@ -490,6 +490,7 @@ export default {
           motivo: this.motivoTrasladoIntensivo
         })
         .then((response) => {
+          this.motivoTrasladoIntensivo = ''
           axios.put(apiUrl + '/habitaciones/available',
             {
               ocupante: this.form.id
@@ -524,8 +525,8 @@ export default {
       // this.paymentSum = parseFloat(this.paymentType.Efectivo) + parseFloat(this.paymentType.Tarjeta) + parseFloat(this.paymentType.Deposito) + parseFloat(this.paymentType.Cheque) + parseFloat(this.paymentType.Seguro)
       this.paymentSum = 0
       this.totalPayment = 0
-      if (this.selectedAccount !== null) {
-        this.alertErrorText = 'Revisa que todos los campos requeridos esten llenos'
+      if (this.motivoEgresoIntensivo === '') {
+        this.alertErrorText = 'No has ingresado un motivo'
         this.showAlertError()
       } else {
         if (this.paymentSum !== parseFloat(this.totalPayment)) {
@@ -542,6 +543,7 @@ export default {
               habitaciones: 0
             })
             .then((response) => {
+              this.motivoEgresoIntensivo = ''
               axios.put(apiUrl + '/habitaciones/available',
                 {
                   ocupante: this.form.id

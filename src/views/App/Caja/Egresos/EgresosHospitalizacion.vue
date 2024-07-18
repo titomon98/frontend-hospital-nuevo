@@ -422,7 +422,7 @@ export default {
     },
     onValidate (action) {
       this.$v.$touch()
-      if (this.selectedHab === null && (this.selectedTrasOption === 1 || this.selectedTrasOption === 4)) {
+      if ((this.selectedHab === null && (this.selectedTrasOption === 1 || this.selectedTrasOption === 4)) || this.motivoTrasladoHospi === '') {
         this.alertErrorText = 'Revisa que todos los campos requeridos esten llenos'
         this.showAlertError()
       } else {
@@ -485,6 +485,7 @@ export default {
           motivo: this.motivoTrasladoHospi
         })
         .then((response) => {
+          this.motivoTrasladoIntensivo = ''
           me.alertVariant = 'info'
           me.showAlert()
           me.alertText = 'Se ha trasladado el paciente ' + me.form.nombres + ' exitosamente'
@@ -519,8 +520,8 @@ export default {
     },
     onPatientQuit () {
 
-        if (this.paymentSum !== parseFloat(this.totalPayment)) {
-          this.alertErrorText = 'El total a pagar no concuerda con el total ingresado'
+        if (this.motivoEgresoHospi === '') {
+          this.alertErrorText = 'No has ingresado un motivo'
           this.showAlertError()
         } else {
           let me = this
@@ -533,6 +534,7 @@ export default {
               habitaciones: 0
             })
             .then((response) => {
+              this.motivoEgresoHospi = ''
               axios.put(apiUrl + '/habitaciones/available',
                 {
                   ocupante: this.form.id
