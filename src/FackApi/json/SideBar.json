@@ -335,6 +335,17 @@
         "icon": "ri-briefcase-line"
       },
       {
+        "title": "Consumos",
+        "name": "Consumos",
+        "is_active": false,
+        "link": {
+          "name" : "farmacia.consumos"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-file-transfer-line"
+      },
+      {
         "title": "Datos farmacia",
         "name": "Datos farmacia",
         "is_active": false,
