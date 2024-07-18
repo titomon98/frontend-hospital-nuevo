@@ -435,7 +435,7 @@ export default {
       }
     },
     setData (data) {
-      this.form.name = data.nombres
+      this.form.name = data.nombres + ' ' + data.apellidos
       this.form.apellidos = data.apellidos
       this.form.state = data.estado
       this.form.id = data.id

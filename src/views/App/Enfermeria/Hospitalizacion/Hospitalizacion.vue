@@ -20,32 +20,47 @@
       >
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
+      <h6 class="my-4">
+        ¿Desea trasladar el paciente: {{ form.nombres }} ?
+      </h6>
       <b-form @submit="$event.preventDefault()">
         <b-col >
           <b-form-group label="Área a la que desea trasladar:">
-            <b-form-radio
-              v-model="form.selectedOption"
-              value="quirofano"
-              name="customRadio1"
-            >Quirófano</b-form-radio>
-            <b-form-radio
-              v-model="form.selectedOption"
-              value="emergencia"
-              name="customRadio1"
-            >Emergencia</b-form-radio>
-            <b-form-radio
-              v-model="form.selectedOption"
-              value="intensivo"
-              name="customRadio1"
-            >Intensivo</b-form-radio>
+            <b-form-radio-group
+                      id="radio-group-2"
+                      v-model="selectedTrasOption"
+                      :options="optionsTraslado"
+                      name="radio-options"
+                    ></b-form-radio-group>
+            <div v-if="selectedTrasOption==4">
+              Habitación
+              <v-select
+              ref="selectHab"
+              v-model="selectedHab"
+              :options="habitaciones"
+              label="numero"
+              value="id"></v-select>
+            </div>
           </b-form-group>
         </b-col>
       </b-form>
+      <div>
+          Ingrese un motivo para el traslado
+        </div>
+        <div>
+          <b-input id="motivoTraslado" ref="motivoTraslado" v-model="motivoTrasladoHospi" />
+        </div>
       <template #modal-footer="{}">
-        <b-button variant="primary" @click="saveTraslado('traslado')"
-          >Guardar</b-button
+        <b-button
+          type="submit"
+          variant="primary"
+          @click="
+            onRelocation()
+            this.selectedHab = null
+          "
+          >Ingresar</b-button
         >
-        <b-button variant="danger" @click="closeModal('traslado')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-traslado')"
           >Cancelar</b-button
         >
       </template>
@@ -453,7 +468,8 @@
               <template slot="actions" slot-scope="props">
                 <div class="button-container">
                   <b-button
-                    @click="traslado(props.rowData.id)"
+                    @click="traslado(props.rowData.id)
+                    setData(props.rowData)"
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="dark"
@@ -554,6 +570,7 @@ export default {
   },
   beforeMount () {
     this.searchingMedicamentos()
+    this.getHabitaciones(0)
   },
   mounted () {
     xray.index()
@@ -561,6 +578,9 @@ export default {
   data () {
     return {
       from: 0,
+      motivoTrasladoHospi: '',
+      habitaciones: [],
+      selectedHab: null,
       to: 0,
       total: 0,
       editorOptions: {
@@ -591,6 +611,7 @@ export default {
         selected_insumo: '0'
       },
       servicio: null,
+      selectedTrasOption: 4,
       alertSecs: 5,
       alertCountDown: 0,
       alertCountDownError: 0,
@@ -603,6 +624,11 @@ export default {
       apiBaseConsumoMedicamento: '',
       apiBaseConsumoQuirurgico: '',
       apiBaseConsumoComun: '',
+      optionsTraslado: [
+        { text: 'Quirófano', value: 3 },
+        { text: 'Emergencia', value: 5 },
+        { text: 'Intensivos', value: 4 }
+      ],
       fields: [
         {
           name: '__slot:actions',
@@ -1427,9 +1453,75 @@ export default {
           page: currentPage,
           limit: this.perPage
         }
+    },
+    setData (data) {
+      this.form.name = data.nombres + ' ' + data.apellidos
+      this.form.state = data.estado
+      this.form.id = data.id
+    },
+    getHabitaciones (num) {
+      axios.get(apiUrl + '/habitaciones/get', {
+        params: {
+          tipo: num
+        }
+      }).then((response) => {
+        this.habitaciones = response.data
+        /* eslint-disable */console.log(...oo_oo(`1319611087_605_8_605_34_4`,response.data))
+      })
+    },onState () {
+      let me = this
+      axios
+        .put(apiUrl + '/expedientes/changeState', {
+          id: this.form.id,
+          estado: this.selectedTrasOption,
+          estado_anterior: 1,
+          motivo: this.motivoTrasladoHospi
+        })
+        .then((response) => {
+          me.alertVariant = 'info'
+          me.showAlert()
+          me.alertText = 'Se ha trasladado el paciente ' + me.form.nombres + ' exitosamente'
+          me.$refs.vuetable.refresh()
+          me.$refs['modal-traslado'].hide()
+          axios.put(apiUrl + '/habitaciones/available',
+            {
+              ocupante: this.form.id
+            }
+          )
+            .then((res) => {
+              if (this.selectedTrasOption === 1 || this.selectedTrasOption === 4) {
+                axios
+                  .put(apiUrl + '/habitaciones/inUse', {
+                    id: this.selectedHab.id,
+                    ocupante: this.form.id
+                  })
+                  .then((res) => {
+                    this.selectedHab = null
+                      this.getHabitaciones(0)
+                    })
+                }
+              })
+        })
+        .catch((error) => {
+          me.alertVariant = 'danger'
+          me.showAlertError()
+          me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+          console.error('There was an error!', error)
+        })
+    },
+    onRelocation (action) {
+      this.$v.$touch()
+      if (this.selectedHab === null && (this.selectedTrasOption === 1 || this.selectedTrasOption === 4)) {
+        this.alertErrorText = 'Revisa que todos los campos requeridos esten llenos'
+        this.showAlertError()
+      } else {
+        this.onState()
+        me.$refs.vuetable.refresh()
+        this.$bvModal.hide('modal-traslado')
+      }
+    },
     }
   }
-}
 </script>
 <style>
 .custom-editor {
