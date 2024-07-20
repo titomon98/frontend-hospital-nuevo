@@ -69,7 +69,6 @@
       <b-row class="ml-2">
         <b-col md="6">
         <b-form-group label="Tipo de encargado:">
-          <label for="type">Tipo de encargado</label>
           <v-select
             name="type"
             v-model = "selectedType"
@@ -328,7 +327,7 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
-          name: 'tipo.tipo',
+          name: 'tipos_encargado.tipo',
           sortField: 'tipo',
           title: 'Tipo de encargado',
           dataClass: 'list-item-heading'
@@ -548,8 +547,7 @@ export default {
         this.tipos = response.data.map(tipo => ({
           value: tipo.id,
           text: tipo.tipo
-        }),
-        console.log(this.tipos))
+        }))
         loading(false)
       })
     },
