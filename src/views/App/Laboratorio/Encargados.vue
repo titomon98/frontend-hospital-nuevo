@@ -93,6 +93,88 @@
         >
       </template>
     </b-modal>
+    <b-modal id="modal-2-encargados" ref="modal-2-encargados" title="Editar encargado">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <b-row class="ml-2">
+        <b-col md="6">
+        <b-form-group label="Nombres:">
+            <b-form-input
+            type="text"
+            v-model.trim="$v.form.nombres.$model"
+            :class="{'is-invalid': $v.form.nombres.$error}"
+            placeholder="Ingresar nombres"
+            ></b-form-input>
+        </b-form-group>
+        </b-col>
+        <b-col md="6">
+        <b-form-group label="Apellidos:">
+            <b-form-input
+            type="text"
+            v-model.trim="$v.form.apellidos.$model"
+            :class="{'is-invalid': $v.form.apellidos.$error}"
+            placeholder="Ingresar apellidos"
+            ></b-form-input>
+        </b-form-group>
+        </b-col>
+      </b-row>
+      <b-row class="ml-2">
+        <b-col md="6">
+        <b-form-group label="Usuario:">
+            <b-form-input
+            type="text"
+            v-model.trim="$v.form.usuario.$model"
+            :class="{'is-invalid': $v.form.usuario.$error}"
+            placeholder="Ingresar usuario"
+            ></b-form-input>
+        </b-form-group>
+        </b-col>
+      </b-row>
+      <b-row class="ml-2">
+        <b-col md="6">
+        <b-form-group label="Contacto:">
+            <b-form-input
+            type="text"
+            v-model.trim="$v.form.contacto.$model"
+            :class="{'is-invalid': $v.form.contacto.$error}"
+            placeholder="Ingresar contacto"
+            ></b-form-input>
+        </b-form-group>
+        </b-col>
+      </b-row>
+      <b-row class="ml-2">
+        <b-col md="6">
+        <b-form-group label="Tipo de encargado:">
+          <v-select
+            name="type"
+            v-model = "selectedType"
+            :options="tipos"
+            :reduce="type => type.value"
+            placeholder="Seleccione un tipo de encargado"
+            label='text'
+            @search="onSearchType"/>
+        </b-form-group>
+        </b-col>
+      </b-row>
+      <template #modal-footer="{}">
+        <b-button
+          type="submit"
+          variant="primary"
+          @click="onValidate('update')"
+          >Guardar</b-button
+        >
+        <b-button variant="danger" @click="$bvModal.hide('modal-2-encargados')"
+          >Cancelar</b-button
+        >
+      </template>
+    </b-modal>
     <b-modal id="modal-3-encargados" ref="modal-3-encargados" title="Desactivar encargados">
       <b-alert
         :show="alertCountDownError"
@@ -202,7 +284,7 @@
               <!-- Botones -->
               <template slot="actions" slot-scope="props">
                 <b-button-group>
-                  <!-- <b-button
+                  <b-button
                     v-b-tooltip.top="'Editar'"
                     @click="setData(props.rowData)"
                     v-b-modal.modal-2-encargados
@@ -210,7 +292,7 @@
                     size="sm"
                     variant="outline-warning"
                     ><i :class="'fas fa-pencil-alt'"
-                  /></b-button> -->
+                  /></b-button>
                   <b-button
                     v-b-tooltip.top="
                       props.rowData.estado == 1 ? 'Desactivar' : 'Activar'"
@@ -283,7 +365,7 @@ export default {
         apellidos: '',
         usuario: '',
         contacto: '',
-        id_tipo_usuario: 0,
+        id_tipo_encargado: 0,
         state: 1
       },
       tipos: [],
@@ -349,7 +431,7 @@ export default {
         apellidos: { required },
         contacto: { required },
         usuario: { required },
-        id_tipo_usuario: { required }
+        id_tipo_encargado: { required }
       }
     }
   },
@@ -399,6 +481,7 @@ export default {
     },
     onValidate (action) {
       this.$v.$touch()
+      console.log(this.form)
       if (this.$v.$error !== true) {
         if (action === 'save') {
           this.onSave()
@@ -411,7 +494,12 @@ export default {
       }
     },
     setData (data) {
-      this.form.name = data.nombre
+      this.form.nombres = data.nombres
+      this.form.apellidos = data.apellidos
+      this.form.usuario = data.usuario
+      this.form.contacto = data.contacto
+      this.form.id_tipo_encargado = data.tipos_encargado.id
+      this.selectedType = data.selectedType
       this.form.state = data.estado
       this.form.id = data.id
     },
@@ -438,13 +526,15 @@ export default {
     /* Guardar */
     onUpdate () {
       const me = this
+      me.form.id_tipo_encargado = me.selectedType
+      console.log(me.form)
       // this.$refs["modalSave"].hide();
       axios.put(apiUrl + '/encargados/update', {
         form: me.form })
         .then((response) => {
           me.alertVariant = 'primary'
           me.showAlert()
-          me.alertText = 'Se ha actualizado la habitación ' + me.form.name + ' exitosamente'
+          me.alertText = 'Se ha actualizado al encargado ' + me.form.nombres + ' ' + me.form.apellidos + ' exitosamente'
           me.$refs.vuetable.refresh()
           me.closeModal('update')
         })
