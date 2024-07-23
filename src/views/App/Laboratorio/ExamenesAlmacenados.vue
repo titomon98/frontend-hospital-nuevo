@@ -234,6 +234,40 @@
         >
       </template>
     </b-modal>
+    <b-modal id="modal-5-campos" ref="modal-5-campos" title="Campos" size="xl">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <h6 class="my-4">
+        Campos de {{ form.nombre }} ?
+      </h6>
+      <b-table
+        hover
+        :items="campos"
+        :fields="fieldsCampos"
+        :select-mode="'single'"
+        selectable
+      >
+      </b-table>
+      <template #modal-footer="{}">
+        <b-button
+          type="submit"
+          variant="primary"
+          @click="/* onState() */
+                  $bvModal.hide('modal-5-campos')"
+          >Activar</b-button
+        >
+        <b-button variant="danger" @click="$bvModal.hide('modal-5-campos')"
+          >Cancelar</b-button
+        >
+      </template>
+    </b-modal>
     <b-row>
       <b-col md="12">
         <iq-card>
@@ -314,6 +348,15 @@
                           ? 'fas fa-trash-alt'
                           : 'fas fa-check'"
                   /></b-button>
+                  <b-button
+                    v-b-tooltip.top="'Campos'"
+                    @click="setData(props.rowData)"
+                    v-b-modal.modal-5-campos
+                    class="mb-2"
+                    size="sm"
+                    variant="outline-warning"
+                    ><i :class="'fas fa-pencil-alt'"
+                  /></b-button>
                 </b-button-group>
               </template>
               <!-- Paginacion -->
@@ -358,6 +401,28 @@ export default {
       total: 0,
       perPage: 5,
       search: '',
+      campos: [],
+      fieldsCampos: [
+        {
+          key: 'nombre',
+          label: 'Campo',
+          sortable: true
+        },
+        {
+          key: 'valor_minimo',
+          label: 'Mínimo',
+          sortable: true
+        },
+        {
+          key: 'valor_maximo',
+          label: 'Máximo',
+          sortable: true
+        },
+        {
+          key: 'unidades',
+          label: 'Unidades',
+          sortable: true
+        }],
       form: {
         id: 0,
         nombre: '',
@@ -374,7 +439,7 @@ export default {
       alertText: '',
       alertErrorText: '',
       alertVariant: '',
-      apiBase: apiUrl + '/equipos/list',
+      apiBase: apiUrl + '/laboratoriosAlmacenados/list',
       fields: [
         {
           name: '__slot:actions',
@@ -389,35 +454,22 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
-          name: 'cantidad_usos',
-          sortField: 'cantidad_usos',
-          title: 'Cantidad de usos',
+          name: 'precio_normal',
+          sortField: 'precio_normal',
+          title: 'Precio normal',
           dataClass: 'list-item-heading'
         },
         {
-          name: 'gasto_unico',
-          sortField: 'gasto_unico',
-          title: 'Gasto único',
+          name: 'precio_sobrecargo',
+          sortField: 'precio_sobrecargo',
+          title: 'Precio con sobrecargo',
           dataClass: 'list-item-heading'
         },
         {
-          name: 'fecha_adquisicion',
-          sortField: 'fecha_adquisicion',
-          title: 'Fecha de adquisición',
+          name: 'tipo_examen',
+          sortField: 'tipo_examen',
+          title: 'Tipo',
           dataClass: 'list-item-heading'
-        },
-        {
-          name: 'existencia',
-          sortField: 'existencia',
-          title: 'Existencia',
-          dataClass: 'list-item-heading'
-        },
-        {
-          name: '__slot:estado',
-          title: 'Estado',
-          titleClass: '',
-          dataClass: 'text-muted',
-          width: '25%'
         }
       ]
     }
@@ -495,14 +547,8 @@ export default {
       }
     },
     setData (data) {
-      this.form.nombre = data.nombre
-      this.form.cantidad_usos = data.cantidad_usos
-      this.form.precio_publico = data.precio_publico
-      this.form.gasto_unico = data.gasto_unico
-      this.form.fecha_adquisicion = data.fecha_adquisicion
-      this.form.existencia = data.existencia
-      this.form.state = data.estado
       this.form.id = data.id
+      this.getDetail(data.id)
     },
     /* Guardar */
     onSave () {
@@ -624,6 +670,15 @@ export default {
     },
     showAlertError () {
       this.alertCountDownError = this.alertSecs
+    },
+    getDetail (num) {
+      axios.get(apiUrl + '/campoLaboratorio/getByExamen', {
+        params: {
+          id_examenes_almacenados: num
+        }
+      }).then((response) => {
+        this.campos = response.data
+      })
     }
   }
 }
