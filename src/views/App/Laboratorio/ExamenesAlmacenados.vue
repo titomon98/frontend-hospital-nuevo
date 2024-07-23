@@ -30,24 +30,24 @@
             Debe ingresar el nombre
           </div>
         </b-form-group>
-        <b-form-group label="Precio normal:">
+        <b-form-group label="Precio ordinario:">
           <b-form-input
             type="number"
             v-model.trim="varPrecioNormal"
-            placeholder="Ingresar precio normal"
+            placeholder="Ingresar Precio ordinario"
           ></b-form-input>
           <div v-if="varPrecioNormal === 0 || varPrecioNormal === null" class="invalid-feedback">
-            Debe ingresar el precio normal
+            Debe ingresar el Precio ordinario
           </div>
         </b-form-group>
-        <b-form-group label="Precio con sobrecargo:">
+        <b-form-group label="Precio extraordinario:">
           <b-form-input
             type="number"
             v-model.trim="varPrecioSobrecargo"
-            placeholder="Ingresar precio con sobrecargo"
+            placeholder="Ingresar Precio extraordinario"
           ></b-form-input>
           <div v-if="varPrecioSobrecargo === 0 || varPrecioSobrecargo === null" class="invalid-feedback">
-            Debe ingresar el precio con sobrecargo
+            Debe ingresar el Precio extraordinario
           </div>
         </b-form-group>
       </b-form>
@@ -65,7 +65,7 @@
           >Guardar</b-button
         >
         <b-button variant="danger" @click="$bvModal.hide('modal-1-createExamen')"
-          >Cancelar</b-button
+        >Cancelar</b-button
         >
       </template>
     </b-modal>
@@ -89,24 +89,24 @@
             Debe ingresar el nombre
           </div>
         </b-form-group>
-        <b-form-group label="Precio normal:">
+        <b-form-group label="Precio ordinario:">
           <b-form-input
             type="number"
             v-model.trim="varPrecioNormal"
-            placeholder="Ingresar precio normal"
+            placeholder="Ingresar Precio ordinario"
           ></b-form-input>
           <div v-if="varPrecioNormal === 0 || varPrecioNormal === null" class="invalid-feedback">
-            Debe ingresar el precio normal
+            Debe ingresar el Precio ordinario
           </div>
         </b-form-group>
-        <b-form-group label="Precio con sobrecargo:">
+        <b-form-group label="Precio extraordinario:">
           <b-form-input
             type="number"
             v-model.trim="varPrecioSobrecargo"
-            placeholder="Ingresar precio con sobrecargo"
+            placeholder="Ingresar Precio extraordinario"
           ></b-form-input>
           <div v-if="varPrecioSobrecargo === 0 || varPrecioSobrecargo === null" class="invalid-feedback">
-            Debe ingresar el precio con sobrecargo
+            Debe ingresar el Precio extraordinario
           </div>
         </b-form-group>
       </b-form>
@@ -201,69 +201,75 @@
         selectable
       >
         <template #cell(show_details)="row">
-          <b-button size="sm" @click="
-            row.toggleDetails
-            " class="mr-2">
+          <b-button size="sm" @click="()=>{
+            setDataAttribute(row.item)
+            row.toggleDetails()
+          }
+            " class="mr-2" @close="clearDataAttribute()">
             Editar
           </b-button>
         </template>
 
         <template #row-details="row">
-          <b-card @show="
-            this.varNombreCampo = row.item.nombre">
+          <b-card
+            >
             <b-form @submit="$event.preventDefault()">
               <b-form-group label="Nombre:">
                 <b-form-input
-                  v-model.trim="varNombreCampo"
+                  v-model.trim="varNombreCampoEdit"
                   :placeholder= row.item.nombre
                   default
                 ></b-form-input>
-                <div v-if="varNombreCampo === ''" class="invalid-feedback">
+                <div v-if="varNombreCampoEdit === ''" class="invalid-feedback">
                 Debe ingresar el nombre
                 </div>
               </b-form-group>
-              <b-form-group label="Valor mínimo:">
+              <b-form-group label="valor de referencia mínimo:">
                 <b-form-input
                   type="number"
-                  v-model.trim="varValorMinimo"
+                  v-model.trim="varValorMinimoEdit"
                   :placeholder=row.itemvalor_minimo
                 ></b-form-input>
-                <div v-if="varValorMinimo === 0 || varValorMinimo === null" class="invalid-feedback">
-                  Debe ingresar el valor mínimo
+                <div v-if="varValorMinimoEdit === 0 || varValorMinimoEdit === null" class="invalid-feedback">
+                  Debe ingresar el valor de referencia mínimo
                 </div>
               </b-form-group>
-              <b-form-group label="Valor máximo:">
+              <b-form-group label="valor de referencia máximo:">
                 <b-form-input
                   type="number"
-                  v-model.trim="varValorMaximo"
+                  v-model.trim="varValorMaximoEdit"
                   :placeholder=row.item.valor_maximo
                 ></b-form-input>
-                <div v-if="varValorMaximo === 0 || varValorMaximo === null" class="invalid-feedback">
-                  Debe ingresar el valor máximo
+                <div v-if="varValorMaximoEdit === 0 || varValorMaximoEdit === null" class="invalid-feedback">
+                  Debe ingresar el valor de referencia máximo
                 </div>
               </b-form-group>
             </b-form>
             <b-form-group label="Unidades:">
                 <b-form-input
-                  v-model.trim="varUnidades"
+                  v-model.trim="varUnidadesEdit"
                   :placeholder=row.item.unidades
                 ></b-form-input>
-                <div v-if="varUnidades === ''" class="invalid-feedback">
+                <div v-if="varUnidadesEdit === ''" class="invalid-feedback">
                   Debe ingresar las unidades
                 </div>
               </b-form-group>
               <b-button variant="primary" @click="onUpdateAttributes(row.item)">Guardar</b-button>
-              <b-button variant="danger" @click="row.toggleDetails">Cancelar</b-button
+              <b-button variant="danger" @click="()=>{
+                clearDataAttribute()
+                row.toggleDetails()
+              }
+              ">Cancelar</b-button
           >
             </b-card>
         </template>
       </b-table>
-      <b-card>
+      <b-card ref="newAttributeCard">
         AGREGAR CAMPO
         <b-form @submit="$event.preventDefault()">
           <b-form-group label="Nombre:">
             <b-form-input
-              v-model.trim="varNombreCampo"
+              v-model="varNombreCampo"
               placeholder= "Ingresar nombre"
               default
             ></b-form-input>
@@ -271,30 +277,30 @@
             Debe ingresar el nombre
             </div>
           </b-form-group>
-          <b-form-group label="Valor mínimo:">
+          <b-form-group label="valor de referencia mínimo:">
             <b-form-input
               type="number"
-              v-model.trim="varValorMinimo"
-              placeholder="Ingresar valor mínimo"
+              v-model="varValorMinimo"
+              placeholder="Ingresar valor de referencia mínimo"
             ></b-form-input>
             <div v-if="varValorMinimo === 0 || varValorMinimo === null" class="invalid-feedback">
-              Debe ingresar el valor mínimo
+              Debe ingresar el valor de referencia mínimo
             </div>
           </b-form-group>
-          <b-form-group label="Valor máximo:">
+          <b-form-group label="valor de referencia máximo:">
             <b-form-input
               type="number"
-              v-model.trim="varValorMaximo"
-              placeholder="Ingresar valor máximo"
+              v-model="varValorMaximo"
+              placeholder="Ingresar valor de referencia máximo"
             ></b-form-input>
             <div v-if="varValorMaximo === 0 || varValorMaximo === null" class="invalid-feedback">
-              Debe ingresar el valor máximo
+              Debe ingresar el valor de referencia máximo
             </div>
           </b-form-group>
         </b-form>
         <b-form-group label="Unidades:">
             <b-form-input
-              v-model.trim="varUnidades"
+              v-model="varUnidades"
               placeholder="Ingresar unidades"
             ></b-form-input>
             <div v-if="varUnidades === ''" class="invalid-feedback">
@@ -302,8 +308,8 @@
             </div>
           </b-form-group>
           <b-button variant="primary" @click="onNewAttribute()">Guardar</b-button>
-          <b-button variant="danger" @click="this.$refs['modal-5-campos'].hide()">Cancelar</b-button
-      >
+          <b-button variant="danger" @click="this.$refs['modal-5-campos'].hide()">Cancelar</b-button>
+          <b-button @click="clearDataAttribute()">Limpiar</b-button>
       </b-card>
       <template #modal-footer="{}">
         <b-button variant="danger" @click="$bvModal.hide('modal-5-campos')"
@@ -362,26 +368,23 @@
               </div>
               <!-- Botones -->
               <template slot="actions" slot-scope="props">
-                <b-button-group>
+                <div class="button-container">
                   <b-button
-                    v-b-tooltip.top="'Editar'"
                     @click="setDataEdit(props.rowData)"
                     v-b-modal.modal-2-updateExamen
-                    class="mb-2"
+                    class="mb-2 button-spacing"
                     size="sm"
-                    variant="outline-warning"
-                    ><i :class="'fas fa-pencil-alt'"
-                  /></b-button>
+                    variant="dark"
+                  >Actualizar examen</b-button>
+
                   <b-button
-                    v-b-tooltip.top="'Campos'"
                     @click="setData(props.rowData)"
                     v-b-modal.modal-5-campos
-                    class="mb-2"
+                    class="mb-2 button-spacing"
                     size="sm"
-                    variant="outline-warning"
-                    ><i :class="'fas fa-pencil-alt'"
-                  /></b-button>
-                </b-button-group>
+                    variant="success"
+                  >Verificar campos</b-button>
+                </div>
               </template>
               <!-- Paginacion -->
             </vuetable>
@@ -434,12 +437,12 @@ export default {
         },
         {
           key: 'valor_minimo',
-          label: 'Mínimo',
+          label: 'Valor de Referencia Mínimo',
           sortable: true
         },
         {
           key: 'valor_maximo',
-          label: 'Máximo',
+          label: 'Valor de Referencia Máximo',
           sortable: true
         },
         {
@@ -486,13 +489,13 @@ export default {
         {
           name: 'precio_normal',
           sortField: 'precio_normal',
-          title: 'Precio normal',
+          title: 'Precio ordinario',
           dataClass: 'list-item-heading'
         },
         {
           name: 'precio_sobrecargo',
           sortField: 'precio_sobrecargo',
-          title: 'Precio con sobrecargo',
+          title: 'Precio extraordinario',
           dataClass: 'list-item-heading'
         },
         {
@@ -580,6 +583,19 @@ export default {
       this.form.id = data.id
       this.form.nombreExamen = data.nombre
       this.getDetail(data.id)
+    },
+    setDataAttribute (data) {
+      this.varNombreCampoEdit = data.nombre
+      this.varValorMaximoEdit = data.valor_maximo
+      this.varValorMinimoEdit = data.valor_minimo
+      this.varUnidadesEdit = data.unidades
+    },
+    clearDataAttribute () {
+      console.log('CLEAR')
+      this.varNombreCampo = ''
+      this.varValorMaximo = 0
+      this.varValorMinimo = 0
+      this.varUnidades = ''
     },
     setDataEdit (data) {
       this.form.id = data.id
@@ -791,36 +807,36 @@ export default {
       }
     },
     onUpdateAttributes (num) {
-      if (this.varNombreCampo === '') {
-        this.varNombreCampo = num.nombre
+      if (this.varNombreCampoEdit === '') {
+        this.varNombreCampoEdit = num.nombre
       }
-      if (this.varValorMaximo === 0 || this.varValorMaximo === null) {
-        this.varValorMaximo = num.valor_maximo
+      if (this.varValorMaximoEdit === 0 || this.varValorMaximoEdit === null) {
+        this.varValorMaximoEdit = num.valor_maximo
       }
-      if (this.varValorMinimo === 0 || this.valor_minimo === null) {
-        this.varValorMinimo = num.valor_minimo
+      if (this.varValorMinimoEdit === 0 || this.varValorMinimoEdit === null) {
+        this.varValorMinimoEdit = num.valor_minimo
       }
-      if (this.varUnidades === '') {
-        this.varUnidades = num.unidades
+      if (this.varUnidadesEdit === '') {
+        this.varUnidadesEdit = num.unidades
       }
       axios.put(apiUrl + '/campoLaboratorio/update', {
         id: num.id,
-        nombre: this.varNombreCampo,
-        valor_maximo: this.varValorMaximo,
-        valor_minimo: this.varValorMinimo,
-        unidades: this.varUnidades
+        nombre: this.varNombreCampoEdit,
+        valor_maximo: this.varValorMaximoEdit,
+        valor_minimo: this.varValorMinimoEdit,
+        unidades: this.varUnidadesEdit
       })
         .then((res) => {
           this.getDetail(num.id_examenes_almacenados)
           this.alertVariant = 'info'
           this.showAlertError()
-          this.alertErrorText = 'Se ha modificado el campo ' + this.varNombreCampo + ' exitosamente'
+          this.alertErrorText = 'Se ha modificado el campo ' + this.varNombreCampoEdit + ' exitosamente'
           this.$refs.table_campos.refresh()
           // this.$refs['modal-1-createExamen'].hide()
-          this.varNombreCampo = ''
-          this.varValorMaximo = 0
-          this.varValorMinimo = 0
-          this.varUnidades = ''
+          this.varNombreCampoEdit = ''
+          this.varValorMaximoEdit = 0
+          this.varValorMinimoEdit = 0
+          this.varUnidadesEdit = ''
         }
         )
         .catch((error) => {
@@ -852,6 +868,7 @@ export default {
             this.varValorMaximo = 0
             this.varValorMinimo = 0
             this.varUnidades = ''
+            this.varNombreCampo = ''
           }
           )
           .catch((error) => {
