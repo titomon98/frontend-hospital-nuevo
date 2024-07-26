@@ -10,7 +10,7 @@
     >
       <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
-    <b-modal id="modal-1-equipo" ref="modal-1-equipo" title="Agregar equipo">
+    <b-modal id="modal-1-createExamen" ref="modal-1-createExamen" title="Agregar Examen">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -23,80 +23,53 @@
       <b-form @submit="$event.preventDefault()">
         <b-form-group label="Nombre:">
           <b-form-input
-            v-model.trim="$v.form.nombre.$model"
-            :state="!$v.form.nombre.$error"
-            placeholder="Ingresar nombre del equipo"
+            v-model.trim="varNombreExamen"
+            placeholder="Ingresar nombre del examen"
           ></b-form-input>
-          <div v-if="$v.form.nombre.required.$invalid" class="invalid-feedback">
+          <div v-if="varNombreExamen === ''" class="invalid-feedback">
             Debe ingresar el nombre
           </div>
         </b-form-group>
-        <b-form-group label="Cantidad de usos actual:">
+        <b-form-group label="Precio ordinario:">
           <b-form-input
             type="number"
-            v-model.trim="$v.form.cantidad_usos.$model"
-            :state="!$v.form.cantidad_usos.$error"
-            placeholder="Ingresar cantidad de usos actual del equipo"
+            v-model.trim="varPrecioNormal"
+            placeholder="Ingresar Precio ordinario"
           ></b-form-input>
-          <div v-if="$v.form.cantidad_usos.required.$invalid" class="invalid-feedback">
-            Debe ingresar la cantidad de usos
+          <div v-if="varPrecioNormal === 0 || varPrecioNormal === null" class="invalid-feedback">
+            Debe ingresar el Precio ordinario
           </div>
         </b-form-group>
-        <b-form-group label="Precio público:">
+        <b-form-group label="Precio extraordinario:">
           <b-form-input
             type="number"
-            v-model.trim="$v.form.precio_publico.$model"
-            :state="!$v.form.precio_publico.$error"
-            placeholder="Ingresar precio público del equipo"
+            v-model.trim="varPrecioSobrecargo"
+            placeholder="Ingresar Precio extraordinario"
           ></b-form-input>
-          <div v-if="$v.form.precio_publico.required.$invalid" class="invalid-feedback">
-            Debe ingresar el precio público
-          </div>
-        </b-form-group>
-        <b-form-group label="Gasto único:">
-          <b-form-input
-            type="number"
-            v-model.trim="$v.form.gasto_unico.$model"
-            :state="!$v.form.gasto_unico.$error"
-            placeholder="Ingresar gasto único del equipo"
-          ></b-form-input>
-          <div v-if="$v.form.gasto_unico.required.$invalid" class="invalid-feedback">
-            Debe ingresar el gasto único
-          </div>
-        </b-form-group>
-        <b-form-group label="Fecha de adquisición:">
-          <b-form-input
-            type="date"
-            v-model.trim="$v.form.fecha_adquisicion.$model"
-            :state="!$v.form.fecha_adquisicion.$error"
-            placeholder="Ingresar fecha de adquisición del equipo"
-          ></b-form-input>
-          <div v-if="$v.form.fecha_adquisicion.required.$invalid" class="invalid-feedback">
-            Debe ingresar la fecha de adquisición
-          </div>
-        </b-form-group>
-        <b-form-group label="Existencia:">
-          <b-form-input
-            type="number"
-            v-model.trim="$v.form.existencia.$model"
-            :state="!$v.form.existencia.$error"
-            placeholder="Ingresar existencia del equipo"
-          ></b-form-input>
-          <div v-if="$v.form.existencia.required.$invalid" class="invalid-feedback">
-            Debe ingresar la existencia
+          <div v-if="varPrecioSobrecargo === 0 || varPrecioSobrecargo === null" class="invalid-feedback">
+            Debe ingresar el Precio extraordinario
           </div>
         </b-form-group>
       </b-form>
+      <b-form-group label="Tipo de examen:">
+          <b-form-input
+            v-model.trim="varTipo"
+            placeholder="Ingresar tipo del examen"
+          ></b-form-input>
+          <div v-if="varTipo === ''" class="invalid-feedback">
+            Debe ingresar el tipo
+          </div>
+        </b-form-group>
       <template #modal-footer="{}">
-        <b-button variant="primary" @click="onValidate('save')"
+        <b-button variant="primary" @click="onCreateTest()"
           >Guardar</b-button
         >
-        <b-button variant="danger" @click="closeModal('save')"
-          >Cancelar</b-button
+        <b-button variant="danger" @click="$bvModal.hide('modal-1-createExamen')"
+        >Cancelar</b-button
         >
       </template>
     </b-modal>
-    <b-modal id="modal-2-equipo" ref="modal-2-equipo" title="Editar equipo">
+    <b-modal id="modal-2-updateExamen" ref="modal-2-updateExamen" title="Actualizar Examen">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -109,75 +82,48 @@
       <b-form @submit="$event.preventDefault()">
         <b-form-group label="Nombre:">
           <b-form-input
-            v-model.trim="$v.form.nombre.$model"
-            :state="!$v.form.nombre.$error"
-            placeholder="Ingresar nombre del equipo"
+            v-model.trim="varNombreExamen"
+            placeholder="Ingresar nombre del examen"
           ></b-form-input>
-          <div v-if="$v.form.nombre.required.$invalid" class="invalid-feedback">
+          <div v-if="varNombreExamen === ''" class="invalid-feedback">
             Debe ingresar el nombre
           </div>
         </b-form-group>
-        <b-form-group label="Cantidad de usos actual:">
+        <b-form-group label="Precio ordinario:">
           <b-form-input
             type="number"
-            v-model.trim="$v.form.cantidad_usos.$model"
-            :state="!$v.form.cantidad_usos.$error"
-            placeholder="Ingresar cantidad de usos actual del equipo"
+            v-model.trim="varPrecioNormal"
+            placeholder="Ingresar Precio ordinario"
           ></b-form-input>
-          <div v-if="$v.form.cantidad_usos.required.$invalid" class="invalid-feedback">
-            Debe ingresar la cantidad de usos
+          <div v-if="varPrecioNormal === 0 || varPrecioNormal === null" class="invalid-feedback">
+            Debe ingresar el Precio ordinario
           </div>
         </b-form-group>
-        <b-form-group label="Precio público:">
+        <b-form-group label="Precio extraordinario:">
           <b-form-input
             type="number"
-            v-model.trim="$v.form.precio_publico.$model"
-            :state="!$v.form.precio_publico.$error"
-            placeholder="Ingresar precio público del equipo"
+            v-model.trim="varPrecioSobrecargo"
+            placeholder="Ingresar Precio extraordinario"
           ></b-form-input>
-          <div v-if="$v.form.precio_publico.required.$invalid" class="invalid-feedback">
-            Debe ingresar el precio público
-          </div>
-        </b-form-group>
-        <b-form-group label="Gasto único:">
-          <b-form-input
-            type="number"
-            v-model.trim="$v.form.gasto_unico.$model"
-            :state="!$v.form.gasto_unico.$error"
-            placeholder="Ingresar gasto único del equipo"
-          ></b-form-input>
-          <div v-if="$v.form.gasto_unico.required.$invalid" class="invalid-feedback">
-            Debe ingresar el gasto único
-          </div>
-        </b-form-group>
-        <b-form-group label="Fecha de adquisición:">
-          <b-form-input
-            type="date"
-            v-model.trim="$v.form.fecha_adquisicion.$model"
-            :state="!$v.form.fecha_adquisicion.$error"
-            placeholder="Ingresar fecha de adquisición del equipo"
-          ></b-form-input>
-          <div v-if="$v.form.fecha_adquisicion.required.$invalid" class="invalid-feedback">
-            Debe ingresar la fecha de adquisición
-          </div>
-        </b-form-group>
-        <b-form-group label="Existencia:">
-          <b-form-input
-            type="number"
-            v-model.trim="$v.form.existencia.$model"
-            :state="!$v.form.existencia.$error"
-            placeholder="Ingresar existencia del equipo"
-          ></b-form-input>
-          <div v-if="$v.form.existencia.required.$invalid" class="invalid-feedback">
-            Debe ingresar la existencia
+          <div v-if="varPrecioSobrecargo === 0 || varPrecioSobrecargo === null" class="invalid-feedback">
+            Debe ingresar el Precio extraordinario
           </div>
         </b-form-group>
       </b-form>
+      <b-form-group label="Tipo de examen:">
+          <b-form-input
+            v-model.trim="varTipo"
+            placeholder="Ingresar tipo del examen"
+          ></b-form-input>
+          <div v-if="varTipo === ''" class="invalid-feedback">
+            Debe ingresar el tipo
+          </div>
+        </b-form-group>
       <template #modal-footer="{}">
-        <b-button variant="primary" @click="onValidate('update')"
+        <b-button variant="primary" @click="onUpdateTest()"
           >Guardar</b-button
         >
-        <b-button variant="danger" @click="closeModal('update')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-2-updateExamen')"
           >Cancelar</b-button
         >
       </template>
@@ -245,26 +191,129 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6 class="my-4">
-        Campos de {{ form.nombre }} ?
+        Campos de {{ form.nombreExamen }}
       </h6>
-      <b-table
+      <b-table ref="table_campos"
         hover
         :items="campos"
         :fields="fieldsCampos"
         :select-mode="'single'"
         selectable
       >
+        <template #cell(show_details)="row">
+          <b-button size="sm" @click="()=>{
+            setDataAttribute(row.item)
+            row.toggleDetails()
+          }
+            " class="mr-2" @close="clearDataAttribute()">
+            Editar
+          </b-button>
+        </template>
+
+        <template #row-details="row">
+          <b-card
+            >
+            <b-form @submit="$event.preventDefault()">
+              <b-form-group label="Nombre:">
+                <b-form-input
+                  v-model.trim="varNombreCampoEdit"
+                  :placeholder= row.item.nombre
+                  default
+                ></b-form-input>
+                <div v-if="varNombreCampoEdit === ''" class="invalid-feedback">
+                Debe ingresar el nombre
+                </div>
+              </b-form-group>
+              <b-form-group label="valor de referencia mínimo:">
+                <b-form-input
+                  type="number"
+                  v-model.trim="varValorMinimoEdit"
+                  :placeholder=row.itemvalor_minimo
+                ></b-form-input>
+                <div v-if="varValorMinimoEdit === 0 || varValorMinimoEdit === null" class="invalid-feedback">
+                  Debe ingresar el valor de referencia mínimo
+                </div>
+              </b-form-group>
+              <b-form-group label="valor de referencia máximo:">
+                <b-form-input
+                  type="number"
+                  v-model.trim="varValorMaximoEdit"
+                  :placeholder=row.item.valor_maximo
+                ></b-form-input>
+                <div v-if="varValorMaximoEdit === 0 || varValorMaximoEdit === null" class="invalid-feedback">
+                  Debe ingresar el valor de referencia máximo
+                </div>
+              </b-form-group>
+            </b-form>
+            <b-form-group label="Unidades:">
+                <b-form-input
+                  v-model.trim="varUnidadesEdit"
+                  :placeholder=row.item.unidades
+                ></b-form-input>
+                <div v-if="varUnidadesEdit === ''" class="invalid-feedback">
+                  Debe ingresar las unidades
+                </div>
+              </b-form-group>
+              <b-button variant="primary" @click="onUpdateAttributes(row.item)">Guardar</b-button>
+              <b-button variant="danger" @click="()=>{
+                clearDataAttribute()
+                row.toggleDetails()
+              }
+              ">Cancelar</b-button
+          >
+            </b-card>
+        </template>
       </b-table>
+      <b-card ref="newAttributeCard">
+        AGREGAR CAMPO
+        <b-form @submit="$event.preventDefault()">
+          <b-form-group label="Nombre:">
+            <b-form-input
+              v-model="varNombreCampo"
+              placeholder= "Ingresar nombre"
+              default
+            ></b-form-input>
+            <div v-if="varNombreCampo === ''" class="invalid-feedback">
+            Debe ingresar el nombre
+            </div>
+          </b-form-group>
+          <b-form-group label="valor de referencia mínimo:">
+            <b-form-input
+              type="number"
+              v-model="varValorMinimo"
+              placeholder="Ingresar valor de referencia mínimo"
+            ></b-form-input>
+            <div v-if="varValorMinimo === 0 || varValorMinimo === null" class="invalid-feedback">
+              Debe ingresar el valor de referencia mínimo
+            </div>
+          </b-form-group>
+          <b-form-group label="valor de referencia máximo:">
+            <b-form-input
+              type="number"
+              v-model="varValorMaximo"
+              placeholder="Ingresar valor de referencia máximo"
+            ></b-form-input>
+            <div v-if="varValorMaximo === 0 || varValorMaximo === null" class="invalid-feedback">
+              Debe ingresar el valor de referencia máximo
+            </div>
+          </b-form-group>
+        </b-form>
+        <b-form-group label="Unidades:">
+            <b-form-input
+              v-model="varUnidades"
+              placeholder="Ingresar unidades"
+            ></b-form-input>
+            <div v-if="varUnidades === ''" class="invalid-feedback">
+              Debe ingresar las unidades
+            </div>
+          </b-form-group>
+          <b-button variant="primary" @click="onNewAttribute()">Guardar</b-button>
+          <b-button variant="danger" @click="this.$refs['modal-5-campos'].hide()">Cancelar</b-button>
+          <b-button @click="clearDataAttribute()">Limpiar</b-button>
+      </b-card>
       <template #modal-footer="{}">
-        <b-button
-          type="submit"
-          variant="primary"
-          @click="/* onState() */
-                  $bvModal.hide('modal-5-campos')"
-          >Activar</b-button
-        >
         <b-button variant="danger" @click="$bvModal.hide('modal-5-campos')"
-          >Cancelar</b-button
+          >Cerrar</b-button
         >
       </template>
     </b-modal>
@@ -281,7 +330,7 @@
               </div>
             </template>
             <template v-slot:headerAction>
-            <b-button variant="primary"  v-b-modal.modal-1-equipo>AGREGAR NUEVO</b-button>
+            <b-button variant="primary"  v-b-modal.modal-1-createExamen>AGREGAR NUEVO</b-button>
           </template>
           <template v-slot:body>
             <datatable-heading
@@ -319,45 +368,23 @@
               </div>
               <!-- Botones -->
               <template slot="actions" slot-scope="props">
-                <b-button-group>
+                <div class="button-container">
                   <b-button
-                    v-b-tooltip.top="'Editar'"
-                    @click="setData(props.rowData)"
-                    v-b-modal.modal-2-equipo
-                    class="mb-2"
+                    @click="setDataEdit(props.rowData)"
+                    v-b-modal.modal-2-updateExamen
+                    class="mb-2 button-spacing"
                     size="sm"
-                    variant="outline-warning"
-                    ><i :class="'fas fa-pencil-alt'"
-                  /></b-button>
+                    variant="dark"
+                  >Actualizar examen</b-button>
+
                   <b-button
-                    v-b-tooltip.top="
-                      props.rowData.estado == 1 ? 'Desactivar' : 'Activar'"
-                    @click="
-                      setData(props.rowData);
-                      props.rowData.estado == 1
-                        ? $bvModal.show('modal-3-equipo')
-                        : $bvModal.show('modal-4-equipo');
-                    "
-                    class="mb-2"
-                    size="sm"
-                    :variant="
-                      props.rowData.estado == 1 ? 'outline-danger' : 'outline-info'">
-                    <i
-                      :class="
-                        props.rowData.estado == 1
-                          ? 'fas fa-trash-alt'
-                          : 'fas fa-check'"
-                  /></b-button>
-                  <b-button
-                    v-b-tooltip.top="'Campos'"
                     @click="setData(props.rowData)"
                     v-b-modal.modal-5-campos
-                    class="mb-2"
+                    class="mb-2 button-spacing"
                     size="sm"
-                    variant="outline-warning"
-                    ><i :class="'fas fa-pencil-alt'"
-                  /></b-button>
-                </b-button-group>
+                    variant="success"
+                  >Verificar campos</b-button>
+                </div>
               </template>
               <!-- Paginacion -->
             </vuetable>
@@ -410,22 +437,28 @@ export default {
         },
         {
           key: 'valor_minimo',
-          label: 'Mínimo',
+          label: 'Valor de Referencia Mínimo',
           sortable: true
         },
         {
           key: 'valor_maximo',
-          label: 'Máximo',
+          label: 'Valor de Referencia Máximo',
           sortable: true
         },
         {
           key: 'unidades',
           label: 'Unidades',
           sortable: true
-        }],
+        },
+        {
+          key: 'show_details',
+          label: 'Acciones',
+          sortable: true
+        }
+      ],
       form: {
         id: 0,
-        nombre: '',
+        nombreExamen: '',
         cantidad_usos: 0,
         precio_publico: 0.0,
         gasto_unico: 0.0,
@@ -456,13 +489,13 @@ export default {
         {
           name: 'precio_normal',
           sortField: 'precio_normal',
-          title: 'Precio normal',
+          title: 'Precio ordinario',
           dataClass: 'list-item-heading'
         },
         {
           name: 'precio_sobrecargo',
           sortField: 'precio_sobrecargo',
-          title: 'Precio con sobrecargo',
+          title: 'Precio extraordinario',
           dataClass: 'list-item-heading'
         },
         {
@@ -507,7 +540,7 @@ export default {
       switch (action) {
         case 'save': {
           this.$v.$reset()
-          this.$refs['modal-1-equipo'].hide()
+          this.$refs['modal-1-createExamen'].hide()
           this.form.id = 0
           this.form.nombre = ''
           this.form.cantidad_usos = 0
@@ -548,7 +581,29 @@ export default {
     },
     setData (data) {
       this.form.id = data.id
+      this.form.nombreExamen = data.nombre
       this.getDetail(data.id)
+    },
+    setDataAttribute (data) {
+      this.varNombreCampoEdit = data.nombre
+      this.varValorMaximoEdit = data.valor_maximo
+      this.varValorMinimoEdit = data.valor_minimo
+      this.varUnidadesEdit = data.unidades
+    },
+    clearDataAttribute () {
+      console.log('CLEAR')
+      this.varNombreCampo = ''
+      this.varValorMaximo = 0
+      this.varValorMinimo = 0
+      this.varUnidades = ''
+    },
+    setDataEdit (data) {
+      this.form.id = data.id
+      this.form.nombreExamen = data.nombre
+      this.varNombreExamen = data.nombre
+      this.varPrecioNormal = data.precio_normal
+      this.varPrecioSobrecargo = data.precio_sobrecargo
+      this.varTipo = data.tipo_examen
     },
     /* Guardar */
     onSave () {
@@ -679,6 +734,150 @@ export default {
       }).then((response) => {
         this.campos = response.data
       })
+    },
+    onCreateTest () {
+      if (this.varTipo === '' || this.varNombreExamen === '' || this.varPrecioNormal === 0 || this.varPrecioNormal === null || this.varPrecioSobrecargo === 0 || this.varPrecioSobrecargo === null
+      ) {
+        this.alertErrorText = 'Verifique los datos ingresados'
+        this.showAlertError()
+      } else {
+        let me = this
+        axios.post(apiUrl + '/laboratoriosAlmacenados/create',
+          {
+            nombre: this.varNombreExamen,
+            precio_normal: this.varPrecioNormal,
+            precio_sobrecargo: this.varPrecioSobrecargo,
+            tipo_examen: this.varTipo
+          })
+          .then((res) => {
+            me.alertVariant = 'info'
+            me.showAlert()
+            me.alertText = 'Se ha egresado el paciente ' + me.form.nombreExamen + ' exitosamente'
+            me.$refs.vuetable.refresh()
+            me.$refs['modal-1-createExamen'].hide()
+            this.varNombreExamen = ''
+            this.varPrecioNormal = 0
+            this.varPrecioSobrecargo = 0
+            this.varTipo = ''
+            this.form.nombreExamen = ''
+          }
+          )
+          .catch((error) => {
+            me.alertVariant = 'danger'
+            me.showAlertError()
+            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+            console.error('There was an error!', error)
+          })
+      }
+    },
+    onUpdateTest () {
+      if (this.varTipo === '' || this.varNombreExamen === '' || this.varPrecioNormal === 0 || this.varPrecioNormal === null || this.varPrecioSobrecargo === 0 || this.varPrecioSobrecargo === null
+      ) {
+        this.alertErrorText = 'Verifique los datos ingresados'
+        this.showAlertError()
+      } else {
+        let me = this
+        axios.put(apiUrl + '/laboratoriosAlmacenados/update',
+          {
+            id: this.form.id,
+            nombre: this.varNombreExamen,
+            precio_normal: this.varPrecioNormal,
+            precio_sobrecargo: this.varPrecioSobrecargo,
+            tipo_examen: this.varTipo
+          })
+          .then((res) => {
+            me.alertVariant = 'info'
+            me.showAlert()
+            me.alertText = 'Se ha modificado el examen exitosamente'
+            me.$refs.vuetable.refresh()
+            me.$refs['modal-2-update'].hide()
+            this.varNombreExamen = ''
+            this.varPrecioNormal = 0
+            this.varPrecioSobrecargo = 0
+            this.varTipo = ''
+            this.form.nombreExamen = ''
+          }
+          )
+          .catch((error) => {
+            me.alertVariant = 'danger'
+            me.showAlertError()
+            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+            console.error('There was an error!', error)
+          })
+      }
+    },
+    onUpdateAttributes (num) {
+      if (this.varNombreCampoEdit === '') {
+        this.varNombreCampoEdit = num.nombre
+      }
+      if (this.varValorMaximoEdit === 0 || this.varValorMaximoEdit === null) {
+        this.varValorMaximoEdit = num.valor_maximo
+      }
+      if (this.varValorMinimoEdit === 0 || this.varValorMinimoEdit === null) {
+        this.varValorMinimoEdit = num.valor_minimo
+      }
+      if (this.varUnidadesEdit === '') {
+        this.varUnidadesEdit = num.unidades
+      }
+      axios.put(apiUrl + '/campoLaboratorio/update', {
+        id: num.id,
+        nombre: this.varNombreCampoEdit,
+        valor_maximo: this.varValorMaximoEdit,
+        valor_minimo: this.varValorMinimoEdit,
+        unidades: this.varUnidadesEdit
+      })
+        .then((res) => {
+          this.getDetail(num.id_examenes_almacenados)
+          this.alertVariant = 'info'
+          this.showAlertError()
+          this.alertErrorText = 'Se ha modificado el campo ' + this.varNombreCampoEdit + ' exitosamente'
+          this.$refs.table_campos.refresh()
+          // this.$refs['modal-1-createExamen'].hide()
+          this.varNombreCampoEdit = ''
+          this.varValorMaximoEdit = 0
+          this.varValorMinimoEdit = 0
+          this.varUnidadesEdit = ''
+        }
+        )
+        .catch((error) => {
+          this.alertVariant = 'danger'
+          this.showAlertError()
+          this.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+          console.error('There was an error!', error)
+        })
+    },
+    onNewAttribute () {
+      if (this.varNombreCampo === '' || this.varValorMaximo === 0 || this.varValorMaximo === null || this.varValorMinimo === 0 || this.valor_minimo === null || this.varUnidades === '') {
+        this.alertErrorText = 'Verifique los datos ingresados'
+        this.showAlertError()
+      } else {
+        axios.post(apiUrl + '/campoLaboratorio/create', {
+          id_examenes_almacenados: this.form.id,
+          nombre: this.varNombreCampo,
+          valor_maximo: this.varValorMaximo,
+          valor_minimo: this.varValorMinimo,
+          unidades: this.varUnidades
+        })
+          .then((res) => {
+            this.getDetail(this.form.id)
+            this.alertVariant = 'info'
+            this.alertText = 'Se ha añadido el campo ' + this.varNombreCampo + ' exitosamente'
+            this.showAlert()
+            this.$refs.table_campos.refresh()
+            this.varNombreCampo = ''
+            this.varValorMaximo = 0
+            this.varValorMinimo = 0
+            this.varUnidades = ''
+            this.varNombreCampo = ''
+          }
+          )
+          .catch((error) => {
+            this.alertVariant = 'danger'
+            this.showAlertError()
+            this.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+            console.error('There was an error!', error)
+          })
+      }
     }
   }
 }

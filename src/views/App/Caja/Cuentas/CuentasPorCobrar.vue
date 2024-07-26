@@ -580,8 +580,8 @@ export default {
     },
     onLoadAssurances (data) {
       console.log(data)
-      axios.get(apiUrl + '/seguros/getByExp',{
-        params:{id_expediente: data}
+      axios.get(apiUrl + '/seguros/getByExp', {
+        params: {id_expediente: data}
       })
       .then((resp) => {
         this.assurances = resp.data
