@@ -1468,7 +1468,8 @@ export default {
         this.habitaciones = response.data
         /* eslint-disable */console.log(...oo_oo(`1319611087_605_8_605_34_4`,response.data))
       })
-    },onState () {
+    },
+    onState () {
       let me = this
       axios
         .put(apiUrl + '/expedientes/changeState', {

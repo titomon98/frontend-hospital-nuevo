@@ -10,7 +10,7 @@
     >
       <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
-    <b-modal id="modal-1-equipo" ref="modal-1-equipo" title="Agregar equipo">
+    <b-modal id="modal_agregar" size="xl" ref="modal_agregar" title="Ingresar nuevo examen">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -21,71 +21,178 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <b-form @submit="$event.preventDefault()">
-        <b-form-group label="Nombre:">
-          <b-form-input
-            v-model.trim="$v.form.nombre.$model"
-            :state="!$v.form.nombre.$error"
-            placeholder="Ingresar nombre del equipo"
-          ></b-form-input>
-          <div v-if="$v.form.nombre.required.$invalid" class="invalid-feedback">
-            Debe ingresar el nombre
-          </div>
-        </b-form-group>
-        <b-form-group label="Cantidad de usos actual:">
-          <b-form-input
-            type="number"
-            v-model.trim="$v.form.cantidad_usos.$model"
-            :state="!$v.form.cantidad_usos.$error"
-            placeholder="Ingresar cantidad de usos actual del equipo"
-          ></b-form-input>
-          <div v-if="$v.form.cantidad_usos.required.$invalid" class="invalid-feedback">
-            Debe ingresar la cantidad de usos
-          </div>
-        </b-form-group>
-        <b-form-group label="Precio público:">
-          <b-form-input
-            type="number"
-            v-model.trim="$v.form.precio_publico.$model"
-            :state="!$v.form.precio_publico.$error"
-            placeholder="Ingresar precio público del equipo"
-          ></b-form-input>
-          <div v-if="$v.form.precio_publico.required.$invalid" class="invalid-feedback">
-            Debe ingresar el precio público
-          </div>
-        </b-form-group>
-        <b-form-group label="Gasto único:">
-          <b-form-input
-            type="number"
-            v-model.trim="$v.form.gasto_unico.$model"
-            :state="!$v.form.gasto_unico.$error"
-            placeholder="Ingresar gasto único del equipo"
-          ></b-form-input>
-          <div v-if="$v.form.gasto_unico.required.$invalid" class="invalid-feedback">
-            Debe ingresar el gasto único
-          </div>
-        </b-form-group>
-        <b-form-group label="Fecha de adquisición:">
-          <b-form-input
-            type="date"
-            v-model.trim="$v.form.fecha_adquisicion.$model"
-            :state="!$v.form.fecha_adquisicion.$error"
-            placeholder="Ingresar fecha de adquisición del equipo"
-          ></b-form-input>
-          <div v-if="$v.form.fecha_adquisicion.required.$invalid" class="invalid-feedback">
-            Debe ingresar la fecha de adquisición
-          </div>
-        </b-form-group>
-        <b-form-group label="Existencia:">
-          <b-form-input
-            type="number"
-            v-model.trim="$v.form.existencia.$model"
-            :state="!$v.form.existencia.$error"
-            placeholder="Ingresar existencia del equipo"
-          ></b-form-input>
-          <div v-if="$v.form.existencia.required.$invalid" class="invalid-feedback">
-            Debe ingresar la existencia
-          </div>
-        </b-form-group>
+        <b-row class="ml-2">
+          <b-col md="6">
+            <b-form-group label="Nombre:">
+              <b-form-input
+                v-model.trim="$v.form.nombre.$model"
+                :state="!$v.form.nombre.$error"
+                placeholder="Ingresar nombre paciente"
+              ></b-form-input>
+              <div v-if="$v.form.nombre.required.$invalid" class="invalid-feedback">
+                Debe ingresar el nombre
+              </div>
+            </b-form-group>
+          </b-col>
+        </b-row>
+        <b-row class="ml-2">
+          <b-col md="3">
+            <b-form-group label="CUI:">
+              <b-form-input
+                v-model.trim="$v.form.cui.$model"
+                :state="!$v.form.cui.$error"
+                placeholder="Ingresar CUI paciente"
+              ></b-form-input>
+              <div v-if="$v.form.cui.required.$invalid" class="invalid-feedback">
+                Debe ingresar el CUI
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Comisión:">
+              <b-form-input
+                v-model.trim="$v.form.comision.$model"
+                :state="!$v.form.comision.$error"
+                placeholder="Ingresar Comisión"
+              ></b-form-input>
+              <div v-if="$v.form.comision.required.$invalid" class="invalid-feedback">
+                Debe ingresar Comisión
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Total:">
+              <b-form-input
+                v-model.trim="$v.form.total.$model"
+                :state="!$v.form.total.$error"
+                placeholder="Ingresar el total"
+              ></b-form-input>
+              <div v-if="$v.form.total.required.$invalid" class="invalid-feedback">
+                Debe ingresar el total
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Correo Electronico:">
+              <b-form-input
+                v-model.trim="$v.form.correo.$model"
+                :state="!$v.form.correo.$error"
+                placeholder="Debe ingresar el correo electronico"
+              ></b-form-input>
+              <div v-if="$v.form.correo.required.$invalid" class="invalid-feedback">
+                Debe ingresar el correo electronico
+              </div>
+            </b-form-group>
+          </b-col>
+        </b-row>
+        <b-row class="ml-2">
+          <b-col md="3">
+            <b-form-group label="Número Celular:">
+              <b-form-input
+                v-model.trim="$v.form.whatsapp.$model"
+                :state="!$v.form.whatsapp.$error"
+                placeholder="Ingresar el numero de celular"
+              ></b-form-input>
+              <div v-if="$v.form.whatsapp.required.$invalid" class="invalid-feedback">
+                Debe ingresar el numero de celular
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Numero Muestra:">
+              <b-form-input
+                v-model.trim="$v.form.numero_muestra.$model"
+                :state="!$v.form.numero_muestra.$error"
+                placeholder="Ingresar el numero de muestra"
+              ></b-form-input>
+              <div v-if="$v.form.numero_muestra.required.$invalid" class="invalid-feedback">
+                Debe ingresar el numero de muestra
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Referido:">
+              <b-form-input
+                v-model.trim="$v.form.referido.$model"
+                :state="!$v.form.referido.$error"
+                placeholder="Ingresar Rerido"
+              ></b-form-input>
+              <div v-if="$v.form.referido.required.$invalid" class="invalid-feedback">
+                Ingresar Rerido
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Pagado:">
+              <b-form-input
+                v-model.trim="$v.form.pagado.$model"
+                :state="!$v.form.pagado.$error"
+                placeholder="Ingresar Lo pagado"
+              ></b-form-input>
+              <div v-if="$v.form.pagado.required.$invalid" class="invalid-feedback">
+                Ingresar Pagado
+              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Por pagar:">
+              <b-form-input
+                v-model.trim="$v.form.por_pagar.$model"
+                :state="!$v.form.por_pagar.$error"
+                placeholder="Ingresar Lo que esta por pagar"
+              ></b-form-input>
+              <div v-if="$v.form.por_pagar.required.$invalid" class="invalid-feedback">
+                Ingrese lo que esta por pagar
+              </div>
+            </b-form-group>
+          </b-col>
+        </b-row>
+        <b-row class="ml-2">
+          <b-col md="4">
+            <b-form-group label="Encargado:">
+              <v-select
+                name="type"
+                v-model="form.id_encargado"
+                :options="encargados"
+                :filterable="false"
+                placeholder="Seleccione un encargado"
+                @search="onSearchEncargado"
+              >
+                <template v-slot:spinner="{ loading }">
+                  <div v-show="loading">Cargando...</div>
+                </template>
+                <template v-slot:option="option">
+                  {{ 'Nombre: '+ option.nombres }}
+                </template>
+                <template slot="selected-option" slot-scope="option">
+                  {{ 'Nombre: '+ option.nombres }}
+                </template>
+              </v-select>
+            </b-form-group>
+          </b-col>
+          <b-col md="4">
+            <b-form-group label="Tipo de Examen:">
+              <v-select
+                name="type"
+                v-model="form.id_examenes_almacenados"
+                :options="examenes_almacenados"
+                :filterable="false"
+                placeholder="Seleccione el Examen"
+                @search="onSearch_id_examenes_almacenados"
+              >
+                <template v-slot:spinner="{ loading }">
+                  <div v-show="loading">Cargando...</div>
+                </template>
+                <template v-slot:option="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+                <template slot="selected-option" slot-scope="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+              </v-select>
+            </b-form-group>
+          </b-col>
+        </b-row>
       </b-form>
       <template #modal-footer="{}">
         <b-button variant="primary" @click="onValidate('save')"
@@ -96,7 +203,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-2-equipo" ref="modal-2-equipo" title="Editar equipo">
+    <b-modal id="modal-add-resultados" size="lg" ref="modal-add-resultados" title="Agregar Resultados">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -107,82 +214,48 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <b-form @submit="$event.preventDefault()">
-        <b-form-group label="Nombre:">
-          <b-form-input
-            v-model.trim="$v.form.nombre.$model"
-            :state="!$v.form.nombre.$error"
-            placeholder="Ingresar nombre del equipo"
-          ></b-form-input>
-          <div v-if="$v.form.nombre.required.$invalid" class="invalid-feedback">
-            Debe ingresar el nombre
-          </div>
-        </b-form-group>
-        <b-form-group label="Cantidad de usos actual:">
-          <b-form-input
-            type="number"
-            v-model.trim="$v.form.cantidad_usos.$model"
-            :state="!$v.form.cantidad_usos.$error"
-            placeholder="Ingresar cantidad de usos actual del equipo"
-          ></b-form-input>
-          <div v-if="$v.form.cantidad_usos.required.$invalid" class="invalid-feedback">
-            Debe ingresar la cantidad de usos
-          </div>
-        </b-form-group>
-        <b-form-group label="Precio público:">
-          <b-form-input
-            type="number"
-            v-model.trim="$v.form.precio_publico.$model"
-            :state="!$v.form.precio_publico.$error"
-            placeholder="Ingresar precio público del equipo"
-          ></b-form-input>
-          <div v-if="$v.form.precio_publico.required.$invalid" class="invalid-feedback">
-            Debe ingresar el precio público
-          </div>
-        </b-form-group>
-        <b-form-group label="Gasto único:">
-          <b-form-input
-            type="number"
-            v-model.trim="$v.form.gasto_unico.$model"
-            :state="!$v.form.gasto_unico.$error"
-            placeholder="Ingresar gasto único del equipo"
-          ></b-form-input>
-          <div v-if="$v.form.gasto_unico.required.$invalid" class="invalid-feedback">
-            Debe ingresar el gasto único
-          </div>
-        </b-form-group>
-        <b-form-group label="Fecha de adquisición:">
-          <b-form-input
-            type="date"
-            v-model.trim="$v.form.fecha_adquisicion.$model"
-            :state="!$v.form.fecha_adquisicion.$error"
-            placeholder="Ingresar fecha de adquisición del equipo"
-          ></b-form-input>
-          <div v-if="$v.form.fecha_adquisicion.required.$invalid" class="invalid-feedback">
-            Debe ingresar la fecha de adquisición
-          </div>
-        </b-form-group>
-        <b-form-group label="Existencia:">
-          <b-form-input
-            type="number"
-            v-model.trim="$v.form.existencia.$model"
-            :state="!$v.form.existencia.$error"
-            placeholder="Ingresar existencia del equipo"
-          ></b-form-input>
-          <div v-if="$v.form.existencia.required.$invalid" class="invalid-feedback">
-            Debe ingresar la existencia
-          </div>
-        </b-form-group>
+        <b-row class="ml-2">
+          <b-col md="6">
+            <b-form-group label="Tipo Examen">
+              <v-select
+                name="type"
+                v-model="formResultado.tipo"
+                :options="tipo_examenes"
+                :filterable="false"
+                placeholder="Seleccione el Examen"
+                @search="onSearch_tipoExamen"
+              >
+                <template v-slot:spinner="{ loading }">
+                  <div v-show="loading">Cargando...</div>
+                </template>
+                <template v-slot:option="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+                <template slot="selected-option" slot-scope="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+              </v-select>
+            </b-form-group>
+          </b-col>
+        </b-row>
+            <b-form-group label="Resultado:">
+              <quill-editor
+              v-model="formResultado.resultado"
+              :options="editorOptions"
+              class="custom-editor">
+            </quill-editor>
+            </b-form-group>
       </b-form>
       <template #modal-footer="{}">
-        <b-button variant="primary" @click="onValidate('update')"
+        <b-button variant="primary" @click="onValidateResultado('save')"
           >Guardar</b-button
         >
-        <b-button variant="danger" @click="closeModal('update')"
+        <b-button variant="danger" @click="closeModal('resultado')"
           >Cancelar</b-button
         >
       </template>
     </b-modal>
-    <b-modal id="modal-3-equipo" ref="modal-3-equipo" title="Desactivar equipo">
+    <b-modal size="lg" id="modal-ver-resultados" ref="modal-ver-resultados" title="Ver Resultados">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -192,64 +265,67 @@
       >
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
-      <h6 class="my-4">
-        ¿Desea desactivar el equipo: {{ form.nombre }} ?
-      </h6>
+      <vuetable
+          ref="vuetableResultados"
+          class="table-divided table-responsive order-with-arrow"
+          :api-url="apiBaseResultado"
+          :query-params="makeQueryParamsResultado"
+          :per-page="perPageResultado"
+          :reactive-api-url="true"
+          :fields="fieldsResultado"
+          pagination-path
+          @vuetable:pagination-data="onPaginationDataResultado"
+        >
+          <template slot="actions" slot-scope="props">
+            <b-button-group>
+              <b-button
+                v-b-tooltip.top="'Generar PDF'"
+                @click="voucherData(props.rowData)"
+                class="mb-2"
+                size="sm"
+                variant="outline-info"
+                ><i :class="'fas fa-money-bill'"
+              /></b-button>
+            </b-button-group>
+          </template>
+        </vuetable>
+        <vuetable-pagination-bootstrap
+          ref="paginationResultado"
+          @vuetable-pagination:change-page="onChangePageResultado"
+        />
       <template #modal-footer="{}">
-        <b-button
-          type="submit"
-          variant="primary"
-          @click="onState()
-                  $bvModal.hide('modal-3-equipo')"
-          >Desactivar</b-button
-        >
-        <b-button variant="danger" @click="$bvModal.hide('modal-3-equipo')"
-          >Cancelar</b-button
-        >
-      </template>
-    </b-modal>
-    <b-modal id="modal-4-equipo" ref="modal-4-equipo" title="Activar equipo">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
-      >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
-      </b-alert>
-      <h6 class="my-4">
-        ¿Desea activar al equipo: {{ form.nombre }} ?
-      </h6>
-      <template #modal-footer="{}">
-        <b-button
-          type="submit"
-          variant="primary"
-          @click="onState()
-                  $bvModal.hide('modal-4-equipo')"
-          >Activar</b-button
-        >
-        <b-button variant="danger" @click="$bvModal.hide('modal-4-equipo')"
-          >Cancelar</b-button
+        <b-button variant="danger" @click="closeModal('ver-resultado')"
+          >Cerrar</b-button
         >
       </template>
     </b-modal>
     <b-row>
-      <b-col md="12">
+      <b-col sm="12">
         <iq-card>
-            <template v-slot:headerTitle>
-              <h4 class="card-title mt-3">Exámenes realizados por laboratorio</h4>
-               <div class="iq-search-bar mt-2">
-                <b-form action="#" class="searchbox">
-                    <b-input id="search" placeholder="Buscar..." @input="(val) => searchChange(val)" />
-                    <a class="search-link" href="#"><i class="ri-search-line"></i></a>
-                </b-form>
-              </div>
-            </template>
-            <template v-slot:headerAction>
-            <b-button variant="primary"  v-b-modal.modal-1-equipo>AGREGAR NUEVO</b-button>
+          <template v-slot:headerTitle>
+            <div class="center-text">
+              <h3 class="card-title">EXAMENES REALIZADOS</h3>
+            </div>
+          </template>
+          <template v-slot:headerAction>
+            <b-button variant="primary"  v-b-modal.modal_agregar>AGREGAR NUEVO</b-button>
           </template>
           <template v-slot:body>
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <b-form-group label="Fecha Desde:">
+                  <b-form-input type="date" v-model="fechaDesde"></b-form-input>
+                </b-form-group>
+              </div>
+              <div class="col-md-4">
+                <b-form-group label="Fecha Hasta:">
+                  <b-form-input type="date" v-model="fechaHasta"></b-form-input>
+                </b-form-group>
+              </div>
+              <div class="col-md-4">
+                <b-button variant="primary" @click="realizarBusqueda">Buscar</b-button>
+              </div>
+            </div>
             <datatable-heading
               :changePageSize="changePageSizes"
               :searchChange="searchChange"
@@ -270,53 +346,26 @@
               pagination-path
               @vuetable:pagination-data="onPaginationData"
             >
-              <!-- Estado -->
-              <div slot="estado" slot-scope="props">
-                <h5 v-if="props.rowData.estado == 1">
-                  <b-badge variant="light"
-                    ><h6 class="success"><strong>ACTIVO</strong></h6></b-badge
-                  >
-                </h5>
-                <h5 v-else>
-                  <b-badge variant="light"
-                    ><h6 class="danger"><strong>INACTIVO</strong></h6></b-badge
-                  >
-                </h5>
-              </div>
-              <!-- Botones -->
-              <template slot="actions" slot-scope="props">
-                <b-button-group>
+            <!-- Botones -->
+            <template slot="actions" slot-scope="props">
+              <b-button-group>
+                <div class="button-container">
                   <b-button
-                    v-b-tooltip.top="'Editar'"
-                    @click="setData(props.rowData)"
-                    v-b-modal.modal-2-equipo
-                    class="mb-2"
+                    @click="addResultado(props.rowData.id)"
+                    class="mb-2 button-spacing"
                     size="sm"
-                    variant="outline-warning"
-                    ><i :class="'fas fa-pencil-alt'"
-                  /></b-button>
+                    variant="success"
+                  >Agregar resultado</b-button>
+
                   <b-button
-                    v-b-tooltip.top="
-                      props.rowData.estado == 1 ? 'Desactivar' : 'Activar'"
-                    @click="
-                      setData(props.rowData);
-                      props.rowData.estado == 1
-                        ? $bvModal.show('modal-3-equipo')
-                        : $bvModal.show('modal-4-equipo');
-                    "
-                    class="mb-2"
+                    @click="verResultado(props.rowData.id)"
+                    class="mb-2 button-spacing"
                     size="sm"
-                    :variant="
-                      props.rowData.estado == 1 ? 'outline-danger' : 'outline-info'">
-                    <i
-                      :class="
-                        props.rowData.estado == 1
-                          ? 'fas fa-trash-alt'
-                          : 'fas fa-check'"
-                  /></b-button>
-                </b-button-group>
+                    variant="dark"
+                  >Ver resultado</b-button>
+                </div>
+              </b-button-group>
               </template>
-              <!-- Paginacion -->
             </vuetable>
             <vuetable-pagination-bootstrap
                 ref="pagination"
@@ -328,22 +377,28 @@
     </b-row>
   </b-container>
 </template>
+
 <script>
 import { xray } from '../../../config/pluginInit'
+import IqCard from '../../../components/xray/cards/iq-card'
+import { apiUrl } from '../../../config/constant'
+import moment from 'moment'
 import DatatableHeading from '../../Tables/DatatableHeading'
 import Vuetable from 'vuetable-2/src/components/Vuetable'
 import VuetablePaginationBootstrap from '../../../components/common/VuetablePaginationBootstrap'
+import axios from 'axios'
 import useVuelidate from '@vuelidate/core'
 import { required } from '@vuelidate/validators'
-import axios from 'axios'
-import { apiUrl } from '../../../config/constant'
+import { quillEditor } from 'vue-quill-editor'
 
 export default {
   name: 'Examenes',
   components: {
     vuetable: Vuetable,
     'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
-    'datatable-heading': DatatableHeading
+    'datatable-heading': DatatableHeading,
+    IqCard,
+    quillEditor
   },
   setup () {
     return { $v: useVuelidate() }
@@ -351,30 +406,117 @@ export default {
   mounted () {
     xray.index()
   },
-  data () {
+  data: () => {
     return {
-      from: 0,
-      to: 0,
-      total: 0,
-      perPage: 5,
-      search: '',
+
+      editorOptions: {
+        modules: {
+          toolbar: [
+            [{ 'header': '1' }, { 'header': '2' }, { 'font': [] }],
+            [{ size: [] }],
+            ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+            ['clean']
+          ]
+        },
+        placeholder: 'Escribir contenido del resultado',
+        theme: 'snow'
+      },
+
+      tipo_examenes: [],
+      formResultado: {
+        id: null,
+        tipo: '',
+        resultado: null
+      },
+      id_ver_Resultado: null,
+      fromResultado: 0,
+      toResultado: 0,
+      totalResultado: 0,
+      perPageResultado: 5,
+      searchResultado: '',
+      fechaDesdeResultado: null,
+      fechaHastaResultado: null,
+      apiBaseResultado: '',
+      fielsResultado: [
+        {
+          name: 'tipo',
+          sortField: 'tipo',
+          title: 'TIPO EXAMEN',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'resultados',
+          sortField: 'resultado',
+          title: 'RESULTADO EXAMEN',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'fecha_hora',
+          sortField: 'fecha_hora',
+          title: 'Fecha y Hora',
+          dataClass: 'list-item-heading'
+        }
+      ],
+
+      examenes_almacenados: [],
+      encargados: [],
       form: {
         id: 0,
         nombre: '',
-        cantidad_usos: 0,
-        precio_publico: 0.0,
-        gasto_unico: 0.0,
-        fecha_adquisicion: '',
-        existencia: 0,
-        state: 1
+        cui: 0,
+        comision: '',
+        total: 0,
+        correo: '',
+        whatsapp: '',
+        numero_muestra: 0,
+        existencia_actual: 0,
+        referido: '',
+        id_encargado: null,
+        pagado: 0,
+        por_pagar: 0,
+        id_examenes_almacenados: null
       },
+
       alertSecs: 5,
       alertCountDown: 0,
       alertCountDownError: 0,
       alertText: '',
       alertErrorText: '',
       alertVariant: '',
-      apiBase: apiUrl + '/equipos/list',
+
+      from: 0,
+      to: 0,
+      total: 0,
+      perPage: 5,
+      search: '',
+      fechaDesde: null,
+      fechaHasta: null,
+      apiBase: apiUrl + '/Examenes_realizados/list',
+      slickOptions: {
+        centerMode: false,
+        centerPadding: '60px',
+        slidesToShow: 5,
+        slidesToScroll: 1,
+        focusOnSelect: true,
+        responsive: [{
+          breakpoint: 992,
+          settings: {
+            arrows: false,
+            centerMode: true,
+            centerPadding: '30',
+            slidesToShow: 3
+          }
+        }, {
+          breakpoint: 480,
+          settings: {
+            arrows: false,
+            centerMode: true,
+            centerPadding: '15',
+            slidesToShow: 1
+          }
+        }]
+      },
       fields: [
         {
           name: '__slot:actions',
@@ -389,35 +531,58 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
-          name: 'cantidad_usos',
-          sortField: 'cantidad_usos',
-          title: 'Cantidad de usos',
+          name: 'cui',
+          sortField: 'cui',
+          title: 'CUI',
           dataClass: 'list-item-heading'
         },
         {
-          name: 'gasto_unico',
-          sortField: 'gasto_unico',
-          title: 'Gasto único',
+          name: 'total',
+          sortField: 'total',
+          title: 'Total a Pagar',
           dataClass: 'list-item-heading'
         },
         {
-          name: 'fecha_adquisicion',
-          sortField: 'fecha_adquisicion',
-          title: 'Fecha de adquisición',
+          name: 'whatsapp',
+          sortField: 'whatsapp',
+          title: 'Celular',
           dataClass: 'list-item-heading'
         },
         {
-          name: 'existencia',
-          sortField: 'existencia',
-          title: 'Existencia',
+          name: 'numero_muestra',
+          sortField: 'numero_muestra',
+          title: 'Numero de Muestra',
           dataClass: 'list-item-heading'
         },
         {
-          name: '__slot:estado',
-          title: 'Estado',
-          titleClass: '',
-          dataClass: 'text-muted',
-          width: '25%'
+          name: 'nombre_encargago',
+          sortField: 'nombre_encargago',
+          title: 'Nombre de Encargado',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'pagado',
+          sortField: 'pagado',
+          title: 'Pagado',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'por_pagar',
+          sortField: 'por_pagar',
+          title: 'Por Pagar',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'nombre_examen',
+          sortField: 'nombre_examen',
+          title: 'Examen Realizado',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'fecha_hora',
+          sortField: 'fecha_hora',
+          title: 'Fecha y Hora',
+          dataClass: 'list-item-heading'
         }
       ]
     }
@@ -426,58 +591,50 @@ export default {
     return {
       form: {
         nombre: { required },
-        cantidad_usos: { required },
-        precio_publico: { required },
-        gasto_unico: { required },
-        fecha_adquisicion: { required },
-        existencia: { required }
+        cui: { required },
+        comision: { required },
+        total: { required },
+        correo: { required },
+        whatsapp: { required },
+        numero_muestra: { required },
+        referido: { required },
+        pagado: { required },
+        por_pagar: { required }
       }
     }
   },
   methods: {
-    openModal (modal, action) {
-      switch (modal) {
-        case 'save': {
-          this.$v.$reset()
-          this.form.id = 0
-          this.form.nombre = ''
-          this.form.cantidad_usos = 0
-          this.form.precio_publico = 0
-          this.form.gasto_unico = 0
-          this.form.fecha_adquisicion = ''
-          this.form.existencia = 0
-          this.form.state = 1
-          break
-        }
-      }
-    },
     closeModal (action) {
       switch (action) {
         case 'save': {
           this.$v.$reset()
-          this.$refs['modal-1-equipo'].hide()
+          this.$refs['modal_agregar'].hide()
           this.form.id = 0
           this.form.nombre = ''
-          this.form.cantidad_usos = 0
-          this.form.precio_publico = 0
-          this.form.gasto_unico = 0
-          this.form.fecha_adquisicion = ''
-          this.form.existencia = 0
-          this.form.state = 1
+          this.form.cui = 0
+          this.form.comision = ''
+          this.form.total = 0
+          this.form.correo = ''
+          this.form.whatsapp = ''
+          this.form.numero_muestra = ''
+          this.form.existencia_actual = 0
+          this.form.referido = ''
+          this.form.id_encargago = null
+          this.form.pagado = 0
+          this.form.por_pagar = 0
+          this.form.id_examenes_almacenados = null
           break
         }
-        case 'update': {
+        case 'resultado': {
           this.$v.$reset()
-          this.$refs['modal-2-equipo'].hide()
-          this.form.id = 0
-          this.form.nombre = ''
-          this.form.cantidad_usos = 0
-          this.form.precio_publico = 0
-          this.form.gasto_unico = 0
-          this.form.fecha_adquisicion = ''
-          this.form.existencia = 0
-          this.form.state = 1
+          this.$refs['modal-add-resultados'].hide()
+          this.formResultado.id = null
+          this.formResultado.tipo = ''
+          this.formResultado.resultado = null
           break
+        }
+        case 'ver-resultado': {
+          this.$refs['modal-ver-resultados'].hide()
         }
       }
     },
@@ -494,25 +651,51 @@ export default {
         this.showAlertError()
       }
     },
-    setData (data) {
-      this.form.nombre = data.nombre
-      this.form.cantidad_usos = data.cantidad_usos
-      this.form.precio_publico = data.precio_publico
-      this.form.gasto_unico = data.gasto_unico
-      this.form.fecha_adquisicion = data.fecha_adquisicion
-      this.form.existencia = data.existencia
-      this.form.state = data.estado
-      this.form.id = data.id
+    onValidateResultado (action) {
+      if (this.formResultado.resultado != null) {
+        console.log(this.formResultado)
+        if (action === 'save') {
+          this.onSaveResultado()
+        } else if (action === 'update') {
+          this.onUpdate()
+        }
+      } else {
+        this.alertErrorText = 'Revisa que todos los campos requeridos esten llenos'
+        this.showAlertError()
+      }
     },
-    /* Guardar */
+    /* GUARDAR */
+    addResultado (id) {
+      this.$refs['modal-add-resultados'].show()
+      console.log(id)
+      this.form.id = id
+    },
+    onSaveResultado () {
+      const me = this
+      axios.post(apiUrl + '/detalleExamenRealizado/create', {
+        form: me.formResultado })
+        .then((response) => {
+          me.alertVariant = 'success'
+          me.showAlert()
+          me.alertText = 'Se ingresado el resultado del examen' + me.formResultado.tipo + ' exitosamente'
+          me.$refs.vuetable.refresh()
+          me.closeModal('resultado')
+        })
+        .catch((error) => {
+          me.alertVariant = 'danger'
+          me.showAlertError()
+          me.alertErrorText = error.response.data.msg
+          console.error('Error!', error)
+        })
+    },
     onSave () {
       const me = this
-      axios.post(apiUrl + '/equipos/create', {
+      axios.post(apiUrl + '/Examenes_realizados/create', {
         form: me.form })
         .then((response) => {
           me.alertVariant = 'success'
           me.showAlert()
-          me.alertText = 'Se ha creado el equipo ' + me.form.nombre + ' exitosamente'
+          me.alertText = 'Se ingresado al pasciente ' + me.form.nombre + ' exitosamente'
           me.$refs.vuetable.refresh()
           me.closeModal('save')
         })
@@ -523,82 +706,81 @@ export default {
           console.error('Error!', error)
         })
     },
-    /* Guardar */
-    onUpdate () {
-      const me = this
-      // this.$refs["modalSave"].hide();
-      axios.put(apiUrl + '/equipos/update', {
-        form: me.form })
-        .then((response) => {
-          me.alertVariant = 'primary'
-          me.showAlert()
-          me.alertText = 'Se ha actualizado el equipo ' + me.form.nombre + ' exitosamente'
-          me.$refs.vuetable.refresh()
-          me.closeModal('update')
-        })
-        .catch((error) => {
-          me.alertVariant = 'danger'
-          me.showAlertError()
-          me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-          console.error('Error!', error)
-        })
-    },
-    onState () {
-      let me = this
-      if (this.form.state === 1) {
-        axios
-          .put(apiUrl + '/equipos/deactivate', {
-            id: this.form.id
-          })
-          .then((response) => {
-            me.alertVariant = 'warning'
-            me.showAlert()
-            me.alertText = 'Se ha desactivado el equipo ' + me.form.nombre + ' exitosamente'
-            me.$refs.vuetable.refresh()
-            me.$refs['modal-3-equipo'].hide()
-          })
-          .catch((error) => {
-            me.alertVariant = 'danger'
-            me.showAlertError()
-            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-            console.error('There was an error!', error)
-          })
-      } else {
-        axios
-          .put(apiUrl + '/equipos/activate', {
-            id: this.form.id
-          })
-          .then((response) => {
-            me.alertVariant = 'info'
-            me.showAlert()
-            me.alertText = 'Se ha activado el equipo ' + me.form.nombre + ' exitosamente'
-            me.$refs.vuetable.refresh()
-            me.$refs['modal-4-equipo'].hide()
-          })
-          .catch((error) => {
-            me.alertVariant = 'danger'
-            me.showAlertError()
-            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-            console.error('There was an error!', error)
-          })
+    onSearch_tipoExamen (search, loading) {
+      if (search.length) {
+        loading(true)
+        this.searching_tipoExamen(search, loading)
       }
     },
+    searching_tipoExamen (search, loading) {
+      axios.get(apiUrl + '/TipoExamenAlmacenado/getSearch',
+        {
+          params: {
+            search: search
+          }
+        }
+      ).then((response) => {
+        this.tipo_examenes = response.data
+        loading(false)
+      })
+    },
+    onSearch_id_examenes_almacenados (search, loading) {
+      if (search.length) {
+        loading(true)
+        this.searching_id_examenes_almacenados(search, loading)
+      }
+    },
+    searching_id_examenes_almacenados (search, loading) {
+      axios.get(apiUrl + '/examenesAlmacenados/getSearch',
+        {
+          params: {
+            search: search
+          }
+        }
+      ).then((response) => {
+        this.examenes_almacenados = response.data
+        loading(false)
+      })
+    },
+    onSearchEncargado (search, loading) {
+      if (search.length) {
+        loading(true)
+        this.searchingEncargado(search, loading)
+      }
+    },
+    searchingEncargado (search, loading) {
+      axios.get(apiUrl + '/encargadoExamen/getSearch',
+        {
+          params: {
+            search: search
+          }
+        }
+      ).then((response) => {
+        this.encargados = response.data
+        loading(false)
+      })
+    },
+    showAlert () {
+      this.alertCountDown = this.alertSecs
+    },
+    showAlertError () {
+      this.alertCountDownError = this.alertSecs
+    },
+    realizarBusqueda () {
+      this.$refs.vuetable.refresh()
+      this.fechaDesde = null
+      this.fechaHasta = null
+    },
     makeQueryParams (sortOrder, currentPage, perPage) {
-      return sortOrder[0]
-        ? {
-          criterio: sortOrder[0] ? sortOrder[0].sortField : 'createdAt',
-          order: sortOrder[0] ? sortOrder[0].direction : 'desc',
-          page: currentPage,
-          limit: this.perPage,
-          search: this.search
-        }
-        : {
-          criterio: sortOrder[0] ? sortOrder[0].sortField : 'createdAt',
-          order: sortOrder[0] ? sortOrder[0].direction : 'desc',
-          page: currentPage,
-          limit: this.perPage,
-          search: this.search
-        }
+      return {
+        criterio: sortOrder[0] ? sortOrder[0].sortField : 'createdAt',
+        order: sortOrder[0] ? sortOrder[0].direction : 'desc',
+        page: currentPage,
+        limit: this.perPage,
+        search: this.search,
+        fechaDesde: this.fechaDesde ? moment(this.fechaDesde).format('YYYY-MM-DD') : null,
+        fechaHasta: this.fechaHasta ? moment(this.fechaHasta).format('YYYY-MM-DD') : null
+      }
     },
     changePageSizes (perPage) {
       this.perPage = perPage
@@ -613,18 +795,116 @@ export default {
       this.to = paginationData.to
       this.total = paginationData.total
       this.lastPage = paginationData.last_page
-      this.items = paginationData.data
+      this.items = paginationData.data.map(item => {
+        item.fecha_hora = moment(item.fecha_hora).format('DD/MM/YYYY HH:mm')
+        return {
+          id: item.id,
+          nombre: item.expediente,
+          cui: item.cui,
+          total: item.total,
+          whatsapp: item.whatsapp,
+          numero_muestra: item.numero_muestra,
+          nombre_encargago: item.nombre_encargago,
+          pagado: item.pagado,
+          por_pagar: item.por_pagar,
+          nombre_examen: item.nombre_examen,
+          fecha_hora: item.fecha_hora
+        }
+      })
       this.$refs.pagination.setPaginationData(paginationData)
     },
     onChangePage (page) {
       this.$refs.vuetable.changePage(page)
     },
-    showAlert () {
-      this.alertCountDown = this.alertSecs
+
+    verResultado (id) {
+      this.$refs['modal-ver-resultados'].show()
+      console.log(id)
+      this.apiBaseResultado = apiUrl + `/detalleExamenRealizado/list?id=${id}`
     },
-    showAlertError () {
-      this.alertCountDownError = this.alertSecs
+    realizarBusquedaResultado () {
+      this.$refs.vuetableResultado.refresh()
+      this.fechaDesdeResultado = null
+      this.fechaHastaResultado = null
+    },
+    makeQueryParamsResultado (sortOrderResultado, currentPageResultado, perPageResultado) {
+      return {
+        criterio: sortOrderResultado[0] ? sortOrderResultado[0].sortField : 'createdAt',
+        order: sortOrderResultado[0] ? sortOrderResultado[0].direction : 'desc',
+        page: currentPageResultado,
+        limit: this.perPageResultado,
+        search: this.searchResultado,
+        fechaDesdeResultado: this.fechaDesdeResultado ? moment(this.fechaDesdeResultado).format('YYYY-MM-DD') : null,
+        fechaHastaResultado: this.fechaHastaResultado ? moment(this.fechaHastaResultado).format('YYYY-MM-DD') : null
+      }
+    },
+    changePageSizesResultado (perPage) {
+      this.perPageResultado = perPage
+      this.$refs.vuetableResultado.refresh()
+    },
+    searchChangeResultado (val) {
+      this.searchResultado = val.toLowerCase()
+      this.$refs.vuetableResultado.refresh()
+    },
+    onPaginationDataResultado (paginationData) {
+      this.fromResultado = paginationData.from
+      this.toResultado = paginationData.to
+      this.totalResultado = paginationData.total
+      this.lastPageResultado = paginationData.last_page
+      this.itemsResultado = paginationData.data.map(item => {
+        item.fecha_hora = moment(item.fecha_hora).format('DD/MM/YYYY HH:mm')
+        return {
+          resultados: item.resultados,
+          tipo: item.tipo,
+          fecha_hora: item.fecha_hora
+        }
+      })
+      this.$refs.paginationResultado.setPaginationData(paginationData)
+    },
+    onChangePageResultado (page) {
+      this.$refs.vuetableResultado.changePage(page)
     }
   }
 }
 </script>
+<style>
+.iq-card-body{
+flex: unset;
+}
+.center-text {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%; /* Adjust this if needed */
+  text-align: center;
+}
+.table {
+width: 100%;
+border-collapse: collapse;
+}
+/* Estilo para las celdas de encabezado */
+.table th {
+background-color: #f0f0f0; /* Color de fondo claro */
+text-align: center;
+padding: 10px;
+border: 1px solid #ddd; /* Borde sutil */
+}
+/* Estilo para las celdas de datos */
+.table td {
+text-align: center;
+padding: 8px;
+border: 1px solid #ddd;
+}
+/* Estilo para filas alternas */
+.table tr:nth-child(even) {
+background-color: #f9f9f9; /* Color de fondo más claro para filas alternas */
+}
+
+.custom-editor {
+  height: 350px; /* Adjust the height as needed */
+}
+.custom-editor .ql-editor {
+  color: #333; /* Adjust the color value to make the text darker */
+}
+
+</style>

@@ -273,7 +273,7 @@ export default {
       searchQuirurgico: '',
       fechaDesdeQuirurgico: null,
       fechaHastaQuirurgico: null,
-      apiBaseQuirurgico: apiUrl + '/detalle_consumo_medicamentos/list',
+      apiBaseQuirurgico: apiUrl + '/detalle_consumo_quirugicos/list',
       fieldsQuirurgico: [
         {
           name: 'numero_cuenta',
