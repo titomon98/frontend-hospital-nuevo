@@ -145,7 +145,7 @@ import PacientesParent from '../views/App/Pacientes/PacientesParent'
 // Laboratorio
 // Caja
 import Cortes from '../views/App/Laboratorio/Caja/Cortes.vue'
-import CuentasPorCobrar from '../views/App/Laboratorio/Caja/CuentasPorCobrar.vue'
+import CuentasParentLaboratorio from '../views/App/Laboratorio/Caja/CuentasParent.vue'
 
 // Examenes
 import Examenes from '../views/App/Laboratorio/Examenes.vue'
@@ -174,7 +174,7 @@ const LaboratorioRoutes = (prop, mode) => [
     path: 'cuentas',
     name: prop + '.cuentas',
     meta: { dark: mode, auth: true, name: 'cuentas' },
-    component: CuentasPorCobrar
+    component: CuentasParentLaboratorio
   },
   {
     path: 'examenes',
