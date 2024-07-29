@@ -363,6 +363,13 @@
                     size="sm"
                     variant="dark"
                   >Ver resultado</b-button>
+
+                  <b-button
+                    @click="anular(props.rowData.id)"
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="danger"
+                  >Anular Examen</b-button>
                 </div>
               </b-button-group>
               </template>
@@ -438,7 +445,7 @@ export default {
       fechaDesdeResultado: null,
       fechaHastaResultado: null,
       apiBaseResultado: '',
-      fielsResultado: [
+      fieldsResultado: [
         {
           name: 'tipo',
           sortField: 'tipo',
@@ -461,6 +468,7 @@ export default {
 
       examenes_almacenados: [],
       encargados: [],
+      anularExamen: 3,
       form: {
         id: 0,
         nombre: '',
@@ -664,11 +672,33 @@ export default {
         this.showAlertError()
       }
     },
+    /* ACTUALIZAR ESTADO */
+    anular (id) {
+      const me = this
+      console.log(id)
+      const ruta = apiUrl + `/Examenes_realizados/update?id=${id}`
+      axios.put(ruta, {
+        form: me.anularExamen
+      })
+        .then((response) => {
+          me.alertVariant = 'success'
+          me.showAlert()
+          me.alertText = 'Se ha ANULADO el examen'
+          me.$refs.vuetable.refresh()
+        })
+        .catch((error) => {
+          me.alertVariant = 'danger'
+          me.showAlertError()
+          me.alertErrorText = error.response.data.msg
+          console.error('Error!', error)
+        })
+    },
+    /* FIN ACTUALIZAR ESTADO */
     /* GUARDAR */
     addResultado (id) {
       this.$refs['modal-add-resultados'].show()
       console.log(id)
-      this.form.id = id
+      this.formResultado.id = id
     },
     onSaveResultado () {
       const me = this
@@ -698,6 +728,7 @@ export default {
           me.alertText = 'Se ingresado al pasciente ' + me.form.nombre + ' exitosamente'
           me.$refs.vuetable.refresh()
           me.closeModal('save')
+          this.$refs.vuetable.refresh()
         })
         .catch((error) => {
           me.alertVariant = 'danger'
