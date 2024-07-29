@@ -269,6 +269,7 @@
         <b-form @submit="$event.preventDefault()">
           <b-form-group label="Nombre:">
             <b-form-input
+              ref="input1"
               v-model="varNombreCampo"
               placeholder= "Ingresar nombre"
               default
@@ -279,6 +280,7 @@
           </b-form-group>
           <b-form-group label="valor de referencia mínimo:">
             <b-form-input
+              ref="input2"
               type="number"
               v-model="varValorMinimo"
               placeholder="Ingresar valor de referencia mínimo"
@@ -289,6 +291,7 @@
           </b-form-group>
           <b-form-group label="valor de referencia máximo:">
             <b-form-input
+              ref="input3"
               type="number"
               v-model="varValorMaximo"
               placeholder="Ingresar valor de referencia máximo"
@@ -300,6 +303,7 @@
         </b-form>
         <b-form-group label="Unidades:">
             <b-form-input
+              ref="input4"
               v-model="varUnidades"
               placeholder="Ingresar unidades"
             ></b-form-input>
@@ -309,7 +313,7 @@
           </b-form-group>
           <b-button variant="primary" @click="onNewAttribute()">Guardar</b-button>
           <b-button variant="danger" @click="this.$refs['modal-5-campos'].hide()">Cancelar</b-button>
-          <b-button @click="clearDataAttribute()">Limpiar</b-button>
+          <b-button @click="clearDataAttribute">Limpiar</b-button>
       </b-card>
       <template #modal-footer="{}">
         <b-button variant="danger" @click="$bvModal.hide('modal-5-campos')"
@@ -423,6 +427,10 @@ export default {
   },
   data () {
     return {
+      varNombreCampo: '',
+      varValorMaximo: 0,
+      varValorMinimo: 0,
+      varUnidades: '',
       from: 0,
       to: 0,
       total: 0,
@@ -591,11 +599,15 @@ export default {
       this.varUnidadesEdit = data.unidades
     },
     clearDataAttribute () {
+      console.log(this.varNombreCampo)
       console.log('CLEAR')
       this.varNombreCampo = ''
       this.varValorMaximo = 0
       this.varValorMinimo = 0
       this.varUnidades = ''
+      /* this.$refs['input3'].value = 0
+      this.$refs['input4'].value = ' ' */
+      console.log(this.varNombreCampo)
     },
     setDataEdit (data) {
       this.form.id = data.id
