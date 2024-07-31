@@ -72,7 +72,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-3-bank" ref="modal-3-bank" title="Desactivar banco">
+    <b-modal id="modal-3-view" ref="modal-3-view" title="Ver detalle">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -82,47 +82,31 @@
       >
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
-      <h6 class="my-4">
-        ¿Desea desactivar el banco: {{ form.name }} ?
-      </h6>
-      <template #modal-footer="{}">
-        <b-button
-          type="submit"
-          variant="primary"
-          @click="onState()
-                  $bvModal.hide('modal-3-bank')"
-          >Desactivar</b-button
-        >
-        <b-button variant="danger" @click="$bvModal.hide('modal-3-bank')"
-          >Cancelar</b-button
-        >
-      </template>
-    </b-modal>
-    <b-modal id="modal-4-bank" ref="modal-4-bank" title="Activar banco">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
+      <b-form @submit="$event.preventDefault()">
+        <b-form-group label="NOMBRE DEL PACIENTE:">
+          <label>-nombre-</label>
+        </b-form-group>
+        <b-form-group label="CUARTO:">
+          <label>-cuarto-</label>
+        </b-form-group>
+        <b-form-group label="TIPO DE SERVICIO:">
+          <label>-_______-</label>
+        </b-form-group>
+        <b-form-group label="D/ESTANCIA:">
+          <label>-_______-</label>
+        </b-form-group>
+        <b-form-group label="MD TRATANTE:">
+          <label>-nombre-</label>
+        </b-form-group>
+      </b-form>
+      <b-table ref="table_campos"
+        hover
+        :items="detalle"
+        :fields="fieldsCampos"
+        :select-mode="'single'"
+        selectable
       >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
-      </b-alert>
-      <h6 class="my-4">
-        ¿Desea activar al banco: {{ form.name }} ?
-      </h6>
-      <template #modal-footer="{}">
-        <b-button
-          type="submit"
-          variant="primary"
-          @click="onState()
-                  $bvModal.hide('modal-4-bank')"
-          >Activar</b-button
-        >
-        <b-button variant="danger" @click="$bvModal.hide('modal-4-bank')"
-          >Cancelar</b-button
-        >
-      </template>
+      </b-table>
     </b-modal>
     <b-row>
       <b-col md="12">
@@ -137,7 +121,6 @@
               </div>
             </template>
             <template v-slot:headerAction>
-            <b-button variant="primary"  v-b-modal.modal-1-bank>AGREGAR NUEVO</b-button>
           </template>
           <template v-slot:body>
             <datatable-heading
@@ -186,23 +169,13 @@
                     ><i :class="'fas fa-pencil-alt'"
                   /></b-button>
                   <b-button
-                    v-b-tooltip.top="
-                      props.rowData.estado == 1 ? 'Desactivar' : 'Activar'"
-                    @click="
-                      setData(props.rowData);
-                      props.rowData.estado == 1
-                        ? $bvModal.show('modal-3-bank')
-                        : $bvModal.show('modal-4-bank');
-                    "
+                    v-b-tooltip.top="'Mostrar detalle'"
+                    @click="setData(props.rowData)"
+                    v-b-modal.modal-3-view
                     class="mb-2"
                     size="sm"
-                    :variant="
-                      props.rowData.estado == 1 ? 'outline-danger' : 'outline-info'">
-                    <i
-                      :class="
-                        props.rowData.estado == 1
-                          ? 'fas fa-trash-alt'
-                          : 'fas fa-check'"
+                    variant="outline-success"
+                    ><i :class="'fas fa-solid fa-eye'"
                   /></b-button>
                 </b-button-group>
               </template>
@@ -248,6 +221,7 @@ export default {
       total: 0,
       perPage: 5,
       search: '',
+      detalle: [],
       form: {
         id: 0,
         name: '',
@@ -259,7 +233,7 @@ export default {
       alertText: '',
       alertErrorText: '',
       alertVariant: '',
-      apiBase: apiUrl + '/banco/list',
+      apiBase: apiUrl + '/lab_cuentas/list',
       fields: [
         {
           name: '__slot:actions',
@@ -268,9 +242,39 @@ export default {
           dataClass: 'text-muted'
         },
         {
-          name: 'nombre',
-          sortField: 'name',
-          title: 'Nombre',
+          name: 'expediente.nombres',
+          sortField: 'expediente.nombres',
+          title: 'Nombres',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'expediente.apellidos',
+          sortField: 'expediente.apellidos',
+          title: 'Apellidos',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'numero',
+          sortField: 'numero',
+          title: 'Numero de Cuenta',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'total',
+          sortField: 'total',
+          title: 'total',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'total-pagado',
+          sortField: 'total-pagado',
+          title: 'Total pagado',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'pendiente_de_pago',
+          sortField: 'pendiente_de_pago',
+          title: 'Pendiente de pago',
           dataClass: 'list-item-heading'
         },
         {
@@ -279,6 +283,18 @@ export default {
           titleClass: '',
           dataClass: 'text-muted',
           width: '25%'
+        }
+      ],
+      fieldsCampos: [
+        {
+          key: 'Descripcion',
+          label: 'Descripcion',
+          sortable: true
+        },
+        {
+          key: 'costo',
+          label: 'Costo',
+          sortable: true
         }
       ]
     }
@@ -335,10 +351,24 @@ export default {
         this.showAlertError()
       }
     },
-    setData (data) {
+    /* setData (data) {
       this.form.name = data.nombre
       this.form.state = data.estado
       this.form.id = data.id
+    }, */
+    setData (data) {
+      this.form.id = data.id
+      this.form.name = data.nombre
+      this.getDetail(data.id)
+    },
+    getDetail (num) {
+      axios.get(apiUrl + '/detalle/getByAccount', {
+        params: {
+          id_lab_cuenta: num
+        }
+      }).then((response) => {
+        this.detalle = response.data
+      })
     },
     /* Guardar */
     onSave () {
