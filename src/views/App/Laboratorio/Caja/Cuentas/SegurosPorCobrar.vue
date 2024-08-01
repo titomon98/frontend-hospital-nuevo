@@ -563,7 +563,7 @@ export default {
       } else {
         let me = this
 
-        axios.put(apiUrl + '/cuentas/deactivate',
+        axios.put(apiUrl + '/lab_cuentas/deactivate',
           {
             id: this.selectedAccount,
             total_pagado: parseFloat(this.totPagado) + parseFloat(this.paymentSum),
@@ -654,7 +654,7 @@ export default {
       })
     },
     getCuentas (num) {
-      axios.get(apiUrl + '/cuentas/getByExp', {
+      axios.get(apiUrl + '/lab_cuentas/getByExp', {
         params: {
           id: num
         }
