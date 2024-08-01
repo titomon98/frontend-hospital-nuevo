@@ -58,7 +58,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-2-account" ref="modal-2-account" title="Pagar cuenta" size="xl">
+    <b-modal id="modal-2-pay" ref="modal-2-pay" title="Pagar seguro" size="xl">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -68,85 +68,19 @@
       >
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
-      <h6>¿Desea dar egreso al paciente {{this.form.nombres}} {{this.form.apellidos}}?</h6>
-      <template>
-        <div>
-          <h6>Cuentas activas para {{this.form.nombres}} {{this.form.apellidos}}</h6>
-          <b-card>
-            <b-card-body>
-              <b-table
-                hover
-                :items="cuentas"
-                :fields="fieldsAccounts"
-                :select-mode="'single'"
-                selectable
-              >
-              </b-table>
-              <b-form-group label="Seleccione métodos para pagar:" v-slot="{ ariaDescribedby }">
-                <b-form-checkbox-group
-                  id="checkbox-group-1"
-                  v-model="selectedPayment"
-                  :options="paymentOptions"
-                  :aria-describedby="ariaDescribedby"
-                  name="flavour-1"
-                ></b-form-checkbox-group>
-              </b-form-group>
-              <div v-if="selectedPayment.indexOf(1) !== -1">
-                Efectivo
-                <b-input :type="'number'" id="CashTypeInput" ref="CashTypeInput" v-model="paymentType.Efectivo" />
-              </div>
-              <div v-if="selectedPayment.indexOf(2) !== -1">
-                Tarjeta
-                <b-input :type="'number'" id="CardTypeInput" ref="CardTypeInput" v-model="paymentType.Tarjeta" />
-              </div>
-              <div v-if="selectedPayment.indexOf(3) !== -1">
-                Depósito
-                <b-input :type="'number'" id="DepositTypeInput" ref="DepositTypeInput" v-model="paymentType.Deposito" />
-              </div>
-              <div v-if="selectedPayment.indexOf(4) !== -1">
-                Cheque
-                <b-input :type="'number'" id="CheckTypeInput" ref="CheckTypeInput" v-model="paymentType.Cheque" />
-              </div>
-              <div v-if="selectedPayment.indexOf(5) !== -1">
-                Seguro
-                <b-input :type="'number'" id="InsuranceTypeInput" ref="InsuranceTypeInput" v-model="paymentType.Seguro" />
-                Seleccione un seguro
-                <v-select
-                  ref="selectAssurance"
-                  v-model="selectAssurance"
-                  :options="assurances"
-                  label="no_poliza"
-                  value="id"></v-select>
-              </div>
-              <div v-if="selectedPayment.indexOf(6) !== -1">
-                Transferencia
-                <b-input :type="'number'" id="InsuranceTypeInput" ref="InsuranceTypeInput" v-model="paymentType.Transferencia" />
-              </div>
-              <div>
-                <strong> TOTAL INGRESADO: {{ parseFloat(this.paymentType.Efectivo) + parseFloat(this.paymentType.Tarjeta) + parseFloat(this.paymentType.Deposito) + parseFloat(this.paymentType.Cheque) + parseFloat(this.paymentType.Seguro) + parseFloat(this.paymentType.Transferencia) }}</strong>
-              </div>
-              <div>
-                <strong> TOTAL A PAGAR: {{ this.totalPayment }}</strong>
-              </div>
-            </b-card-body>
-            <div>
-
-            </div>
-          </b-card>
-        </div>
-      </template>
+      <h6>¿Desea cobrar el seguro de {{this.form.nombres}} {{this.form.apellidos}}?</h6>
       <template #modal-footer="{}">
         <b-button variant="primary" @click="
-          onPatientQuit()
+          onPay()
         "
           >Aceptar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-2-account')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-2-pay')"
           >Cancelar</b-button
         >
       </template>
     </b-modal>
-    <b-modal id="modal-3-bank" ref="modal-3-bank" title="Desactivar banco">
+    <b-modal id="modal-3-deactivate" ref="modal-3-deactivate" title="Desactivar seguro">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -157,17 +91,17 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6 class="my-4">
-        ¿Desea desactivar el banco: {{ form.name }} ?
+        ¿Desea desactivar el seguro: {{ form.id }} ?
       </h6>
       <template #modal-footer="{}">
         <b-button
           type="submit"
           variant="primary"
-          @click="onState()
-                  $bvModal.hide('modal-3-bank')"
+          @click="onDeactivate()
+                  $bvModal.hide('modal-3-deactivate')"
           >Desactivar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-3-bank')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-3-deactivate')"
           >Cancelar</b-button
         >
       </template>
@@ -202,7 +136,7 @@
       <b-col md="12">
         <iq-card>
             <template v-slot:headerTitle>
-              <h4 class="card-title mt-3">Cuentas por cobrar</h4>
+              <h4 class="card-title mt-3">Seguros por cobrar</h4>
                <div class="iq-search-bar mt-2">
                 <b-form action="#" class="searchbox">
                     <b-input id="search" placeholder="Buscar..." @input="(val) => searchChange(val)" />
@@ -235,14 +169,19 @@
             >
               <!-- Estado -->
               <div slot="estado" slot-scope="props">
-                <h5 v-if="props.rowData.estado == 1">
+                <h5 v-if="props.rowData.solvente == 1">
+                  <b-badge variant="light"
+                    ><h6 class="success"><strong>SOLVENTE</strong></h6></b-badge
+                  >
+                </h5>
+                <h5 v-else-if="props.rowData.solvente == 0">
                   <b-badge variant="light"
                     ><h6 class="success"><strong>PENDIENTE DE PAGO</strong></h6></b-badge
                   >
                 </h5>
                 <h5 v-else>
                   <b-badge variant="light"
-                    ><h6 class="danger"><strong>EN EMERGENCIAS</strong></h6></b-badge
+                    ><h6 class="danger"><strong>DESACTIVADO</strong></h6></b-badge
                   >
                 </h5>
               </div>
@@ -250,15 +189,28 @@
               <template slot="actions" slot-scope="props">
                 <b-button-group>
                   <b-button
+                  v-if="props.rowData.solvente === 0"
                     v-b-tooltip.top="'Pagar'"
                     @click="
                       setData(props.rowData)
-                      $bvModal.show('modal-2-account')
+                      $bvModal.show('modal-2-pay')
                     "
                     class="mb-2"
                     size="sm"
                     variant="outline-warning"
                     ><i :class="'fas fa-money'"
+                  /></b-button>
+                  <b-button
+                    v-if="props.rowData.solvente <= 1"
+                    v-b-tooltip.top="'Desactivar'"
+                    @click="
+                      setData(props.rowData)
+                      $bvModal.show('modal-3-deactivate')
+                    "
+                    class="mb-2"
+                    size="sm"
+                    variant="outline-danger"
+                    ><i :class="'fa fa-trash'"
                   /></b-button>
                 </b-button-group>
               </template>
@@ -275,17 +227,17 @@
   </b-container>
 </template>
 <script>
-import { xray } from '../../../../config/pluginInit'
-import DatatableHeading from '../../../Tables/DatatableHeading'
+import { xray } from '../../../../../config/pluginInit'
+import DatatableHeading from '../../../../Tables/DatatableHeading'
 import Vuetable from 'vuetable-2/src/components/Vuetable'
-import VuetablePaginationBootstrap from '../../../../components/common/VuetablePaginationBootstrap'
+import VuetablePaginationBootstrap from '../../../../../components/common/VuetablePaginationBootstrap'
 import useVuelidate from '@vuelidate/core'
 import { required } from '@vuelidate/validators'
 import axios from 'axios'
-import { apiUrl } from '../../../../config/constant'
+import { apiUrl } from '../../../../../config/constant'
 
 export default {
-  name: 'CuentasPorCobrarLab',
+  name: 'Bank',
   components: {
     vuetable: Vuetable,
     'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
@@ -308,10 +260,9 @@ export default {
       perPage: 5,
       search: '',
       totPagado: 0,
-      assurances: [],
-      selectAssurance: null,
       form: {
         id: 0,
+        assurance: 0,
         nombres: '',
         apellidos: '',
         expediente: '',
@@ -357,7 +308,7 @@ export default {
         { text: 'Hospitalización', value: 1 },
         { text: 'Intensivos', value: 4 }
       ],
-      apiBase: apiUrl + '/cuentas/debtList',
+      apiBase: apiUrl + '/seguros/debtList',
       fields: [
         {
           name: '__slot:actions',
@@ -378,27 +329,27 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
-          name: 'numero',
-          sortField: 'numero',
-          title: 'Numero de Cuenta',
+          name: 'no_poliza',
+          sortField: 'no_poliza',
+          title: 'Numero de Póliza',
           dataClass: 'list-item-heading'
         },
         {
-          name: 'motivo',
-          sortField: 'motivo',
-          title: 'Motivo',
+          name: 'aseguradora.nombre',
+          sortField: 'aseguradora.nombre',
+          title: 'Aseguradora',
           dataClass: 'list-item-heading'
         },
         {
-          name: 'total',
-          sortField: 'total',
-          title: 'Total',
+          name: 'aseguradora.telefono',
+          sortField: 'aseguradora.telefono',
+          title: 'Teléfono de la aseguradora',
           dataClass: 'list-item-heading'
         },
         {
-          name: 'pendiente_de_pago',
-          sortField: 'pendiente_de_pago',
-          title: 'Pendiente de pago',
+          name: 'nombre_asegurado',
+          sortField: 'nombre_asegurado',
+          title: 'Persona asegurada',
           dataClass: 'list-item-heading'
         },
         {
@@ -469,7 +420,7 @@ export default {
         }
         case 'update': {
           this.$v.$reset()
-          this.$refs['modal-2-account'].hide()
+          this.$refs['modal-2-pay'].hide()
           this.form.id = 0
           this.form.name = ''
           this.form.state = 1
@@ -501,8 +452,7 @@ export default {
       this.totalPayment = data.pendiente_de_pago
       this.totPagado = data.total_pagado
       console.log(this.cuentas)
-      this.onLoadAssurances(data.id_expediente)
-      //this.getCuentas(data.id)
+      // this.getCuentas(data.id)
     },
     /* Guardar */
     onSave () {
@@ -543,6 +493,35 @@ export default {
           console.error('Error!', error)
         })
     },
+    onDeactivate () {
+      console.log(this.form.id)
+      let me = this
+      axios
+        .put(apiUrl + '/seguros/deactivate', {
+          id: this.form.id
+        })
+        .then((response) => {
+          me.alertVariant = 'warning'
+          me.showAlert()
+          me.alertText = 'Se ha desactivado el banco ' + me.form.name + ' exitosamente'
+          me.$refs.vuetable.refresh()
+        })
+    },
+    onPay () {
+      console.log(this.form.id)
+      let me = this
+      axios
+        .put(apiUrl + '/seguros/paid', {
+          id: this.form.id
+        })
+        .then((response) => {
+          me.$refs['modal-2-pay'].hide()
+          me.alertVariant = 'info'
+          me.showAlert()
+          me.alertText = 'Se ha desactivado el banco ' + me.form.name + ' exitosamente'
+          me.$refs.vuetable.refresh()
+        })
+    },
     onState () {
       let me = this
       axios
@@ -576,16 +555,6 @@ export default {
           console.error('There was an error!', error)
         })
     },
-    onLoadAssurances (data) {
-      console.log(data)
-      axios.get(apiUrl + '/seguros/getByExp',{
-        params:{id_expediente: data}
-      })
-      .then((resp) => {
-        this.assurances = resp.data
-        console.log(resp)
-      })
-    },
     onPatientQuit () {
       this.paymentSum = parseFloat(this.paymentType.Efectivo) + parseFloat(this.paymentType.Tarjeta) + parseFloat(this.paymentType.Deposito) + parseFloat(this.paymentType.Cheque) + parseFloat(this.paymentType.Seguro) + parseFloat(this.paymentType.Transferencia)
       if (this.paymentSum !== parseFloat(this.totalPayment)) {
@@ -595,38 +564,36 @@ export default {
         let me = this
 
         axios.put(apiUrl + '/cuentas/deactivate',
-            {
-              id: this.selectedAccount,
-              total_pagado: parseFloat(this.totPagado) + parseFloat(this.paymentSum),
-              pendiente_de_pago: parseFloat(parseFloat(this.totalPayment) - parseFloat(this.paymentSum)),
-              efectivo: this.paymentType.Efectivo,
-              tarjeta: this.paymentType.Tarjeta,
-              deposito: this.paymentType.Deposito,
-              cheque: this.paymentType.Cheque,
-              seguro: this.paymentType.Seguro,
-              transferencia: this.paymentType.Transferencia,
-              total: this.paymentSum,
-              id_seguro: this.selectAssurance.id,
-              tipo: 'finiquito'
-            })
-            .then(
-              this.selectedAccount = null,
-              this.paymentType.Efectivo = 0,
-              this.paymentType.Tarjeta = 0,
-              this.paymentType.Deposito = 0,
-              this.paymentType.Cheque = 0,
-              this.paymentType.Seguro = 0,
-              this.paymentType.transferencia = 0,
-              this.paymentSum = 0,
-              this.selectAssurance = null
-            )
-          me.alertVariant = 'info'
-          me.showAlert()
-          me.alertText = 'Se ha egresado el paciente ' + me.form.nombres + ' exitosamente'
-          me.$refs.vuetable.refresh()
-          me.$refs['modal-2-account'].hide()
+          {
+            id: this.selectedAccount,
+            total_pagado: parseFloat(this.totPagado) + parseFloat(this.paymentSum),
+            pendiente_de_pago: parseFloat(parseFloat(this.totalPayment) - parseFloat(this.paymentSum)),
+            efectivo: this.paymentType.Efectivo,
+            tarjeta: this.paymentType.Tarjeta,
+            deposito: this.paymentType.Deposito,
+            cheque: this.paymentType.Cheque,
+            seguro: this.paymentType.Seguro,
+            transferencia: this.paymentType.Transferencia,
+            total: this.paymentSum,
+            tipo: 'finiquito'
+          })
+          .then(
+            this.selectedAccount = null,
+            this.paymentType.Efectivo = 0,
+            this.paymentType.Tarjeta = 0,
+            this.paymentType.Deposito = 0,
+            this.paymentType.Cheque = 0,
+            this.paymentType.Seguro = 0,
+            this.paymentType.transferencia = 0,
+            this.paymentSum = 0
+          )
+        me.alertVariant = 'info'
+        me.showAlert()
+        me.alertText = 'Se ha egresado el paciente ' + me.form.nombres + ' exitosamente'
+        me.$refs.vuetable.refresh()
+        me.$refs['modal-2-pay'].hide()
 
-        .catch((error) => {
+          .catch((error) => {
             me.alertVariant = 'danger'
             me.showAlertError()
             me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
