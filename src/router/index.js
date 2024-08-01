@@ -129,6 +129,7 @@ import DatosParent from '../views/App/Farmacia/Datos/DatosParent'
 import AlertasParent from '../views/App/Farmacia/Alertas/AlertasParent'
 import PaquetesParent from '../views/App/Farmacia/Paquetes/PaquetesParent'
 import FacturasParent from '../views/App/Farmacia/Facturas/FacturasParent'
+import Consumos from '../views/App/Farmacia/Consumos/Consumos.vue'
 
 // medicos
 import MedicosParent from '../views/App/Medicos/MedicosParent'
@@ -427,6 +428,12 @@ const FarmaciaRoutes = (prop, mode) => [
     name: prop + '.quirurgico',
     meta: { dark: mode, auth: true, name: 'quirurgico' },
     component: QuirurgicoParent
+  },
+  {
+    path: 'consumos',
+    name: prop + '.consumos',
+    meta: { dark: mode, auth: true, name: 'consumos' },
+    component: Consumos
   },
   {
     path: 'datos',
