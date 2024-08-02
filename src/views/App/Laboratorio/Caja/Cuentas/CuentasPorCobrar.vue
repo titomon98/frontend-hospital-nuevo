@@ -76,7 +76,7 @@
             <b-card-body>
               <b-table
                 hover
-                :items="cuentas"
+                :items="detalle"
                 :fields="fieldsAccounts"
                 :select-mode="'single'"
                 selectable
@@ -302,6 +302,7 @@ export default {
   },
   data () {
     return {
+      detalle: [],
       from: 0,
       to: 0,
       total: 0,
@@ -357,7 +358,7 @@ export default {
         { text: 'Hospitalización', value: 1 },
         { text: 'Intensivos', value: 4 }
       ],
-      apiBase: apiUrl + '/cuentas/debtList',
+      apiBase: apiUrl + '/lab_cuentas/debtList',
       fields: [
         {
           name: '__slot:actions',
@@ -384,15 +385,15 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
-          name: 'motivo',
-          sortField: 'motivo',
-          title: 'Motivo',
+          name: 'total',
+          sortField: 'total',
+          title: 'total',
           dataClass: 'list-item-heading'
         },
         {
-          name: 'total',
-          sortField: 'total',
-          title: 'Total',
+          name: 'total-pagado',
+          sortField: 'total-pagado',
+          title: 'Total pagado',
           dataClass: 'list-item-heading'
         },
         {
@@ -411,23 +412,18 @@ export default {
       ],
       fieldsAccounts: [
         {
-          key: 'numero',
-          label: 'Numero',
-          sortable: true
-        },
-        {
-          key: 'motivo',
-          label: 'Motivo',
-          sortable: true
-        },
-        {
-          key: 'pendiente_de_pago',
-          label: 'Total a pagar',
+          key: 'Descripcion',
+          label: 'Descripcion',
           sortable: true
         },
         {
           key: 'total',
           label: 'Total',
+          sortable: true
+        },
+        {
+          key: 'costo',
+          label: 'Costo',
           sortable: true
         }
       ]
@@ -502,7 +498,17 @@ export default {
       this.totPagado = data.total_pagado
       console.log(this.cuentas)
       this.onLoadAssurances(data.id_expediente)
-      //this.getCuentas(data.id)
+      this.getDetail(data.id)
+      // this.getCuentas(data.id)
+    },
+    getDetail (num) {
+      axios.get(apiUrl + '/detalle/getByAccount', {
+        params: {
+          id_lab_cuenta: num
+        }
+      }).then((response) => {
+        this.detalle = response.data
+      })
     },
     /* Guardar */
     onSave () {
@@ -578,13 +584,13 @@ export default {
     },
     onLoadAssurances (data) {
       console.log(data)
-      axios.get(apiUrl + '/seguros/getByExp',{
-        params:{id_expediente: data}
+      axios.get(apiUrl + '/seguros/getByExp', {
+        params: { id_expediente: data }
       })
-      .then((resp) => {
-        this.assurances = resp.data
-        console.log(resp)
-      })
+        .then((resp) => {
+          this.assurances = resp.data
+          console.log(resp)
+        })
     },
     onPatientQuit () {
       this.paymentSum = parseFloat(this.paymentType.Efectivo) + parseFloat(this.paymentType.Tarjeta) + parseFloat(this.paymentType.Deposito) + parseFloat(this.paymentType.Cheque) + parseFloat(this.paymentType.Seguro) + parseFloat(this.paymentType.Transferencia)
@@ -594,44 +600,43 @@ export default {
       } else {
         let me = this
 
-        axios.put(apiUrl + '/cuentas/deactivate',
-            {
-              id: this.selectedAccount,
-              total_pagado: parseFloat(this.totPagado) + parseFloat(this.paymentSum),
-              pendiente_de_pago: parseFloat(parseFloat(this.totalPayment) - parseFloat(this.paymentSum)),
-              efectivo: this.paymentType.Efectivo,
-              tarjeta: this.paymentType.Tarjeta,
-              deposito: this.paymentType.Deposito,
-              cheque: this.paymentType.Cheque,
-              seguro: this.paymentType.Seguro,
-              transferencia: this.paymentType.Transferencia,
-              total: this.paymentSum,
-              id_seguro: this.selectAssurance.id,
-              tipo: 'finiquito'
-            })
-            .then(
-              this.selectedAccount = null,
-              this.paymentType.Efectivo = 0,
-              this.paymentType.Tarjeta = 0,
-              this.paymentType.Deposito = 0,
-              this.paymentType.Cheque = 0,
-              this.paymentType.Seguro = 0,
-              this.paymentType.transferencia = 0,
-              this.paymentSum = 0,
-              this.selectAssurance = null
-            )
-          me.alertVariant = 'info'
-          me.showAlert()
-          me.alertText = 'Se ha egresado el paciente ' + me.form.nombres + ' exitosamente'
-          me.$refs.vuetable.refresh()
-          me.$refs['modal-2-account'].hide()
-
-        .catch((error) => {
+        axios.put(apiUrl + '/lab_cuentas/deactivate',
+          {
+            id: this.selectedAccount,
+            total_pagado: parseFloat(this.totPagado) + parseFloat(this.paymentSum),
+            pendiente_de_pago: parseFloat(parseFloat(this.totalPayment) - parseFloat(this.paymentSum)),
+            efectivo: this.paymentType.Efectivo,
+            tarjeta: this.paymentType.Tarjeta,
+            deposito: this.paymentType.Deposito,
+            cheque: this.paymentType.Cheque,
+            seguro: this.paymentType.Seguro,
+            transferencia: this.paymentType.Transferencia,
+            total: this.paymentSum,
+            id_seguro: this.selectAssurance?.id || 0,
+            tipo: 'finiquito'
+          })
+          .then(
+            this.selectedAccount = null,
+            this.paymentType.Efectivo = 0,
+            this.paymentType.Tarjeta = 0,
+            this.paymentType.Deposito = 0,
+            this.paymentType.Cheque = 0,
+            this.paymentType.Seguro = 0,
+            this.paymentType.transferencia = 0,
+            this.paymentSum = 0,
+            this.selectAssurance = null
+          )
+          .catch((error) => {
             me.alertVariant = 'danger'
             me.showAlertError()
             me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
             console.error('There was an error!', error)
           })
+        me.alertVariant = 'info'
+        me.showAlert()
+        me.alertText = 'Se ha egresado el paciente ' + me.form.nombres + ' exitosamente'
+        me.$refs.vuetable.refresh()
+        me.$refs['modal-2-account'].hide()
       }
     },
     makeQueryParams (sortOrder, currentPage, perPage) {
