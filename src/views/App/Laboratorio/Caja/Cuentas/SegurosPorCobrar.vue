@@ -308,7 +308,7 @@ export default {
         { text: 'Hospitalización', value: 1 },
         { text: 'Intensivos', value: 4 }
       ],
-      apiBase: apiUrl + '/seguros/debtList',
+      apiBase: apiUrl + '/lab_seguros/debtList',
       fields: [
         {
           name: '__slot:actions',
