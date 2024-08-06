@@ -27,11 +27,11 @@
         <b-col >
           <b-form-group label="Área a la que desea trasladar:">
             <b-form-radio-group
-                      id="radio-group-2"
-                      v-model="selectedTrasOption"
-                      :options="optionsTraslado"
-                      name="radio-options"
-                    ></b-form-radio-group>
+                id="radio-group-2"
+                v-model="selectedTrasOption"
+                :options="optionsTraslado"
+                name="radio-options"
+              ></b-form-radio-group>
             <div v-if="selectedTrasOption==1 || selectedTrasOption==4">
               Habitación
               <v-select
@@ -349,7 +349,7 @@
           <b-button variant="danger" @click="closeModal('sala-operaciones')">Cancelar</b-button>
         </template>
     </b-modal>
-    <b-modal id="modal-1-movimiento" ref="modal-1-movimiento" title="Agregar Consumo de Insumos">
+    <b-modal id="modal-1-movimiento" size="lg" ref="modal-1-movimiento" title="Agregar Consumo">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -375,16 +375,15 @@
             </b-row>
             <v-select
               name="medicamentos"
-              v-model.trim="$v.formMe.id_medicine.$model"
+              v-model.trim="formMe.medicamento"
               :options="medicamentos"
-              :filterable="false"
+              :filterable="true"
               :reduce="med => med.value"
               :state="!$v.formMe.id_medicine.$error"
               placeholder="Seleccione el insumo"
-              label='text'
-              @input="onChangeMedicamento"
-            >
-            </v-select>
+              label="text"
+              @search:change="onChangeMedicamento"
+            ></v-select>
             <label>{{this.existencias_selected_med}}</label>
           </b-form-group>
           <b-form-group label="Cantidad:">
@@ -397,6 +396,63 @@
               placeholder="Ingresar Cantidad"
             ></b-form-input>
           </b-form-group>
+          <br>
+          <h5>CONSUMOS REALIZADOS</h5>
+          <b-tabs content-class="mt-3">
+          <b-tab title="Medicamento" active>
+            <vuetable
+              ref="vuetableConsumoInsumos"
+              class="table-divided table-responsive order-with-arrow"
+              :api-url="apiBaseConsumoMedicamento"
+              :query-params="makeQueryParamsConsumoInsumo"
+              :per-page="perPage"
+              :reactive-api-url="true"
+              :fields="fieldsConsumoInsumo"
+
+            >
+            </vuetable>
+            <vuetable-pagination-bootstrap
+              ref="paginationConsumo"
+              @vuetable-pagination:change-page="onChangePageConsumo"
+            />
+          </b-tab>
+          <b-tab title="Quirúrgico">
+            <vuetable
+              ref="vuetableConsumoQuirurgicos"
+              class="table-divided table-responsive order-with-arrow"
+              :api-url="apiBaseConsumoQuirurgico"
+              :query-params="makeQueryParamsConsumoInsumo"
+              :per-page="perPage"
+              :reactive-api-url="true"
+              :fields="fieldsConsumoInsumo"
+              pagination-path
+              @vuetable:pagination-data="onPaginationDataConsumoInsumo"
+            >
+            </vuetable>
+            <vuetable-pagination-bootstrap
+              ref="paginationConsumo"
+              @vuetable-pagination:change-page="onChangePageConsumo"
+            />
+          </b-tab>
+          <b-tab title="Común">
+            <vuetable
+              ref="vuetableConsumoComunes"
+              class="table-divided table-responsive order-with-arrow"
+              :api-url="apiBaseConsumoComun"
+              :query-params="makeQueryParamsConsumoInsumo"
+              :per-page="perPage"
+              :reactive-api-url="true"
+              :fields="fieldsConsumoInsumo"
+              pagination-path
+              @vuetable:pagination-data="onPaginationDataConsumoInsumo"
+            >
+            </vuetable>
+            <vuetable-pagination-bootstrap
+              ref="paginationConsumo"
+              @vuetable-pagination:change-page="onChangePageConsumo"
+            />
+          </b-tab>
+        </b-tabs>
       </b-form>
       <template #modal-footer="{}">
         <b-button variant="primary" @click=" onSave()"
@@ -406,72 +462,6 @@
           >Cancelar</b-button
         >
       </template>
-    </b-modal>
-    <b-modal id="modal-ver-consumos" size="lg" ref="modal-ver-consumos" title="Ver consumos">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
-      >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
-      </b-alert>
-      <b-tabs content-class="mt-3">
-        <b-tab title="Medicamento" active>
-          <vuetable
-            ref="vuetableConsumoInsumos"
-            class="table-divided table-responsive order-with-arrow"
-            :api-url="apiBaseConsumoMedicamento"
-            :query-params="makeQueryParamsConsumoInsumo"
-            :per-page="perPage"
-            :reactive-api-url="true"
-            :fields="fieldsConsumoInsumo"
-
-          >
-          </vuetable>
-          <vuetable-pagination-bootstrap
-            ref="paginationConsumo"
-            @vuetable-pagination:change-page="onChangePageConsumo"
-          />
-        </b-tab>
-        <b-tab title="Quirúrgico">
-          <vuetable
-            ref="vuetableConsumoQuirurgicos"
-            class="table-divided table-responsive order-with-arrow"
-            :api-url="apiBaseConsumoQuirurgico"
-            :query-params="makeQueryParamsConsumoInsumo"
-            :per-page="perPage"
-            :reactive-api-url="true"
-            :fields="fieldsConsumoInsumo"
-            pagination-path
-            @vuetable:pagination-data="onPaginationDataConsumoInsumo"
-          >
-          </vuetable>
-          <vuetable-pagination-bootstrap
-            ref="paginationConsumo"
-            @vuetable-pagination:change-page="onChangePageConsumo"
-          />
-        </b-tab>
-        <b-tab title="Común">
-          <vuetable
-            ref="vuetableConsumoComunes"
-            class="table-divided table-responsive order-with-arrow"
-            :api-url="apiBaseConsumoComun"
-            :query-params="makeQueryParamsConsumoInsumo"
-            :per-page="perPage"
-            :reactive-api-url="true"
-            :fields="fieldsConsumoInsumo"
-            pagination-path
-            @vuetable:pagination-data="onPaginationDataConsumoInsumo"
-          >
-          </vuetable>
-          <vuetable-pagination-bootstrap
-            ref="paginationConsumo"
-            @vuetable-pagination:change-page="onChangePageConsumo"
-          />
-        </b-tab>
-      </b-tabs>
     </b-modal>
     <b-row>
       <b-col md="12">
@@ -570,19 +560,11 @@
 
                   <b-button
                     v-b-tooltip.top="'Agregar consumo'"
-                    @click="showModal('modal-1-movimiento'); obtenerIdCuenta(props.rowData.id)"
+                    @click="showModal('modal-1-movimiento'); getConsumoMedicamentos(props.rowData.id); obtenerIdCuenta(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="dark"
-                   >Agregar consumo</b-button>
-
-                  <b-button
-                    v-b-tooltip.top="'Ver consumos'"
-                    @click="getConsumoMedicamentos(props.rowData.id);"
-                    class="mb-2 button-spacing"
-                    size="sm"
-                    variant="success"
-                   >Ver consumo</b-button>
+                   >Consumos</b-button>
                   <!-- <b-button
                     v-b-tooltip.top="'Aregar Insumos Quirofano'"
                     @click="showModal('modal-2-movimiento'); obtenerIdCuenta(props.rowData.id)"
@@ -1668,13 +1650,21 @@ export default {
       }
       this.formMe.id_medicine = null
     },
-    onChangeMedicamento () {
-      let medicine_ = this.medicamentos.find(med => med.value === this.formMe.id_medicine)
-      console.log(medicine_)
-      this.max_cant = medicine_.existencias_actuales
-      this.existencias_selected_med = medicine_.existencias_actuales + ' unidades en existencia.'
-      this.formMe.precio_venta = medicine_.precio_venta
-      this.formMe.existencias_actuales = medicine_.existencias_actuales
+    onChangeMedicamento (searchTerm) {
+      if (!searchTerm) return
+      let medicine_ = this.medicamentos.find(med => med.text.toLowerCase() === searchTerm.toLowerCase())
+
+      if (medicine_) {
+        this.max_cant = medicine_.existencias_actuales
+        this.existencias_selected_med = `${medicine_.existencias_actuales} unidades en existencia.`
+        this.formMe.precio_venta = medicine_.precio_venta
+        this.formMe.existencias_actuales = medicine_.existencias_actuales
+      } else {
+        this.max_cant = 0
+        this.existencias_selected_med = 'No se encontraron unidades en existencia.'
+        this.formMe.precio_venta = 0
+        this.formMe.existencias_actuales = 0
+      }
     },
     async getConsumoMedicamentos (id) {
       try {
@@ -1684,7 +1674,7 @@ export default {
           this.apiBaseConsumoMedicamento = apiUrl + `/detalle_consumo_medicamentos/list/${response.data.id}`
           this.apiBaseConsumoQuirurgico = apiUrl + `/detalle_consumo_quirugicos/list/${response.data.id}`
           this.apiBaseConsumoComun = apiUrl + `/detalle_consumo_comun/list/${response.data.id}`
-          this.$refs['modal-ver-consumos'].show()
+          // this.$refs['modal-ver-consumos'].show()
         } else {
           console.error('No se encontró ninguna cuenta para el expediente:', id)
           this.alertErrorText = 'No se encontró ninguna cuenta para este paciente'
@@ -1767,7 +1757,7 @@ export default {
   color: #333; /* Adjust the color value to make the text darker */
 }
 .mt-negativo {
-  margin-top: -4%;
+  margin-top: -3%;
 }
 .mt-negativo-r1{
   margin-top: -2%;
