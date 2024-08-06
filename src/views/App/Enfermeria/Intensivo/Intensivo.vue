@@ -362,7 +362,7 @@
               :query-params="makeQueryParamsConsumoInsumo"
               :per-page="perPage"
               :reactive-api-url="true"
-              :fields="fieldsConsumoInsumo"
+              :fields="fieldsConsumoInsumoMedicamento"
 
             >
             </vuetable>
@@ -379,7 +379,7 @@
               :query-params="makeQueryParamsConsumoInsumo"
               :per-page="perPage"
               :reactive-api-url="true"
-              :fields="fieldsConsumoInsumo"
+              :fields="fieldsConsumoInsumoQuirurgico"
               pagination-path
               @vuetable:pagination-data="onPaginationDataConsumoInsumo"
             >
@@ -761,6 +761,58 @@ export default {
         {
           name: 'descripcion',
           sortField: 'descripcion',
+          title: 'Nombre del insumo',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'cantidad',
+          sortField: 'cantidad',
+          title: 'Cantidad',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'precio_venta',
+          sortField: 'precio_venta',
+          title: 'Precio unitario',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'total',
+          sortField: 'total',
+          title: 'Subtotal',
+          dataClass: 'list-item-heading'
+        }
+      ],
+      fieldsConsumoInsumoQuirurgico: [
+        {
+          name: 'quirurgico.nombre',
+          sortField: 'quirurgico.nombre',
+          title: 'Nombre del insumo',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'cantidad',
+          sortField: 'cantidad',
+          title: 'Cantidad',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'precio_venta',
+          sortField: 'precio_venta',
+          title: 'Precio unitario',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'total',
+          sortField: 'total',
+          title: 'Subtotal',
+          dataClass: 'list-item-heading'
+        }
+      ],
+      fieldsConsumoInsumoMedicamento: [
+        {
+          name: 'medicamento.nombre',
+          sortField: 'medicamento.nombre',
           title: 'Nombre del insumo',
           dataClass: 'list-item-heading'
         },

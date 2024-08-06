@@ -408,7 +408,7 @@
               :query-params="makeQueryParamsConsumoInsumo"
               :per-page="perPage"
               :reactive-api-url="true"
-              :fields="fieldsConsumoInsumo"
+              :fields="fieldsConsumoInsumoMedicamento"
 
             >
             </vuetable>
@@ -425,7 +425,7 @@
               :query-params="makeQueryParamsConsumoInsumo"
               :per-page="perPage"
               :reactive-api-url="true"
-              :fields="fieldsConsumoInsumo"
+              :fields="fieldsConsumoInsumoQuirurgico"
               pagination-path
               @vuetable:pagination-data="onPaginationDataConsumoInsumo"
             >
@@ -564,7 +564,7 @@
                     @click="showModal('modal-1-movimiento'); getConsumoMedicamentos(props.rowData.id); obtenerIdCuenta(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
-                    variant="Success"
+                    variant="dark"
                    >Consumos</b-button>
                   <!-- <b-button
                     v-b-tooltip.top="'Aregar Insumos Quirofano'"
@@ -781,8 +781,60 @@ export default {
       ],
       fieldsConsumoInsumo: [
         {
-          name: 'descripcion',
-          sortField: 'descripcion',
+          name: 'comune.nombre',
+          sortField: 'comune.nombre',
+          title: 'Nombre del insumo',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'cantidad',
+          sortField: 'cantidad',
+          title: 'Cantidad',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'precio_venta',
+          sortField: 'precio_venta',
+          title: 'Precio unitario',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'total',
+          sortField: 'total',
+          title: 'Subtotal',
+          dataClass: 'list-item-heading'
+        }
+      ],
+      fieldsConsumoInsumoQuirurgico: [
+        {
+          name: 'quirurgico.nombre',
+          sortField: 'quirurgico.nombre',
+          title: 'Nombre del insumo',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'cantidad',
+          sortField: 'cantidad',
+          title: 'Cantidad',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'precio_venta',
+          sortField: 'precio_venta',
+          title: 'Precio unitario',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'total',
+          sortField: 'total',
+          title: 'Subtotal',
+          dataClass: 'list-item-heading'
+        }
+      ],
+      fieldsConsumoInsumoMedicamento: [
+        {
+          name: 'medicamento.nombre',
+          sortField: 'medicamento.nombre',
           title: 'Nombre del insumo',
           dataClass: 'list-item-heading'
         },

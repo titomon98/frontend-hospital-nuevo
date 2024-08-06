@@ -363,7 +363,7 @@
               :query-params="makeQueryParamsConsumoInsumo"
               :per-page="perPage"
               :reactive-api-url="true"
-              :fields="fieldsConsumoInsumo"
+              :fields="fieldsConsumoInsumoMedicamento"
 
             >
             </vuetable>
@@ -380,7 +380,7 @@
               :query-params="makeQueryParamsConsumoInsumo"
               :per-page="perPage"
               :reactive-api-url="true"
-              :fields="fieldsConsumoInsumo"
+              :fields="fieldsConsumoInsumoQuirurgico"
               pagination-path
               @vuetable:pagination-data="onPaginationDataConsumoInsumo"
             >
@@ -418,72 +418,6 @@
           >Cancelar</b-button
         >
       </template>
-    </b-modal>
-    <b-modal id="modal-ver-consumos" size="lg" ref="modal-ver-consumos" title="Ver consumos">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
-      >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
-      </b-alert>
-      <b-tabs content-class="mt-3">
-        <b-tab title="Medicamento" active>
-          <vuetable
-            ref="vuetableConsumoInsumos"
-            class="table-divided table-responsive order-with-arrow"
-            :api-url="apiBaseConsumoMedicamento"
-            :query-params="makeQueryParamsConsumoInsumo"
-            :per-page="perPage"
-            :reactive-api-url="true"
-            :fields="fieldsConsumoInsumo"
-
-          >
-          </vuetable>
-          <vuetable-pagination-bootstrap
-            ref="paginationConsumo"
-            @vuetable-pagination:change-page="onChangePageConsumo"
-          />
-        </b-tab>
-        <b-tab title="Quirúrgico">
-          <vuetable
-            ref="vuetableConsumoQuirurgicos"
-            class="table-divided table-responsive order-with-arrow"
-            :api-url="apiBaseConsumoQuirurgico"
-            :query-params="makeQueryParamsConsumoInsumo"
-            :per-page="perPage"
-            :reactive-api-url="true"
-            :fields="fieldsConsumoInsumo"
-            pagination-path
-            @vuetable:pagination-data="onPaginationDataConsumoInsumo"
-          >
-          </vuetable>
-          <vuetable-pagination-bootstrap
-            ref="paginationConsumo"
-            @vuetable-pagination:change-page="onChangePageConsumo"
-          />
-        </b-tab>
-        <b-tab title="Común">
-          <vuetable
-            ref="vuetableConsumoComunes"
-            class="table-divided table-responsive order-with-arrow"
-            :api-url="apiBaseConsumoComun"
-            :query-params="makeQueryParamsConsumoInsumo"
-            :per-page="perPage"
-            :reactive-api-url="true"
-            :fields="fieldsConsumoInsumo"
-            pagination-path
-            @vuetable:pagination-data="onPaginationDataConsumoInsumo"
-          >
-          </vuetable>
-          <vuetable-pagination-bootstrap
-            ref="paginationConsumo"
-            @vuetable-pagination:change-page="onChangePageConsumo"
-          />
-        </b-tab>
-      </b-tabs>
     </b-modal>
     <b-row>
       <b-col md="12">
@@ -791,6 +725,58 @@ export default {
         {
           name: 'descripcion',
           sortField: 'descripcion',
+          title: 'Nombre del insumo',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'cantidad',
+          sortField: 'cantidad',
+          title: 'Cantidad',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'precio_venta',
+          sortField: 'precio_venta',
+          title: 'Precio unitario',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'total',
+          sortField: 'total',
+          title: 'Subtotal',
+          dataClass: 'list-item-heading'
+        }
+      ],
+      fieldsConsumoInsumoQuirurgico: [
+        {
+          name: 'quirurgico.nombre',
+          sortField: 'quirurgico.nombre',
+          title: 'Nombre del insumo',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'cantidad',
+          sortField: 'cantidad',
+          title: 'Cantidad',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'precio_venta',
+          sortField: 'precio_venta',
+          title: 'Precio unitario',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'total',
+          sortField: 'total',
+          title: 'Subtotal',
+          dataClass: 'list-item-heading'
+        }
+      ],
+      fieldsConsumoInsumoMedicamento: [
+        {
+          name: 'medicamento.nombre',
+          sortField: 'medicamento.nombre',
           title: 'Nombre del insumo',
           dataClass: 'list-item-heading'
         },
