@@ -375,15 +375,16 @@
             </b-row>
             <v-select
               name="medicamentos"
-              v-model.trim="formMe.medicamento"
+              v-model.trim="$v.formMe.id_medicine.$model"
               :options="medicamentos"
               :filterable="true"
               :reduce="med => med.value"
               :state="!$v.formMe.id_medicine.$error"
               placeholder="Seleccione el insumo"
-              label="text"
-              @search:change="onChangeMedicamento"
-            ></v-select>
+              label='text'
+              @input="onChangeMedicamento"
+            >
+            </v-select>
             <label>{{this.existencias_selected_med}}</label>
           </b-form-group>
           <b-form-group label="Cantidad:">
@@ -563,7 +564,7 @@
                     @click="showModal('modal-1-movimiento'); getConsumoMedicamentos(props.rowData.id); obtenerIdCuenta(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
-                    variant="dark"
+                    variant="Success"
                    >Consumos</b-button>
                   <!-- <b-button
                     v-b-tooltip.top="'Aregar Insumos Quirofano'"
@@ -1592,7 +1593,6 @@ export default {
       }
     },
     searchingMedicamentos (search, loading) {
-      console.log('ok')
       axios.get(apiUrl + '/medicamentos/list2')
         .then((response) => {
           this.medicamentos = response.data.map(medicamento => ({
@@ -1650,21 +1650,12 @@ export default {
       }
       this.formMe.id_medicine = null
     },
-    onChangeMedicamento (searchTerm) {
-      if (!searchTerm) return
-      let medicine_ = this.medicamentos.find(med => med.text.toLowerCase() === searchTerm.toLowerCase())
-
-      if (medicine_) {
-        this.max_cant = medicine_.existencias_actuales
-        this.existencias_selected_med = `${medicine_.existencias_actuales} unidades en existencia.`
-        this.formMe.precio_venta = medicine_.precio_venta
-        this.formMe.existencias_actuales = medicine_.existencias_actuales
-      } else {
-        this.max_cant = 0
-        this.existencias_selected_med = 'No se encontraron unidades en existencia.'
-        this.formMe.precio_venta = 0
-        this.formMe.existencias_actuales = 0
-      }
+    onChangeMedicamento () {
+      let medicine_ = this.medicamentos.find(med => med.value === this.formMe.id_medicine)
+      this.max_cant = medicine_.existencias_actuales
+      this.existencias_selected_med = medicine_.existencias_actuales + ' unidades en existencia.'
+      this.formMe.precio_venta = medicine_.precio_venta
+      this.formMe.existencias_actuales = medicine_.existencias_actuales
     },
     async getConsumoMedicamentos (id) {
       try {
