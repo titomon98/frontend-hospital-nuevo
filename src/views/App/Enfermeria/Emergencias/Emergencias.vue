@@ -304,7 +304,7 @@
         <b-button variant="danger" @click="closeModal('ver-honorarios')">Cerrar</b-button>
       </template>
     </b-modal>
-    <b-modal id="modal-1-movimiento" ref="modal-1-movimiento" title="Agregar Consumo de Insumos">
+    <b-modal id="modal-1-movimiento" size="lg" ref="modal-1-movimiento" title="Agregar Consumo de Insumos">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -332,7 +332,7 @@
               name="medicamentos"
               v-model.trim="$v.formMe.id_medicine.$model"
               :options="medicamentos"
-              :filterable="false"
+              :filterable="true"
               :reduce="med => med.value"
               :state="!$v.formMe.id_medicine.$error"
               placeholder="Seleccione el insumo"
@@ -352,6 +352,63 @@
               placeholder="Ingresar Cantidad"
             ></b-form-input>
           </b-form-group>
+          <br>
+          <h5>CONSUMOS REALIZADOS</h5>
+          <b-tabs content-class="mt-3">
+          <b-tab title="Medicamento" active>
+            <vuetable
+              ref="vuetableConsumoInsumos"
+              class="table-divided table-responsive order-with-arrow"
+              :api-url="apiBaseConsumoMedicamento"
+              :query-params="makeQueryParamsConsumoInsumo"
+              :per-page="perPage"
+              :reactive-api-url="true"
+              :fields="fieldsConsumoInsumo"
+
+            >
+            </vuetable>
+            <vuetable-pagination-bootstrap
+              ref="paginationConsumo"
+              @vuetable-pagination:change-page="onChangePageConsumo"
+            />
+          </b-tab>
+          <b-tab title="Quirúrgico">
+            <vuetable
+              ref="vuetableConsumoQuirurgicos"
+              class="table-divided table-responsive order-with-arrow"
+              :api-url="apiBaseConsumoQuirurgico"
+              :query-params="makeQueryParamsConsumoInsumo"
+              :per-page="perPage"
+              :reactive-api-url="true"
+              :fields="fieldsConsumoInsumo"
+              pagination-path
+              @vuetable:pagination-data="onPaginationDataConsumoInsumo"
+            >
+            </vuetable>
+            <vuetable-pagination-bootstrap
+              ref="paginationConsumo"
+              @vuetable-pagination:change-page="onChangePageConsumo"
+            />
+          </b-tab>
+          <b-tab title="Común">
+            <vuetable
+              ref="vuetableConsumoComunes"
+              class="table-divided table-responsive order-with-arrow"
+              :api-url="apiBaseConsumoComun"
+              :query-params="makeQueryParamsConsumoInsumo"
+              :per-page="perPage"
+              :reactive-api-url="true"
+              :fields="fieldsConsumoInsumo"
+              pagination-path
+              @vuetable:pagination-data="onPaginationDataConsumoInsumo"
+            >
+            </vuetable>
+            <vuetable-pagination-bootstrap
+              ref="paginationConsumo"
+              @vuetable-pagination:change-page="onChangePageConsumo"
+            />
+          </b-tab>
+        </b-tabs>
       </b-form>
       <template #modal-footer="{}">
         <b-button variant="primary" @click=" onSave()"
@@ -482,15 +539,13 @@
                     size="sm" variant="success">Agregar honorarios</b-button>
                   <b-button @click="showModal('modal-ver-honorarios'); getDataHonorarios(props.rowData.id)"
                     class="mb-2 button-spacing" size="sm" variant="dark">Ver honorarios</b-button>
-                  <b-button @click="showModal('modal-1-movimiento'); obtenerIdCuenta(props.rowData.id)" class="mb-2 button-spacing"
-                    size="sm" variant="success">Agregar consumo</b-button>
                   <b-button
-                    v-b-tooltip.top="'Ver consumos'"
-                    @click="getConsumoMedicamentos(props.rowData.id);"
+                    v-b-tooltip.top="'Agregar consumo'"
+                    @click="showModal('modal-1-movimiento'); getConsumoMedicamentos(props.rowData.id); obtenerIdCuenta(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
-                    variant="dark"
-                   >Ver consumo</b-button>
+                    variant="success"
+                   >Consumos</b-button>
                 </div>
               </template>
               <!-- Paginacion -->
@@ -1451,7 +1506,7 @@ export default {
           this.apiBaseConsumoMedicamento = apiUrl + `/detalle_consumo_medicamentos/list/${response.data.id}`
           this.apiBaseConsumoQuirurgico = apiUrl + `/detalle_consumo_quirugicos/list/${response.data.id}`
           this.apiBaseConsumoComun = apiUrl + `/detalle_consumo_comun/list/${response.data.id}`
-          this.$refs['modal-ver-consumos'].show()
+          // this.$refs['modal-ver-consumos'].show()
         } else {
           console.error('No se encontró ninguna cuenta para el expediente:', id)
           this.alertErrorText = 'No se encontró ninguna cuenta para este paciente'
