@@ -184,7 +184,8 @@
                     placeholder="Ingresar nombre de la madre"
                   ></b-form-input>
                 </b-form-group>
-              </b-col><b-col md="2">
+              </b-col>
+              <!-- <b-col md="2">
                 <b-form-group label="Fecha de ingreso:">
                   <b-form-input
                     type="date"
@@ -203,7 +204,7 @@
                     placeholder="Ingresar hora de ingreso"
                   ></b-form-input>
                 </b-form-group>
-              </b-col>
+              </b-col> -->
             </b-row>
             <!-- Datos de encargado -->
             <h4 class="card-title mt-3">Ingreso de encargado</h4>
@@ -464,12 +465,6 @@ export default {
         },
         telefono_conyuge: {
           numeric
-        },
-        fecha: {
-          required
-        },
-        hora: {
-          required
         }
       }
     }
