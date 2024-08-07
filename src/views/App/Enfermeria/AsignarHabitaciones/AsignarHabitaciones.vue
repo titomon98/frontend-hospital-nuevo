@@ -10,94 +10,6 @@
     >
       <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
-    <b-modal id="modal-1-pago" ref="modal-1-pago" title="Pagar por adelantado" size="xl">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
-      >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
-      </b-alert>
-      <template>
-        <div>
-          <h6>Cuentas activas para {{this.form.nombres}} {{this.form.apellidos}}</h6>
-          <b-card>
-            <b-card-body>
-              <b-table
-                hover
-                :items="cuentas"
-                :fields="fieldsAccounts"
-                :select-mode="'single'"
-                selectable
-                @row-selected="onRowSelected"
-              >
-                <template #cell(seleccion)="{ rowSelected }">
-                  <template v-if="rowSelected">
-                    <span aria-hidden="true">&check;</span>
-                    <span class="sr-only">Selected</span>
-                  </template>
-                  <template v-else>
-                    <span aria-hidden="true">&nbsp;</span>
-                    <span class="sr-only">Not selected</span>
-                  </template>
-                </template>
-              </b-table>
-              <div>Total por pagar: {{this.totalSUM}}</div>
-              <b-form-group label="Seleccione métodos para pagar:" v-slot="{ ariaDescribedby }">
-                <b-form-checkbox-group
-                  id="checkbox-group-1"
-                  v-model="selectedPayment"
-                  :options="paymentOptions"
-                  :aria-describedby="ariaDescribedby"
-                  name="flavour-1"
-                ></b-form-checkbox-group>
-              </b-form-group>
-              <div v-if="selectedPayment.indexOf(1) !== -1">
-                Efectivo
-                <b-input :type="'number'" id="CashTypeInput" ref="CashTypeInput" v-model="paymentType.Efectivo" />
-              </div>
-              <div v-if="selectedPayment.indexOf(2) !== -1">
-                Tarjeta
-                <b-input :type="'number'" id="CardTypeInput" ref="CardTypeInput" v-model="paymentType.Tarjeta" />
-              </div>
-              <div v-if="selectedPayment.indexOf(3) !== -1">
-                Depósito
-                <b-input :type="'number'" id="DepositTypeInput" ref="DepositTypeInput" v-model="paymentType.Deposito" />
-              </div>
-              <div v-if="selectedPayment.indexOf(4) !== -1">
-                Cheque
-                <b-input :type="'number'" id="CheckTypeInput" ref="CheckTypeInput" v-model="paymentType.Cheque" />
-              </div>
-              <div v-if="selectedPayment.indexOf(5) !== -1">
-                Seguro
-                <b-input :type="'number'" id="InsuranceTypeInput" ref="InsuranceTypeInput" v-model="paymentType.Seguro" />
-              </div>
-              <div>
-                <strong> TOTAL INGRESADO: {{ parseFloat(this.paymentType.Efectivo) + parseFloat(this.paymentType.Tarjeta) + parseFloat(this.paymentType.Deposito) + parseFloat(this.paymentType.Cheque) + parseFloat(this.paymentType.Seguro) }}</strong>
-              </div>
-              <div>
-                <strong> TOTAL A PAGAR: {{ this.totalPayment }}</strong>
-              </div>
-            </b-card-body>
-            <div>
-
-            </div>
-          </b-card>
-        </div>
-      </template>
-      <template #modal-footer="{}">
-        <b-button variant="primary" @click="
-          onPatientQuit()
-        "
-          >Aceptar</b-button
-        >
-        <b-button variant="danger" @click="$bvModal.hide('modal-1-pago')"
-          >Cancelar</b-button
-        >
-      </template>
-    </b-modal>
     <b-modal id="modal-2-expediente" ref="modal-2-expediente" size="xl" title="Editar expediente">
       <b-alert
         :show="alertCountDownError"
@@ -398,6 +310,121 @@
         >
       </template>
     </b-modal>
+    <b-modal id="modal-1-habitacion" ref="modal-1-habitacion" title="Asignar habitación" size="lg">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <template>
+        <div>
+          <b-card>
+            <b-card-body>
+                <b-row class="ml-8">
+                    <b-col md="4">
+                        <b-form-group label="Fecha de ingreso:">
+                        <b-form-input
+                            type="date"
+                            v-model.trim="$v.form.fecha.$model"
+                            :class="{'is-invalid': $v.form.fecha.$error}"
+                            placeholder="Ingresar fecha de ingreso"
+                        ></b-form-input>
+                        </b-form-group>
+                    </b-col>
+                    <b-col md="4">
+                        <b-form-group label="Hora de ingreso:">
+                        <b-form-input
+                            type="time"
+                            v-model.trim="$v.form.hora.$model"
+                            :class="{'is-invalid': $v.form.hora.$error}"
+                            placeholder="Ingresar hora de ingreso"
+                        ></b-form-input>
+                        </b-form-group>
+                    </b-col>
+                </b-row>
+                <b-row  class="ml-9">
+                    <b-col md="3">
+                        <b-form-group label="Área a la que ingresa:">
+                        <b-form-radio
+                            v-model="form.selectedOption"
+                            value="hospi"
+                            name="customRadio1"
+                        >Hospitalización</b-form-radio>
+                        <b-form-radio
+                            v-model="form.selectedOption"
+                            value="emergencia"
+                            name="customRadio1"
+                        >Emergencia</b-form-radio>
+                        <b-form-radio
+                            v-model="form.selectedOption"
+                            value="quirofano"
+                            name="customRadio1"
+                        >Quirófano</b-form-radio>
+                        <b-form-radio
+                            v-model="form.selectedOption"
+                            value="intensivo"
+                            name="customRadio1"
+                        >Intensivo</b-form-radio>
+                        </b-form-group>
+                    </b-col>
+                    <b-col md="3">
+                        <b-form-group label="Paciente:">
+                        <b-form-radio
+                            v-model="form.tipo_paciente"
+                            value="0"
+                            name="customRadio"
+                            @change="getHabitaciones(form.tipo_paciente)"
+                        >Normal</b-form-radio>
+                        <b-form-radio
+                            v-model="form.tipo_paciente"
+                            value="1"
+                            name="customRadio"
+                            @change="getHabitaciones(form.tipo_paciente)"
+                        >Ambulatorio</b-form-radio>
+                        </b-form-group>
+                    </b-col>
+                    <b-col md="5">
+                        <b-form-group label="Habitaciones disponibles:">
+                        <v-select
+                            name="habitacion"
+                            v-model="$v.form.habitacion.$model"
+                            :state="!$v.form.habitacion.$error"
+                            :options="habitaciones"
+                            :filterable="false"
+                            placeholder="Seleccione una habitación disponible"
+                        >
+                            <template v-slot:option="option">
+                            {{ option.numero + ' - Tipo: ' + option.tipo + ' - Precio: Q' + (form.tipo_paciente === '1' ?  parseFloat(option.costo_ambulatorio).toFixed(2) : parseFloat(option.costo_diario).toFixed(2))}}
+                            </template>
+                            <template slot="selected-option" slot-scope="option">
+                            {{ option.numero + ' - Tipo: ' + option.tipo + ' - Precio: Q' + (form.tipo_paciente === '1' ?  parseFloat(option.costo_ambulatorio).toFixed(2) : parseFloat(option.costo_diario).toFixed(2))}}
+                            </template>
+                        </v-select>
+                        <div v-if="$v.form.habitacion.$error" class="invalid-feedback-vselect">
+                            Debe ingresar habitación para el paciente
+                        </div>
+                        </b-form-group>
+                    </b-col>
+                </b-row>
+            </b-card-body>
+          </b-card>
+        </div>
+      </template>
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click="
+          onRoomAssignment()
+        "
+          >Asignar</b-button
+        >
+        <b-button variant="danger" @click="$bvModal.hide('modal-3-medico')"
+          >Cancelar</b-button
+        >
+      </template>
+    </b-modal>
     <b-modal id="modal-3-medico" ref="modal-3-medico" title="Asignar médico" size="md">
       <b-alert
         :show="alertCountDownError"
@@ -481,57 +508,45 @@
                 <button v-if="props.rowData.estado === 7" type="button" class="btn btn-dark" disabled>ALTA MÉDICA</button>
                 <button v-if="props.rowData.estado === 8" type="button" class="btn btn-dark" disabled>EGRESO CONTRAINDICADO</button>
                 <button v-if="props.rowData.estado === 9" type="button" class="btn btn-dark" disabled>REFERIDO A OTRA UBICACIÓN</button>
-                <button v-if="props.rowData.estado === 10" type="button" class="btn btn-dark" disabled>PENDIENTE DE REGISTRO</button>
+                <button v-if="props.rowData.estado === 10" type="button" class="btn btn-dark" disabled>PENDIENTE DE REGISTRO Y ASIGNACIÓN</button>
+                <button v-if="props.rowData.estado === 11" type="button" class="btn btn-dark" disabled>PENDIENTE DE ASIGNACIÓN</button>
                 <button v-if="props.rowData.estado === 0" type="button" class="btn btn-dark" disabled>FALLECIDO</button>
               </div>
               <!-- Botones -->
               <template slot="actions" slot-scope="props">
                 <b-button-group>
-                  <b-button
-                    v-b-tooltip.top="'Editar'"
-                    @click="setData(props.rowData)"
-                    v-b-modal.modal-2-expediente
-                    class="mb-2"
-                    size="sm"
-                    variant="outline-warning"
-                    ><i :class="'fas fa-pencil-alt'"
-                  /></b-button>
-                  <b-button
-                    v-b-tooltip.top="'Trasladar'"
-                    @click="setData(props.rowData)"
-                    class="mb-2"
-                    size="sm"
-                    variant="outline-danger"
-                    ><i :class="'fas fa-heart'"
-                  /></b-button>
-                  <b-button
-                    v-b-tooltip.top="'Detalle de cuentas previas'"
-                    @click="setData(props.rowData)"
-                    v-b-modal.modal-1-pago
-                    class="mb-2"
-                    size="sm"
-                    variant="outline-dark"
-                    ><i :class="'fas fa-list-alt'"
-                  /></b-button>
-                  <b-button
-                    v-b-tooltip.top="'Pago adelantado'"
-                    @click="setData(props.rowData)
-                    $bvModal.show('modal-1-pago')"
-                    class="mb-2"
-                    size="sm"
-                    variant="outline-success"
-                    ><i :class="'fas fa-money'"
-                  /></b-button>
-                  <b-button
-                    v-b-tooltip.top="'Asignar médico'"
-                    @click="setData(props.rowData)
-                    $bvModal.show('modal-3-medico')
-                    getDoctors()"
-                    class="mb-2"
-                    size="sm"
-                    variant="outline-primary"
-                    ><i :class="'fas fa-stethoscope'"
-                  /></b-button>
+                    <b-button
+                        v-b-tooltip.top="'Editar'"
+                        @click="setData(props.rowData)"
+                        v-b-modal.modal-2-expediente
+                        class="mb-2 mt-2 button-spacing"
+                        size="sm"
+                        variant="dark"
+                    >
+                        Editar
+                    </b-button>
+                    <b-button
+                        v-b-tooltip.top="'Asignar habitación'"
+                        @click="setData(props.rowData)
+                        $bvModal.show('modal-1-habitacion')
+                        getDoctors()"
+                        class="mb-2 mt-2 button-spacing"
+                        size="sm"
+                        variant="success"
+                    >
+                        Asignar habitación
+                    </b-button>
+                    <b-button
+                        v-b-tooltip.top="'Asignar médico'"
+                        @click="setData(props.rowData)
+                        $bvModal.show('modal-3-medico')
+                        getDoctors()"
+                        class="mb-2 mt-2 button-spacing"
+                        size="sm"
+                        variant="dark"
+                    >
+                        Asignar médico
+                    </b-button>
                 </b-button-group>
               </template>
               <!-- Paginacion -->
@@ -565,6 +580,10 @@ export default {
   },
   setup () {
     return { $v: useVuelidate() }
+  },
+  beforeMount () {
+    this.getHabitaciones(0)
+    this.form.id_usuario = this.currentUser.uid
   },
   mounted () {
     xray.index()
@@ -612,9 +631,11 @@ export default {
         tipo_paciente: '0',
         motivo: ' ',
         fecha: null,
-        hora: null
+        hora: null,
+        habitacion: null
       },
       selectedDoctor: [],
+      habitaciones: [],
       nacionalidades: ['Guatemala', 'El Salvador', 'México', 'Honduras', 'Belice', 'Otro'],
       generos: ['Masculino', 'Femenino'],
       parentescos: ['Padre/Madre', 'Hermano/a', 'Hijo/a', 'Cónyuge', 'Otro'],
@@ -768,6 +789,15 @@ export default {
         },
         telefono_conyuge: {
           numeric
+        },
+        fecha: {
+          required
+        },
+        hora: {
+          required
+        },
+        habitacion: {
+          required
         }
       }
     }
@@ -795,6 +825,10 @@ export default {
           this.form.id = 0
           this.form.name = ''
           this.form.state = 1
+          break
+        }
+        case 'assignRoom': {
+          this.$refs['modal-1-habitacion'].hide()
           break
         }
         case 'assignDoctor': {
@@ -845,6 +879,12 @@ export default {
       this.form.expediente = data.expediente
       this.form.state = data.estado
       this.form.id = data.id
+      const today = new Date()
+      const yyyy = today.getFullYear()
+      const mm = String(today.getMonth() + 1).padStart(2, '0')
+      const dd = String(today.getDate()).padStart(2, '0')
+      this.form.fecha = `${yyyy}-${mm}-${dd}`
+      this.form.hora = today.toTimeString().split(' ')[0]
       this.getCuentas(data.id)
     },
     /* Guardar */
@@ -1010,6 +1050,34 @@ export default {
           this.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
           console.error('Error!', error)
         })
+    },
+    onRoomAssignment () {
+      this.form.assignedDoctor = this.selectedDoctor
+      console.log(this.form.id)
+      axios.put(apiUrl + '/expedientes/assignRoom', {
+        form: this.form })
+        .then((response) => {
+          this.alertVariant = 'primary'
+          this.showAlert()
+          this.alertText = 'Se ha actualizado el expediente ' + this.form.expediente + ' exitosamente'
+          this.$refs.vuetable.refresh()
+          this.closeModal('assignRoom')
+        })
+        .catch((error) => {
+          this.alertVariant = 'danger'
+          this.showAlertError()
+          this.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+          console.error('Error!', error)
+        })
+    },
+    getHabitaciones (num) {
+      axios.get(apiUrl + '/habitaciones/get', {
+        params: {
+          tipo: num
+        }
+      }).then((response) => {
+        this.habitaciones = response.data
+      })
     }
   }
 }
