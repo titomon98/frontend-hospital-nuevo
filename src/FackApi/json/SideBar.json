@@ -264,6 +264,17 @@
         "class_name": "",
         "is_icon_class": true,
         "icon": "ri-file-transfer-line"
+      },
+      {
+        "title": "Asignar Habitaciones",
+        "name": "Asignar Habitaciones",
+        "is_active": false,
+        "link": {
+          "name" : "enfermeria.AsignarHabitacion"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-file-transfer-line"
       }
     ]
   },

@@ -148,6 +148,12 @@ export default {
   },
   mounted () {
     xray.index()
+    const today = new Date()
+    const yyyy = today.getFullYear()
+    const mm = String(today.getMonth() + 1).padStart(2, '0')
+    const dd = String(today.getDate()).padStart(2, '0')
+    this.form.fecha = `${yyyy}-${mm}-${dd}`
+    this.form.hora = today.toTimeString().split(' ')[0]
   },
   computed: {
     ...mapGetters([
