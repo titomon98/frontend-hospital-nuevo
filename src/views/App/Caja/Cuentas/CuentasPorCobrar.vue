@@ -504,7 +504,7 @@ export default {
       this.expediente = data.id_expediente
       console.log(this.cuentas)
       this.onLoadAssurances(data.id_expediente)
-      //this.getCuentas(data.id)
+      // this.getCuentas(data.id)
     },
     /* Guardar */
     onSave () {
@@ -581,12 +581,12 @@ export default {
     onLoadAssurances (data) {
       console.log(data)
       axios.get(apiUrl + '/seguros/getByExp', {
-        params: {id_expediente: data}
+        params: { id_expediente: data }
       })
-      .then((resp) => {
-        this.assurances = resp.data
-        console.log(resp)
-      })
+        .then((resp) => {
+          this.assurances = resp.data
+          console.log(resp)
+        })
     },
     onPatientQuit () {
       this.paymentSum = parseFloat(this.paymentType.Efectivo) + parseFloat(this.paymentType.Tarjeta) + parseFloat(this.paymentType.Deposito) + parseFloat(this.paymentType.Cheque) + parseFloat(this.paymentType.Seguro) + parseFloat(this.paymentType.Transferencia)
@@ -598,42 +598,42 @@ export default {
         console.log(this.selectedAccount)
         console.log(this.id_seguro)
         axios.put(apiUrl + '/cuentas/deactivate',
-            {
-              id: this.selectedAccount,
-              total_pagado: parseFloat(this.totPagado) + parseFloat(this.paymentSum),
-              pendiente_de_pago: parseFloat(parseFloat(this.totalPayment) - parseFloat(this.paymentSum)),
-              efectivo: this.paymentType.Efectivo,
-              tarjeta: this.paymentType.Tarjeta,
-              deposito: this.paymentType.Deposito,
-              cheque: this.paymentType.Cheque,
-              seguro: this.paymentType.Seguro,
-              transferencia: this.paymentType.Transferencia,
-              total: this.paymentSum,
-              id_seguro: this.seguro>0?this.selectAssurance.id:0,
-              id_expediente: this.expediente,
-              tipo: 'finiquito'
-            })
-            .then(
-              this.selectedAccount = null,
-              this.paymentType.Efectivo = 0,
-              this.paymentType.Tarjeta = 0,
-              this.paymentType.Deposito = 0,
-              this.paymentType.Cheque = 0,
-              this.paymentType.Seguro = 0,
-              this.paymentType.transferencia = 0,
-              this.paymentSum = 0,
-              this.selectAssurance = null
-            )
-            .catch((error)=>{
-              console.error(error)
-            })
-          me.alertVariant = 'info'
-          me.showAlert()
-          me.alertText = 'Se ha egresado el paciente ' + me.form.nombres + ' exitosamente'
-          me.$refs.vuetable.refresh()
-          me.$refs['modal-2-account'].hide()
+          {
+            id: this.selectedAccount,
+            total_pagado: parseFloat(this.totPagado) + parseFloat(this.paymentSum),
+            pendiente_de_pago: parseFloat(parseFloat(this.totalPayment) - parseFloat(this.paymentSum)),
+            efectivo: this.paymentType.Efectivo,
+            tarjeta: this.paymentType.Tarjeta,
+            deposito: this.paymentType.Deposito,
+            cheque: this.paymentType.Cheque,
+            seguro: this.paymentType.Seguro,
+            transferencia: this.paymentType.Transferencia,
+            total: this.paymentSum,
+            id_seguro: this.seguro > 0 ? this.selectAssurance.id : 0,
+            id_expediente: this.expediente,
+            tipo: 'finiquito'
+          })
+          .then(
+            this.selectedAccount = null,
+            this.paymentType.Efectivo = 0,
+            this.paymentType.Tarjeta = 0,
+            this.paymentType.Deposito = 0,
+            this.paymentType.Cheque = 0,
+            this.paymentType.Seguro = 0,
+            this.paymentType.transferencia = 0,
+            this.paymentSum = 0,
+            this.selectAssurance = null
+          )
+          .catch((error) => {
+            console.error(error)
+          })
+        me.alertVariant = 'info'
+        me.showAlert()
+        me.alertText = 'Se ha egresado el paciente ' + me.form.nombres + ' exitosamente'
+        me.$refs.vuetable.refresh()
+        me.$refs['modal-2-account'].hide()
 
-        .catch((error) => {
+          .catch((error) => {
             me.alertVariant = 'danger'
             me.showAlertError()
             me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'

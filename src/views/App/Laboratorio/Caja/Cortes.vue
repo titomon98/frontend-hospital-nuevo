@@ -41,72 +41,14 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-2-bank" ref="modal-2-bank" title="Editar banco">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
-      >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
-      </b-alert>
-      <b-form @submit="$event.preventDefault()">
-        <b-form-group label="Nombre:">
-          <b-form-input
-            v-model.trim="$v.form.name.$model"
-            :state="!$v.form.name.$error"
-            placeholder="Ingresar nombre de banco"
-          ></b-form-input>
-          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
-            Debe ingresar el nombre
-          </div>
-        </b-form-group>
-      </b-form>
+    <b-modal id="modal-pdf" ref="modal-pdf" title="Generar PDF" size="xl">
+      <div id="previewContainer">
+        <iframe :src="previewURL" width="100%" height="700px"></iframe>
+      </div>
       <template #modal-footer="{}">
-        <b-button variant="primary" @click="onValidate('update')"
-          >Guardar</b-button
-        >
-        <b-button variant="danger" @click="closeModal('update')"
-          >Cancelar</b-button
-        >
+        <b-button variant="primary" @click="descargarpdf()">Guardar</b-button>
+        <b-button variant="danger" @click="closeModal('pdf')">Cancelar</b-button>
       </template>
-    </b-modal>
-    <b-modal id="modal-3-view" ref="modal-3-view" title="Ver detalle">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
-      >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
-      </b-alert>
-      <b-form @submit="$event.preventDefault()">
-        <b-form-group label="NOMBRE DEL PACIENTE:">
-          <label>-nombre-</label>
-        </b-form-group>
-        <b-form-group label="CUARTO:">
-          <label>-cuarto-</label>
-        </b-form-group>
-        <b-form-group label="TIPO DE SERVICIO:">
-          <label>-_______-</label>
-        </b-form-group>
-        <b-form-group label="D/ESTANCIA:">
-          <label>-_______-</label>
-        </b-form-group>
-        <b-form-group label="MD TRATANTE:">
-          <label>-nombre-</label>
-        </b-form-group>
-      </b-form>
-      <b-table ref="table_campos"
-        hover
-        :items="detalle"
-        :fields="fieldsCampos"
-        :select-mode="'single'"
-        selectable
-      >
-      </b-table>
     </b-modal>
     <b-row>
       <b-col md="12">
@@ -115,8 +57,19 @@
               <h4 class="card-title mt-3">Cortes</h4>
                <div class="iq-search-bar mt-2">
                 <b-form action="#" class="searchbox">
-                    <b-input id="search" placeholder="Buscar..." @input="(val) => searchChange(val)" />
-                    <a class="search-link" href="#"><i class="ri-search-line"></i></a>
+                    <b-form-group label="Fecha:">
+                      <b-form-input type="date" v-model="selectedDate"></b-form-input>
+                      <b-button
+                        @click="setData(props.rowData)"
+                        class="mb-2 mt-2 button-spacing"
+                        size="sm"
+                        variant="dark"
+                      >Ver reporte por día</b-button>
+                    </b-form-group>
+                    <b-form action="#" class="searchbox">
+                      <b-input id="search" placeholder="Buscar..." @input="(val) => searchChange(val)" />
+                      <a class="search-link" href="#"><i class="ri-search-line"></i></a>
+                    </b-form>
                 </b-form>
               </div>
             </template>
@@ -147,12 +100,12 @@
               <div slot="estado" slot-scope="props">
                 <h5 v-if="props.rowData.estado == 1">
                   <b-badge variant="light"
-                    ><h6 class="success"><strong>ACTIVO</strong></h6></b-badge
+                    ><h6 class="success"><strong>PENDIENTE DE PAGO</strong></h6></b-badge
                   >
                 </h5>
                 <h5 v-else>
                   <b-badge variant="light"
-                    ><h6 class="danger"><strong>INACTIVO</strong></h6></b-badge
+                    ><h6 class="danger"><strong>PAGADA</strong></h6></b-badge
                   >
                 </h5>
               </div>
@@ -160,23 +113,11 @@
               <template slot="actions" slot-scope="props">
                 <b-button-group>
                   <b-button
-                    v-b-tooltip.top="'Editar'"
                     @click="setData(props.rowData)"
-                    v-b-modal.modal-2-bank
-                    class="mb-2"
+                    class="mb-2 button-spacing"
                     size="sm"
-                    variant="outline-warning"
-                    ><i :class="'fas fa-pencil-alt'"
-                  /></b-button>
-                  <b-button
-                    v-b-tooltip.top="'Mostrar detalle'"
-                    @click="setData(props.rowData)"
-                    v-b-modal.modal-3-view
-                    class="mb-2"
-                    size="sm"
-                    variant="outline-success"
-                    ><i :class="'fas fa-solid fa-eye'"
-                  /></b-button>
+                    variant="dark"
+                  >Ver detalle</b-button>
                 </b-button-group>
               </template>
               <!-- Paginacion -->
@@ -200,6 +141,10 @@ import useVuelidate from '@vuelidate/core'
 import { required } from '@vuelidate/validators'
 import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
+import JsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
+import { mapGetters } from 'vuex'
+import moment from 'moment'
 
 export default {
   name: 'Bank',
@@ -211,8 +156,20 @@ export default {
   setup () {
     return { $v: useVuelidate() }
   },
+  beforeMount () {
+    const today = new Date()
+    const yyyy = today.getFullYear()
+    const mm = String(today.getMonth() + 1).padStart(2, '0')
+    const dd = String(today.getDate()).padStart(2, '0')
+    this.selectedDate = `${yyyy}-${mm}-${dd}`
+  },
   mounted () {
     xray.index()
+  },
+  computed: {
+    ...mapGetters([
+      'currentUser'
+    ])
   },
   data () {
     return {
@@ -222,6 +179,17 @@ export default {
       perPage: 5,
       search: '',
       detalle: [],
+      pdf: new JsPDF(),
+      pdfName: '',
+      previewURL: '',
+      selectedDate: null,
+      encabezado: {
+        id: 0,
+        fecha: null,
+        nit: null,
+        usuario: null,
+        total: null
+      },
       form: {
         id: 0,
         name: '',
@@ -266,8 +234,8 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
-          name: 'total-pagado',
-          sortField: 'total-pagado',
+          name: 'total_pagado',
+          sortField: 'total_pagado',
           title: 'Total pagado',
           dataClass: 'list-item-heading'
         },
@@ -303,7 +271,8 @@ export default {
     return {
       form: {
         name: { required }
-      }
+      },
+      selectedDate: { required }
     }
   },
   methods: {
@@ -356,18 +325,29 @@ export default {
       this.form.state = data.estado
       this.form.id = data.id
     }, */
-    setData (data) {
+    setData (data, st) {
       this.form.id = data.id
-      this.form.name = data.nombre
-      this.getDetail(data.id)
+      this.form.name = data.nombres
+      this.getDetail(data.id, data)
     },
-    getDetail (num) {
+    getDetail (num, data) {
       axios.get(apiUrl + '/detalle/getByAccount', {
         params: {
           id_lab_cuenta: num
         }
       }).then((response) => {
         this.detalle = response.data
+        this.printSale(data, 1)
+      })
+    },
+    getReport (num, data) {
+      axios.get(apiUrl + '/detalle/getByAccount', {
+        params: {
+          id_lab_cuenta: num
+        }
+      }).then((response) => {
+        this.detalle = response.data
+        this.printSale(data, 1)
       })
     },
     /* Guardar */
@@ -490,6 +470,76 @@ export default {
     },
     showAlertError () {
       this.alertCountDownError = this.alertSecs
+    },
+    printSale (data, type) {
+      this.$refs['modal-pdf'].show()
+      var altura = 1
+      var ahora = new Date()
+      this.arrayDetalles = data.detalle_ventas
+      this.encabezado.id = data.id
+      this.encabezado.fecha = new Date().toLocaleDateString('es-us', data.fecha)
+
+      this.pdf = new JsPDF({
+        unit: 'cm',
+        format: [14, 21.5],
+        orientation: 'landscape'
+      })
+      var ingreso = moment(ahora).format('DD/MM/YYYY')
+      /* var imgData = this.logo3
+      this.pdf.addImage(imgData, 'PNG', 1.5, 0.75, 4.37, 1.87) */
+      this.pdf.setFontSize(10).setFont(undefined, 'bold')
+      if (type === 1) {
+        this.pdf.text('Detalle de cuenta ' + data.numero + ' - Paciente: ' + data.expediente.nombres + ' ' + data.expediente.apellidos, 7, altura)
+        this.pdfName = 'DetalleCuenta' + data.id + '.pdf'
+        altura = altura + 0.5
+        this.pdf.text('Total: ' + data.total, 7, altura)
+        altura = altura + 0.5
+        this.pdf.text('Total pagado: ' + data.total_pagado, 7, altura)
+        altura = altura + 0.5
+        this.pdf.text('Pendiente de pago: ' + data.pendiente_de_pago, 7, altura)
+      } else {
+        this.pdf.text('Ingresos del día ' + data.id, 7, altura)
+        this.pdfName = 'Ingresos' + this.selectedDate + '.pdf'
+      }
+      // Encabezado
+      altura = altura + 0.5
+      this.pdf.text('Fecha de generación: ' + ingreso, 7, altura)
+      altura = altura + 0.5
+      this.pdf.text('Informe generado por: ', 7, altura)
+      this.pdf.setFontSize(10).setFont(undefined, 'normal')
+      this.pdf.text(this.currentUser.user, 10.75, altura)
+      altura = altura + 0.5
+      // Tabla
+      if (type === 1) {
+        autoTable(this.pdf, {
+          columns: [{ header: 'Descripción', dataKey: 'Descripcion' }, { header: 'Costo', dataKey: 'costo' }],
+          body: this.detalle,
+          margin: { top: 5 },
+          headStyles: {
+            fillColor: [21, 21, 21],
+            textColor: [225, 225, 225],
+            fontStyle: 'bold'
+          }
+        })
+      } else {
+        autoTable(this.pdf, {
+          columns: [{ header: 'Descripción', dataKey: 'descripcion' }, { header: 'Costo', dataKey: 'costo' }, { header: 'Subtotal', dataKey: 'subtotal' }],
+          body: this.arrayDetalles,
+          margin: { top: 5 },
+          headStyles: {
+            fillColor: [21, 21, 21],
+            textColor: [225, 225, 225],
+            fontStyle: 'bold'
+          }
+        })
+      }
+      var pdfData = this.pdf.output('blob')
+      // Convert PDF to data URL
+      var pdfURL = URL.createObjectURL(pdfData)
+      this.previewURL = pdfURL
+    },
+    descargarpdf () {
+      this.pdf.save(this.pdfName)
     }
   }
 }

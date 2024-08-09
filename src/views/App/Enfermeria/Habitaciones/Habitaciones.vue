@@ -225,13 +225,19 @@ export default {
         {
           name: 'costo_diario',
           sortField: 'costo_diario',
-          title: 'Costo de habitación',
+          title: 'Precio de habitación',
           dataClass: 'list-item-heading'
         },
         {
           name: 'costo_ambulatorio',
           sortField: 'costo_ambulatorio',
-          title: 'Costo ambulatorio',
+          title: 'Precio ambulatorio',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'costo_estudio_de_sueño',
+          sortField: 'costo_estudio_de_sueño',
+          title: 'Precio estudio de sueño',
           dataClass: 'list-item-heading'
         },
         {
