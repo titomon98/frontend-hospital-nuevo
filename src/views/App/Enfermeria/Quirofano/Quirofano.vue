@@ -473,6 +473,182 @@
         </b-tab>
       </b-tabs>
     </b-modal>
+    <b-modal id="modal_agregar" size="xl" ref="modal_agregar" title="Ingresar nuevo examen">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <b-form @submit="$event.preventDefault()">
+        <b-row class="ml-2">
+          <b-col md="3">
+            <b-form-group label="Comisión:">
+              <b-form-input
+                v-model="formExamen.comision"
+                placeholder="Ingresar Comisión"
+              ></b-form-input>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Total:">
+              <b-form-input
+                v-model="formExamen.total"
+                placeholder="Ingresar el total"
+              ></b-form-input>
+            </b-form-group>
+          </b-col>
+        </b-row>
+        <b-row class="ml-2">
+          <b-col md="3">
+            <b-form-group label="Numero Muestra:">
+              <b-form-input
+                v-model="formExamen.numero_muestra"
+                placeholder="Ingresar el numero de muestra"
+              ></b-form-input>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Referido:">
+              <b-form-input
+                v-model="formExamen.referido"
+                placeholder="Ingresar Referido"
+              ></b-form-input>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Pagado:">
+              <b-form-input
+                v-model="formExamen.pagado"
+                placeholder="Ingresar Lo pagado"
+              ></b-form-input>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Por pagar:">
+              <b-form-input
+                v-model="formExamen.por_pagar"
+                placeholder="Ingresar Lo que esta por pagar"
+              ></b-form-input>
+            </b-form-group>
+          </b-col>
+        </b-row>
+        <b-row class="ml-2">
+          <b-col md="4">
+            <b-form-group label="Encargado:">
+              <v-select
+                name="type"
+                v-model="formExamen.id_encargado"
+                :options="encargados"
+                :filterable="false"
+                placeholder="Seleccione un encargado"
+                @search="onSearchEncargado"
+              >
+                <template v-slot:spinner="{ loading }">
+                  <div v-show="loading">Cargando...</div>
+                </template>
+                <template v-slot:option="option">
+                  {{ 'Nombre: '+ option.nombres }}
+                </template>
+                <template slot="selected-option" slot-scope="option">
+                  {{ 'Nombre: '+ option.nombres }}
+                </template>
+              </v-select>
+            </b-form-group>
+          </b-col>
+          <b-col md="4">
+            <b-form-group label="Tipo de Examen:">
+              <v-select
+                name="type"
+                v-model="formExamen.id_examenes_almacenados"
+                :options="examenes_almacenados"
+                :filterable="false"
+                placeholder="Seleccione el Examen"
+                @search="onSearch_id_examenes_almacenados"
+              >
+                <template v-slot:spinner="{ loading }">
+                  <div v-show="loading">Cargando...</div>
+                </template>
+                <template v-slot:option="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+                <template slot="selected-option" slot-scope="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+              </v-select>
+            </b-form-group>
+          </b-col>
+        </b-row>
+      </b-form>
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click="guardarExamenRealizado"
+          >Guardar</b-button
+        >
+        <b-button variant="danger" @click="closeModal('modal_agregar')"
+          >Cancelar</b-button
+        >
+      </template>
+      <b-row>
+      <b-col sm="12">
+        <iq-card>
+          <template v-slot:headerTitle>
+            <div class="center-text">
+              <h3 class="card-title">EXAMENES REALIZADOS</h3>
+            </div>
+          </template>
+          <template v-slot:body>
+            <datatable-heading
+              :changePageSize="changePageSizesExamenes"
+              :searchChange="searchChangeExamenes"
+              :from="fromExamenes"
+              :to="toExamenes"
+              :total="totalExamenes"
+              :perPage="perPageExamenes"
+            >
+            </datatable-heading>
+            <vuetable
+              ref="vuetableExamenes"
+              class="table-divided order-with-arrow"
+              :api-url="apiBaseExamenes"
+              :query-params="makeQueryParamsExamenes"
+              :per-page="perPageExamenes"
+              :reactive-api-url="true"
+              :fields="fieldsExamenes"
+              pagination-path
+              @vuetable:pagination-data="onPaginationDataExamenes"
+            >
+            <!-- Botones -->
+            <template slot="actions" slot-scope="props">
+              <b-button-group>
+                <div class="button-container">
+                  <b-button
+                    @click="addResultado(props.rowData.id)"
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="success"
+                  >Agregar resultado</b-button>
+                  <b-button
+                    @click="anular(props.rowData.id)"
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="danger"
+                  >Anular Examen</b-button>
+                </div>
+              </b-button-group>
+              </template>
+            </vuetable>
+            <vuetable-pagination-bootstrap
+                ref="paginationExamenes"
+                @vuetable-pagination:change-page="onChangePageExamenes"
+              />
+          </template>
+        </iq-card>
+      </b-col>
+    </b-row>
+    </b-modal>
     <b-row>
       <b-col md="12">
         <iq-card>
@@ -583,6 +759,20 @@
                     size="sm"
                     variant="success"
                    >Ver consumo</b-button>
+                   <b-button
+                    v-b-tooltip.top="'Agregar examen'"
+                    @click="realizar_examen(props.rowData.nombres, props.rowData.apellidos, props.rowData.cui );"
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="dark"
+                   >Agregar examen</b-button>
+                   <b-button
+                    v-b-tooltip.top="'Ver examen'"
+                    @click="ver_examen_realizado(props.rowData.cui);"
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="success"
+                   >Ver examen</b-button>
                   <!-- <b-button
                     v-b-tooltip.top="'Aregar Insumos Quirofano'"
                     @click="showModal('modal-2-movimiento'); obtenerIdCuenta(props.rowData.id)"
@@ -625,6 +815,7 @@ import { required } from '@vuelidate/validators'
 import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
 import { quillEditor } from 'vue-quill-editor'
+import moment from 'moment'
 
 export default {
   name: 'Quirofano',
@@ -881,7 +1072,102 @@ export default {
         comun: null,
         state: 1,
         movimiento: 'SALIDAQ'
-      }
+      },
+
+      examenes_almacenados: [],
+      encargados: [],
+      formExamen: {
+        id: 0,
+        nombre: '',
+        cui: 0,
+        comision: '',
+        total: 0,
+        correo: '',
+        whatsapp: '',
+        numero_muestra: 0,
+        existencia_actual: 0,
+        referido: '',
+        id_encargado: null,
+        pagado: 0,
+        por_pagar: 0,
+        id_examenes_almacenados: null
+      },
+      fromExamenes: 0,
+      toExamenes: 0,
+      totalExamenes: 0,
+      perPageExamenes: 5,
+      searchExamenes: '',
+      fechaDesdeExamenes: null,
+      fechaHastaExamenes: null,
+      apiBaseExamenes: '',
+      fieldsExamenes: [
+        {
+          name: '__slot:actions',
+          title: 'Acciones',
+          titleClass: '',
+          dataClass: 'text-muted'
+        },
+        {
+          name: 'nombre',
+          sortField: 'nombre',
+          title: 'Nombre',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'cui',
+          sortField: 'cui',
+          title: 'CUI',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'total',
+          sortField: 'total',
+          title: 'Total a Pagar',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'whatsapp',
+          sortField: 'whatsapp',
+          title: 'Celular',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'numero_muestra',
+          sortField: 'numero_muestra',
+          title: 'Numero de Muestra',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'nombre_encargago',
+          sortField: 'nombre_encargago',
+          title: 'Nombre de Encargado',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'pagado',
+          sortField: 'pagado',
+          title: 'Pagado',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'por_pagar',
+          sortField: 'por_pagar',
+          title: 'Por Pagar',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'nombre_examen',
+          sortField: 'nombre_examen',
+          title: 'Examen Realizado',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'fecha_hora',
+          sortField: 'fecha_hora',
+          title: 'Fecha y Hora',
+          dataClass: 'list-item-heading'
+        }
+      ]
     }
   },
   validations () {
@@ -1069,6 +1355,24 @@ export default {
           this.form.state = 1
           this.form.id_receta = null
           this.form.selected_insumo = '0'
+          break
+        }
+        case 'modal_agregar': {
+          this.$v.$reset()
+          this.$refs['modal_agregar'].hide()
+          this.formExamen.id = 0
+          this.formExamen.nombre = ''
+          this.formExamen.cui = 0
+          this.formExamen.comision = ''
+          this.formExamen.total = 0
+          this.formExamen.correo = ''
+          this.formExamen.whatsapp = ''
+          this.formExamen.numero_muestra = ''
+          this.formExamen.referido = ''
+          this.formExamen.id_encargago = null
+          this.formExamen.pagado = 0
+          this.formExamen.por_pagar = 0
+          this.formExamen.id_examenes_almacenados = null
           break
         }
       }
@@ -1755,11 +2059,154 @@ export default {
         this.onState()
         this.$bvModal.hide('modal-traslado')
       }
+    },
+
+    /* AREA DE EXAMENES DE LABORATORIO */
+    anular (id) {
+      const me = this
+      console.log(id)
+      const ruta = apiUrl + `/Examenes_realizados/update?id=${id}`
+      axios.put(ruta, {
+        form: me.anularExamen
+      })
+        .then((response) => {
+          me.alertVariant = 'success'
+          me.showAlert()
+          me.alertText = 'Se ha ANULADO el examen'
+          me.$refs.vuetableExamenes.refresh()
+        })
+        .catch((error) => {
+          me.alertVariant = 'danger'
+          me.showAlertError()
+          me.alertErrorText = error.response.data.msg
+          console.error('Error!', error)
+        })
+    },
+    addResultado (id) {
+      this.$refs['modal-add-resultados'].show()
+      console.log(id)
+      this.formResultado.id = id
+    },
+    makeQueryParamsExamenes (sortOrderExamenes, currentPageExamenes, perPageExamenes) {
+      return {
+        criterio: sortOrderExamenes[0] ? sortOrderExamenes[0].sortField : 'createdAt',
+        order: sortOrderExamenes[0] ? sortOrderExamenes[0].direction : 'desc',
+        page: currentPageExamenes,
+        limit: this.perPageExamenes,
+        search: this.searchExamenes
+      }
+    },
+    changePageSizesExamenes (perPage) {
+      this.perPageExamenes = perPage
+      this.$refs.vuetableExamenes.refresh()
+    },
+    searchChangeExamenes (val) {
+      this.searchExamenes = val.toLowerCase()
+      this.$refs.vuetableExamenes.refresh()
+    },
+    onPaginationDataExamenes (paginationData) {
+      this.fromExamenes = paginationData.from
+      this.toExamenes = paginationData.to
+      this.totalExamenes = paginationData.total
+      this.lastPageExamenes = paginationData.last_page
+      console.log(paginationData.data + 'ACA APARECERIA LA DATA DE LIST EXAMENES')
+      this.itemsExamenes = paginationData.data.map(item => {
+        item.fecha_hora = moment(item.fecha_hora).format('DD/MM/YYYY HH:mm')
+        return {
+          id: item.id,
+          nombre: item.expediente,
+          cui: item.cui,
+          total: item.total,
+          whatsapp: item.whatsapp,
+          numero_muestra: item.numero_muestra,
+          nombre_encargago: item.nombre_encargago,
+          pagado: item.pagado,
+          por_pagar: item.por_pagar,
+          nombre_examen: item.nombre_examen,
+          fecha_hora: item.fecha_hora
+        }
+      })
+      this.$refs.paginationExamenes.setPaginationData(paginationData)
+    },
+    onChangePageExamenes (page) {
+      this.$refs.vuetableExamenes.changePage(page)
+    },
+    guardarExamenRealizado () {
+      axios.post(apiUrl + '/Examenes_realizados/create', {
+        form: this.formExamen })
+        .then((response) => {
+          this.alertVariant = 'success'
+          this.showAlert()
+          this.alertText = 'Se ingresado al pasciente ' + this.formExamen.nombre + ' exitosamente'
+          this.$refs.vuetable.refresh()
+          this.closeModal('modal_agregar')
+          this.$refs.vuetable.refresh()
+        })
+        .catch((error) => {
+          this.alertVariant = 'danger'
+          this.showAlertError()
+          this.alertErrorText = error.response.data.msg
+          console.error('Error!', error)
+        })
+    },
+    realizar_examen (nombre, apellido, cui) {
+      this.$refs['modal_agregar'].show()
+      console.log(nombre + apellido + cui)
+      this.formExamen.nombre = nombre + ' ' + apellido
+      this.formExamen.cui = cui
+      this.apiBaseExamenes = apiUrl + `/Examenes_realizados/list/cui?cui=${cui}`
+    },
+    ver_examen_realizado (cui) {
+      this.$refs['modal-add-resultados'].show()
+      console.log(cui)
+    },
+    onSearch_id_examenes_almacenados (search, loading) {
+      if (search.length) {
+        loading(true)
+        this.searching_id_examenes_almacenados(search, loading)
+      }
+    },
+    searching_id_examenes_almacenados (search, loading) {
+      axios.get(apiUrl + '/examenesAlmacenados/getSearch',
+        {
+          params: {
+            search: search
+          }
+        }
+      ).then((response) => {
+        this.examenes_almacenados = response.data
+        loading(false)
+      })
+    },
+    onSearchEncargado (search, loading) {
+      if (search.length) {
+        loading(true)
+        this.searchingEncargado(search, loading)
+      }
+    },
+    searchingEncargado (search, loading) {
+      axios.get(apiUrl + '/encargadoExamen/getSearch',
+        {
+          params: {
+            search: search
+          }
+        }
+      ).then((response) => {
+        this.encargados = response.data
+        loading(false)
+      })
     }
   }
 }
 </script>
 <style>
+.center-text {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%; /* Adjust this if needed */
+  text-align: center;
+}
 .custom-editor {
   height: 350px; /* Adjust the height as needed */
 }
