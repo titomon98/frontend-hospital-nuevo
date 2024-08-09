@@ -191,6 +191,7 @@
               <b-form-input
                 v-model.trim="varContactoEncargado"
                 :state="!varContactoEncargadoError"
+                :error="varContactoEncargadoError"
                 placeholder="Ingresar teléfono del encargado">
               </b-form-input>
               Parentesco
@@ -499,8 +500,11 @@ export default {
         this.alertErrorText = 'Revisa que todos los campos requeridos esten llenos'
         this.showAlertError()
       } else {
-        this.onState()
-        this.$bvModal.hide('modal-4-servicios')
+        if (this.varContactoEncargado === '') {
+        } else {
+          this.onState()
+          this.$bvModal.hide('modal-4-servicios')
+        }
       }
     },
     setData (data) {
