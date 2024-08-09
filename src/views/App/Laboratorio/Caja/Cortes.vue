@@ -60,7 +60,7 @@
                     <b-form-group label="Fecha:">
                       <b-form-input type="date" v-model="selectedDate"></b-form-input>
                       <b-button
-                        @click="setData(props.rowData)"
+                        @click="getReport()"
                         class="mb-2 mt-2 button-spacing"
                         size="sm"
                         variant="dark"
@@ -133,6 +133,7 @@
   </b-container>
 </template>
 <script>
+
 import { xray } from '../../../../config/pluginInit'
 import DatatableHeading from '../../../Tables/DatatableHeading'
 import Vuetable from 'vuetable-2/src/components/Vuetable'
@@ -145,6 +146,7 @@ import JsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import { mapGetters } from 'vuex'
 import moment from 'moment'
+import logoLab from '../../../../../src/assets/images/logoLab.jpg'
 
 export default {
   name: 'Bank',
@@ -246,6 +248,12 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
+          name: 'fecha_corte',
+          sortField: 'fecha_corte',
+          title: 'Fecha de corte',
+          dataClass: 'list-item-heading'
+        },
+        {
           name: '__slot:estado',
           title: 'Estado',
           titleClass: '',
@@ -307,6 +315,10 @@ export default {
         }
       }
     },
+    formatFecha (fecha) {
+      const [year, month, day] = fecha.split('-')
+      return `${day}-${month}-${year}`
+    },
     onValidate (action) {
       this.$v.$touch()
       if (this.$v.$error !== true) {
@@ -325,7 +337,7 @@ export default {
       this.form.state = data.estado
       this.form.id = data.id
     }, */
-    setData (data, st) {
+    setData (data) {
       this.form.id = data.id
       this.form.name = data.nombres
       this.getDetail(data.id, data)
@@ -340,14 +352,14 @@ export default {
         this.printSale(data, 1)
       })
     },
-    getReport (num, data) {
-      axios.get(apiUrl + '/detalle/getByAccount', {
+    getReport () {
+      axios.get(apiUrl + '/detalle/listCortesPerDate', {
         params: {
-          id_lab_cuenta: num
+          fecha_corte: this.selectedDate
         }
       }).then((response) => {
         this.detalle = response.data
-        this.printSale(data, 1)
+        this.printSale(response.data, 2)
       })
     },
     /* Guardar */
@@ -472,71 +484,85 @@ export default {
       this.alertCountDownError = this.alertSecs
     },
     printSale (data, type) {
-      this.$refs['modal-pdf'].show()
-      var altura = 1
-      var ahora = new Date()
-      this.arrayDetalles = data.detalle_ventas
-      this.encabezado.id = data.id
-      this.encabezado.fecha = new Date().toLocaleDateString('es-us', data.fecha)
+      this.arrayDetalles = type === 1 ? this.detalle
+        : data.map(item => ({
+          expediente: item.expediente.expediente,
+          nombres: item.expediente.nombres,
+          apellidos: item.expediente.apellidos,
+          numero: item.numero,
+          total: item.total
+        }))
+      if (this.arrayDetalles.length > 0) {
+        this.$refs['modal-pdf'].show()
+        var altura = 1
+        var ahora = new Date()
+        this.encabezado.id = type === 1 ? data.id : null
+        this.encabezado.fecha = new Date().toLocaleDateString('es-us', data.fecha)
 
-      this.pdf = new JsPDF({
-        unit: 'cm',
-        format: [14, 21.5],
-        orientation: 'landscape'
-      })
-      var ingreso = moment(ahora).format('DD/MM/YYYY')
-      /* var imgData = this.logo3
-      this.pdf.addImage(imgData, 'PNG', 1.5, 0.75, 4.37, 1.87) */
-      this.pdf.setFontSize(10).setFont(undefined, 'bold')
-      if (type === 1) {
-        this.pdf.text('Detalle de cuenta ' + data.numero + ' - Paciente: ' + data.expediente.nombres + ' ' + data.expediente.apellidos, 7, altura)
-        this.pdfName = 'DetalleCuenta' + data.id + '.pdf'
-        altura = altura + 0.5
-        this.pdf.text('Total: ' + data.total, 7, altura)
-        altura = altura + 0.5
-        this.pdf.text('Total pagado: ' + data.total_pagado, 7, altura)
-        altura = altura + 0.5
-        this.pdf.text('Pendiente de pago: ' + data.pendiente_de_pago, 7, altura)
-      } else {
-        this.pdf.text('Ingresos del día ' + data.id, 7, altura)
-        this.pdfName = 'Ingresos' + this.selectedDate + '.pdf'
-      }
-      // Encabezado
-      altura = altura + 0.5
-      this.pdf.text('Fecha de generación: ' + ingreso, 7, altura)
-      altura = altura + 0.5
-      this.pdf.text('Informe generado por: ', 7, altura)
-      this.pdf.setFontSize(10).setFont(undefined, 'normal')
-      this.pdf.text(this.currentUser.user, 10.75, altura)
-      altura = altura + 0.5
-      // Tabla
-      if (type === 1) {
-        autoTable(this.pdf, {
-          columns: [{ header: 'Descripción', dataKey: 'Descripcion' }, { header: 'Costo', dataKey: 'costo' }],
-          body: this.detalle,
-          margin: { top: 5 },
-          headStyles: {
-            fillColor: [21, 21, 21],
-            textColor: [225, 225, 225],
-            fontStyle: 'bold'
-          }
+        this.pdf = new JsPDF({
+          unit: 'cm',
+          format: [14, 21.5],
+          orientation: 'landscape'
         })
+        var ingreso = moment(ahora).format('DD/MM/YYYY')
+        var imgData = logoLab
+        this.pdf.addImage(imgData, 'PNG', 1.5, 0.2, 4.37, 4)
+        this.pdf.setFontSize(10).setFont(undefined, 'bold')
+        this.pdf.text('Laboratorio Biomédico S.A.', 1.5, 4)
+        if (type === 1) {
+          this.pdf.text('Detalle de cuenta ' + data.numero + ' - Paciente: ' + data.expediente.nombres + ' ' + data.expediente.apellidos, 7, altura)
+          this.pdfName = 'DetalleCuenta' + data.id + '.pdf'
+          altura = altura + 0.5
+          this.pdf.text('Total: ' + data.total, 7, altura)
+          altura = altura + 0.5
+          this.pdf.text('Total pagado: ' + data.total_pagado, 7, altura)
+          altura = altura + 0.5
+          this.pdf.text('Pendiente de pago: ' + data.pendiente_de_pago, 7, altura)
+        } else {
+          this.pdf.text('Ingresos del día ' + this.selectedDate, 7, altura)
+          this.pdfName = 'Ingresos' + this.selectedDate + '.pdf'
+        }
+        // Encabezado
+        altura = altura + 0.5
+        this.pdf.text('Fecha de generación: ' + ingreso, 7, altura)
+        altura = altura + 0.5
+        this.pdf.text('Informe generado por: ', 7, altura)
+        this.pdf.setFontSize(10).setFont(undefined, 'normal')
+        this.pdf.text(this.currentUser.user, 10.75, altura)
+        altura = altura + 0.5
+        // Tabla
+        if (type === 1) {
+          autoTable(this.pdf, {
+            columns: [{ header: 'Descripción', dataKey: 'Descripcion' }, { header: 'Costo', dataKey: 'costo' }],
+            body: this.detalle,
+            margin: { top: 5 },
+            headStyles: {
+              fillColor: [21, 21, 21],
+              textColor: [225, 225, 225],
+              fontStyle: 'bold'
+            }
+          })
+        } else {
+          autoTable(this.pdf, {
+            columns: [{ header: 'Expediente', dataKey: 'expediente' }, { header: 'Nombre', dataKey: 'nombres' }, { header: 'Apellido', dataKey: 'apellidos' }, { header: 'Cuenta número', dataKey: 'numero' }, { header: 'Total', dataKey: 'total' }],
+            body: this.arrayDetalles,
+            margin: { top: 5 },
+            headStyles: {
+              fillColor: [21, 21, 21],
+              textColor: [225, 225, 225],
+              fontStyle: 'bold'
+            }
+          })
+        }
+        var pdfData = this.pdf.output('blob')
+        // Convert PDF to data URL
+        var pdfURL = URL.createObjectURL(pdfData)
+        this.previewURL = pdfURL
       } else {
-        autoTable(this.pdf, {
-          columns: [{ header: 'Descripción', dataKey: 'descripcion' }, { header: 'Costo', dataKey: 'costo' }, { header: 'Subtotal', dataKey: 'subtotal' }],
-          body: this.arrayDetalles,
-          margin: { top: 5 },
-          headStyles: {
-            fillColor: [21, 21, 21],
-            textColor: [225, 225, 225],
-            fontStyle: 'bold'
-          }
-        })
+        this.alertVariant = 'danger'
+        this.showAlert()
+        this.alertText = 'No se encontraron datos.'
       }
-      var pdfData = this.pdf.output('blob')
-      // Convert PDF to data URL
-      var pdfURL = URL.createObjectURL(pdfData)
-      this.previewURL = pdfURL
     },
     descargarpdf () {
       this.pdf.save(this.pdfName)
