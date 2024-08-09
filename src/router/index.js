@@ -116,6 +116,7 @@ import Habitaciones from '../views/App/Enfermeria/Habitaciones/Habitaciones'
 import Servicios from '../views/App/Enfermeria/Servicios/Servicios.vue'
 import IngresosEnfermeria from '../views/App/Enfermeria/Ingresos/IngresosEnfermeria.vue'
 import CategoriaSalaOperaciones from '../views/App/Enfermeria/CategoriaSalaOperaciones/CategoriaSalaOperaciones.vue'
+import AsignarHabitacion from '../views/App/Enfermeria/AsignarHabitaciones/AsignarHabitaciones.vue'
 
 // farmacia
 import PedidosPendientesParent from '../views/App/Farmacia/Pedidos/PedidosPendientesParent'
@@ -383,6 +384,12 @@ const EnfermeriaRoutes = (prop, mode) => [
     name: prop + '.egresos',
     meta: { dark: mode, auth: true, name: 'egresos' },
     component: EgresosParent
+  },
+  {
+    path: 'AsignarHabitacion',
+    name: prop + '.AsignarHabitacion',
+    meta: { dark: mode, auth: true, name: 'AsignarHabitacion' },
+    component: AsignarHabitacion
   }
 ]
 
