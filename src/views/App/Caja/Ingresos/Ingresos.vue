@@ -74,9 +74,25 @@
                     v-model.trim="$v.form.nacimiento.$model"
                     :class="{'is-invalid': $v.form.nacimiento.$error}"
                     placeholder="Ingresar fecha de nacimiento"
+                    @input="validarAnoNacimiento"
+                  ></b-form-input>
+                  <div v-if="$v.form.nacimiento.$error" class="invalid-feedback">
+                    <div v-if="!$v.form.nacimiento.required">Debe ingresar la fecha de nacimiento</div>
+                    <div v-if="!$v.form.nacimiento.isValidYear">El año no puede tener más de 4 dígitos</div>
+                    <div v-if="!$v.form.nacimiento.isPastYear">El año de nacimiento no puede ser mayor al actual</div>
+                  </div>
+                </b-form-group>
+              </b-col>
+
+              <b-col md="2">
+                <b-form-group label="Edad:">
+                  <b-form-input
+                    :value="calcularEdad"
+                    disabled
                   ></b-form-input>
                 </b-form-group>
               </b-col>
+
               <b-col md="2">
                 <b-form-group label="Telefono:">
                   <b-form-input
@@ -360,7 +376,21 @@ export default {
   computed: {
     ...mapGetters([
       'currentUser'
-    ])
+    ]),
+    calcularEdad () {
+      if (!this.form.nacimiento) return ''
+
+      const hoy = new Date()
+      const nacimiento = new Date(this.form.nacimiento)
+      let edad = hoy.getFullYear() - nacimiento.getFullYear()
+      const mesCumpleanos = nacimiento.getMonth()
+      const diaCumpleanos = nacimiento.getDate()
+
+      if (hoy.getMonth() < mesCumpleanos || (hoy.getMonth() === mesCumpleanos && hoy.getDate() < diaCumpleanos)) {
+        edad--
+      }
+      return edad
+    }
   },
   data () {
     return {
@@ -445,7 +475,18 @@ export default {
           required, numeric
         },
         nacimiento: {
-          required
+          required,
+          isValidYear: (value) => {
+            if (!value) return true
+            const ano = new Date(value).getFullYear()
+            return ano.toString().length <= 4
+          },
+          isPastYear: (value) => {
+            if (!value) return true
+            const anoNacimiento = new Date(value).getFullYear()
+            const anoActual = new Date().getFullYear()
+            return anoNacimiento <= anoActual
+          }
         },
         cui: {
           numeric, required
@@ -470,6 +511,9 @@ export default {
     }
   },
   methods: {
+    validarAnoNacimiento () {
+      this.$v.form.nacimiento.$touch()
+    },
     onValidate () {
       this.$v.$touch()
       if (this.$v.$error !== true) {

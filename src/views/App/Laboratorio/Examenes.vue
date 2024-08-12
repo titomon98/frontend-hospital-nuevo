@@ -885,16 +885,6 @@ export default {
       this.items = paginationData.data.map(item => {
         item.fecha_hora = moment(item.fecha_hora).format('DD/MM/YYYY HH:mm')
         return {
-          id: item.id,
-          nombre: item.expediente,
-          cui: item.cui,
-          total: item.total,
-          whatsapp: item.whatsapp,
-          numero_muestra: item.numero_muestra,
-          nombre_encargago: item.nombre_encargago,
-          pagado: item.pagado,
-          por_pagar: item.por_pagar,
-          nombre_examen: item.nombre_examen,
           fecha_hora: item.fecha_hora
         }
       })

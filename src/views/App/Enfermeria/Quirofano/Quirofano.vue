@@ -576,22 +576,6 @@
               ></b-form-input>
             </b-form-group>
           </b-col>
-          <b-col md="3">
-            <b-form-group label="Pagado:">
-              <b-form-input
-                v-model="formExamen.pagado"
-                placeholder="Ingresar Lo pagado"
-              ></b-form-input>
-            </b-form-group>
-          </b-col>
-          <b-col md="3">
-            <b-form-group label="Por pagar:">
-              <b-form-input
-                v-model="formExamen.por_pagar"
-                placeholder="Ingresar Lo que esta por pagar"
-              ></b-form-input>
-            </b-form-group>
-          </b-col>
         </b-row>
         <b-row class="ml-2">
           <b-col md="4">
@@ -808,6 +792,13 @@
                     size="sm"
                     variant="dark"
                    >Consumos</b-button>
+
+                   <b-button
+                    @click="showModal('modal_agregar'); realizar_examen(props.rowData.nombres, props.rowData.apellidos, props.rowData.cui, props.rowData.telefono )"
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="success"
+                   >Agregar Examen</b-button>
                   <!-- <b-button
                     v-b-tooltip.top="'Aregar Insumos Quirofano'"
                     @click="showModal('modal-2-movimiento'); obtenerIdCuenta(props.rowData.id)"
@@ -955,6 +946,11 @@ export default {
           name: 'nacimiento',
           sortField: 'nacimiento',
           title: 'Fecha de nacimiento',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'edad',
+          title: 'Edad',
           dataClass: 'list-item-heading'
         },
         {
@@ -1514,6 +1510,20 @@ export default {
         console.error('Error al obtener precios de servicios:', error)
       }
     },
+    calcularEdad (Fecha) {
+      if (!Fecha) return ''
+
+      const hoy = new Date()
+      const nacimiento = new Date(Fecha)
+      let edad = hoy.getFullYear() - nacimiento.getFullYear()
+      const mesCumpleanos = nacimiento.getMonth()
+      const diaCumpleanos = nacimiento.getDate()
+
+      if (hoy.getMonth() < mesCumpleanos || (hoy.getMonth() === mesCumpleanos && hoy.getDate() < diaCumpleanos)) {
+        edad--
+      }
+      return edad
+    },
     onSave () {
       if (this.formMe.cantidad > 0) {
         if (this.formMe.cantidad <= this.max_cant) {
@@ -1795,7 +1805,14 @@ export default {
       this.to = paginationData.to
       this.total = paginationData.total
       this.lastPage = paginationData.last_page
-      this.items = paginationData.data
+      this.items = paginationData.data.map(item => {
+        item.nacimiento = moment(item.nacimiento).format('DD/MM/YYYY')
+        item.edad = this.calcularEdad(item.nacimiento)
+        return {
+          nacimiento: item.nacimiento,
+          edad: item.edad
+        }
+      })
       this.$refs.pagination.setPaginationData(paginationData)
     },
     onChangePage (page) {
@@ -2234,11 +2251,12 @@ export default {
           console.error('Error!', error)
         })
     },
-    realizar_examen (nombre, apellido, cui) {
+    realizar_examen (nombre, apellido, cui, telefono) {
       this.$refs['modal_agregar'].show()
       console.log(nombre + apellido + cui)
       this.formExamen.nombre = nombre + ' ' + apellido
       this.formExamen.cui = cui
+      this.formExamen.whatsapp = telefono
       this.apiBaseExamenes = apiUrl + `/Examenes_realizados/list/cui?cui=${cui}`
     },
     ver_examen_realizado (cui) {
