@@ -339,7 +339,12 @@ export default {
       this.to = paginationData.to
       this.total = paginationData.total
       this.lastPage = paginationData.last_page
-      this.items = paginationData.data
+      this.items = paginationData.data.map(item => {
+        item.fecha_ingreso = moment(item.fecha_ingreso).format('DD/MM/YYYY')
+        return {
+          fecha_ingreso: item.fecha_ingreso
+        }
+      })
       this.$refs.pagination.setPaginationData(paginationData)
     },
     onChangePage (page) {

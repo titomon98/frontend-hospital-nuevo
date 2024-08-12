@@ -555,6 +555,7 @@ import useVuelidate from '@vuelidate/core'
 import { helpers, numeric, required } from '@vuelidate/validators'
 import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
+import moment from 'moment'
 
 export default {
   name: 'Bank',
@@ -707,6 +708,11 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
+          name: 'edad',
+          title: 'Edad',
+          dataClass: 'list-item-heading'
+        },
+        {
           name: 'genero',
           sortField: 'genero',
           title: 'Género',
@@ -816,6 +822,20 @@ export default {
         this.showAlertError()
       }
     },
+    calcularEdad (Fecha) {
+      if (!Fecha) return ''
+
+      const hoy = new Date()
+      const nacimiento = new Date(Fecha)
+      let edad = hoy.getFullYear() - nacimiento.getFullYear()
+      const mesCumpleanos = nacimiento.getMonth()
+      const diaCumpleanos = nacimiento.getDate()
+
+      if (hoy.getMonth() < mesCumpleanos || (hoy.getMonth() === mesCumpleanos && hoy.getDate() < diaCumpleanos)) {
+        edad--
+      }
+      return edad
+    },
     setData (data) {
       this.form.id = data.id
       this.form.name = data.nombres + ' ' + data.apellidos
@@ -897,7 +917,14 @@ export default {
       this.to = paginationData.to
       this.total = paginationData.total
       this.lastPage = paginationData.last_page
-      this.items = paginationData.data
+      this.items = paginationData.data.map(item => {
+        item.nacimiento = moment(item.nacimiento).format('DD/MM/YYYY')
+        item.edad = this.calcularEdad(item.nacimiento)
+        return {
+          nacimiento: item.nacimiento,
+          edad: item.edad
+        }
+      })
       this.$refs.pagination.setPaginationData(paginationData)
     },
     onChangePage (page) {
