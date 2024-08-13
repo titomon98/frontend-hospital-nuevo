@@ -990,7 +990,6 @@ export default {
         this.totalSUM = response.data
           .map(item => item.pendiente_de_pago)
           .reduce((sum, value) => sum + value, 0)
-
         this.cuentas = response.data
       })
     },
@@ -1092,6 +1091,8 @@ export default {
           this.showAlert()
           this.alertText = 'Se ha actualizado el expediente ' + this.form.expediente + ' exitosamente'
           this.$refs.vuetable.refresh()
+          this.getHabitaciones()
+          this.form.habitacion = null
           this.closeModal('assignRoom')
         })
         .catch((error) => {
