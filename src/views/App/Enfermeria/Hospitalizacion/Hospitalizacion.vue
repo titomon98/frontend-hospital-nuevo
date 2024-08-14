@@ -552,6 +552,7 @@ import { required } from '@vuelidate/validators'
 import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
 import { quillEditor } from 'vue-quill-editor'
+import moment from 'moment'
 
 export default {
   name: 'Hospitalizacion',
@@ -654,6 +655,11 @@ export default {
           name: 'nacimiento',
           sortField: 'nacimiento',
           title: 'Fecha de nacimiento',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'edad',
+          title: 'Edad',
           dataClass: 'list-item-heading'
         },
         {
@@ -981,6 +987,20 @@ export default {
         this.showAlertError()
       }
     },
+    calcularEdad (Fecha) {
+      if (!Fecha) return ''
+
+      const hoy = new Date()
+      const nacimiento = new Date(Fecha)
+      let edad = hoy.getFullYear() - nacimiento.getFullYear()
+      const mesCumpleanos = nacimiento.getMonth()
+      const diaCumpleanos = nacimiento.getDate()
+
+      if (hoy.getMonth() < mesCumpleanos || (hoy.getMonth() === mesCumpleanos && hoy.getDate() < diaCumpleanos)) {
+        edad--
+      }
+      return edad
+    },
     onSave () {
       if (this.formMe.cantidad > 0) {
         if (this.formMe.cantidad <= this.max_cant) {
@@ -1233,7 +1253,14 @@ export default {
       this.to = paginationData.to
       this.total = paginationData.total
       this.lastPage = paginationData.last_page
-      this.items = paginationData.data
+      this.items = paginationData.data.map(item => {
+        item.nacimiento = moment(item.nacimiento).format('DD/MM/YYYY')
+        item.edad = this.calcularEdad(item.nacimiento)
+        return {
+          nacimiento: item.nacimiento,
+          edad: item.edad
+        }
+      })
       this.$refs.pagination.setPaginationData(paginationData)
     },
     onChangePage (page) {

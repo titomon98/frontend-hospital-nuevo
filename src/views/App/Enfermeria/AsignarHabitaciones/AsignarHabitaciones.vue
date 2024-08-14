@@ -310,7 +310,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-1-habitacion" ref="modal-1-habitacion" title="Asignar habitación" size="lg">
+    <b-modal id="modal-1-habitacion" ref="modal-1-habitacion" title="Asignar habitación" size="xl">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -387,26 +387,41 @@
                         >Ambulatorio</b-form-radio>
                         </b-form-group>
                     </b-col>
-                    <b-col md="5">
-                        <b-form-group label="Habitaciones disponibles:">
-                        <v-select
-                            name="habitacion"
-                            v-model="$v.form.habitacion.$model"
-                            :state="!$v.form.habitacion.$error"
-                            :options="habitaciones"
-                            :filterable="false"
-                            placeholder="Seleccione una habitación disponible"
-                        >
-                            <template v-slot:option="option">
-                            {{ option.numero + ' - Tipo: ' + option.tipo + ' - Precio: Q' + (form.tipo_paciente === '1' ?  parseFloat(option.costo_ambulatorio).toFixed(2) : parseFloat(option.costo_diario).toFixed(2))}}
-                            </template>
-                            <template slot="selected-option" slot-scope="option">
-                            {{ option.numero + ' - Tipo: ' + option.tipo + ' - Precio: Q' + (form.tipo_paciente === '1' ?  parseFloat(option.costo_ambulatorio).toFixed(2) : parseFloat(option.costo_diario).toFixed(2))}}
-                            </template>
-                        </v-select>
-                        <div v-if="$v.form.habitacion.$error" class="invalid-feedback-vselect">
-                            Debe ingresar habitación para el paciente
-                        </div>
+                    <b-col md="7">
+                        <b-form-group label="Cuartos">
+                          <div v-for="(tipo, index) in tiposHabitaciones" :key="tipo">
+                            <b-row>
+                              <b-col cols="4">
+                                <h6 class="mt-2">{{ NombreHabitaciones[index] }}</h6>
+                                <b-form-checkbox
+                                  v-if="index === 0"
+                                  v-model="form.estudioDeSueño"
+                                  value="1"
+                                  class="mt-2 mb-4"
+                                >
+                                  Estudio de sueño
+                                </b-form-checkbox>
+                              </b-col>
+                              <b-col
+                                v-for="habitacion in habitacionesPorTipo(tipo)"
+                                :key="habitacion.id"
+                                cols="2"
+                              >
+                                <b-button
+                                  :variant="form.habitacion === habitacion.id ? 'secondary' : 'success'"
+                                  @click="form.habitacion = habitacion.id"
+                                  class="mb-4"
+                                  :disabled="habitacion.estado !== 1"
+                                  v-b-tooltip.hover="{
+                                    title: `${habitacion.estado === 1 ? 'Disponible' : 'Ocupado/Desactivada'}`
+                                  }"
+                                  block
+                                >
+                                 {{ habitacion.numero }}
+                                </b-button>
+                              </b-col>
+                            </b-row>
+                          </div>
                         </b-form-group>
                     </b-col>
                 </b-row>
@@ -420,7 +435,7 @@
         "
           >Asignar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-3-medico')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-1-habitacion')"
           >Cancelar</b-button
         >
       </template>
@@ -570,6 +585,7 @@ import useVuelidate from '@vuelidate/core'
 import { helpers, numeric, required } from '@vuelidate/validators'
 import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
+import moment from 'moment'
 
 export default {
   name: 'Asignar',
@@ -632,7 +648,8 @@ export default {
         motivo: ' ',
         fecha: null,
         hora: null,
-        habitacion: null
+        habitacion: null,
+        estudioDeSueño: 0
       },
       selectedDoctor: [],
       habitaciones: [],
@@ -752,7 +769,9 @@ export default {
           dataClass: 'text-muted',
           width: '25%'
         }
-      ]
+      ],
+      tiposHabitaciones: ['Privada', 'Especial', 'Semi-privada', 'Intensivo', 'Intermedio'],
+      NombreHabitaciones: ['Cuartos Privados', 'Cuartos Especiales', 'Cuartos Semi-privados', 'Intensivo', 'Intermedio']
     }
   },
   validations () {
@@ -799,6 +818,13 @@ export default {
         habitacion: {
           required
         }
+      }
+    }
+  },
+  computed: {
+    habitacionesPorTipo () {
+      return (tipo) => {
+        return this.habitaciones.filter(habitacion => habitacion.tipo.toUpperCase() === tipo.toUpperCase())
       }
     }
   },
@@ -937,7 +963,12 @@ export default {
       this.to = paginationData.to
       this.total = paginationData.total
       this.lastPage = paginationData.last_page
-      this.items = paginationData.data
+      this.items = paginationData.data.map(item => {
+        item.nacimiento = moment(item.nacimiento).format('DD/MM/YYYY')
+        return {
+          nacimiento: item.nacimiento
+        }
+      })
       this.$refs.pagination.setPaginationData(paginationData)
     },
     onChangePage (page) {
@@ -959,7 +990,6 @@ export default {
         this.totalSUM = response.data
           .map(item => item.pendiente_de_pago)
           .reduce((sum, value) => sum + value, 0)
-
         this.cuentas = response.data
       })
     },
@@ -1061,6 +1091,8 @@ export default {
           this.showAlert()
           this.alertText = 'Se ha actualizado el expediente ' + this.form.expediente + ' exitosamente'
           this.$refs.vuetable.refresh()
+          this.getHabitaciones()
+          this.form.habitacion = null
           this.closeModal('assignRoom')
         })
         .catch((error) => {
@@ -1071,12 +1103,13 @@ export default {
         })
     },
     getHabitaciones (num) {
-      axios.get(apiUrl + '/habitaciones/get', {
+      axios.get(apiUrl + '/habitaciones/getAll', {
         params: {
           tipo: num
         }
       }).then((response) => {
         this.habitaciones = response.data
+        console.log(this.habitaciones)
       })
     }
   }
