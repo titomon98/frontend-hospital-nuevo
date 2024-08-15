@@ -125,11 +125,22 @@
               <!-- columna -->
               <b-col md="2">
                 <b-form-group label="CUI:">
-                  <b-form-input
-                    v-model.trim="$v.form.cui.$model"
-                    :class="{'is-invalid': $v.form.cui.$error}"
-                    placeholder="Ingresar el CUI"
-                  ></b-form-input>
+                  <div v-if="calcularEdad >= 18">
+                    <b-form-input
+                      v-model.trim="$v.form.cui.$model"
+                      :class="{'is-invalid': $v.form.cui.$error}"
+                      placeholder="Ingresar el CUI"
+                    ></b-form-input>
+                  </div>
+                  <div v-else disabled>
+                    <b-form-input
+                      v-model.trim="$v.form.cui.$model"
+                      :value="0"
+                      :class="{'is-invalid': $v.form.cui.$error}"
+                      placeholder="Ingresar el CUI"
+                      disabled
+                    ></b-form-input>
+                  </div>
                   <div v-if="$v.form.cui.$error" class="invalid-feedback">
                     El valor del CUI debe ser numerico.
                   </div>

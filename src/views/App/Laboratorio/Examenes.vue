@@ -48,7 +48,7 @@
                 </template>
 
                 <template slot="selected-option" slot-scope="option">
-                  {{ option.nombres + ', ' + (option.apellidos || '') }}
+                  {{ option.nombres + ' ' + (option.apellidos || '') }}
                 </template>
               </v-select>
               <b-form-text>
@@ -85,6 +85,7 @@
           <b-col md="3">
             <b-form-group label="Total:">
               <b-form-input
+                disabled
                 v-model.trim="$v.form.total.$model"
                 :state="!$v.form.total.$error"
                 placeholder="Ingresar el total"
@@ -413,7 +414,7 @@ import Vuetable from 'vuetable-2/src/components/Vuetable'
 import VuetablePaginationBootstrap from '../../../components/common/VuetablePaginationBootstrap'
 import axios from 'axios'
 import useVuelidate from '@vuelidate/core'
-import { required, helpers } from '@vuelidate/validators'
+import { required } from '@vuelidate/validators'
 import { quillEditor } from 'vue-quill-editor'
 /* import JsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable' */
@@ -508,7 +509,8 @@ export default {
         id_encargado: null,
         pagado: 0,
         por_pagar: 0,
-        id_examenes_almacenados: null
+        id_examenes_almacenados: null,
+        NewExpediente: false
       },
 
       alertSecs: 5,
@@ -623,9 +625,6 @@ export default {
   validations () {
     return {
       form: {
-        nombre: {
-          contieneComa: helpers.withMessage('El nombre y apellido deben estar separados por una coma', (value) => value.includes(','))
-        },
         cui: { required },
         comision: { required },
         total: { required },
@@ -640,27 +639,29 @@ export default {
   },
   watch: {
     selectedExpediente (newValue) {
-      if (newValue) {
+      if (newValue.cui) {
+        this.form.nombre = newValue.nombres + ' ' + newValue.apellidos
         this.form.cui = newValue.cui
         this.form.whatsapp = newValue.telefono
-      }
-      if (!newValue || newValue.nombres === this.form.nombre) {
-        const [nombres, apellidos] = this.form.nombre.split(',').map(str => str.trim())
-        this.form.nombre = nombres.toUpperCase()
-        this.form.apellidos = apellidos ? apellidos.toUpperCase() : ''
+        this.form.id_expediente = newValue.id
       } else {
-        this.$v.form.nombre.$touch()
+        const [nombres, apellidos] = newValue.nombres.split(',').map(str => str.trim())
+        this.form.nombre = nombres.toUpperCase()
+        this.form.apellido = apellidos ? apellidos.toUpperCase() : ''
+        this.form.NewExpediente = true
 
         if (!this.$v.form.nombre.$error) {
-          const [nombres, apellidos] = this.form.nombre.split(',').map(str => str.trim())
+          const [nombres, apellidos] = newValue.nombres.split(',').map(str => str.trim())
           this.form.nombre = nombres.toUpperCase()
-          this.form.apellidos = apellidos ? apellidos.toUpperCase() : ''
+          this.form.apellido = apellidos ? apellidos.toUpperCase() : ''
+          this.form.NewExpediente = true
         }
       }
     },
     selectedExamenAlmacenado (newValue) {
-      console.log(newValue)
       if (newValue) {
+        this.form.por_pagar = newValue.precio_normal
+        this.form.id_examenes_almacenados = newValue.id
         this.TotalAPagar = newValue.precio_normal
         this.form.total = newValue.precio_normal
       } else {
@@ -692,6 +693,7 @@ export default {
           this.expedientesExamenes = []
           this.selectedExpediente = null
           this.encargados = []
+          this.TotalAPagar = 0
           break
         }
         case 'resultado': {

@@ -553,6 +553,7 @@
           <b-col md="3">
             <b-form-group label="Total:">
               <b-form-input
+                disabled
                 v-model="formExamen.total"
                 placeholder="Ingresar el total"
               ></b-form-input>
@@ -565,14 +566,6 @@
               <b-form-input
                 v-model="formExamen.numero_muestra"
                 placeholder="Ingresar el numero de muestra"
-              ></b-form-input>
-            </b-form-group>
-          </b-col>
-          <b-col md="3">
-            <b-form-group label="Referido:">
-              <b-form-input
-                v-model="formExamen.referido"
-                placeholder="Ingresar Referido"
               ></b-form-input>
             </b-form-group>
           </b-col>
@@ -604,7 +597,7 @@
             <b-form-group label="Tipo de Examen:">
               <v-select
                 name="type"
-                v-model="formExamen.id_examenes_almacenados"
+                v-model="selectedExamenAlmacenado"
                 :options="examenes_almacenados"
                 :filterable="false"
                 placeholder="Seleccione el Examen"
@@ -794,7 +787,7 @@
                    >Consumos</b-button>
 
                    <b-button
-                    @click="showModal('modal_agregar'); realizar_examen(props.rowData.nombres, props.rowData.apellidos, props.rowData.cui, props.rowData.telefono )"
+                    @click="showModal('modal_agregar'); realizar_examen(props.rowData.id, props.rowData.nombres, props.rowData.apellidos, props.rowData.cui, props.rowData.telefono )"
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="success"
@@ -1162,6 +1155,7 @@ export default {
       formExamen: {
         id: 0,
         nombre: '',
+        apellido: '',
         cui: 0,
         comision: '',
         total: 0,
@@ -1169,12 +1163,15 @@ export default {
         whatsapp: '',
         numero_muestra: 0,
         existencia_actual: 0,
-        referido: '',
+        referido: 'Quirofano Enfermeria',
         id_encargado: null,
         pagado: 0,
         por_pagar: 0,
-        id_examenes_almacenados: null
+        id_examenes_almacenados: null,
+        NewExpediente: false,
+        id_expediente: 0
       },
+      selectedExamenAlmacenado: null,
       fromExamenes: 0,
       toExamenes: 0,
       totalExamenes: 0,
@@ -1288,7 +1285,16 @@ export default {
     'salaOperaciones.oximetro': 'calcularTotalAPagar',
     'salaOperaciones.cauterio': 'calcularTotalAPagar',
     'salaOperaciones.horas': 'calcularTotalAPagar',
-    'salaOperaciones.minutos': 'calcularTotalAPagar'
+    'salaOperaciones.minutos': 'calcularTotalAPagar',
+    selectedExamenAlmacenado (newValue) {
+      if (newValue) {
+        this.formExamen.por_pagar = newValue.precio_normal
+        this.formExamen.id_examenes_almacenados = newValue.id
+        this.formExamen.total = newValue.precio_normal
+      } else {
+        console.log('ERROR AL CARGAR EL TOTAL A PAGAR EN LA FUNCION WATCH')
+      }
+    }
   },
   methods: {
     changeCheck () {
@@ -1456,6 +1462,7 @@ export default {
           this.formExamen.pagado = 0
           this.formExamen.por_pagar = 0
           this.formExamen.id_examenes_almacenados = null
+          this.formExamen.id_expediente = 0
           break
         }
       }
@@ -1512,9 +1519,9 @@ export default {
     },
     calcularEdad (Fecha) {
       if (!Fecha) return ''
-
+      const FECHA = moment(Fecha, 'DD-MM-YYYY').format('YYYY-MM-DD')
       const hoy = new Date()
-      const nacimiento = new Date(Fecha)
+      const nacimiento = new Date(FECHA)
       let edad = hoy.getFullYear() - nacimiento.getFullYear()
       const mesCumpleanos = nacimiento.getMonth()
       const diaCumpleanos = nacimiento.getDate()
@@ -2251,12 +2258,13 @@ export default {
           console.error('Error!', error)
         })
     },
-    realizar_examen (nombre, apellido, cui, telefono) {
+    realizar_examen (id, nombre, apellido, cui, telefono) {
       this.$refs['modal_agregar'].show()
       console.log(nombre + apellido + cui)
       this.formExamen.nombre = nombre + ' ' + apellido
       this.formExamen.cui = cui
       this.formExamen.whatsapp = telefono
+      this.formExamen.id_expediente = id
       this.apiBaseExamenes = apiUrl + `/Examenes_realizados/list/cui?cui=${cui}`
     },
     ver_examen_realizado (cui) {

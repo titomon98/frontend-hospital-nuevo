@@ -989,9 +989,9 @@ export default {
     },
     calcularEdad (Fecha) {
       if (!Fecha) return ''
-
+      const FECHA = moment(Fecha, 'DD-MM-YYYY').format('YYYY-MM-DD')
       const hoy = new Date()
-      const nacimiento = new Date(Fecha)
+      const nacimiento = new Date(FECHA)
       let edad = hoy.getFullYear() - nacimiento.getFullYear()
       const mesCumpleanos = nacimiento.getMonth()
       const diaCumpleanos = nacimiento.getDate()
