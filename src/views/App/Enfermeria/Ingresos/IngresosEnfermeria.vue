@@ -93,24 +93,39 @@
                 </b-form-group>
               </b-col>
               <b-col md="5">
-                <b-form-group label="Habitaciones disponibles:">
-                  <v-select
-                    name="habitacion"
-                    v-model="$v.form.habitacion.$model"
-                    :state="!$v.form.habitacion.$error"
-                    :options="habitaciones"
-                    :filterable="false"
-                    placeholder="Seleccione una habitación disponible"
-                  >
-                    <template v-slot:option="option">
-                      {{ option.numero + ' - Tipo: ' + option.tipo + ' - Precio: Q' + (form.tipo_paciente === '1' ?  parseFloat(option.costo_ambulatorio).toFixed(2) : parseFloat(option.costo_diario).toFixed(2))}}
-                    </template>
-                    <template slot="selected-option" slot-scope="option">
-                      {{ option.numero + ' - Tipo: ' + option.tipo + ' - Precio: Q' + (form.tipo_paciente === '1' ?  parseFloat(option.costo_ambulatorio).toFixed(2) : parseFloat(option.costo_diario).toFixed(2))}}
-                    </template>
-                  </v-select>
-                  <div v-if="$v.form.habitacion.$error" class="invalid-feedback-vselect">
-                    Debe ingresar habitación para el paciente
+                <b-form-group label="Cuartos Disponibles">
+                  <div v-for="(tipo, index) in tiposHabitaciones" :key="tipo">
+                    <b-row>
+                      <b-col cols="4">
+                        <h6 class="mt-2">{{ NombreHabitaciones[index] }}</h6>
+                        <b-form-checkbox
+                          v-if="index === 0"
+                          v-model="form.estudioDeSueño"
+                          value="1"
+                          class="mt-2 mb-4"
+                        >
+                          Estudio de sueño
+                        </b-form-checkbox>
+                      </b-col>
+                      <b-col
+                        v-for="habitacion in habitacionesPorTipo(tipo)"
+                        :key="habitacion.id"
+                        cols="2"
+                      >
+                        <b-button
+                          :variant="form.habitacion === habitacion.id ? 'secondary' : 'success'"
+                          @click="form.habitacion = habitacion.id"
+                          class="mb-4"
+                          :disabled="habitacion.estado !== 1"
+                          v-b-tooltip.hover="{
+                            title: `${habitacion.estado === 1 ? 'Disponible' : 'Ocupado/Desactivada'}`
+                          }"
+                          block
+                        >
+                          {{ habitacion.numero }}
+                        </b-button>
+                      </b-col>
+                    </b-row>
                   </div>
                 </b-form-group>
               </b-col>
@@ -158,7 +173,12 @@ export default {
   computed: {
     ...mapGetters([
       'currentUser'
-    ])
+    ]),
+    habitacionesPorTipo () {
+      return (tipo) => {
+        return this.habitaciones.filter(habitacion => habitacion.tipo.toUpperCase() === tipo.toUpperCase())
+      }
+    }
   },
   data () {
     return {
@@ -203,7 +223,9 @@ export default {
       alertText: '',
       alertErrorText: '',
       alertVariant: '',
-      apiBase: apiUrl + '/paciente/list'
+      apiBase: apiUrl + '/paciente/list',
+      tiposHabitaciones: ['Privada', 'Especial', 'Semi-privada', 'Intensivo', 'Intermedio'],
+      NombreHabitaciones: ['Cuartos Privados', 'Cuartos Especiales', 'Cuartos Semi-privados', 'Intensivo', 'Intermedio']
     }
   },
   validations () {
