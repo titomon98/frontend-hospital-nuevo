@@ -162,6 +162,8 @@ import Equipo from '../views/App/Laboratorio/Inventario/Equipo.vue'
 
 // Encargados
 import Encargados from '../views/App/Laboratorio/Encargados.vue'
+import Facturacion from '../views/App/Caja/Facturacion.vue'
+import HospitalizacionEnfermeras from '../views/App/Enfermeria/HospitalizacionEnfermeras/HospitalizacionEnfermeras.vue'
 
 Vue.use(VueRouter)
 
@@ -281,6 +283,12 @@ const CajaRoutes = (prop, mode) => [
     component: CuentasParent
   },
   {
+    path: 'facturacion',
+    name: prop + '.facturacion',
+    meta: { dark: mode, auth: true, name: 'facturacion' },
+    component: Facturacion
+  },
+  {
     path: 'seguros',
     name: prop + '.seguros',
     meta: { dark: mode, auth: true, name: 'seguros' },
@@ -336,6 +344,12 @@ const EnfermeriaRoutes = (prop, mode) => [
     name: prop + '.hospitalizacion',
     meta: { dark: mode, auth: true, name: 'hospitalizacion' },
     component: HospitalizacionParent
+  },
+  {
+    path: 'hospitalizacionEnfermeras',
+    name: prop + '.hospitalizacionEnfermeras',
+    meta: { dark: mode, auth: true, name: 'hospitalizacionEnfermeras' },
+    component: HospitalizacionEnfermeras
   },
   {
     path: 'intensivo',

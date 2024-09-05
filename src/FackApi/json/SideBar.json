@@ -130,6 +130,17 @@
         "class_name": "",
         "is_icon_class": true,
         "icon": "ri-file-warning-line"
+      },
+      {
+        "title": "Facturación",
+        "name": "facturación",
+        "is_active": false,
+        "link": {
+          "name" : "caja.facturacion"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-file-warning-line"
       }
     ]
   },
@@ -172,6 +183,17 @@
         "is_active": false,
         "link": {
           "name" : "enfermeria.hospitalizacion"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-heart-fill"
+      },
+      {
+        "title": "Consumos",
+        "name": "Consumos",
+        "is_active": false,
+        "link": {
+          "name" : "enfermeria.hospitalizacionEnfermeras"
         },
         "class_name": "",
         "is_icon_class": true,
