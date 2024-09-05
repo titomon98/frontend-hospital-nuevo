@@ -652,20 +652,15 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
-          name: 'nacimiento',
-          sortField: 'nacimiento',
-          title: 'Fecha de nacimiento',
+          name: 'fecha_ingreso_reciente',
+          sortField: 'fecha_ingreso_reciente',
+          title: 'Fecha de ingreso',
           dataClass: 'list-item-heading'
         },
         {
-          name: 'edad',
-          title: 'Edad',
-          dataClass: 'list-item-heading'
-        },
-        {
-          name: 'genero',
-          sortField: 'genero',
-          title: 'Género',
+          name: 'hora_ingreso_reciente',
+          sortField: 'hora_ingreso_reciente',
+          title: 'Hora de ingreso',
           dataClass: 'list-item-heading'
         },
         {
