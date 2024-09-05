@@ -201,7 +201,7 @@
       <b-col md="12">
         <iq-card>
             <template v-slot:headerTitle>
-              <h4 class="card-title mt-3">Cuentas por cobrar</h4>
+              <h4 class="card-title mt-3">Mostrar facturas</h4>
                <div class="iq-search-bar mt-2">
                 <b-form action="#" class="searchbox">
                     <b-input id="search" placeholder="Buscar..." @input="(val) => searchChange(val)" />
@@ -232,19 +232,6 @@
               pagination-path
               @vuetable:pagination-data="onPaginationData"
             >
-              <!-- Estado -->
-              <div slot="estado" slot-scope="props">
-                <h5 v-if="props.rowData.estado == 1">
-                  <b-badge variant="light"
-                    ><h6 class="success"><strong>PENDIENTE DE PAGO</strong></h6></b-badge
-                  >
-                </h5>
-                <h5 v-else>
-                  <b-badge variant="light"
-                    ><h6 class="danger"><strong>EN EMERGENCIAS</strong></h6></b-badge
-                  >
-                </h5>
-              </div>
               <!-- Botones -->
               <template slot="actions" slot-scope="props">
                   <div class="button-container">
@@ -256,13 +243,7 @@
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="dark"
-                  >Cobrar</b-button>
-                  <b-button
-                    @click="setData(props.rowData)"
-                    class="mb-2 button-spacing"
-                    size="sm"
-                    variant="success"
-                  >Solicitar descuento</b-button>
+                  >Mostrar factura</b-button>
                 </div>
               </template>
               <!-- Paginacion -->
@@ -278,17 +259,17 @@
   </b-container>
 </template>
 <script>
-import { xray } from '../../../../config/pluginInit'
-import DatatableHeading from '../../../Tables/DatatableHeading'
+import { xray } from '../../../config/pluginInit'
+import DatatableHeading from '../../Tables/DatatableHeading'
 import Vuetable from 'vuetable-2/src/components/Vuetable'
-import VuetablePaginationBootstrap from '../../../../components/common/VuetablePaginationBootstrap'
+import VuetablePaginationBootstrap from '../../../components/common/VuetablePaginationBootstrap'
 import useVuelidate from '@vuelidate/core'
 import { required } from '@vuelidate/validators'
 import axios from 'axios'
-import { apiUrl } from '../../../../config/constant'
+import { apiUrl } from '../../../config/constant'
 
 export default {
-  name: 'CuentasPorCobrarHospital',
+  name: 'Facturacion',
   components: {
     vuetable: Vuetable,
     'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
@@ -361,7 +342,7 @@ export default {
         { text: 'Hospitalización', value: 1 },
         { text: 'Intensivos', value: 4 }
       ],
-      apiBase: apiUrl + '/cuentas/debtList',
+      apiBase: apiUrl + '/cuentas/payList',
       fields: [
         {
           name: '__slot:actions',
@@ -398,19 +379,6 @@ export default {
           sortField: 'total',
           title: 'Total',
           dataClass: 'list-item-heading'
-        },
-        {
-          name: 'pendiente_de_pago',
-          sortField: 'pendiente_de_pago',
-          title: 'Pendiente de pago',
-          dataClass: 'list-item-heading'
-        },
-        {
-          name: '__slot:estado',
-          title: 'Estado',
-          titleClass: '',
-          dataClass: 'text-muted',
-          width: '25%'
         }
       ],
       fieldsAccounts: [

@@ -533,7 +533,7 @@ export default {
         // Tabla
         if (type === 1) {
           autoTable(this.pdf, {
-            columns: [{ header: 'Descripción', dataKey: 'Descripcion' }, { header: 'Costo', dataKey: 'costo' }],
+            columns: [{ header: 'Descripción', dataKey: 'Descripcion' }, { header: 'Costo', dataKey: 'costo' }, { header: 'Fecha', dataKey: 'createdAt' }],
             body: this.detalle,
             margin: { top: 5 },
             headStyles: {
