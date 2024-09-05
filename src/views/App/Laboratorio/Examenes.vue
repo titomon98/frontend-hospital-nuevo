@@ -61,13 +61,9 @@
           <b-col md="3">
             <b-form-group label="CUI:">
               <b-form-input
-                v-model.trim="$v.form.cui.$model"
-                :state="!$v.form.cui.$error"
+                v-model.trim="form.cui"
                 placeholder="Ingresar CUI paciente"
               ></b-form-input>
-              <div v-if="$v.form.cui.required.$invalid" class="invalid-feedback">
-                Debe ingresar el CUI
-              </div>
             </b-form-group>
           </b-col>
           <b-col md="3">
@@ -98,13 +94,9 @@
           <b-col md="3">
             <b-form-group label="Correo Electronico:">
               <b-form-input
-                v-model.trim="$v.form.correo.$model"
-                :state="!$v.form.correo.$error"
+                v-model.trim="form.correo"
                 placeholder="Debe ingresar el correo electronico"
               ></b-form-input>
-              <div v-if="$v.form.correo.required.$invalid" class="invalid-feedback">
-                Debe ingresar el correo electronico
-              </div>
             </b-form-group>
           </b-col>
         </b-row>
@@ -147,55 +139,46 @@
           </b-col>
         </b-row>
         <b-row class="ml-2">
-          <b-col md="4">
+          <b-col md="7">
             <div style="text-align: left;">
-              <h3 class="card-title">DATOS DEL EXAMEN</h3>
+              <h3 class="card-title">SELECCIONAR EXAMEN/ES A REALIZAR</h3>
             </div>
           </b-col>
         </b-row>
         <b-row class="ml-2">
           <b-col md="4">
-            <b-form-group label="Encargado:">
-              <v-select
-                name="type"
-                v-model="form.id_encargado"
-                :options="encargados"
-                :filterable="false"
-                placeholder="Seleccione un encargado"
-                @search="onSearchEncargado"
-              >
-                <template v-slot:spinner="{ loading }">
-                  <div v-show="loading">Cargando...</div>
-                </template>
-                <template v-slot:option="option">
-                  {{ 'Nombre: '+ option.nombres }}
-                </template>
-                <template slot="selected-option" slot-scope="option">
-                  {{ 'Nombre: '+ option.nombres }}
-                </template>
-              </v-select>
-            </b-form-group>
-          </b-col>
-          <b-col md="4">
             <b-form-group label="Tipo de Examen:">
-              <v-select
-                name="type"
-                v-model="selectedExamenAlmacenado"
-                :options="examenes_almacenados"
-                :filterable="false"
-                placeholder="Seleccione el Examen"
-                @search="onSearch_id_examenes_almacenados"
+              <div v-if="isLoading">
+              <p>Cargando...</p>
+              </div>
+              <Multiselect
+                v-model="selectedExamenes"
+                :options="examenes_almacenadosBuscar"
+                :multiple="true"
+                :close-on-select="false"
+                :clear-on-select="false"
+                :preserve-search="true"
+                placeholder="Seleccionar exámenes"
+                label="nombre"
+                track-by="id"
+                @search-change="onSearch_id_examenes_almacenados"
+                :pagination="true"
+                :page="currentPageExa"
+                @page-change="onPageChangeExa"
               >
-                <template v-slot:spinner="{ loading }">
-                  <div v-show="loading">Cargando...</div>
-                </template>
-                <template v-slot:option="option">
-                  {{ 'Nombre: '+ option.nombre }}
-                </template>
-                <template slot="selected-option" slot-scope="option">
-                  {{ 'Nombre: '+ option.nombre }}
-                </template>
-              </v-select>
+              <template slot="selection" slot-scope="{ values, search, isOpen }">
+                  <span class="multiselect__single" v-if="values.length &amp;&amp; !isOpen">{{ values.length }}
+                    exámenes seleccionados
+                 </span>
+              </template>
+              </Multiselect>
+              <div>
+                <ul class="selected-options-list" v-if="selectedExamenes.length > 0">
+                  <li v-for="(examen, index) in selectedExamenes" :key="examen.id">
+                    {{ index + 1 }}. {{ examen.nombre }}
+                  </li>
+                </ul>
+              </div>
             </b-form-group>
           </b-col>
         </b-row>
@@ -316,13 +299,14 @@
         <iq-card>
           <template v-slot:headerTitle>
             <div class="center-text">
-              <h3 class="card-title">EXAMENES REALIZADOS</h3>
+              <h3 class="card-title">AREA DE EXAMENES</h3>
             </div>
           </template>
           <template v-slot:headerAction>
             <b-button variant="primary"  v-b-modal.modal_agregar>AGREGAR NUEVO</b-button>
           </template>
           <template v-slot:body>
+            <h4 class="card-title">EXAMENES SOLICITADOS  Y PENDIENTES DE PAGO</h4>
             <div class="row mb-3">
               <div class="col-md-4">
                 <b-form-group label="Fecha Desde:">
@@ -362,7 +346,7 @@
             <template slot="actions" slot-scope="props">
               <b-button-group>
                 <div class="button-container">
-                  <b-button
+                  <!-- <b-button
                     @click="addResultado(props.rowData.id, props.rowData.id_examenes_almacenados)"
                     class="mb-2 button-spacing"
                     size="sm"
@@ -381,7 +365,7 @@
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="success"
-                  >Imprimir Resultado</b-button>
+                  >Imprimir Resultado</b-button> -->
 
                   <b-button
                   @click="mostrarConfirmacionAnulacion(props.rowData.id)"
@@ -391,11 +375,144 @@
                   >Anular Examen</b-button>
                 </div>
               </b-button-group>
-              </template>
+            </template>
             </vuetable>
             <vuetable-pagination-bootstrap
                 ref="pagination"
                 @vuetable-pagination:change-page="onChangePage"
+              />
+          </template>
+        </iq-card>
+      </b-col>
+      <b-col sm="12">
+        <iq-card>
+          <template v-slot:body>
+            <h4 class="card-title">EXAMENES PAGADOS Y PENDIENTES DE RESULTADO</h4>
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <b-form-group label="Fecha Desde:">
+                  <b-form-input type="date" v-model="fechaDesde"></b-form-input>
+                </b-form-group>
+              </div>
+              <div class="col-md-4">
+                <b-form-group label="Fecha Hasta:">
+                  <b-form-input type="date" v-model="fechaHasta"></b-form-input>
+                </b-form-group>
+              </div>
+              <div class="col-md-4">
+                <b-button variant="primary" @click="realizarBusqueda">Buscar</b-button>
+              </div>
+            </div>
+            <datatable-heading
+              :changePageSize="changePageSizes2"
+              :searchChange="searchChange2"
+              :from="from2"
+              :to="to2"
+              :total="total2"
+              :perPage="perPage2"
+            >
+            </datatable-heading>
+            <vuetable
+              ref="vuetable2"
+              class="table-divided order-with-arrow"
+              :api-url="apiBase2"
+              :query-params="makeQueryParams2"
+              :per-page="perPage2"
+              :reactive-api-url="true"
+              :fields="fields2"
+              pagination-path
+              @vuetable:pagination-data="onPaginationData2"
+            >
+            <!-- Botones -->
+            <template slot="actions" slot-scope="props">
+              <b-button-group>
+                <div class="button-container">
+                 <b-button
+                    @click="addResultado(props.rowData.id, props.rowData.id_examenes_almacenados)"
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="success"
+                  >Agregar resultado</b-button>
+                  <b-button
+                  @click="mostrarConfirmacionAnulacion(props.rowData.id)"
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="danger"
+                  >Anular Examen</b-button>
+                </div>
+              </b-button-group>
+            </template>
+            </vuetable>
+            <vuetable-pagination-bootstrap
+                ref="pagination2"
+                @vuetable-pagination:change-page="onChangePage2"
+              />
+          </template>
+        </iq-card>
+      </b-col>
+      <b-col sm="12">
+        <iq-card>
+          <template v-slot:body>
+            <h4 class="card-title">EXAMENES REALIZADOS (FINALIZADOS)</h4>
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <b-form-group label="Fecha Desde:">
+                  <b-form-input type="date" v-model="fechaDesde"></b-form-input>
+                </b-form-group>
+              </div>
+              <div class="col-md-4">
+                <b-form-group label="Fecha Hasta:">
+                  <b-form-input type="date" v-model="fechaHasta"></b-form-input>
+                </b-form-group>
+              </div>
+              <div class="col-md-4">
+                <b-button variant="primary" @click="realizarBusqueda">Buscar</b-button>
+              </div>
+            </div>
+            <datatable-heading
+              :changePageSize="changePageSizes3"
+              :searchChange="searchChange3"
+              :from="from3"
+              :to="to3"
+              :total="total3"
+              :perPage="perPage3"
+            >
+            </datatable-heading>
+            <vuetable
+              ref="vuetable3"
+              class="table-divided order-with-arrow"
+              :api-url="apiBase3"
+              :query-params="makeQueryParams3"
+              :per-page="perPage3"
+              :reactive-api-url="true"
+              :fields="fields3"
+              pagination-path
+              @vuetable:pagination-data="onPaginationData3"
+            >
+            <!-- Botones -->
+            <template slot="actions" slot-scope="props">
+              <b-button-group>
+                <div class="button-container">
+                  <b-button
+                    @click="verResultado(props.rowData.id)"
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="dark"
+                  >Ver resultado</b-button>
+
+                  <b-button
+                    @click="ImprimirResultado(props.rowData.id)"
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="success"
+                  >Imprimir Resultado</b-button>
+                </div>
+              </b-button-group>
+              </template>
+            </vuetable>
+            <vuetable-pagination-bootstrap
+                ref="pagination3"
+                @vuetable-pagination:change-page="onChangePage3"
               />
           </template>
         </iq-card>
@@ -416,6 +533,7 @@ import axios from 'axios'
 import useVuelidate from '@vuelidate/core'
 import { required } from '@vuelidate/validators'
 import { quillEditor } from 'vue-quill-editor'
+import Multiselect from 'vue-multiselect'
 /* import JsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable' */
 export default {
@@ -425,7 +543,8 @@ export default {
     'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
     'datatable-heading': DatatableHeading,
     IqCard,
-    quillEditor
+    quillEditor,
+    Multiselect
   },
   setup () {
     return { $v: useVuelidate() }
@@ -486,7 +605,11 @@ export default {
         }
       ],
 
+      isLoading: false,
       examenes_almacenados: [],
+      examenes_almacenadosBuscar: [],
+      selectedExamenes: [],
+      currentPageExa: 1,
       expedientesExamenes: [],
       selectedExpediente: null,
       selectedExamenAlmacenado: null,
@@ -528,6 +651,18 @@ export default {
       fechaDesde: null,
       fechaHasta: null,
       apiBase: apiUrl + '/Examenes_realizados/list',
+      apiBase2: apiUrl + '/Examenes_realizados/list2',
+      apiBase3: apiUrl + '/Examenes_realizados/list3',
+      from2: 0,
+      to2: 0,
+      total2: 0,
+      perPage2: 5,
+      search2: '',
+      from3: 0,
+      to3: 0,
+      total3: 0,
+      perPage3: 5,
+      search3: '',
       slickOptions: {
         centerMode: false,
         centerPadding: '60px',
@@ -619,6 +754,112 @@ export default {
           title: 'Fecha y Hora',
           dataClass: 'list-item-heading'
         }
+      ],
+      fields2: [
+        {
+          name: '__slot:actions',
+          title: 'Acciones',
+          titleClass: '',
+          dataClass: 'text-muted'
+        },
+        {
+          name: 'nombre',
+          sortField: 'nombre',
+          title: 'Nombre',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'cui',
+          sortField: 'cui',
+          title: 'CUI',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'total',
+          sortField: 'total',
+          title: 'Total a Pagar',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'whatsapp',
+          sortField: 'whatsapp',
+          title: 'Celular',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'numero_muestra',
+          sortField: 'numero_muestra',
+          title: 'Numero de Muestra',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'nombre_encargago',
+          sortField: 'nombre_encargago',
+          title: 'Nombre de Encargado',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'pagado',
+          sortField: 'pagado',
+          title: 'Pagado',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'por_pagar',
+          sortField: 'por_pagar',
+          title: 'Por Pagar',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'nombre_examen',
+          sortField: 'nombre_examen',
+          title: 'Examen Realizado',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'fecha_hora',
+          sortField: 'fecha_hora',
+          title: 'Fecha y Hora',
+          dataClass: 'list-item-heading'
+        }
+      ],
+      fields3: [
+        {
+          name: '__slot:actions',
+          title: 'Acciones',
+          titleClass: '',
+          dataClass: 'text-muted'
+        },
+        {
+          name: 'nombre',
+          sortField: 'nombre',
+          title: 'Nombre',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'whatsapp',
+          sortField: 'whatsapp',
+          title: 'Celular',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'numero_muestra',
+          sortField: 'numero_muestra',
+          title: 'Numero de Muestra',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'nombre_examen',
+          sortField: 'nombre_examen',
+          title: 'Examen Realizado',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'fecha_hora',
+          sortField: 'fecha_hora',
+          title: 'Fecha y Hora',
+          dataClass: 'list-item-heading'
+        }
       ]
     }
   },
@@ -658,12 +899,12 @@ export default {
         }
       }
     },
-    selectedExamenAlmacenado (newValue) {
+    selectedExamenes (newValue) {
       if (newValue) {
-        this.form.por_pagar = newValue.precio_normal
-        this.form.id_examenes_almacenados = newValue.id
-        this.TotalAPagar = newValue.precio_normal
-        this.form.total = newValue.precio_normal
+        this.TotalAPagar = newValue.reduce((total, examen) => parseFloat(total) + parseFloat(examen.precio_normal), 0)
+        this.form.total = this.TotalAPagar
+        this.form.id_examenes_almacenados = newValue.map(examen => examen.id)
+        this.form.por_pagar = this.TotalAPagar
       } else {
         console.log('ERROR AL CARGAR EL TOTAL A PAGAR EN LA FUNCION WATCH')
       }
@@ -685,7 +926,7 @@ export default {
           this.form.numero_muestra = ''
           this.form.existencia_actual = 0
           this.form.referido = ''
-          this.form.id_encargago = null
+          this.form.id_encargado = null
           this.form.pagado = 0
           this.form.por_pagar = 0
           this.form.id_examenes_almacenados = null
@@ -694,6 +935,10 @@ export default {
           this.selectedExpediente = null
           this.encargados = []
           this.TotalAPagar = 0
+          this.isLoading = false
+          this.selectedExamenes = []
+          this.currentPageExa = 1
+          this.examenes_almacenadosBuscar = []
           break
         }
         case 'resultado': {
@@ -814,22 +1059,29 @@ export default {
       })
     },
     onSearch_id_examenes_almacenados (search, loading) {
-      if (search.length) {
-        loading(true)
-        this.searching_id_examenes_almacenados(search, loading)
+      console.log('ENTRANDO A LA FUNCION')
+      this.isLoading = true
+      const params = {
+        search: search,
+        page: this.currentPageExa,
+        perPage: this.$refs.vuetable.perPage
       }
+
+      axios.get(apiUrl + '/examenesAlmacenadosBuscar/getSearch', { params })
+        .then((response) => {
+          console.log('Respuesta de la API:', response.data)
+          this.examenes_almacenadosBuscar = response.data.data
+          this.$refs.vuetableBuscar.setData(response.data)
+          this.isLoading = false
+        })
+        .catch((error) => {
+          console.error('Error al buscar exámenes:', error)
+          this.isLoading = false
+        })
     },
-    searching_id_examenes_almacenados (search, loading) {
-      axios.get(apiUrl + '/examenesAlmacenados/getSearch',
-        {
-          params: {
-            search: search
-          }
-        }
-      ).then((response) => {
-        this.examenes_almacenados = response.data
-        loading(false)
-      })
+    onPageChangeExa (page) {
+      this.currentPageExa = page
+      this.onSearch_id_examenes_almacenados('')
     },
     onSearchEncargado (search, loading) {
       if (search.length) {
@@ -894,6 +1146,77 @@ export default {
     },
     onChangePage (page) {
       this.$refs.vuetable.changePage(page)
+    },
+
+    makeQueryParams2 (sortOrder2, currentPage2, perPage2) {
+      return {
+        criterio: sortOrder2[0] ? sortOrder2[0].sortField : 'createdAt',
+        order: sortOrder2[0] ? sortOrder2[0].direction : 'desc',
+        page: currentPage2,
+        limit: this.perPage2,
+        search: this.search2,
+        fechaDesde: this.fechaDesde ? moment(this.fechaDesde).format('YYYY-MM-DD') : null,
+        fechaHasta: this.fechaHasta ? moment(this.fechaHasta).format('YYYY-MM-DD') : null
+      }
+    },
+    changePageSizes2 (perPage) {
+      this.perPage2 = perPage
+      this.$refs.vuetable2.refresh()
+    },
+    searchChange2 (val) {
+      this.search2 = val.toLowerCase()
+      this.$refs.vuetable2.refresh()
+    },
+    onPaginationData2 (paginationData) {
+      this.from2 = paginationData.from
+      this.to2 = paginationData.to
+      this.total2 = paginationData.total
+      this.lastPage2 = paginationData.last_page
+      this.items2 = paginationData.data.map(item => {
+        item.fecha_hora = moment(item.fecha_hora).format('DD/MM/YYYY HH:mm')
+        return {
+          fecha_hora: item.fecha_hora
+        }
+      })
+      this.$refs.pagination2.setPaginationData(paginationData)
+    },
+    onChangePage2 (page) {
+      this.$refs.vuetable2.changePage(page)
+    },
+    makeQueryParams3 (sortOrder3, currentPage3, perPage3) {
+      return {
+        criterio: sortOrder3[0] ? sortOrder3[0].sortField : 'createdAt',
+        order: sortOrder3[0] ? sortOrder3[0].direction : 'desc',
+        page: currentPage3,
+        limit: this.perPage3,
+        search: this.search3,
+        fechaDesde: this.fechaDesde ? moment(this.fechaDesde).format('YYYY-MM-DD') : null,
+        fechaHasta: this.fechaHasta ? moment(this.fechaHasta).format('YYYY-MM-DD') : null
+      }
+    },
+    changePageSizes3 (perPage) {
+      this.perPage3 = perPage
+      this.$refs.vuetable3.refresh()
+    },
+    searchChange3 (val) {
+      this.search3 = val.toLowerCase()
+      this.$refs.vuetable3.refresh()
+    },
+    onPaginationData3 (paginationData) {
+      this.from3 = paginationData.from
+      this.to3 = paginationData.to
+      this.total3 = paginationData.total
+      this.lastPage3 = paginationData.last_page
+      this.items3 = paginationData.data.map(item => {
+        item.fecha_hora = moment(item.fecha_hora).format('DD/MM/YYYY HH:mm')
+        return {
+          fecha_hora: item.fecha_hora
+        }
+      })
+      this.$refs.pagination3.setPaginationData(paginationData)
+    },
+    onChangePage3 (page) {
+      this.$refs.vuetable3.changePage(page)
     },
 
     /* AREA PARA AGREGAR, VER E IMPRIMIR RESULTADOS */
@@ -1052,4 +1375,35 @@ background-color: #f9f9f9; /* Color de fondo más claro para filas alternas */
   color: #333; /* Adjust the color value to make the text darker */
 }
 
+/* Estilos para el Multiselect */
+.multiselect {
+  border: 1px solid #ced4da; /* Borde gris claro */
+  border-radius: 4px;
+  padding: 0.375rem 0.75rem; /* Espaciado interno */
+}
+
+.multiselect__tags {
+  background-color: #f8f9fa; /* Fondo gris muy claro */
+  border-radius: 4px;
+  padding: 0.25rem;
+}
+
+.multiselect__tag {
+  background-color: #e2e3e5; /* Fondo gris claro para las etiquetas */
+  color: #343a40; /* Texto oscuro */
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  margin-right: 0.25rem;
+}
+
+.multiselect__tag-icon:focus,
+.multiselect__tag-icon:hover {
+  background-color: #c82333; /* Rojo al pasar el mouse o enfocar */
+}
+
+/* Estilos para la lista de opciones seleccionadas */
+.selected-options-list {
+  list-style: decimal; /* Números en la lista */
+  padding-left: 1.5rem;
+}
 </style>
