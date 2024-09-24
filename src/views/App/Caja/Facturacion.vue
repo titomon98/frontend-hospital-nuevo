@@ -58,7 +58,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-2-account" ref="modal-2-account" title="Pagar cuenta" size="xl">
+    <b-modal id="modal-2-account" ref="modal-2-account" title="Guardar Factura" size="xl">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -70,7 +70,7 @@
       </b-alert>
       <template>
         <div>
-          <h6>Cuentas activas para {{this.form.nombres}} {{this.form.apellidos}}</h6>
+          <h6>Generar factura</h6>
           <b-card>
             <b-card-body>
               <b-table
@@ -81,52 +81,12 @@
                 selectable
               >
               </b-table>
-              <b-form-group label="Seleccione métodos para pagar:" v-slot="{ ariaDescribedby }">
-                <b-form-checkbox-group
-                  id="checkbox-group-1"
-                  v-model="selectedPayment"
-                  :options="paymentOptions"
-                  :aria-describedby="ariaDescribedby"
-                  name="flavour-1"
-                ></b-form-checkbox-group>
-              </b-form-group>
-              <div v-if="selectedPayment.indexOf(1) !== -1">
-                Efectivo
-                <b-input :type="'number'" id="CashTypeInput" ref="CashTypeInput" v-model="paymentType.Efectivo" />
-              </div>
-              <div v-if="selectedPayment.indexOf(2) !== -1">
-                Tarjeta
-                <b-input :type="'number'" id="CardTypeInput" ref="CardTypeInput" v-model="paymentType.Tarjeta" />
-              </div>
-              <div v-if="selectedPayment.indexOf(3) !== -1">
-                Depósito
-                <b-input :type="'number'" id="DepositTypeInput" ref="DepositTypeInput" v-model="paymentType.Deposito" />
-              </div>
-              <div v-if="selectedPayment.indexOf(4) !== -1">
-                Cheque
-                <b-input :type="'number'" id="CheckTypeInput" ref="CheckTypeInput" v-model="paymentType.Cheque" />
-              </div>
-              <div v-if="selectedPayment.indexOf(5) !== -1">
-                Seguro
-                <b-input :type="'number'" id="InsuranceTypeInput" ref="InsuranceTypeInput" v-model="paymentType.Seguro" />
-                Seleccione un seguro
-                <v-select
-                  ref="selectAssurance"
-                  v-model="selectAssurance"
-                  :options="assurances"
-                  label="no_poliza"
-                  value="id"></v-select>
-              </div>
-              <div v-if="selectedPayment.indexOf(6) !== -1">
-                Transferencia
-                <b-input :type="'number'" id="InsuranceTypeInput" ref="InsuranceTypeInput" v-model="paymentType.Transferencia" />
-              </div>
-              <div>
-                <strong> TOTAL INGRESADO: {{ parseFloat(this.paymentType.Efectivo) + parseFloat(this.paymentType.Tarjeta) + parseFloat(this.paymentType.Deposito) + parseFloat(this.paymentType.Cheque) + parseFloat(this.paymentType.Seguro) + parseFloat(this.paymentType.Transferencia) }}</strong>
-              </div>
-              <div>
-                <strong> TOTAL A PAGAR: {{ this.totalPayment }}</strong>
-              </div>
+              nit
+              <b-input id="nitFact" ref="nitFact" v-model="nitFact" />
+              Número
+              <b-input id="numeroFact" ref="numeroFact" v-model="numeroFact" />
+              Serie
+              <b-input id="serieFact" ref="serieFact" v-model="serieFact" />
             </b-card-body>
             <div>
 
@@ -136,7 +96,7 @@
       </template>
       <template #modal-footer="{}">
         <b-button variant="primary" @click="
-          onPatientQuit()
+          createFact()
         "
           >Aceptar</b-button
         >
@@ -422,7 +382,6 @@ export default {
       switch (modal) {
         case 'save': {
           this.$v.$reset()
-          this.form.id = 0
           this.form.name = ''
           this.form.state = 1
           break
@@ -442,7 +401,6 @@ export default {
         case 'update': {
           this.$v.$reset()
           this.$refs['modal-2-account'].hide()
-          this.form.id = 0
           this.form.name = ''
           this.form.state = 1
           break
@@ -464,6 +422,7 @@ export default {
       this.form.apellidos = data.apellidos
       this.form.state = data.estado
       this.form.id = data.id
+      console.log(data.id)
       this.form.numero = data.numero
       this.form.total_pagado = data.total_pagado
       this.form.pendiente_de_pago = data.pendiente_de_pago
@@ -559,58 +518,45 @@ export default {
           console.log(resp)
         })
     },
-    onPatientQuit () {
-      this.paymentSum = parseFloat(this.paymentType.Efectivo) + parseFloat(this.paymentType.Tarjeta) + parseFloat(this.paymentType.Deposito) + parseFloat(this.paymentType.Cheque) + parseFloat(this.paymentType.Seguro) + parseFloat(this.paymentType.Transferencia)
-      if (this.paymentSum !== parseFloat(this.totalPayment)) {
-        this.alertErrorText = 'El total a pagar no concuerda con el total ingresado'
-        this.showAlertError()
-      } else {
-        let me = this
-        console.log(this.selectedAccount)
-        console.log(this.id_seguro)
-        axios.put(apiUrl + '/cuentas/deactivate',
-          {
-            id: this.selectedAccount,
-            total_pagado: parseFloat(this.totPagado) + parseFloat(this.paymentSum),
-            pendiente_de_pago: parseFloat(parseFloat(this.totalPayment) - parseFloat(this.paymentSum)),
-            efectivo: this.paymentType.Efectivo,
-            tarjeta: this.paymentType.Tarjeta,
-            deposito: this.paymentType.Deposito,
-            cheque: this.paymentType.Cheque,
-            seguro: this.paymentType.Seguro,
-            transferencia: this.paymentType.Transferencia,
-            total: this.paymentSum,
-            id_seguro: this.seguro > 0 ? this.selectAssurance.id : 0,
-            id_expediente: this.expediente,
-            tipo: 'finiquito'
-          })
-          .then(
-            this.selectedAccount = null,
-            this.paymentType.Efectivo = 0,
-            this.paymentType.Tarjeta = 0,
-            this.paymentType.Deposito = 0,
-            this.paymentType.Cheque = 0,
-            this.paymentType.Seguro = 0,
-            this.paymentType.transferencia = 0,
-            this.paymentSum = 0,
-            this.selectAssurance = null
-          )
-          .catch((error) => {
-            console.error(error)
-          })
-        me.alertVariant = 'info'
-        me.showAlert()
-        me.alertText = 'Se ha egresado el paciente ' + me.form.nombres + ' exitosamente'
-        me.$refs.vuetable.refresh()
-        me.$refs['modal-2-account'].hide()
+    createFact () {
+      let me = this
+      axios.post(apiUrl + '/facturas/create',
+        {
+          nit: this.nitFact,
+          total: this.totPagado,
+          id_cuenta_laboratoio: 0,
+          id_cuenta_hospital: this.form.id,
+          imagen: '',
+          numero: this.numeroFact,
+          serie: this.serieFact,
+          id_usuario: this.expediente
+        })
+        .then(
+          this.selectedAccount = null,
+          this.paymentType.Efectivo = 0,
+          this.paymentType.Tarjeta = 0,
+          this.paymentType.Deposito = 0,
+          this.paymentType.Cheque = 0,
+          this.paymentType.Seguro = 0,
+          this.paymentType.transferencia = 0,
+          this.paymentSum = 0,
+          this.selectAssurance = null
+        )
+        .catch((error) => {
+          console.error(error)
+        })
+      me.alertVariant = 'info'
+      me.showAlert()
+      me.alertText = 'Se ha guardado la factura exitosamente'
+      me.$refs.vuetable.refresh()
+      me.$refs['modal-2-account'].hide()
 
-          .catch((error) => {
-            me.alertVariant = 'danger'
-            me.showAlertError()
-            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-            console.error('There was an error!', error)
-          })
-      }
+        .catch((error) => {
+          me.alertVariant = 'danger'
+          me.showAlertError()
+          me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+          console.error('There was an error!', error)
+        })
     },
     makeQueryParams (sortOrder, currentPage, perPage) {
       return sortOrder[0]
