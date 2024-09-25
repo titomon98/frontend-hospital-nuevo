@@ -69,7 +69,7 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <template>
-        <div>
+        <div v-if = "HasFact==0">
           <h6>Generar factura</h6>
           <b-card>
             <b-card-body>
@@ -87,6 +87,65 @@
               <b-input id="numeroFact" ref="numeroFact" v-model="numeroFact" />
               Serie
               <b-input id="serieFact" ref="serieFact" v-model="serieFact" />
+              Referencia
+              <b-input id="referenciaFact" ref="referenciaFact" v-model="referenciaFact" />
+              <b-form-group label="File">
+                <b-form-file
+                  v-model="images"
+                  accept="image/*"
+                  multiple
+                  placeholder="Subir una imagen..."
+                  drop-placeholder="Suelta una imagen aquí..."></b-form-file>
+                  <b-alert variant="danger" v-if="errorImage" dismissible>{{ errorImage }}</b-alert>
+              </b-form-group>
+              <b-row>
+                <b-col cols="12" class="text-center">
+                  <div v-if="base64Images.length">
+                    <h5>Imagen:</h5>
+                    <img :src="base64Images" alt="Preview" class="img-preview"/>
+                  </div>
+                </b-col>
+              </b-row>
+            </b-card-body>
+            <div>
+
+            </div>
+          </b-card>
+        </div>
+        <div v-if = "HasFact==1">
+          <h6>Verificar factura</h6>
+          <b-card>
+            <b-card-body>
+              <b-table
+                hover
+                :items="cuentas"
+                :fields="fieldsAccounts"
+                :select-mode="'single'"
+                selectable
+              >
+              </b-table>
+              <h6>
+                NIT: {{nitFact}}
+              </h6>
+              <h6>
+                Número: {{numeroFact}}
+              </h6>
+              <h6>
+                Serie: {{serieFact}}
+              </h6>
+              <h6>
+                Referencia: {{referenciaFact}}
+              </h6>
+              <b-row>
+                <b-col cols="12" class="text-center">
+                  <div v-if="base64Images.length">
+                    <div v-if="base64Images[0].length > 0">
+                      <h6>Imagen:</h6>
+                      <img :src="base64Images" alt="Preview" class="img-preview"/>
+                    </div>
+                  </div>
+                </b-col>
+              </b-row>
             </b-card-body>
             <div>
 
@@ -240,12 +299,17 @@ export default {
   },
   beforeMount () {
     this.getHabitaciones(0)
+    this.getFacts()
   },
   mounted () {
     xray.index()
   },
   data () {
     return {
+      base64Images: [],
+      images: [],
+      HasFact: 0,
+      factsList: [],
       from: 0,
       to: 0,
       total: 0,
@@ -365,6 +429,15 @@ export default {
       ]
     }
   },
+  watch: {
+    images (newVal) {
+      if (newVal && newVal.length) {
+        this.createBase64Image(newVal)
+      } else {
+        this.base64Images = []
+      }
+    }
+  },
   validations () {
     return {
       form: {
@@ -373,6 +446,28 @@ export default {
     }
   },
   methods: {
+    createBase64Image (FileList) {
+      if (FileList.length > 1) {
+        // this.errorImage = 'Sólo puedes subir 1 imagen'
+        this.images = []
+      } else {
+        this.base64Images = []
+        // this.errorImage = null
+        Array.from(FileList).forEach(file => {
+          if (file.size > 2 * 1024 * 1024) {
+            this.errorImage = 'El tamaño máximo por imagen es de 2MB'
+            this.images = []
+            return
+          }
+          const reader = new FileReader()
+          reader.onload = (event) => {
+            this.base64Images.push(event.target.result)
+          }
+
+          reader.readAsDataURL(file)
+        })
+      }
+    },
     onRowSelected (items) {
       this.selectedAccount = items[0].id
       this.totalPayment = items[0].pendiente_de_pago
@@ -418,11 +513,29 @@ export default {
       }
     },
     setData (data) {
+      this.nitFact = ''
+      this.numeroFact = ''
+      this.serieFact = ''
+      this.HasFact = 0
+      this.base64Images = []
+      if (this.factsList.find(e => e.id_cuenta_hospital === data.id)) {
+        const elementFound = this.factsList.find(e => e.id_cuenta_hospital === data.id)
+        this.HasFact = 1
+        this.nitFact = elementFound.nit
+        this.numeroFact = elementFound.numero
+        this.serieFact = elementFound.serie
+        this.referenciaFact = elementFound.referencia_factura
+        this.base64Images[0] = elementFound.imagen
+        console.log(elementFound)
+        console.log('HASFACCCCCTS :)')
+      } else {
+        this.HasFact = 0
+        console.log('NOOOOOOOOOOOOTHASFACCCCCTS :(')
+      }
       this.form.name = data.nombres
       this.form.apellidos = data.apellidos
       this.form.state = data.estado
       this.form.id = data.id
-      console.log(data.id)
       this.form.numero = data.numero
       this.form.total_pagado = data.total_pagado
       this.form.pendiente_de_pago = data.pendiente_de_pago
@@ -432,8 +545,7 @@ export default {
       this.totalPayment = data.pendiente_de_pago
       this.totPagado = data.total_pagado
       this.expediente = data.id_expediente
-      console.log(this.cuentas)
-      this.onLoadAssurances(data.id_expediente)
+
       // this.getCuentas(data.id)
     },
     /* Guardar */
@@ -526,10 +638,11 @@ export default {
           total: this.totPagado,
           id_cuenta_laboratoio: 0,
           id_cuenta_hospital: this.form.id,
-          imagen: '',
+          imagen: this.base64Images ? this.base64Images : '',
           numero: this.numeroFact,
           serie: this.serieFact,
-          id_usuario: this.expediente
+          id_usuario: this.expediente,
+          referencia_factura: this.referenciaFact
         })
         .then(
           this.selectedAccount = null,
@@ -543,19 +656,23 @@ export default {
           this.selectAssurance = null
         )
         .catch((error) => {
-          console.error(error)
+          me.alertVariant = 'danger'
+          me.showAlertError()
+          me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+          console.error('There was an error!', error)
         })
       me.alertVariant = 'info'
       me.showAlert()
       me.alertText = 'Se ha guardado la factura exitosamente'
       me.$refs.vuetable.refresh()
       me.$refs['modal-2-account'].hide()
-
-        .catch((error) => {
-          me.alertVariant = 'danger'
-          me.showAlertError()
-          me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-          console.error('There was an error!', error)
+      this.getFacts()
+    },
+    getFacts () {
+      axios.get(apiUrl + '/facturas/getList')
+        .then(res => {
+          this.factsList = res.data
+          console.log(res)
         })
     },
     makeQueryParams (sortOrder, currentPage, perPage) {
