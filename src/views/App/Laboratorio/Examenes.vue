@@ -205,38 +205,22 @@
       >
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
-      <b-form @submit="$event.preventDefault()">
-        <b-row class="ml-2">
-          <b-col md="6">
-            <b-form-group label="Tipo Examen">
-              <v-select
-                name="type"
-                v-model="formResultado.tipo"
-                :options="tipo_examenes"
-                :filterable="false"
-                placeholder="Seleccione el Examen"
-                @search="onSearch_tipoExamen"
-              >
-                <template v-slot:spinner="{ loading }">
-                  <div v-show="loading">Cargando...</div>
-                </template>
-                <template v-slot:option="option">
-                  {{ 'Nombre: '+ option.nombre }}
-                </template>
-                <template slot="selected-option" slot-scope="option">
-                  {{ 'Nombre: '+ option.nombre }}
-                </template>
-              </v-select>
-            </b-form-group>
-          </b-col>
-        </b-row>
-            <b-form-group label="Resultado:">
-              <quill-editor
-              v-model="formResultado.resultado"
-              :options="editorOptions"
-              class="custom-editor">
-            </quill-editor>
-            </b-form-group>
+      <b-form @submit.prevent="onSubmit">
+        <b-table :items="this.camposResulado" :fields="this.fieldsCampos" striped hover small responsive>
+          <template #cell(Nombre)="data">
+            {{ data.item.nombre }}
+          </template>
+          <template #cell(Unidades)="data">
+            {{ data.item.unidades }}
+          </template>
+          <template #cell(resultado)="data">
+            <b-form-input
+              v-model="data.item.resultado"
+              type="text"
+              placeholder="agregar el resultado"
+            ></b-form-input>
+          </template>
+        </b-table>
       </b-form>
       <template #modal-footer="{}">
         <b-button variant="primary" @click="onValidateResultado('save')"
@@ -428,7 +412,7 @@
               <b-button-group>
                 <div class="button-container">
                  <b-button
-                    @click="addResultado(props.rowData.id, props.rowData.id_examenes_almacenados)"
+                    @click="addResultado(props.rowData.id, props.rowData.id_examenes_almacenados, props.rowData)"
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="success"
@@ -520,7 +504,6 @@
     </b-row>
   </b-container>
 </template>
-
 <script>
 import { xray } from '../../../config/pluginInit'
 import IqCard from '../../../components/xray/cards/iq-card'
@@ -532,10 +515,10 @@ import VuetablePaginationBootstrap from '../../../components/common/VuetablePagi
 import axios from 'axios'
 import useVuelidate from '@vuelidate/core'
 import { required } from '@vuelidate/validators'
-import { quillEditor } from 'vue-quill-editor'
+/* import { quillEditor } from 'vue-quill-editor' */
 import Multiselect from 'vue-multiselect'
-/* import JsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable' */
+import JsPDF from 'jspdf'
+/* import autoTable from 'jspdf-autotable' */
 export default {
   name: 'Examenes',
   components: {
@@ -543,7 +526,7 @@ export default {
     'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
     'datatable-heading': DatatableHeading,
     IqCard,
-    quillEditor,
+    /* quillEditor */
     Multiselect
   },
   setup () {
@@ -572,9 +555,13 @@ export default {
       tipo_examenes: [],
       formResultado: {
         id: null,
-        tipo: '',
-        resultado: null
+        id_campo: '',
+        id_tipo: '',
+        resultado: null,
+        alarma: ''
       },
+      camposResulado: [],
+      campos: [],
       id_ver_Resultado: null,
       fromResultado: 0,
       toResultado: 0,
@@ -604,7 +591,26 @@ export default {
           dataClass: 'list-item-heading'
         }
       ],
-
+      fieldsCampos: [
+        {
+          name: 'nombre',
+          sortField: 'nombre',
+          title: 'Prueba',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'unidades',
+          sortField: 'unidades',
+          title: 'Unidades',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'resultado',
+          sortField: 'resultado',
+          title: 'Resultado',
+          dataClass: 'list-item-heading'
+        }
+      ],
       isLoading: false,
       examenes_almacenados: [],
       examenes_almacenadosBuscar: [],
@@ -978,7 +984,6 @@ export default {
     /* ACTUALIZAR ESTADO */
     anular (id) {
       const me = this
-      console.log(id)
       const ruta = apiUrl + `/Examenes_realizados/update?id=${id}`
       axios.put(ruta, {
         form: me.anularExamen
@@ -1059,7 +1064,6 @@ export default {
       })
     },
     onSearch_id_examenes_almacenados (search, loading) {
-      console.log('ENTRANDO A LA FUNCION')
       this.isLoading = true
       const params = {
         search: search,
@@ -1069,7 +1073,6 @@ export default {
 
       axios.get(apiUrl + '/examenesAlmacenadosBuscar/getSearch', { params })
         .then((response) => {
-          console.log('Respuesta de la API:', response.data)
           this.examenes_almacenadosBuscar = response.data.data
           this.$refs.vuetableBuscar.setData(response.data)
           this.isLoading = false
@@ -1114,7 +1117,7 @@ export default {
     },
     makeQueryParams (sortOrder, currentPage, perPage) {
       return {
-        criterio: sortOrder[0] ? sortOrder[0].sortField : 'createdAt',
+        criterio: sortOrder[0] ? sortOrder[0].sortField : 'updatedAt',
         order: sortOrder[0] ? sortOrder[0].direction : 'desc',
         page: currentPage,
         limit: this.perPage,
@@ -1150,7 +1153,7 @@ export default {
 
     makeQueryParams2 (sortOrder2, currentPage2, perPage2) {
       return {
-        criterio: sortOrder2[0] ? sortOrder2[0].sortField : 'createdAt',
+        criterio: sortOrder2[0] ? sortOrder2[0].sortField : 'updatedAt',
         order: sortOrder2[0] ? sortOrder2[0].direction : 'desc',
         page: currentPage2,
         limit: this.perPage2,
@@ -1185,7 +1188,7 @@ export default {
     },
     makeQueryParams3 (sortOrder3, currentPage3, perPage3) {
       return {
-        criterio: sortOrder3[0] ? sortOrder3[0].sortField : 'createdAt',
+        criterio: sortOrder3[0] ? sortOrder3[0].sortField : 'updatedAt',
         order: sortOrder3[0] ? sortOrder3[0].direction : 'desc',
         page: currentPage3,
         limit: this.perPage3,
@@ -1221,9 +1224,9 @@ export default {
 
     /* AREA PARA AGREGAR, VER E IMPRIMIR RESULTADOS */
 
-    /* generarPDF () {
-      const data = this.itemsResultado
-      const Doc = new jsPDF()
+    generarPDF (Data) {
+      const data = Data
+      const Doc = new JsPDF()
       Doc.setFontSize(12)
       Doc.text('Resultados del Examen', 10, 10)
       Doc.line(10, 15, 200, 15)
@@ -1242,52 +1245,85 @@ export default {
         }
       })
       window.open(Doc.output('bloburl'), '_blank')
-    }, */
+    },
 
     ImprimirResultado (id) {
-      console.log(id)
-      this.apiBaseResultado = apiUrl + `/detalleExamenRealizado/list?id=${id}`
-      // this.generarPDF()
+      this.apiBaseResultado = apiUrl + `/detalleExamenRealizado/get?id=${id}`
+      /* AQUI LLAMAR POR MEDIO DE AXIOS A LA RUTA  PARA LLENAR LA VARIABLE */
+      axios.get(this.apiBaseResultado)
+        .then((response) => {
+          this.apiBaseResultado = response.data
+          this.generarPDF(this.apiBaseResultado)
+        })
+        .catch((error) => {
+          console.error('Error al obtener los detalles del examen:', error)
+        })
+      /* AL TENER LLENA LA VARIABLE YA SE PUEDE GENERAR PDF */
+      this.generarPDF()
     },
-    onValidateResultado (action) {
-      if (this.formResultado.resultado != null) {
-        console.log(this.formResultado)
-        if (action === 'save') {
-          this.onSaveResultado()
-        } else if (action === 'update') {
-          this.onUpdate()
-        }
-      } else {
-        this.alertErrorText = 'Revisa que todos los campos requeridos esten llenos'
-        this.showAlertError()
-      }
-    },
-    addResultado (id) {
+    addResultado (id, idexamen) {
       this.$refs['modal-add-resultados'].show()
-      console.log(id)
       this.formResultado.id = id
+      this.getFieldsByExamenId(idexamen)
     },
-    onSaveResultado () {
+
+    getFieldsByExamenId (examenId) {
+      axios.get(apiUrl + '/campoLaboratorio/getByExamenId', {
+        params: {
+          id: examenId
+        }
+      })
+        .then((response) => {
+          this.camposResulado = response.data.map(item => ({
+            id: item.id,
+            nombre: item.nombre,
+            unidades: item.unidades,
+            resultado: '',
+            id_tipo: item.id_examenes_almacenados
+          }))
+          const campos = response.data
+          this.campos = campos
+        })
+        .catch((error) => {
+          console.error('Error al obtener los campos del examen:', error)
+        })
+    },
+    onSaveResultados () {
       const me = this
-      axios.post(apiUrl + '/detalleExamenRealizado/create', {
-        form: me.formResultado })
+      const resultados = this.camposResulado.map(campo => ({
+        id: me.formResultado.id,
+        id_campo: campo.id,
+        id_tipo: campo.id_tipo,
+        resultado: campo.resultado
+      }))
+
+      axios.post(apiUrl + '/detalleExamenRealizado/create', { resultados })
         .then((response) => {
           me.alertVariant = 'success'
           me.showAlert()
-          me.alertText = 'Se ingresado el resultado del examen' + me.formResultado.tipo + ' exitosamente'
-          me.$refs.vuetable.refresh()
+          me.alertText = 'Se han ingresado los resultados de los exámenes exitosamente'
+          me.$refs.vuetable2.refresh()
+          me.$refs.vuetable3.refresh()
           me.closeModal('resultado')
         })
         .catch((error) => {
           me.alertVariant = 'danger'
           me.showAlertError()
           me.alertErrorText = error.response.data.msg
-          console.error('Error!', error)
+          console.error('Error al guardar los resultados!', error)
         })
+    },
+    onValidateResultado (action) {
+      const camposConErrores = this.camposResulado.filter(campo => campo.resultado === '' || campo.resultado == null)
+      if (camposConErrores.length > 0) {
+        this.alertErrorText = 'Revisa que todos los campos de resultado estén llenos.'
+        this.showAlertError()
+        return
+      }
+      this.onSaveResultados()
     },
     verResultado (id) {
       this.$refs['modal-ver-resultados'].show()
-      console.log(id)
       this.apiBaseResultado = apiUrl + `/detalleExamenRealizado/list?id=${id}`
     },
     realizarBusquedaResultado () {
