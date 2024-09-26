@@ -126,15 +126,27 @@
               </b-table>
               <h6>
                 NIT: {{nitFact}}
+                <div v-if="nitFact===''">
+                  <b-input id="nitFact" ref="nitFact" v-model="nitFact" />
+                </div>
               </h6>
               <h6>
                 Número: {{numeroFact}}
+                <div v-if="numeroFact===''">
+                  <b-input id="numeroFact" ref="numeroFact" v-model="numeroFact" />
+                </div>
               </h6>
               <h6>
                 Serie: {{serieFact}}
+                <div v-if="serieFact===''">
+                  <b-input id="serieFact" ref="serieFact" v-model="serieFact" />
+                </div>
               </h6>
               <h6>
                 Referencia: {{referenciaFact}}
+                <div v-if="referenciaFact===''">
+                  <b-input id="referenciaFact" ref="referenciaFact" v-model="referenciaFact" />
+                </div>
               </h6>
               <b-row>
                 <b-col cols="12" class="text-center">
@@ -142,6 +154,9 @@
                     <div v-if="base64Images[0].length > 0">
                       <h6>Imagen:</h6>
                       <img :src="base64Images" alt="Preview" class="img-preview"/>
+                    </div>
+                    <div v-else>
+
                     </div>
                   </div>
                 </b-col>
@@ -154,10 +169,15 @@
         </div>
       </template>
       <template #modal-footer="{}">
-        <b-button variant="primary" @click="
+        <b-button v-if="HasFact===0" variant="primary" @click="
           createFact()
         "
-          >Aceptar</b-button
+          >Guardar factura</b-button
+        >
+        <b-button v-if="HasFact===1 && (nitFact === '' || numeroFact === '' || serieFact === '' || referenciaFact === '')" variant="primary" @click="
+          updateFact()
+        "
+          >Guardar cambios</b-button
         >
         <b-button variant="danger" @click="$bvModal.hide('modal-2-account')"
           >Cancelar</b-button
@@ -516,6 +536,8 @@ export default {
       this.nitFact = ''
       this.numeroFact = ''
       this.serieFact = ''
+      this.referenciaFact = ''
+      this.imagen = ''
       this.HasFact = 0
       this.base64Images = []
       if (this.factsList.find(e => e.id_cuenta_hospital === data.id)) {
@@ -532,6 +554,7 @@ export default {
         this.HasFact = 0
         console.log('NOOOOOOOOOOOOTHASFACCCCCTS :(')
       }
+      console.log(this.HasFact)
       this.form.name = data.nombres
       this.form.apellidos = data.apellidos
       this.form.state = data.estado
@@ -667,6 +690,42 @@ export default {
       me.$refs.vuetable.refresh()
       me.$refs['modal-2-account'].hide()
       this.getFacts()
+    },
+    updateFact () {
+      let me = this
+      axios.post(apiUrl + '/facturas/update',
+        {
+          nit: this.nitFact,
+          id_cuenta_laboratoio: 0,
+          id_cuenta_hospital: this.form.id,
+          imagen: this.base64Images ? this.base64Images : '',
+          numero: this.numeroFact,
+          serie: this.serieFact,
+          referencia_factura: this.referenciaFact
+        })
+        .then(
+          this.selectedAccount = null,
+          this.paymentType.Efectivo = 0,
+          this.paymentType.Tarjeta = 0,
+          this.paymentType.Deposito = 0,
+          this.paymentType.Cheque = 0,
+          this.paymentType.Seguro = 0,
+          this.paymentType.transferencia = 0,
+          this.paymentSum = 0,
+          this.selectAssurance = null
+        )
+        .catch((error) => {
+          me.alertVariant = 'danger'
+          me.showAlertError()
+          me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+          console.error('There was an error!', error)
+        })
+      me.alertVariant = 'info'
+      me.showAlert()
+      me.alertText = 'Se ha guardado la factura exitosamente'
+      me.$refs.vuetable.refresh()
+      this.getFacts()
+      me.$refs['modal-2-account'].hide()
     },
     getFacts () {
       axios.get(apiUrl + '/facturas/getList')
