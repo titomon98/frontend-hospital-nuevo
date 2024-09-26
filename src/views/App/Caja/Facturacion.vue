@@ -150,14 +150,28 @@
               </h6>
               <b-row>
                 <b-col cols="12" class="text-center">
-                  <div v-if="base64Images.length">
-                    <div v-if="base64Images[0].length > 0">
-                      <h6>Imagen:</h6>
-                      <img :src="base64Images" alt="Preview" class="img-preview"/>
-                    </div>
-                    <div v-else>
-
-                    </div>
+                  <div v-if="emptyImage===0">
+                    <h6>Imagen:</h6>
+                    <img :src="base64Images" alt="Preview" class="img-preview"/>
+                  </div>
+                  <div v-else>
+                    <b-form-group label="File">
+                      <b-form-file
+                        v-model="images"
+                        accept="image/*"
+                        multiple
+                        placeholder="Subir una imagen..."
+                        drop-placeholder="Suelta una imagen aquí..."></b-form-file>
+                        <b-alert variant="danger" v-if="errorImage" dismissible>{{ errorImage }}</b-alert>
+                    </b-form-group>
+                    <b-row>
+                      <b-col cols="12" class="text-center">
+                        <div v-if="base64Images.length">
+                          <h5>Imagen:</h5>
+                          <img :src="base64Images" alt="Preview" class="img-preview"/>
+                        </div>
+                      </b-col>
+                    </b-row>
                   </div>
                 </b-col>
               </b-row>
@@ -174,7 +188,7 @@
         "
           >Guardar factura</b-button
         >
-        <b-button v-if="HasFact===1 && (nitFact === '' || numeroFact === '' || serieFact === '' || referenciaFact === '')" variant="primary" @click="
+        <b-button v-if="HasFact===1 && (nitFact === '' || numeroFact === '' || serieFact === '' || referenciaFact === '' || emptyImage === 1)" variant="primary" @click="
           updateFact()
         "
           >Guardar cambios</b-button
@@ -326,6 +340,7 @@ export default {
   },
   data () {
     return {
+      emptyImage: 1,
       base64Images: [],
       images: [],
       HasFact: 0,
@@ -540,6 +555,7 @@ export default {
       this.imagen = ''
       this.HasFact = 0
       this.base64Images = []
+      this.emptyImage = 1
       if (this.factsList.find(e => e.id_cuenta_hospital === data.id)) {
         const elementFound = this.factsList.find(e => e.id_cuenta_hospital === data.id)
         this.HasFact = 1
@@ -548,13 +564,15 @@ export default {
         this.serieFact = elementFound.serie
         this.referenciaFact = elementFound.referencia_factura
         this.base64Images[0] = elementFound.imagen
-        console.log(elementFound)
+        if (elementFound.imagen !== '') {
+          this.emptyImage = 0
+        }
+        console.log(this.emptyImage)
         console.log('HASFACCCCCTS :)')
       } else {
         this.HasFact = 0
         console.log('NOOOOOOOOOOOOTHASFACCCCCTS :(')
       }
-      console.log(this.HasFact)
       this.form.name = data.nombres
       this.form.apellidos = data.apellidos
       this.form.state = data.estado
