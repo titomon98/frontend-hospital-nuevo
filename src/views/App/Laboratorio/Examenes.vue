@@ -48,7 +48,7 @@
                 </template>
 
                 <template slot="selected-option" slot-scope="option">
-                  {{ option.nombres + ', ' + (option.apellidos || '') }}
+                  {{ option.nombres + ' ' + (option.apellidos || '') }}
                 </template>
               </v-select>
               <b-form-text>
@@ -61,13 +61,9 @@
           <b-col md="3">
             <b-form-group label="CUI:">
               <b-form-input
-                v-model.trim="$v.form.cui.$model"
-                :state="!$v.form.cui.$error"
+                v-model.trim="form.cui"
                 placeholder="Ingresar CUI paciente"
               ></b-form-input>
-              <div v-if="$v.form.cui.required.$invalid" class="invalid-feedback">
-                Debe ingresar el CUI
-              </div>
             </b-form-group>
           </b-col>
           <b-col md="3">
@@ -85,6 +81,7 @@
           <b-col md="3">
             <b-form-group label="Total:">
               <b-form-input
+                disabled
                 v-model.trim="$v.form.total.$model"
                 :state="!$v.form.total.$error"
                 placeholder="Ingresar el total"
@@ -97,13 +94,9 @@
           <b-col md="3">
             <b-form-group label="Correo Electronico:">
               <b-form-input
-                v-model.trim="$v.form.correo.$model"
-                :state="!$v.form.correo.$error"
+                v-model.trim="form.correo"
                 placeholder="Debe ingresar el correo electronico"
               ></b-form-input>
-              <div v-if="$v.form.correo.required.$invalid" class="invalid-feedback">
-                Debe ingresar el correo electronico
-              </div>
             </b-form-group>
           </b-col>
         </b-row>
@@ -146,55 +139,46 @@
           </b-col>
         </b-row>
         <b-row class="ml-2">
-          <b-col md="4">
+          <b-col md="7">
             <div style="text-align: left;">
-              <h3 class="card-title">DATOS DEL EXAMEN</h3>
+              <h3 class="card-title">SELECCIONAR EXAMEN/ES A REALIZAR</h3>
             </div>
           </b-col>
         </b-row>
         <b-row class="ml-2">
           <b-col md="4">
-            <b-form-group label="Encargado:">
-              <v-select
-                name="type"
-                v-model="form.id_encargado"
-                :options="encargados"
-                :filterable="false"
-                placeholder="Seleccione un encargado"
-                @search="onSearchEncargado"
-              >
-                <template v-slot:spinner="{ loading }">
-                  <div v-show="loading">Cargando...</div>
-                </template>
-                <template v-slot:option="option">
-                  {{ 'Nombre: '+ option.nombres }}
-                </template>
-                <template slot="selected-option" slot-scope="option">
-                  {{ 'Nombre: '+ option.nombres }}
-                </template>
-              </v-select>
-            </b-form-group>
-          </b-col>
-          <b-col md="4">
             <b-form-group label="Tipo de Examen:">
-              <v-select
-                name="type"
-                v-model="selectedExamenAlmacenado"
-                :options="examenes_almacenados"
-                :filterable="false"
-                placeholder="Seleccione el Examen"
-                @search="onSearch_id_examenes_almacenados"
+              <div v-if="isLoading">
+              <p>Cargando...</p>
+              </div>
+              <Multiselect
+                v-model="selectedExamenes"
+                :options="examenes_almacenadosBuscar"
+                :multiple="true"
+                :close-on-select="false"
+                :clear-on-select="false"
+                :preserve-search="true"
+                placeholder="Seleccionar exámenes"
+                label="nombre"
+                track-by="id"
+                @search-change="onSearch_id_examenes_almacenados"
+                :pagination="true"
+                :page="currentPageExa"
+                @page-change="onPageChangeExa"
               >
-                <template v-slot:spinner="{ loading }">
-                  <div v-show="loading">Cargando...</div>
-                </template>
-                <template v-slot:option="option">
-                  {{ 'Nombre: '+ option.nombre }}
-                </template>
-                <template slot="selected-option" slot-scope="option">
-                  {{ 'Nombre: '+ option.nombre }}
-                </template>
-              </v-select>
+              <template slot="selection" slot-scope="{ values, search, isOpen }">
+                  <span class="multiselect__single" v-if="values.length &amp;&amp; !isOpen">{{ values.length }}
+                    exámenes seleccionados
+                 </span>
+              </template>
+              </Multiselect>
+              <div>
+                <ul class="selected-options-list" v-if="selectedExamenes.length > 0">
+                  <li v-for="(examen, index) in selectedExamenes" :key="examen.id">
+                    {{ index + 1 }}. {{ examen.nombre }}
+                  </li>
+                </ul>
+              </div>
             </b-form-group>
           </b-col>
         </b-row>
@@ -221,38 +205,22 @@
       >
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
-      <b-form @submit="$event.preventDefault()">
-        <b-row class="ml-2">
-          <b-col md="6">
-            <b-form-group label="Tipo Examen">
-              <v-select
-                name="type"
-                v-model="formResultado.tipo"
-                :options="tipo_examenes"
-                :filterable="false"
-                placeholder="Seleccione el Examen"
-                @search="onSearch_tipoExamen"
-              >
-                <template v-slot:spinner="{ loading }">
-                  <div v-show="loading">Cargando...</div>
-                </template>
-                <template v-slot:option="option">
-                  {{ 'Nombre: '+ option.nombre }}
-                </template>
-                <template slot="selected-option" slot-scope="option">
-                  {{ 'Nombre: '+ option.nombre }}
-                </template>
-              </v-select>
-            </b-form-group>
-          </b-col>
-        </b-row>
-            <b-form-group label="Resultado:">
-              <quill-editor
-              v-model="formResultado.resultado"
-              :options="editorOptions"
-              class="custom-editor">
-            </quill-editor>
-            </b-form-group>
+      <b-form @submit.prevent="onSubmit">
+        <b-table :items="this.camposResulado" :fields="this.fieldsCampos" striped hover small responsive>
+          <template #cell(Nombre)="data">
+            {{ data.item.nombre }}
+          </template>
+          <template #cell(Unidades)="data">
+            {{ data.item.unidades }}
+          </template>
+          <template #cell(resultado)="data">
+            <b-form-input
+              v-model="data.item.resultado"
+              type="text"
+              placeholder="agregar el resultado"
+            ></b-form-input>
+          </template>
+        </b-table>
       </b-form>
       <template #modal-footer="{}">
         <b-button variant="primary" @click="onValidateResultado('save')"
@@ -315,13 +283,14 @@
         <iq-card>
           <template v-slot:headerTitle>
             <div class="center-text">
-              <h3 class="card-title">EXAMENES REALIZADOS</h3>
+              <h3 class="card-title">AREA DE EXAMENES</h3>
             </div>
           </template>
           <template v-slot:headerAction>
             <b-button variant="primary"  v-b-modal.modal_agregar>AGREGAR NUEVO</b-button>
           </template>
           <template v-slot:body>
+            <h4 class="card-title">EXAMENES SOLICITADOS  Y PENDIENTES DE PAGO</h4>
             <div class="row mb-3">
               <div class="col-md-4">
                 <b-form-group label="Fecha Desde:">
@@ -361,7 +330,7 @@
             <template slot="actions" slot-scope="props">
               <b-button-group>
                 <div class="button-container">
-                  <b-button
+                  <!-- <b-button
                     @click="addResultado(props.rowData.id, props.rowData.id_examenes_almacenados)"
                     class="mb-2 button-spacing"
                     size="sm"
@@ -380,7 +349,7 @@
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="success"
-                  >Imprimir Resultado</b-button>
+                  >Imprimir Resultado</b-button> -->
 
                   <b-button
                   @click="mostrarConfirmacionAnulacion(props.rowData.id)"
@@ -390,7 +359,7 @@
                   >Anular Examen</b-button>
                 </div>
               </b-button-group>
-              </template>
+            </template>
             </vuetable>
             <vuetable-pagination-bootstrap
                 ref="pagination"
@@ -399,10 +368,142 @@
           </template>
         </iq-card>
       </b-col>
+      <b-col sm="12">
+        <iq-card>
+          <template v-slot:body>
+            <h4 class="card-title">EXAMENES PAGADOS Y PENDIENTES DE RESULTADO</h4>
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <b-form-group label="Fecha Desde:">
+                  <b-form-input type="date" v-model="fechaDesde"></b-form-input>
+                </b-form-group>
+              </div>
+              <div class="col-md-4">
+                <b-form-group label="Fecha Hasta:">
+                  <b-form-input type="date" v-model="fechaHasta"></b-form-input>
+                </b-form-group>
+              </div>
+              <div class="col-md-4">
+                <b-button variant="primary" @click="realizarBusqueda">Buscar</b-button>
+              </div>
+            </div>
+            <datatable-heading
+              :changePageSize="changePageSizes2"
+              :searchChange="searchChange2"
+              :from="from2"
+              :to="to2"
+              :total="total2"
+              :perPage="perPage2"
+            >
+            </datatable-heading>
+            <vuetable
+              ref="vuetable2"
+              class="table-divided order-with-arrow"
+              :api-url="apiBase2"
+              :query-params="makeQueryParams2"
+              :per-page="perPage2"
+              :reactive-api-url="true"
+              :fields="fields2"
+              pagination-path
+              @vuetable:pagination-data="onPaginationData2"
+            >
+            <!-- Botones -->
+            <template slot="actions" slot-scope="props">
+              <b-button-group>
+                <div class="button-container">
+                 <b-button
+                    @click="addResultado(props.rowData.id, props.rowData.id_examenes_almacenados, props.rowData)"
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="success"
+                  >Agregar resultado</b-button>
+                  <b-button
+                  @click="mostrarConfirmacionAnulacion(props.rowData.id)"
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="danger"
+                  >Anular Examen</b-button>
+                </div>
+              </b-button-group>
+            </template>
+            </vuetable>
+            <vuetable-pagination-bootstrap
+                ref="pagination2"
+                @vuetable-pagination:change-page="onChangePage2"
+              />
+          </template>
+        </iq-card>
+      </b-col>
+      <b-col sm="12">
+        <iq-card>
+          <template v-slot:body>
+            <h4 class="card-title">EXAMENES REALIZADOS (FINALIZADOS)</h4>
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <b-form-group label="Fecha Desde:">
+                  <b-form-input type="date" v-model="fechaDesde"></b-form-input>
+                </b-form-group>
+              </div>
+              <div class="col-md-4">
+                <b-form-group label="Fecha Hasta:">
+                  <b-form-input type="date" v-model="fechaHasta"></b-form-input>
+                </b-form-group>
+              </div>
+              <div class="col-md-4">
+                <b-button variant="primary" @click="realizarBusqueda">Buscar</b-button>
+              </div>
+            </div>
+            <datatable-heading
+              :changePageSize="changePageSizes3"
+              :searchChange="searchChange3"
+              :from="from3"
+              :to="to3"
+              :total="total3"
+              :perPage="perPage3"
+            >
+            </datatable-heading>
+            <vuetable
+              ref="vuetable3"
+              class="table-divided order-with-arrow"
+              :api-url="apiBase3"
+              :query-params="makeQueryParams3"
+              :per-page="perPage3"
+              :reactive-api-url="true"
+              :fields="fields3"
+              pagination-path
+              @vuetable:pagination-data="onPaginationData3"
+            >
+            <!-- Botones -->
+            <template slot="actions" slot-scope="props">
+              <b-button-group>
+                <div class="button-container">
+                  <b-button
+                    @click="verResultado(props.rowData.id)"
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="dark"
+                  >Ver resultado</b-button>
+
+                  <b-button
+                    @click="ImprimirResultado(props.rowData.id)"
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="success"
+                  >Imprimir Resultado</b-button>
+                </div>
+              </b-button-group>
+              </template>
+            </vuetable>
+            <vuetable-pagination-bootstrap
+                ref="pagination3"
+                @vuetable-pagination:change-page="onChangePage3"
+              />
+          </template>
+        </iq-card>
+      </b-col>
     </b-row>
   </b-container>
 </template>
-
 <script>
 import { xray } from '../../../config/pluginInit'
 import IqCard from '../../../components/xray/cards/iq-card'
@@ -413,10 +514,11 @@ import Vuetable from 'vuetable-2/src/components/Vuetable'
 import VuetablePaginationBootstrap from '../../../components/common/VuetablePaginationBootstrap'
 import axios from 'axios'
 import useVuelidate from '@vuelidate/core'
-import { required, helpers } from '@vuelidate/validators'
-import { quillEditor } from 'vue-quill-editor'
-/* import JsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable' */
+import { required } from '@vuelidate/validators'
+/* import { quillEditor } from 'vue-quill-editor' */
+import Multiselect from 'vue-multiselect'
+import JsPDF from 'jspdf'
+/* import autoTable from 'jspdf-autotable' */
 export default {
   name: 'Examenes',
   components: {
@@ -424,7 +526,8 @@ export default {
     'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
     'datatable-heading': DatatableHeading,
     IqCard,
-    quillEditor
+    /* quillEditor */
+    Multiselect
   },
   setup () {
     return { $v: useVuelidate() }
@@ -452,9 +555,13 @@ export default {
       tipo_examenes: [],
       formResultado: {
         id: null,
-        tipo: '',
-        resultado: null
+        id_campo: '',
+        id_tipo: '',
+        resultado: null,
+        alarma: ''
       },
+      camposResulado: [],
+      campos: [],
       id_ver_Resultado: null,
       fromResultado: 0,
       toResultado: 0,
@@ -484,8 +591,31 @@ export default {
           dataClass: 'list-item-heading'
         }
       ],
-
+      fieldsCampos: [
+        {
+          name: 'nombre',
+          sortField: 'nombre',
+          title: 'Prueba',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'unidades',
+          sortField: 'unidades',
+          title: 'Unidades',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'resultado',
+          sortField: 'resultado',
+          title: 'Resultado',
+          dataClass: 'list-item-heading'
+        }
+      ],
+      isLoading: false,
       examenes_almacenados: [],
+      examenes_almacenadosBuscar: [],
+      selectedExamenes: [],
+      currentPageExa: 1,
       expedientesExamenes: [],
       selectedExpediente: null,
       selectedExamenAlmacenado: null,
@@ -508,7 +638,8 @@ export default {
         id_encargado: null,
         pagado: 0,
         por_pagar: 0,
-        id_examenes_almacenados: null
+        id_examenes_almacenados: null,
+        NewExpediente: false
       },
 
       alertSecs: 5,
@@ -526,6 +657,18 @@ export default {
       fechaDesde: null,
       fechaHasta: null,
       apiBase: apiUrl + '/Examenes_realizados/list',
+      apiBase2: apiUrl + '/Examenes_realizados/list2',
+      apiBase3: apiUrl + '/Examenes_realizados/list3',
+      from2: 0,
+      to2: 0,
+      total2: 0,
+      perPage2: 5,
+      search2: '',
+      from3: 0,
+      to3: 0,
+      total3: 0,
+      perPage3: 5,
+      search3: '',
       slickOptions: {
         centerMode: false,
         centerPadding: '60px',
@@ -617,15 +760,118 @@ export default {
           title: 'Fecha y Hora',
           dataClass: 'list-item-heading'
         }
+      ],
+      fields2: [
+        {
+          name: '__slot:actions',
+          title: 'Acciones',
+          titleClass: '',
+          dataClass: 'text-muted'
+        },
+        {
+          name: 'nombre',
+          sortField: 'nombre',
+          title: 'Nombre',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'cui',
+          sortField: 'cui',
+          title: 'CUI',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'total',
+          sortField: 'total',
+          title: 'Total a Pagar',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'whatsapp',
+          sortField: 'whatsapp',
+          title: 'Celular',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'numero_muestra',
+          sortField: 'numero_muestra',
+          title: 'Numero de Muestra',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'nombre_encargago',
+          sortField: 'nombre_encargago',
+          title: 'Nombre de Encargado',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'pagado',
+          sortField: 'pagado',
+          title: 'Pagado',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'por_pagar',
+          sortField: 'por_pagar',
+          title: 'Por Pagar',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'nombre_examen',
+          sortField: 'nombre_examen',
+          title: 'Examen Realizado',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'fecha_hora',
+          sortField: 'fecha_hora',
+          title: 'Fecha y Hora',
+          dataClass: 'list-item-heading'
+        }
+      ],
+      fields3: [
+        {
+          name: '__slot:actions',
+          title: 'Acciones',
+          titleClass: '',
+          dataClass: 'text-muted'
+        },
+        {
+          name: 'nombre',
+          sortField: 'nombre',
+          title: 'Nombre',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'whatsapp',
+          sortField: 'whatsapp',
+          title: 'Celular',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'numero_muestra',
+          sortField: 'numero_muestra',
+          title: 'Numero de Muestra',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'nombre_examen',
+          sortField: 'nombre_examen',
+          title: 'Examen Realizado',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'fecha_hora',
+          sortField: 'fecha_hora',
+          title: 'Fecha y Hora',
+          dataClass: 'list-item-heading'
+        }
       ]
     }
   },
   validations () {
     return {
       form: {
-        nombre: {
-          contieneComa: helpers.withMessage('El nombre y apellido deben estar separados por una coma', (value) => value.includes(','))
-        },
         cui: { required },
         comision: { required },
         total: { required },
@@ -640,29 +886,31 @@ export default {
   },
   watch: {
     selectedExpediente (newValue) {
-      if (newValue) {
+      if (newValue.cui) {
+        this.form.nombre = newValue.nombres + ' ' + newValue.apellidos
         this.form.cui = newValue.cui
         this.form.whatsapp = newValue.telefono
-      }
-      if (!newValue || newValue.nombres === this.form.nombre) {
-        const [nombres, apellidos] = this.form.nombre.split(',').map(str => str.trim())
-        this.form.nombre = nombres.toUpperCase()
-        this.form.apellidos = apellidos ? apellidos.toUpperCase() : ''
+        this.form.id_expediente = newValue.id
       } else {
-        this.$v.form.nombre.$touch()
+        const [nombres, apellidos] = newValue.nombres.split(',').map(str => str.trim())
+        this.form.nombre = nombres.toUpperCase()
+        this.form.apellido = apellidos ? apellidos.toUpperCase() : ''
+        this.form.NewExpediente = true
 
         if (!this.$v.form.nombre.$error) {
-          const [nombres, apellidos] = this.form.nombre.split(',').map(str => str.trim())
+          const [nombres, apellidos] = newValue.nombres.split(',').map(str => str.trim())
           this.form.nombre = nombres.toUpperCase()
-          this.form.apellidos = apellidos ? apellidos.toUpperCase() : ''
+          this.form.apellido = apellidos ? apellidos.toUpperCase() : ''
+          this.form.NewExpediente = true
         }
       }
     },
-    selectedExamenAlmacenado (newValue) {
-      console.log(newValue)
+    selectedExamenes (newValue) {
       if (newValue) {
-        this.TotalAPagar = newValue.precio_normal
-        this.form.total = newValue.precio_normal
+        this.TotalAPagar = newValue.reduce((total, examen) => parseFloat(total) + parseFloat(examen.precio_normal), 0)
+        this.form.total = this.TotalAPagar
+        this.form.id_examenes_almacenados = newValue.map(examen => examen.id)
+        this.form.por_pagar = this.TotalAPagar
       } else {
         console.log('ERROR AL CARGAR EL TOTAL A PAGAR EN LA FUNCION WATCH')
       }
@@ -684,7 +932,7 @@ export default {
           this.form.numero_muestra = ''
           this.form.existencia_actual = 0
           this.form.referido = ''
-          this.form.id_encargago = null
+          this.form.id_encargado = null
           this.form.pagado = 0
           this.form.por_pagar = 0
           this.form.id_examenes_almacenados = null
@@ -692,6 +940,11 @@ export default {
           this.expedientesExamenes = []
           this.selectedExpediente = null
           this.encargados = []
+          this.TotalAPagar = 0
+          this.isLoading = false
+          this.selectedExamenes = []
+          this.currentPageExa = 1
+          this.examenes_almacenadosBuscar = []
           break
         }
         case 'resultado': {
@@ -731,7 +984,6 @@ export default {
     /* ACTUALIZAR ESTADO */
     anular (id) {
       const me = this
-      console.log(id)
       const ruta = apiUrl + `/Examenes_realizados/update?id=${id}`
       axios.put(ruta, {
         form: me.anularExamen
@@ -812,22 +1064,27 @@ export default {
       })
     },
     onSearch_id_examenes_almacenados (search, loading) {
-      if (search.length) {
-        loading(true)
-        this.searching_id_examenes_almacenados(search, loading)
+      this.isLoading = true
+      const params = {
+        search: search,
+        page: this.currentPageExa,
+        perPage: this.$refs.vuetable.perPage
       }
+
+      axios.get(apiUrl + '/examenesAlmacenadosBuscar/getSearch', { params })
+        .then((response) => {
+          this.examenes_almacenadosBuscar = response.data.data
+          this.$refs.vuetableBuscar.setData(response.data)
+          this.isLoading = false
+        })
+        .catch((error) => {
+          console.error('Error al buscar exámenes:', error)
+          this.isLoading = false
+        })
     },
-    searching_id_examenes_almacenados (search, loading) {
-      axios.get(apiUrl + '/examenesAlmacenados/getSearch',
-        {
-          params: {
-            search: search
-          }
-        }
-      ).then((response) => {
-        this.examenes_almacenados = response.data
-        loading(false)
-      })
+    onPageChangeExa (page) {
+      this.currentPageExa = page
+      this.onSearch_id_examenes_almacenados('')
     },
     onSearchEncargado (search, loading) {
       if (search.length) {
@@ -860,7 +1117,7 @@ export default {
     },
     makeQueryParams (sortOrder, currentPage, perPage) {
       return {
-        criterio: sortOrder[0] ? sortOrder[0].sortField : 'createdAt',
+        criterio: sortOrder[0] ? sortOrder[0].sortField : 'updatedAt',
         order: sortOrder[0] ? sortOrder[0].direction : 'desc',
         page: currentPage,
         limit: this.perPage,
@@ -894,11 +1151,82 @@ export default {
       this.$refs.vuetable.changePage(page)
     },
 
+    makeQueryParams2 (sortOrder2, currentPage2, perPage2) {
+      return {
+        criterio: sortOrder2[0] ? sortOrder2[0].sortField : 'updatedAt',
+        order: sortOrder2[0] ? sortOrder2[0].direction : 'desc',
+        page: currentPage2,
+        limit: this.perPage2,
+        search: this.search2,
+        fechaDesde: this.fechaDesde ? moment(this.fechaDesde).format('YYYY-MM-DD') : null,
+        fechaHasta: this.fechaHasta ? moment(this.fechaHasta).format('YYYY-MM-DD') : null
+      }
+    },
+    changePageSizes2 (perPage) {
+      this.perPage2 = perPage
+      this.$refs.vuetable2.refresh()
+    },
+    searchChange2 (val) {
+      this.search2 = val.toLowerCase()
+      this.$refs.vuetable2.refresh()
+    },
+    onPaginationData2 (paginationData) {
+      this.from2 = paginationData.from
+      this.to2 = paginationData.to
+      this.total2 = paginationData.total
+      this.lastPage2 = paginationData.last_page
+      this.items2 = paginationData.data.map(item => {
+        item.fecha_hora = moment(item.fecha_hora).format('DD/MM/YYYY HH:mm')
+        return {
+          fecha_hora: item.fecha_hora
+        }
+      })
+      this.$refs.pagination2.setPaginationData(paginationData)
+    },
+    onChangePage2 (page) {
+      this.$refs.vuetable2.changePage(page)
+    },
+    makeQueryParams3 (sortOrder3, currentPage3, perPage3) {
+      return {
+        criterio: sortOrder3[0] ? sortOrder3[0].sortField : 'updatedAt',
+        order: sortOrder3[0] ? sortOrder3[0].direction : 'desc',
+        page: currentPage3,
+        limit: this.perPage3,
+        search: this.search3,
+        fechaDesde: this.fechaDesde ? moment(this.fechaDesde).format('YYYY-MM-DD') : null,
+        fechaHasta: this.fechaHasta ? moment(this.fechaHasta).format('YYYY-MM-DD') : null
+      }
+    },
+    changePageSizes3 (perPage) {
+      this.perPage3 = perPage
+      this.$refs.vuetable3.refresh()
+    },
+    searchChange3 (val) {
+      this.search3 = val.toLowerCase()
+      this.$refs.vuetable3.refresh()
+    },
+    onPaginationData3 (paginationData) {
+      this.from3 = paginationData.from
+      this.to3 = paginationData.to
+      this.total3 = paginationData.total
+      this.lastPage3 = paginationData.last_page
+      this.items3 = paginationData.data.map(item => {
+        item.fecha_hora = moment(item.fecha_hora).format('DD/MM/YYYY HH:mm')
+        return {
+          fecha_hora: item.fecha_hora
+        }
+      })
+      this.$refs.pagination3.setPaginationData(paginationData)
+    },
+    onChangePage3 (page) {
+      this.$refs.vuetable3.changePage(page)
+    },
+
     /* AREA PARA AGREGAR, VER E IMPRIMIR RESULTADOS */
 
-    /* generarPDF () {
-      const data = this.itemsResultado
-      const Doc = new jsPDF()
+    generarPDF (Data) {
+      const data = Data
+      const Doc = new JsPDF()
       Doc.setFontSize(12)
       Doc.text('Resultados del Examen', 10, 10)
       Doc.line(10, 15, 200, 15)
@@ -917,52 +1245,85 @@ export default {
         }
       })
       window.open(Doc.output('bloburl'), '_blank')
-    }, */
+    },
 
     ImprimirResultado (id) {
-      console.log(id)
-      this.apiBaseResultado = apiUrl + `/detalleExamenRealizado/list?id=${id}`
-      // this.generarPDF()
+      this.apiBaseResultado = apiUrl + `/detalleExamenRealizado/get?id=${id}`
+      /* AQUI LLAMAR POR MEDIO DE AXIOS A LA RUTA  PARA LLENAR LA VARIABLE */
+      axios.get(this.apiBaseResultado)
+        .then((response) => {
+          this.apiBaseResultado = response.data
+          this.generarPDF(this.apiBaseResultado)
+        })
+        .catch((error) => {
+          console.error('Error al obtener los detalles del examen:', error)
+        })
+      /* AL TENER LLENA LA VARIABLE YA SE PUEDE GENERAR PDF */
+      this.generarPDF()
     },
-    onValidateResultado (action) {
-      if (this.formResultado.resultado != null) {
-        console.log(this.formResultado)
-        if (action === 'save') {
-          this.onSaveResultado()
-        } else if (action === 'update') {
-          this.onUpdate()
-        }
-      } else {
-        this.alertErrorText = 'Revisa que todos los campos requeridos esten llenos'
-        this.showAlertError()
-      }
-    },
-    addResultado (id) {
+    addResultado (id, idexamen) {
       this.$refs['modal-add-resultados'].show()
-      console.log(id)
       this.formResultado.id = id
+      this.getFieldsByExamenId(idexamen)
     },
-    onSaveResultado () {
+
+    getFieldsByExamenId (examenId) {
+      axios.get(apiUrl + '/campoLaboratorio/getByExamenId', {
+        params: {
+          id: examenId
+        }
+      })
+        .then((response) => {
+          this.camposResulado = response.data.map(item => ({
+            id: item.id,
+            nombre: item.nombre,
+            unidades: item.unidades,
+            resultado: '',
+            id_tipo: item.id_examenes_almacenados
+          }))
+          const campos = response.data
+          this.campos = campos
+        })
+        .catch((error) => {
+          console.error('Error al obtener los campos del examen:', error)
+        })
+    },
+    onSaveResultados () {
       const me = this
-      axios.post(apiUrl + '/detalleExamenRealizado/create', {
-        form: me.formResultado })
+      const resultados = this.camposResulado.map(campo => ({
+        id: me.formResultado.id,
+        id_campo: campo.id,
+        id_tipo: campo.id_tipo,
+        resultado: campo.resultado
+      }))
+
+      axios.post(apiUrl + '/detalleExamenRealizado/create', { resultados })
         .then((response) => {
           me.alertVariant = 'success'
           me.showAlert()
-          me.alertText = 'Se ingresado el resultado del examen' + me.formResultado.tipo + ' exitosamente'
-          me.$refs.vuetable.refresh()
+          me.alertText = 'Se han ingresado los resultados de los exámenes exitosamente'
+          me.$refs.vuetable2.refresh()
+          me.$refs.vuetable3.refresh()
           me.closeModal('resultado')
         })
         .catch((error) => {
           me.alertVariant = 'danger'
           me.showAlertError()
           me.alertErrorText = error.response.data.msg
-          console.error('Error!', error)
+          console.error('Error al guardar los resultados!', error)
         })
+    },
+    onValidateResultado (action) {
+      const camposConErrores = this.camposResulado.filter(campo => campo.resultado === '' || campo.resultado == null)
+      if (camposConErrores.length > 0) {
+        this.alertErrorText = 'Revisa que todos los campos de resultado estén llenos.'
+        this.showAlertError()
+        return
+      }
+      this.onSaveResultados()
     },
     verResultado (id) {
       this.$refs['modal-ver-resultados'].show()
-      console.log(id)
       this.apiBaseResultado = apiUrl + `/detalleExamenRealizado/list?id=${id}`
     },
     realizarBusquedaResultado () {
@@ -1050,4 +1411,35 @@ background-color: #f9f9f9; /* Color de fondo más claro para filas alternas */
   color: #333; /* Adjust the color value to make the text darker */
 }
 
+/* Estilos para el Multiselect */
+.multiselect {
+  border: 1px solid #ced4da; /* Borde gris claro */
+  border-radius: 4px;
+  padding: 0.375rem 0.75rem; /* Espaciado interno */
+}
+
+.multiselect__tags {
+  background-color: #f8f9fa; /* Fondo gris muy claro */
+  border-radius: 4px;
+  padding: 0.25rem;
+}
+
+.multiselect__tag {
+  background-color: #e2e3e5; /* Fondo gris claro para las etiquetas */
+  color: #343a40; /* Texto oscuro */
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  margin-right: 0.25rem;
+}
+
+.multiselect__tag-icon:focus,
+.multiselect__tag-icon:hover {
+  background-color: #c82333; /* Rojo al pasar el mouse o enfocar */
+}
+
+/* Estilos para la lista de opciones seleccionadas */
+.selected-options-list {
+  list-style: decimal; /* Números en la lista */
+  padding-left: 1.5rem;
+}
 </style>

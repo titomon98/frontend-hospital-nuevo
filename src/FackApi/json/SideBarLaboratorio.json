@@ -67,8 +67,8 @@
     ]
   },
   {
-    "title": "Exámenes realizados",
-    "name": "Exámenes realizados",
+    "title": "Exámenes",
+    "name": "Exámenes",
     "is_heading": false,
     "is_active": false,
     "link": {
