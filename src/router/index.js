@@ -163,6 +163,7 @@ import Equipo from '../views/App/Laboratorio/Inventario/Equipo.vue'
 // Encargados
 import Encargados from '../views/App/Laboratorio/Encargados.vue'
 import Facturacion from '../views/App/Caja/Facturacion.vue'
+import FacturacionLab from '../views/App/Laboratorio/Caja/FacturacionLab.vue'
 import HospitalizacionEnfermeras from '../views/App/Enfermeria/HospitalizacionEnfermeras/HospitalizacionEnfermeras.vue'
 
 Vue.use(VueRouter)
@@ -179,6 +180,12 @@ const LaboratorioRoutes = (prop, mode) => [
     name: prop + '.cuentas',
     meta: { dark: mode, auth: true, name: 'cuentas' },
     component: CuentasParentLaboratorio
+  },
+  {
+    path: 'facturacion',
+    name: prop + '.facturacion',
+    meta: { dark: mode, auth: true, name: 'facturacion' },
+    component: FacturacionLab
   },
   {
     path: 'examenes',

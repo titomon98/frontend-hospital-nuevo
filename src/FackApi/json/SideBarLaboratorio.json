@@ -52,6 +52,17 @@
         "class_name": "",
         "is_icon_class": true,
         "icon": "ri-shopping-cart-fill"
+      },
+      {
+        "title": "Facturación",
+        "name": "Facturación",
+        "is_active": false,
+        "link": {
+          "name" : "laboratorio.facturacion"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-shopping-cart-fill"
       }
     ]
   },
