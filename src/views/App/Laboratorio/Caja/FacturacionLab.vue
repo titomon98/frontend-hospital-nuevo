@@ -58,7 +58,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-2-account" ref="modal-2-account" title="Pagar cuenta" size="xl">
+    <b-modal id="modal-2-account" ref="modal-2-account" title="Guardar Factura" size="xl">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -69,8 +69,8 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <template>
-        <div>
-          <h6>Cuentas activas para {{this.form.nombres}} {{this.form.apellidos}}</h6>
+        <div v-if = "HasFact==0">
+          <h6>Generar factura</h6>
           <b-card>
             <b-card-body>
               <b-table
@@ -81,52 +81,100 @@
                 selectable
               >
               </b-table>
-              <b-form-group label="Seleccione métodos para pagar:" v-slot="{ ariaDescribedby }">
-                <b-form-checkbox-group
-                  id="checkbox-group-1"
-                  v-model="selectedPayment"
-                  :options="paymentOptions"
-                  :aria-describedby="ariaDescribedby"
-                  name="flavour-1"
-                ></b-form-checkbox-group>
+              nit
+              <b-input id="nitFact" ref="nitFact" v-model="nitFact" />
+              Número
+              <b-input id="numeroFact" ref="numeroFact" v-model="numeroFact" />
+              Serie
+              <b-input id="serieFact" ref="serieFact" v-model="serieFact" />
+              Referencia
+              <b-input id="referenciaFact" ref="referenciaFact" v-model="referenciaFact" />
+              <b-form-group label="File">
+                <b-form-file
+                  v-model="images"
+                  accept="image/*"
+                  multiple
+                  placeholder="Subir una imagen..."
+                  drop-placeholder="Suelta una imagen aquí..."></b-form-file>
+                  <b-alert variant="danger" v-if="errorImage" dismissible>{{ errorImage }}</b-alert>
               </b-form-group>
-              <div v-if="selectedPayment.indexOf(1) !== -1">
-                Efectivo
-                <b-input :type="'number'" id="CashTypeInput" ref="CashTypeInput" v-model="paymentType.Efectivo" />
-              </div>
-              <div v-if="selectedPayment.indexOf(2) !== -1">
-                Tarjeta
-                <b-input :type="'number'" id="CardTypeInput" ref="CardTypeInput" v-model="paymentType.Tarjeta" />
-              </div>
-              <div v-if="selectedPayment.indexOf(3) !== -1">
-                Depósito
-                <b-input :type="'number'" id="DepositTypeInput" ref="DepositTypeInput" v-model="paymentType.Deposito" />
-              </div>
-              <div v-if="selectedPayment.indexOf(4) !== -1">
-                Cheque
-                <b-input :type="'number'" id="CheckTypeInput" ref="CheckTypeInput" v-model="paymentType.Cheque" />
-              </div>
-              <div v-if="selectedPayment.indexOf(5) !== -1">
-                Seguro
-                <b-input :type="'number'" id="InsuranceTypeInput" ref="InsuranceTypeInput" v-model="paymentType.Seguro" />
-                Seleccione un seguro
-                <v-select
-                  ref="selectAssurance"
-                  v-model="selectAssurance"
-                  :options="assurances"
-                  label="no_poliza"
-                  value="id"></v-select>
-              </div>
-              <div v-if="selectedPayment.indexOf(6) !== -1">
-                Transferencia
-                <b-input :type="'number'" id="InsuranceTypeInput" ref="InsuranceTypeInput" v-model="paymentType.Transferencia" />
-              </div>
-              <div>
-                <strong> TOTAL INGRESADO: {{ parseFloat(this.paymentType.Efectivo) + parseFloat(this.paymentType.Tarjeta) + parseFloat(this.paymentType.Deposito) + parseFloat(this.paymentType.Cheque) + parseFloat(this.paymentType.Seguro) + parseFloat(this.paymentType.Transferencia) }}</strong>
-              </div>
-              <div>
-                <strong> TOTAL A PAGAR: {{ this.totalPayment }}</strong>
-              </div>
+              <b-row>
+                <b-col cols="12" class="text-center">
+                  <div v-if="base64Images.length">
+                    <h5>Imagen:</h5>
+                    <img :src="base64Images" alt="Preview" class="img-preview"/>
+                  </div>
+                </b-col>
+              </b-row>
+            </b-card-body>
+            <div>
+
+            </div>
+          </b-card>
+        </div>
+        <div v-if = "HasFact==1">
+          <h6>Verificar factura</h6>
+          <b-card>
+            <b-card-body>
+              <b-table
+                hover
+                :items="cuentas"
+                :fields="fieldsAccounts"
+                :select-mode="'single'"
+                selectable
+              >
+              </b-table>
+              <h6>
+                NIT: {{nitFact}}
+                <div v-if="nitFact===''">
+                  <b-input id="nitFact" ref="nitFact" v-model="nitFact" />
+                </div>
+              </h6>
+              <h6>
+                Número: {{numeroFact}}
+                <div v-if="numeroFact===''">
+                  <b-input id="numeroFact" ref="numeroFact" v-model="numeroFact" />
+                </div>
+              </h6>
+              <h6>
+                Serie: {{serieFact}}
+                <div v-if="serieFact===''">
+                  <b-input id="serieFact" ref="serieFact" v-model="serieFact" />
+                </div>
+              </h6>
+              <h6>
+                Referencia: {{referenciaFact}}
+                <div v-if="referenciaFact===''">
+                  <b-input id="referenciaFact" ref="referenciaFact" v-model="referenciaFact" />
+                </div>
+              </h6>
+              <b-row>
+                <b-col cols="12" class="text-center">
+                  <div v-if="emptyImage===0">
+                    <h6>Imagen:</h6>
+                    <img :src="base64Images" alt="Preview" class="img-preview"/>
+                  </div>
+                  <div v-else>
+                    <b-form-group label="File">
+                      <b-form-file
+                        v-model="images"
+                        accept="image/*"
+                        multiple
+                        placeholder="Subir una imagen..."
+                        drop-placeholder="Suelta una imagen aquí..."></b-form-file>
+                        <b-alert variant="danger" v-if="errorImage" dismissible>{{ errorImage }}</b-alert>
+                    </b-form-group>
+                    <b-row>
+                      <b-col cols="12" class="text-center">
+                        <div v-if="base64Images.length">
+                          <h5>Imagen:</h5>
+                          <img :src="base64Images" alt="Preview" class="img-preview"/>
+                        </div>
+                      </b-col>
+                    </b-row>
+                  </div>
+                </b-col>
+              </b-row>
             </b-card-body>
             <div>
 
@@ -135,17 +183,22 @@
         </div>
       </template>
       <template #modal-footer="{}">
-        <b-button variant="primary" @click="
-          onPatientQuit()
+        <b-button v-if="HasFact===0" variant="primary" @click="
+          createFact()
         "
-          >Aceptar</b-button
+          >Guardar factura</b-button
+        >
+        <b-button v-if="HasFact===1 && (nitFact === '' || numeroFact === '' || serieFact === '' || referenciaFact === '' || emptyImage === 1)" variant="primary" @click="
+          updateFact()
+        "
+          >Guardar cambios</b-button
         >
         <b-button variant="danger" @click="$bvModal.hide('modal-2-account')"
           >Cancelar</b-button
         >
       </template>
     </b-modal>
-    <b-modal id="modal-3-discount" ref="modal-3-discount" title="Solicitar descuento">
+    <b-modal id="modal-3-bank" ref="modal-3-bank" title="Desactivar banco">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -156,18 +209,17 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6 class="my-4">
-        ¿Desea solicitar un descuento para: {{ form.name }} {{ form.apellidos }} ?
+        ¿Desea desactivar el banco: {{ form.name }} ?
       </h6>
-      Descuento:
-      <b-input :type="'number'" id="discountAmount" ref="discountAmount" v-model="discountAmount" />
       <template #modal-footer="{}">
         <b-button
           type="submit"
           variant="primary"
-          @click="requestDiscount()"
-          >Solicitar</b-button
+          @click="onState()
+                  $bvModal.hide('modal-3-bank')"
+          >Desactivar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-3-discount')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-3-bank')"
           >Cancelar</b-button
         >
       </template>
@@ -202,7 +254,7 @@
       <b-col md="12">
         <iq-card>
             <template v-slot:headerTitle>
-              <h4 class="card-title mt-3">Cuentas por cobrar</h4>
+              <h4 class="card-title mt-3">Mostrar facturas</h4>
                <div class="iq-search-bar mt-2">
                 <b-form action="#" class="searchbox">
                     <b-input id="search" placeholder="Buscar..." @input="(val) => searchChange(val)" />
@@ -233,45 +285,9 @@
               pagination-path
               @vuetable:pagination-data="onPaginationData"
             >
-              <!-- Estado -->
-              <div slot="estado" slot-scope="props">
-                <h5 v-if="props.rowData.estado == 1">
-                  <b-badge variant="light"
-                    ><h6 class="success"><strong>PENDIENTE DE PAGO</strong></h6></b-badge
-                  >
-                </h5>
-                <h5 v-else>
-                  <b-badge variant="light"
-                    ><h6 class="danger"><strong>EN EMERGENCIAS</strong></h6></b-badge
-                  >
-                </h5>
-              </div>
-              <!-- Estado descuento -->
-               <div slot="solicitud_descuento" slot-scope="props">
-                <h5 v-if="props.rowData.solicitud_descuento == 3">
-                  <b-badge variant="light"
-                    ><h6 class="danger"><strong>SIN DESCUENTO</strong></h6></b-badge
-                  >
-                </h5>
-                <h5 v-if="props.rowData.solicitud_descuento == 1">
-                  <b-badge variant="light"
-                    ><h6 class="success"><strong>Q. {{props.rowData.descuento}}</strong></h6></b-badge
-                  >
-                </h5>
-                <h5 v-if="props.rowData.solicitud_descuento == 2">
-                  <b-badge variant="light"
-                    ><h6 class="danger"><strong>PENDIENTE APROBACIÓN</strong></h6></b-badge
-                  >
-                </h5>
-                <h5 v-if="props.rowData.solicitud_descuento == 0">
-                  <b-badge variant="light"
-                    ><h6 class="danger"><strong>SIN DESCUENTO</strong></h6></b-badge
-                  >
-                </h5>
-              </div>
               <!-- Botones -->
               <template slot="actions" slot-scope="props">
-                <div class="button-container" v-if="props.rowData.solicitud_descuento == 3">
+                  <div class="button-container">
                   <b-button
                     @click="
                       setData(props.rowData)
@@ -280,32 +296,7 @@
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="dark"
-                  >Cobrar</b-button>
-                  <b-button
-                    @click="
-                      setData(props.rowData)
-                      $bvModal.show('modal-3-discount')
-                    "
-                    class="mb-2 button-spacing"
-                    size="sm"
-                    variant="success"
-                  >Solicitar descuento</b-button>
-                </div>
-                <div class="button-container" v-else-if="props.rowData.solicitud_descuento == 2">
-                  <b-badge variant="light"
-                    ><h6 class="danger"><strong>EN ESPERA</strong></h6></b-badge
-                  >
-                </div>
-                <div class="button-container" v-else>
-                  <b-button
-                    @click="
-                      setData(props.rowData)
-                      $bvModal.show('modal-2-account')
-                    "
-                    class="mb-2 button-spacing"
-                    size="sm"
-                    variant="dark"
-                  >Cobrar</b-button>
+                  >Mostrar factura</b-button>
                 </div>
               </template>
               <!-- Paginacion -->
@@ -332,7 +323,7 @@ import { apiUrl } from '../../../../config/constant'
 import { mapGetters } from 'vuex'
 
 export default {
-  name: 'CuentasPorCobrarHospital',
+  name: 'Facturacion',
   components: {
     vuetable: Vuetable,
     'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
@@ -343,6 +334,7 @@ export default {
   },
   beforeMount () {
     this.getHabitaciones(0)
+    this.getFacts()
   },
   mounted () {
     xray.index()
@@ -354,6 +346,11 @@ export default {
   },
   data () {
     return {
+      emptyImage: 1,
+      base64Images: [],
+      images: [],
+      HasFact: 0,
+      factsList: [],
       from: 0,
       to: 0,
       total: 0,
@@ -410,7 +407,7 @@ export default {
         { text: 'Hospitalización', value: 1 },
         { text: 'Intensivos', value: 4 }
       ],
-      apiBase: apiUrl + '/cuentas/debtList',
+      apiBase: apiUrl + '/lab_cuentas/payList',
       fields: [
         {
           name: '__slot:actions',
@@ -447,26 +444,6 @@ export default {
           sortField: 'total',
           title: 'Total',
           dataClass: 'list-item-heading'
-        },
-        {
-          name: 'pendiente_de_pago',
-          sortField: 'pendiente_de_pago',
-          title: 'Pendiente de pago',
-          dataClass: 'list-item-heading'
-        },
-        {
-          name: '__slot:estado',
-          title: 'Estado',
-          titleClass: '',
-          dataClass: 'text-muted',
-          width: '25%'
-        },
-        {
-          name: '__slot:solicitud_descuento',
-          title: 'Solicitud descuento',
-          titleClass: '',
-          dataClass: 'text-muted',
-          width: '25%'
         }
       ],
       fieldsAccounts: [
@@ -493,6 +470,15 @@ export default {
       ]
     }
   },
+  watch: {
+    images (newVal) {
+      if (newVal && newVal.length) {
+        this.createBase64Image(newVal)
+      } else {
+        this.base64Images = []
+      }
+    }
+  },
   validations () {
     return {
       form: {
@@ -501,6 +487,28 @@ export default {
     }
   },
   methods: {
+    createBase64Image (FileList) {
+      if (FileList.length > 1) {
+        // this.errorImage = 'Sólo puedes subir 1 imagen'
+        this.images = []
+      } else {
+        this.base64Images = []
+        // this.errorImage = null
+        Array.from(FileList).forEach(file => {
+          if (file.size > 2 * 1024 * 1024) {
+            this.errorImage = 'El tamaño máximo por imagen es de 2MB'
+            this.images = []
+            return
+          }
+          const reader = new FileReader()
+          reader.onload = (event) => {
+            this.base64Images.push(event.target.result)
+          }
+
+          reader.readAsDataURL(file)
+        })
+      }
+    },
     onRowSelected (items) {
       this.selectedAccount = items[0].id
       this.totalPayment = items[0].pendiente_de_pago
@@ -510,7 +518,6 @@ export default {
       switch (modal) {
         case 'save': {
           this.$v.$reset()
-          this.form.id = 0
           this.form.name = ''
           this.form.state = 1
           break
@@ -530,7 +537,6 @@ export default {
         case 'update': {
           this.$v.$reset()
           this.$refs['modal-2-account'].hide()
-          this.form.id = 0
           this.form.name = ''
           this.form.state = 1
           break
@@ -548,8 +554,33 @@ export default {
       }
     },
     setData (data) {
-      this.form.name = data.expediente.nombres
-      this.form.apellidos = data.expediente.apellidos
+      this.nitFact = ''
+      this.numeroFact = ''
+      this.serieFact = ''
+      this.referenciaFact = ''
+      this.imagen = ''
+      this.HasFact = 0
+      this.base64Images = []
+      this.emptyImage = 1
+      if (this.factsList.find(e => e.id_cuenta_hospital === data.id)) {
+        const elementFound = this.factsList.find(e => e.id_cuenta_hospital === data.id)
+        this.HasFact = 1
+        this.nitFact = elementFound.nit
+        this.numeroFact = elementFound.numero
+        this.serieFact = elementFound.serie
+        this.referenciaFact = elementFound.referencia_factura
+        this.base64Images[0] = elementFound.imagen
+        if (elementFound.imagen !== '') {
+          this.emptyImage = 0
+        }
+        console.log(this.emptyImage)
+        console.log('HASFACCCCCTS :)')
+      } else {
+        this.HasFact = 0
+        console.log('NOOOOOOOOOOOOTHASFACCCCCTS :(')
+      }
+      this.form.name = data.nombres
+      this.form.apellidos = data.apellidos
       this.form.state = data.estado
       this.form.id = data.id
       this.form.numero = data.numero
@@ -561,7 +592,7 @@ export default {
       this.totalPayment = data.pendiente_de_pago
       this.totPagado = data.total_pagado
       this.expediente = data.id_expediente
-      this.onLoadAssurances(data.id_expediente)
+
       // this.getCuentas(data.id)
     },
     /* Guardar */
@@ -647,84 +678,86 @@ export default {
           console.log(resp)
         })
     },
-    requestDiscount () {
-      if (this.discountAmount <= 0) {
-        this.alertErrorText = 'El descuento debe ser mayor a 0.00'
-        this.showAlertError()
-      } else if (this.discountAmount > this.totalPayment) {
-        this.alertErrorText = `El descuento debe ser menor a ${this.totalPayment}`
-        this.showAlertError()
-      } else {
-        axios.post(apiUrl + '/cuentas/requestDiscount', {
-          form: {
-            id: this.form.id,
-            solicitud_descuento: 2,
-            descuento: parseFloat(this.discountAmount)
-          }
+    createFact () {
+      let me = this
+      axios.post(apiUrl + '/facturas/create',
+        {
+          nit: this.nitFact,
+          total: this.totPagado,
+          id_cuenta_laboratoio: this.form.id,
+          id_cuenta_hospital: 0,
+          imagen: this.base64Images ? this.base64Images : '',
+          numero: this.numeroFact,
+          serie: this.serieFact,
+          id_usuario: this.expediente,
+          referencia_factura: this.referenciaFact
         })
-          .then((tipo) => {
-            this.discountAmount = 0
-            this.$bvModal.hide('modal-3-discount')
-            this.$refs.vuetable.refresh()
-          }
-          )
-          .catch((error) => {
-            console.error(error)
-          })
-      }
+        .then(
+          this.selectedAccount = null,
+          this.paymentType.Efectivo = 0,
+          this.paymentType.Tarjeta = 0,
+          this.paymentType.Deposito = 0,
+          this.paymentType.Cheque = 0,
+          this.paymentType.Seguro = 0,
+          this.paymentType.transferencia = 0,
+          this.paymentSum = 0,
+          this.selectAssurance = null
+        )
+        .catch((error) => {
+          me.alertVariant = 'danger'
+          me.showAlertError()
+          me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+          console.error('There was an error!', error)
+        })
+      me.alertVariant = 'info'
+      me.showAlert()
+      me.alertText = 'Se ha guardado la factura exitosamente'
+      me.$refs.vuetable.refresh()
+      me.$refs['modal-2-account'].hide()
+      this.getFacts()
     },
-    onPatientQuit () {
-      this.paymentSum = parseFloat(this.paymentType.Efectivo) + parseFloat(this.paymentType.Tarjeta) + parseFloat(this.paymentType.Deposito) + parseFloat(this.paymentType.Cheque) + parseFloat(this.paymentType.Seguro) + parseFloat(this.paymentType.Transferencia)
-      if (this.paymentSum !== parseFloat(this.totalPayment)) {
-        this.alertErrorText = 'El total a pagar no concuerda con el total ingresado'
-        this.showAlertError()
-      } else {
-        let me = this
-        console.log(this.selectedAccount)
-        console.log(this.id_seguro)
-        axios.put(apiUrl + '/cuentas/deactivate',
-          {
-            id: this.selectedAccount,
-            total_pagado: parseFloat(this.totPagado) + parseFloat(this.paymentSum),
-            pendiente_de_pago: parseFloat(parseFloat(this.totalPayment) - parseFloat(this.paymentSum)),
-            efectivo: this.paymentType.Efectivo,
-            tarjeta: this.paymentType.Tarjeta,
-            deposito: this.paymentType.Deposito,
-            cheque: this.paymentType.Cheque,
-            seguro: this.paymentType.Seguro,
-            transferencia: this.paymentType.Transferencia,
-            total: this.paymentSum,
-            id_seguro: this.seguro > 0 ? this.selectAssurance.id : 0,
-            id_expediente: this.expediente,
-            tipo: 'finiquito'
-          })
-          .then(
-            this.selectedAccount = null,
-            this.paymentType.Efectivo = 0,
-            this.paymentType.Tarjeta = 0,
-            this.paymentType.Deposito = 0,
-            this.paymentType.Cheque = 0,
-            this.paymentType.Seguro = 0,
-            this.paymentType.transferencia = 0,
-            this.paymentSum = 0,
-            this.selectAssurance = null
-          )
-          .catch((error) => {
-            console.error(error)
-          })
-        me.alertVariant = 'info'
-        me.showAlert()
-        me.alertText = 'Se ha egresado el paciente ' + me.form.nombres + ' exitosamente'
-        me.$refs.vuetable.refresh()
-        me.$refs['modal-2-account'].hide()
-
-          .catch((error) => {
-            me.alertVariant = 'danger'
-            me.showAlertError()
-            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-            console.error('There was an error!', error)
-          })
-      }
+    updateFact () {
+      let me = this
+      axios.post(apiUrl + '/facturas/update',
+        {
+          nit: this.nitFact,
+          id_cuenta_laboratoio: this.form.id,
+          id_cuenta_hospital: 0,
+          imagen: this.base64Images ? this.base64Images : '',
+          numero: this.numeroFact,
+          serie: this.serieFact,
+          referencia_factura: this.referenciaFact
+        })
+        .then(
+          this.selectedAccount = null,
+          this.paymentType.Efectivo = 0,
+          this.paymentType.Tarjeta = 0,
+          this.paymentType.Deposito = 0,
+          this.paymentType.Cheque = 0,
+          this.paymentType.Seguro = 0,
+          this.paymentType.transferencia = 0,
+          this.paymentSum = 0,
+          this.selectAssurance = null
+        )
+        .catch((error) => {
+          me.alertVariant = 'danger'
+          me.showAlertError()
+          me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+          console.error('There was an error!', error)
+        })
+      me.alertVariant = 'info'
+      me.showAlert()
+      me.alertText = 'Se ha guardado la factura exitosamente'
+      me.$refs.vuetable.refresh()
+      this.getFacts()
+      me.$refs['modal-2-account'].hide()
+    },
+    getFacts () {
+      axios.get(apiUrl + '/facturas/getList')
+        .then(res => {
+          this.factsList = res.data
+          console.log(res)
+        })
     },
     makeQueryParams (sortOrder, currentPage, perPage) {
       return sortOrder[0]
@@ -794,3 +827,14 @@ export default {
   }
 }
 </script>
+<style scoped>
+  .img-preview {
+    max-width: 100%;
+    max-height: 200px;
+    height: auto;
+    margin-top: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: .25rem;
+    transition: opacity 0.3s ease-in-out;
+  }
+</style>

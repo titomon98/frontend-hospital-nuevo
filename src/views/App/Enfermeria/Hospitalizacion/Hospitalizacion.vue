@@ -553,6 +553,7 @@ import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
 import { quillEditor } from 'vue-quill-editor'
 import moment from 'moment'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'Hospitalizacion',
@@ -571,6 +572,11 @@ export default {
   },
   mounted () {
     xray.index()
+  },
+  computed: {
+    ...mapGetters([
+      'currentUser'
+    ])
   },
   data () {
     return {
@@ -1545,7 +1551,8 @@ export default {
           id: this.form.id,
           estado: this.selectedTrasOption,
           estado_anterior: 1,
-          motivo: this.motivoTrasladoHospi
+          motivo: this.motivoTrasladoHospi,
+          user: me.currentUser.user
         })
         .then((response) => {
           me.alertVariant = 'info'

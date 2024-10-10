@@ -620,6 +620,7 @@ import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
 import { quillEditor } from 'vue-quill-editor'
 import moment from 'moment'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'Intensivo',
@@ -638,6 +639,11 @@ export default {
   },
   mounted () {
     xray.index()
+  },
+  computed: {
+    ...mapGetters([
+      'currentUser'
+    ])
   },
   data () {
     return {
@@ -1625,7 +1631,8 @@ export default {
           id: this.form.id,
           estado: this.selectedTrasOption,
           estado_anterior: 4,
-          motivo: this.motivoTrasladoIntensivo
+          motivo: this.motivoTrasladoIntensivo,
+          user: me.currentUser.user
         })
         .then((response) => {
           axios.put(apiUrl + '/habitaciones/available',
