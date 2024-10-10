@@ -341,6 +341,7 @@ import useVuelidate from '@vuelidate/core'
 import { required } from '@vuelidate/validators'
 import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'Reingreso',
@@ -357,6 +358,11 @@ export default {
   },
   mounted () {
     xray.index()
+  },
+  computed: {
+    ...mapGetters([
+      'currentUser'
+    ])
   },
   data () {
     return {
@@ -574,7 +580,8 @@ export default {
           cui_encargado: this.varCuiEncargado,
           parentesco_encargado: this.varParentescoEncargado,
           estado_anterior: 2,
-          habitaciones: habitacion
+          habitaciones: habitacion,
+          user: me.currentUser.user
         })
         .then((response) => {
           me.alertVariant = 'info'

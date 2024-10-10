@@ -835,6 +835,7 @@ import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
 import { quillEditor } from 'vue-quill-editor'
 import moment from 'moment'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'Quirofano',
@@ -1277,7 +1278,10 @@ export default {
   computed: {
     isCirugiaMayorOMedia () {
       return this.salaOperaciones.categoria === 'Cirugia media' || this.salaOperaciones.categoria === 'Cirugia mayor'
-    }
+    },
+    ...mapGetters([
+      'currentUser'
+    ])
   },
 
   watch: {
@@ -2131,7 +2135,8 @@ export default {
           id: this.form.id,
           estado: this.selectedTrasOption,
           estado_anterior: 5,
-          motivo: this.motivoTrasladoEmergencia
+          motivo: this.motivoTrasladoEmergencia,
+          user: me.currentUser.user
         })
         .then((response) => {
           me.alertVariant = 'info'
