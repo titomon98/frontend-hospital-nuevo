@@ -179,6 +179,12 @@
           @click="requestDiscount()"
           >Validar</b-button
         >
+        <b-button
+          type="submit"
+          variant="danger"
+          @click="negateDiscount()"
+          >Negar</b-button
+        >
         <b-button variant="danger" @click="$bvModal.hide('modal-3-discount')"
           >Cancelar</b-button
         >
@@ -654,6 +660,24 @@ export default {
             console.error(error)
           })
       }
+    },
+    negateDiscount () {
+      axios.post(apiUrl + '/cuentas/requestDiscount', {
+        form: {
+          id: this.form.id,
+          solicitud_descuento: 0,
+          descuento: this.discountAmount
+        }
+      })
+        .then((res) => {
+          this.discountAmount = 0
+          this.$bvModal.hide('modal-3-discount')
+          this.$refs.vuetable.refresh()
+        }
+        )
+        .catch((error) => {
+          console.error(error)
+        })
     },
     onPatientQuit () {
       this.paymentSum = parseFloat(this.paymentType.Efectivo) + parseFloat(this.paymentType.Tarjeta) + parseFloat(this.paymentType.Deposito) + parseFloat(this.paymentType.Cheque) + parseFloat(this.paymentType.Seguro) + parseFloat(this.paymentType.Transferencia)
