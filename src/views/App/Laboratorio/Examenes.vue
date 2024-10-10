@@ -241,38 +241,44 @@
       >
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
+
       <vuetable
-          ref="vuetableResultados"
-          class="table-divided table-responsive order-with-arrow"
-          :api-url="apiBaseResultado"
-          :query-params="makeQueryParamsResultado"
-          :per-page="perPageResultado"
-          :reactive-api-url="true"
-          :fields="fieldsResultado"
-          pagination-path
-          @vuetable:pagination-data="onPaginationDataResultado"
-        >
-          <template slot="actions" slot-scope="props">
-            <b-button-group>
-              <b-button
-                v-b-tooltip.top="'Generar PDF'"
-                @click="voucherData(props.rowData)"
-                class="mb-2"
-                size="sm"
-                variant="outline-info"
-                ><i :class="'fas fa-money-bill'"
-              /></b-button>
-            </b-button-group>
-          </template>
-        </vuetable>
-        <vuetable-pagination-bootstrap
-          ref="paginationResultado"
-          @vuetable-pagination:change-page="onChangePageResultado"
-        />
+        ref="vuetableResultados"
+        class="table-divided table-responsive order-with-arrow"
+        :api-url="apiBaseResultado"
+        :query-params="makeQueryParamsResultado"
+        :per-page="perPageResultado"
+        :reactive-api-url="true"
+        :fields="fieldsResultado"
+        pagination-path
+        @vuetable:pagination-data="onPaginationDataResultado"
+      >
+        <template slot-scope="props">
+          <td :class="{ 'text-danger-custom': props.rowData.alarma ===  'SI' }">
+            {{ props.rowData.alarma }}
+          </td>
+        </template>
+        <template slot="actions" slot-scope="props">
+          <b-button-group>
+            <b-button
+              v-b-tooltip.top="'Generar PDF'"
+              @click="voucherData(props.rowData)"
+              class="mb-2"
+              size="sm"
+              variant="outline-info"
+              ><i :class="'fas fa-money-bill'"
+            /></b-button>
+          </b-button-group>
+        </template>
+      </vuetable>
+
+      <vuetable-pagination-bootstrap
+        ref="paginationResultado"
+        @vuetable-pagination:change-page="onChangePageResultado"
+      />
+
       <template #modal-footer="{}">
-        <b-button variant="danger" @click="closeModal('ver-resultado')"
-          >Cerrar</b-button
-        >
+        <b-button variant="danger" @click="closeModal('verresultado')">Cerrar</b-button>
       </template>
     </b-modal>
     <b-modal id="modal-anular-examen" title="Confirmar Anulación" @ok="confirmarAnulacion(examenId)">
@@ -417,12 +423,6 @@
                     size="sm"
                     variant="success"
                   >Agregar resultado</b-button>
-                  <b-button
-                  @click="mostrarConfirmacionAnulacion(props.rowData.id)"
-                    class="mb-2 button-spacing"
-                    size="sm"
-                    variant="danger"
-                  >Anular Examen</b-button>
                 </div>
               </b-button-group>
             </template>
@@ -572,43 +572,29 @@ export default {
       fechaHastaResultado: null,
       apiBaseResultado: '',
       fieldsResultado: [
-        {
-          name: 'tipo',
-          sortField: 'tipo',
-          title: 'TIPO EXAMEN',
-          dataClass: 'list-item-heading'
-        },
-        {
-          name: 'resultados',
-          sortField: 'resultado',
-          title: 'RESULTADO EXAMEN',
-          dataClass: 'list-item-heading'
-        },
-        {
-          name: 'fecha_hora',
-          sortField: 'fecha_hora',
-          title: 'Fecha y Hora',
-          dataClass: 'list-item-heading'
-        }
+        { name: 'campo', title: 'Campo de Examen', sortField: 'campo' },
+        { name: 'tipo_examen', title: 'Tipo de Examen', sortField: 'tipo_examen' },
+        { name: 'resultado', title: 'Resultado', sortField: 'resultado' },
+        { name: 'valor_minimo', title: 'Valor Mínimo', sortField: 'valor_minimo' },
+        { name: 'valor_maximo', title: 'Valor Máximo', sortField: 'valor_maximo' },
+        { name: 'alarma', title: 'Alarma', sortField: 'alarma' },
+        { name: 'fecha_hora', title: 'Fecha y Hora', sortField: 'fecha_hora' }
       ],
       fieldsCampos: [
         {
           name: 'nombre',
-          sortField: 'nombre',
           title: 'Prueba',
-          dataClass: 'list-item-heading'
+          sortField: 'nombre'
         },
         {
           name: 'unidades',
-          sortField: 'unidades',
           title: 'Unidades',
-          dataClass: 'list-item-heading'
+          sortField: 'unidades'
         },
         {
           name: 'resultado',
-          sortField: 'resultado',
           title: 'Resultado',
-          dataClass: 'list-item-heading'
+          sortField: 'resultado'
         }
       ],
       isLoading: false,
@@ -917,6 +903,9 @@ export default {
     }
   },
   methods: {
+    logRowData (rowData) {
+      console.log('Row Data:', rowData.alarma)
+    },
     closeModal (action) {
       switch (action) {
         case 'save': {
@@ -955,8 +944,10 @@ export default {
           this.formResultado.resultado = null
           break
         }
-        case 'ver-resultado': {
+        case 'verresultado': {
+          this.$v.$reset()
           this.$refs['modal-ver-resultados'].hide()
+          break
         }
       }
     },
@@ -1224,7 +1215,7 @@ export default {
 
     /* AREA PARA AGREGAR, VER E IMPRIMIR RESULTADOS */
 
-    generarPDF (Data) {
+    /* generarPDF (Data) {
       const data = Data
       const Doc = new JsPDF()
       Doc.setFontSize(12)
@@ -1245,11 +1236,58 @@ export default {
         }
       })
       window.open(Doc.output('bloburl'), '_blank')
+    }, */
+
+    generarPDF (Data) {
+      const data = Data.map(item => ({
+        campo: item.campo,
+        tipo_examen: item.tipo_examen,
+        resultado: parseFloat(item.resultado).toFixed(2),
+        intervalo: `${parseFloat(item.valor_minimo).toFixed(2)} - ${parseFloat(item.valor_maximo).toFixed(2)}`,
+        alarma: item.alarma !== null ? item.alarma : ''
+      }))
+
+      const doc = new JsPDF()
+
+      doc.setFontSize(12)
+      doc.text('Resultados del Examen', 10, 10)
+      doc.line(10, 15, 200, 15)
+
+      let yPos = 25
+
+      // Encabezados de la tabla
+      const headers = ['Campo', 'Tipo de Examen', 'Resultado', 'Intervalo', 'Alarma']
+      const headerYPos = yPos
+
+      // Dibuja los encabezados
+      headers.forEach((header, index) => {
+        doc.text(header, 10 + (index * 40), headerYPos) // Ajusta el espacio entre columnas
+      })
+
+      // Dibuja las filas de datos
+      data.forEach((item, index) => {
+        yPos += 10 // Espaciado entre filas
+
+        doc.text(item.campo, 10, yPos)
+        doc.text(item.tipo_examen, 55, yPos)
+        doc.text(item.resultado.toString(), 95, yPos)
+        doc.text(item.intervalo, 130, yPos)
+        doc.text(item.alarma, 175, yPos)
+
+        // Verifica si es necesario agregar una nueva página
+        if (yPos >= 260) { // Cambia el valor según el tamaño de página
+          doc.addPage()
+          yPos = 25 // Reinicia la posición
+        }
+      })
+
+      // Abre el PDF generado en una nueva ventana
+      window.open(doc.output('bloburl'), '_blank')
     },
 
-    ImprimirResultado (id) {
+    /* ImprimirResultado (id) {
       this.apiBaseResultado = apiUrl + `/detalleExamenRealizado/get?id=${id}`
-      /* AQUI LLAMAR POR MEDIO DE AXIOS A LA RUTA  PARA LLENAR LA VARIABLE */
+      /* AQUI LLAMAR POR MEDIO DE AXIOS A LA RUTA  PARA LLENAR LA VARIABLE
       axios.get(this.apiBaseResultado)
         .then((response) => {
           this.apiBaseResultado = response.data
@@ -1258,8 +1296,20 @@ export default {
         .catch((error) => {
           console.error('Error al obtener los detalles del examen:', error)
         })
-      /* AL TENER LLENA LA VARIABLE YA SE PUEDE GENERAR PDF */
+      /* AL TENER LLENA LA VARIABLE YA SE PUEDE GENERAR PDF
       this.generarPDF()
+    }, */
+
+    ImprimirResultado (id) {
+      this.apiBaseResultado = apiUrl + `/detalleExamenRealizado/get?id=${id}`
+
+      axios.get(this.apiBaseResultado)
+        .then((response) => {
+          this.generarPDF(response.data)
+        })
+        .catch((error) => {
+          console.error('Error al obtener los detalles del examen:', error)
+        })
     },
     addResultado (id, idexamen) {
       this.$refs['modal-add-resultados'].show()
@@ -1360,7 +1410,8 @@ export default {
         return {
           resultados: item.resultados,
           tipo: item.tipo,
-          fecha_hora: item.fecha_hora
+          fecha_hora: item.fecha_hora,
+          alamar: item.alarma
         }
       })
       this.$refs.paginationResultado.setPaginationData(paginationData)
@@ -1441,5 +1492,9 @@ background-color: #f9f9f9; /* Color de fondo más claro para filas alternas */
 .selected-options-list {
   list-style: decimal; /* Números en la lista */
   padding-left: 1.5rem;
+}
+.text-danger-custom {
+  color: red;
+  font-weight: bold;
 }
 </style>
