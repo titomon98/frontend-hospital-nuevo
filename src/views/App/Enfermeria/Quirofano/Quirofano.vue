@@ -1149,7 +1149,7 @@ export default {
         state: 1,
         movimiento: 'SALIDAQ'
       },
-
+      /* AREA DE EXAMENES */
       examenes_almacenados: [],
       encargados: [],
       formExamen: {
