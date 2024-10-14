@@ -564,7 +564,7 @@ export default {
         this.serieFact = elementFound.serie
         this.referenciaFact = elementFound.referencia_factura
         this.base64Images[0] = elementFound.imagen
-        if (elementFound.imagen !== '') {
+        if (elementFound.imagen !== ' ') {
           this.emptyImage = 0
         }
         console.log(this.emptyImage)
@@ -679,7 +679,7 @@ export default {
           total: this.totPagado,
           id_cuenta_laboratoio: 0,
           id_cuenta_hospital: this.form.id,
-          imagen: this.base64Images ? this.base64Images : '',
+          imagen: this.base64Images ? this.base64Images : ' ',
           numero: this.numeroFact,
           serie: this.serieFact,
           id_usuario: this.expediente,
