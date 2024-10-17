@@ -146,7 +146,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-3-bank" ref="modal-3-bank" title="Desactivar banco">
+    <b-modal id="modal-3-discount" ref="modal-3-discount" title="Solicitar descuento">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -157,17 +157,18 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6 class="my-4">
-        ¿Desea desactivar el banco: {{ form.name }} ?
+        ¿Desea solicitar un descuento para: {{ form.name }} {{ form.apellidos }} ?
       </h6>
+      Descuento:
+      <b-input :type="'number'" id="discountAmount" ref="discountAmount" v-model="discountAmount" />
       <template #modal-footer="{}">
         <b-button
           type="submit"
           variant="primary"
-          @click="onState()
-                  $bvModal.hide('modal-3-bank')"
-          >Desactivar</b-button
+          @click="requestDiscount()"
+          >Solicitar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-3-bank')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-3-discount')"
           >Cancelar</b-button
         >
       </template>
@@ -246,21 +247,67 @@
                   >
                 </h5>
               </div>
+              <!-- Estado descuento -->
+              <div slot="solicitud_descuento" slot-scope="props">
+                <h5 v-if="props.rowData.solicitud_descuento == 3">
+                  <b-badge variant="light"
+                    ><h6 class="danger"><strong>SIN DESCUENTO</strong></h6></b-badge
+                  >
+                </h5>
+                <h5 v-if="props.rowData.solicitud_descuento == 1">
+                  <b-badge variant="light"
+                    ><h6 class="success"><strong>Q. {{props.rowData.descuento}}</strong></h6></b-badge
+                  >
+                </h5>
+                <h5 v-if="props.rowData.solicitud_descuento == 2">
+                  <b-badge variant="light"
+                    ><h6 class="danger"><strong>PENDIENTE APROBACIÓN</strong></h6></b-badge
+                  >
+                </h5>
+                <h5 v-if="props.rowData.solicitud_descuento == 0">
+                  <b-badge variant="light"
+                    ><h6 class="danger"><strong>SIN DESCUENTO</strong></h6></b-badge
+                  >
+                </h5>
+              </div>
               <!-- Botones -->
               <template slot="actions" slot-scope="props">
-                <b-button-group>
+                <div class="button-container" v-if="props.rowData.solicitud_descuento == 3">
                   <b-button
-                    v-b-tooltip.top="'Pagar'"
                     @click="
                       setData(props.rowData)
                       $bvModal.show('modal-2-account')
                     "
-                    class="mb-2"
+                    class="mb-2 button-spacing"
                     size="sm"
-                    variant="outline-warning"
-                    ><i :class="'fas fa-money'"
-                  /></b-button>
-                </b-button-group>
+                    variant="dark"
+                  >Cobrar</b-button>
+                  <b-button
+                    @click="
+                      setData(props.rowData)
+                      $bvModal.show('modal-3-discount')
+                    "
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="success"
+                  >Solicitar descuento</b-button>
+                </div>
+                <div class="button-container" v-else-if="props.rowData.solicitud_descuento == 2">
+                  <b-badge variant="light"
+                    ><h6 class="danger"><strong>EN ESPERA</strong></h6></b-badge
+                  >
+                </div>
+                <div class="button-container" v-else>
+                  <b-button
+                    @click="
+                      setData(props.rowData)
+                      $bvModal.show('modal-2-account')
+                    "
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="dark"
+                  >Cobrar</b-button>
+                </div>
               </template>
               <!-- Paginacion -->
             </vuetable>
@@ -391,15 +438,15 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
-          name: 'total',
-          sortField: 'total',
-          title: 'total',
+          name: 'motivo',
+          sortField: 'motivo',
+          title: 'Motivo',
           dataClass: 'list-item-heading'
         },
         {
-          name: 'total-pagado',
-          sortField: 'total-pagado',
-          title: 'Total pagado',
+          name: 'total',
+          sortField: 'total',
+          title: 'Total',
           dataClass: 'list-item-heading'
         },
         {
@@ -411,6 +458,13 @@ export default {
         {
           name: '__slot:estado',
           title: 'Estado',
+          titleClass: '',
+          dataClass: 'text-muted',
+          width: '25%'
+        },
+        {
+          name: '__slot:solicitud_descuento',
+          title: 'Solicitud descuento',
           titleClass: '',
           dataClass: 'text-muted',
           width: '25%'
@@ -490,8 +544,8 @@ export default {
       }
     },
     setData (data) {
-      this.form.name = data.nombres
-      this.form.apellidos = data.apellidos
+      this.form.name = data.expediente.nombres
+      this.form.apellidos = data.expediente.apellidos
       this.form.state = data.estado
       this.form.id = data.id
       this.form.numero = data.numero
@@ -598,6 +652,32 @@ export default {
           this.assurances = resp.data
           console.log(resp)
         })
+    },
+    requestDiscount () {
+      if (this.discountAmount <= 0) {
+        this.alertErrorText = 'El descuento debe ser mayor a 0.00'
+        this.showAlertError()
+      } else if (this.discountAmount > this.totalPayment) {
+        this.alertErrorText = `El descuento debe ser menor a ${this.totalPayment}`
+        this.showAlertError()
+      } else {
+        axios.post(apiUrl + '/lab_cuentas/requestDiscount', {
+          form: {
+            id: this.form.id,
+            solicitud_descuento: 2,
+            descuento: parseFloat(this.discountAmount)
+          }
+        })
+          .then((tipo) => {
+            this.discountAmount = 0
+            this.$bvModal.hide('modal-3-discount')
+            this.$refs.vuetable.refresh()
+          }
+          )
+          .catch((error) => {
+            console.error(error)
+          })
+      }
     },
     onPatientQuit () {
       this.paymentSum = parseFloat(this.paymentType.Efectivo) + parseFloat(this.paymentType.Tarjeta) + parseFloat(this.paymentType.Deposito) + parseFloat(this.paymentType.Cheque) + parseFloat(this.paymentType.Seguro) + parseFloat(this.paymentType.Transferencia)

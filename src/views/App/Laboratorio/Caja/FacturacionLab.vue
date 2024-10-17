@@ -562,15 +562,15 @@ export default {
       this.HasFact = 0
       this.base64Images = []
       this.emptyImage = 1
-      if (this.factsList.find(e => e.id_cuenta_hospital === data.id)) {
-        const elementFound = this.factsList.find(e => e.id_cuenta_hospital === data.id)
+      if (this.factsList.find(e => e.id_cuenta_laboratorio === data.id)) {
+        const elementFound = this.factsList.find(e => e.id_cuenta_laboratorio === data.id)
         this.HasFact = 1
         this.nitFact = elementFound.nit
         this.numeroFact = elementFound.numero
         this.serieFact = elementFound.serie
         this.referenciaFact = elementFound.referencia_factura
         this.base64Images[0] = elementFound.imagen
-        if (elementFound.imagen !== '') {
+        if (elementFound.imagen !== ' ') {
           this.emptyImage = 0
         }
         console.log(this.emptyImage)
@@ -686,7 +686,7 @@ export default {
           total: this.totPagado,
           id_cuenta_laboratoio: this.form.id,
           id_cuenta_hospital: 0,
-          imagen: this.base64Images ? this.base64Images : '',
+          imagen: this.base64Images ? this.base64Images : ' ',
           numero: this.numeroFact,
           serie: this.serieFact,
           id_usuario: this.expediente,

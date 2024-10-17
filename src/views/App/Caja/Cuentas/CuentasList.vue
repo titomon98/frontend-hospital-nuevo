@@ -341,6 +341,18 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
+          name: 'expediente.nombres',
+          sortField: 'expediente.nombres',
+          title: 'Nombre',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'expediente.apellidos',
+          sortField: 'expediente.apellidos',
+          title: 'Apellidos',
+          dataClass: 'list-item-heading'
+        },
+        {
           name: 'numero',
           sortField: 'numero',
           title: 'Número',
