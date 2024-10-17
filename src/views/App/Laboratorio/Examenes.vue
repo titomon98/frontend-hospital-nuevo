@@ -56,6 +56,16 @@
               </b-form-text>
             </b-form-group>
           </b-col>
+          <b-col md="5">
+            <b-form-checkbox
+            v-model.trim="form.examenExterior"
+              class="custom-checkbox"
+              unchecked-value="false"
+              checked-value="true"
+            >
+              Examen de laboratorio externo
+            </b-form-checkbox>
+          </b-col>
         </b-row>
         <b-row class="ml-2">
           <b-col md="3">
@@ -207,12 +217,6 @@
       </b-alert>
       <b-form @submit.prevent="onSubmit">
         <b-table :items="this.camposResulado" :fields="this.fieldsCampos" striped hover small responsive>
-          <template #cell(Nombre)="data">
-            {{ data.item.nombre }}
-          </template>
-          <template #cell(Unidades)="data">
-            {{ data.item.unidades }}
-          </template>
           <template #cell(resultado)="data">
             <b-form-input
               v-model="data.item.resultado"
@@ -551,7 +555,6 @@ export default {
         placeholder: 'Escribir contenido del resultado',
         theme: 'snow'
       },
-
       tipo_examenes: [],
       formResultado: {
         id: null,
@@ -581,21 +584,9 @@ export default {
         { name: 'fecha_hora', title: 'Fecha y Hora', sortField: 'fecha_hora' }
       ],
       fieldsCampos: [
-        {
-          name: 'nombre',
-          title: 'Prueba',
-          sortField: 'nombre'
-        },
-        {
-          name: 'unidades',
-          title: 'Unidades',
-          sortField: 'unidades'
-        },
-        {
-          name: 'resultado',
-          title: 'Resultado',
-          sortField: 'resultado'
-        }
+        { key: 'nombre', label: 'Nombre' },
+        { key: 'unidades', label: 'Unidades' },
+        { key: 'resultado', label: 'Resultado' }
       ],
       isLoading: false,
       examenes_almacenados: [],
@@ -625,7 +616,8 @@ export default {
         pagado: 0,
         por_pagar: 0,
         id_examenes_almacenados: null,
-        NewExpediente: false
+        NewExpediente: false,
+        examenExterior: false
       },
 
       alertSecs: 5,
@@ -1004,6 +996,8 @@ export default {
           me.showAlert()
           me.alertText = 'Se ingresado al paciente ' + me.form.nombre + ' exitosamente'
           me.$refs.vuetable.refresh()
+          me.$refs.vuetable2.refresh()
+          me.$refs.vuetable3.refresh()
           me.closeModal('save')
           this.$refs.vuetable.refresh()
         })
@@ -1496,5 +1490,16 @@ background-color: #f9f9f9; /* Color de fondo más claro para filas alternas */
 .text-danger-custom {
   color: red;
   font-weight: bold;
+}
+.custom-checkbox .custom-control-label::before {
+    background-color: #e9ecef;
+    border: 2px solid #adb5bd;
+}
+.custom-checkbox .custom-control-input:checked~.custom-control-label::before {
+    background-color: #198754;
+    border-color: #198754;
+}
+.custom-checkbox .custom-control-input:focus~.custom-control-label::before {
+    box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
 }
 </style>
