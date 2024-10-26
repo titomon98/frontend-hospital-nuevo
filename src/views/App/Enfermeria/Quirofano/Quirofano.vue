@@ -681,7 +681,7 @@
           </template>
         </iq-card>
       </b-col>
-    </b-row>
+      </b-row>
     </b-modal>
     <b-row>
       <b-col md="12">
@@ -787,7 +787,7 @@
                    >Consumos</b-button>
 
                    <b-button
-                    @click="showModal('modal_agregar'); realizar_examen(props.rowData.id, props.rowData.nombres, props.rowData.apellidos, props.rowData.cui, props.rowData.telefono )"
+                    @click="showModal('modal_agregar'); ver_examen_realizado (props.rowData.cui); realizar_examen(props.rowData.id, props.rowData.nombres, props.rowData.apellidos, props.rowData.cui, props.rowData.telefono )"
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="success"
@@ -1180,7 +1180,7 @@ export default {
       searchExamenes: '',
       fechaDesdeExamenes: null,
       fechaHastaExamenes: null,
-      apiBaseExamenes: '',
+      apiBaseExamenes: null,
       fieldsExamenes: [
         {
           name: '__slot:actions',
@@ -1467,6 +1467,9 @@ export default {
           this.formExamen.por_pagar = 0
           this.formExamen.id_examenes_almacenados = null
           this.formExamen.id_expediente = 0
+          this.apiBaseExamenes = null
+          this.refreshVuetable()
+          this.$refs.vuetable.refresh()
           break
         }
       }
@@ -2224,7 +2227,7 @@ export default {
       this.totalExamenes = paginationData.total
       this.lastPageExamenes = paginationData.last_page
       console.log(paginationData.data + 'ACA APARECERIA LA DATA DE LIST EXAMENES')
-      this.itemsExamenes = paginationData.data.map(item => {
+      this.items = paginationData.data.map(item => {
         item.fecha_hora = moment(item.fecha_hora).format('DD/MM/YYYY HH:mm')
         return {
           id: item.id,
@@ -2264,17 +2267,25 @@ export default {
         })
     },
     realizar_examen (id, nombre, apellido, cui, telefono) {
-      this.$refs['modal_agregar'].show()
       console.log(nombre + apellido + cui)
       this.formExamen.nombre = nombre + ' ' + apellido
       this.formExamen.cui = cui
       this.formExamen.whatsapp = telefono
       this.formExamen.id_expediente = id
-      this.apiBaseExamenes = apiUrl + `/Examenes_realizados/list/cui?cui=${cui}`
     },
     ver_examen_realizado (cui) {
-      this.$refs['modal-add-resultados'].show()
+      this.refreshVuetable()
+      this.$refs.vuetable.refresh()
+      this.$refs['modal_agregar'].show()
+      this.apiBaseExamenes = apiUrl + `/Examenes_realizados/list/cui?cui=${cui}`
       console.log(cui)
+    },
+    refreshVuetable () {
+      if (this.$refs.vuetableExamenes) {
+        this.$nextTick(() => {
+          this.$refs.vuetableExamenes.refresh()
+        })
+      }
     },
     onSearch_id_examenes_almacenados (search, loading) {
       if (search.length) {
