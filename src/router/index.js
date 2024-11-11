@@ -91,6 +91,7 @@ import AppTreeView from '../views/Plugins/AppTreeView'
 // gerencia
 import AdminParent from '../views/App/Admin/AdminParent'
 import Asuetos from '../views/App/Admin/Asuetos.vue'
+import Reportes from '../views/App/Admin/Reportes.vue'
 import Cuartos from '../views/App/Admin/Cuartos.vue'
 import Users from '../views/App/Admin/Users'
 
@@ -252,6 +253,12 @@ const AdminRoutes = (prop, mode) => [
     name: prop + '.asuetos',
     meta: { dark: mode, auth: true, name: 'Asuetos' },
     component: Asuetos
+  },
+  {
+    path: 'reportes',
+    name: prop + '.reportes',
+    meta: { dark: mode, auth: true, name: 'Reportes' },
+    component: Reportes
   },
   {
     path: 'adminparent',
