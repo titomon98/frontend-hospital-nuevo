@@ -147,7 +147,9 @@ import PacientesParent from '../views/App/Pacientes/PacientesParent'
 // Laboratorio
 // Caja
 import Cortes from '../views/App/Laboratorio/Caja/Cortes.vue'
+import ValDescuentos from '../views/App/Laboratorio/Caja/ValidarDescuentos.vue'
 import CuentasParentLaboratorio from '../views/App/Laboratorio/Caja/CuentasParent.vue'
+// import Descuentos from '../views/App/Laboratorio/Caja/ValidarDescuentos.vue'
 
 // Examenes
 import Examenes from '../views/App/Laboratorio/Examenes.vue'
@@ -180,6 +182,13 @@ const LaboratorioRoutes = (prop, mode) => [
     name: prop + '.cuentas',
     meta: { dark: mode, auth: true, name: 'cuentas' },
     component: CuentasParentLaboratorio
+  },
+  {
+    path: 'descuentos',
+    name: prop + '.descuentos',
+    meta: { dark: mode, auth: true, name: 'descuentos' },
+    component: ValDescuentos
+
   },
   {
     path: 'facturacion',
