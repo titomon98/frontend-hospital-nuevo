@@ -473,6 +473,7 @@
                   >Agregar receta</b-button>
 
                   <b-button
+                  v-if="props.rowData.nombres !== 'PENDIENTE' "
                     @click="verReceta(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
@@ -487,6 +488,7 @@
                   >Agregar servicios</b-button>
 
                   <b-button
+                  v-if="props.rowData.nombres !== 'PENDIENTE' "
                     @click="verServicio(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
@@ -501,6 +503,7 @@
                   >Agregar honorarios</b-button>
 
                   <b-button
+                  v-if="props.rowData.nombres !== 'PENDIENTE' "
                     @click="showModal('modal-ver-honorarios'); getDataHonorarios(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
@@ -1144,7 +1147,8 @@ export default {
     },
     saveServicio () {
       const me = this
-      if (me.servicio !== null && me.form.cantidad !== null) {
+      console.log(me.form.id)
+      if (me.servicio.id !== null && me.form.cantidad !== null) {
         me.form.servicio = me.servicio
         me.form.descripcion = 'Añadido en hospitalización'
         axios.post(apiUrl + '/consumos/create', {
