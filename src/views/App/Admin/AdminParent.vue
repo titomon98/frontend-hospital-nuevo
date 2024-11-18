@@ -23,6 +23,7 @@
               <b-tab title="Asuetos" lazy><Asuetos/></b-tab>
               <b-tab title="Efectivo" lazy><Efectivo/></b-tab>
               <b-tab title="Descuentos" lazy><ValidarDescuentos/></b-tab>
+              <b-tab title="Reportes" lazy><Reportes/></b-tab>
             </b-tabs>
           </template>
         </iq-card>
@@ -37,6 +38,7 @@ import { apiUrl } from '../../../config/constant'
 import Users from './Users.vue'
 import Personal from './Personal.vue'
 import Asuetos from './Asuetos.vue'
+import Reportes from './Reportes.vue'
 import Efectivo from './Efectivo.vue'
 import ValidarDescuentos from './Descuentos/ValidarDescuentos.vue'
 
@@ -46,6 +48,7 @@ export default {
     Users,
     Personal,
     Asuetos,
+    Reportes,
     Efectivo,
     ValidarDescuentos
   },

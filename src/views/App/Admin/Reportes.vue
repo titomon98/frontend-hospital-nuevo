@@ -1,0 +1,1020 @@
+<template>
+  <b-container fluid>
+    <b-alert
+      :variant="alertVariant"
+      :show="alertCountDown"
+      dismissible
+      fade
+      @dismissed="alertCountDown=0"
+      class="bg-white"
+    >
+      <div class="iq-alert-text">{{ alertText }}</div>
+    </b-alert>
+    <b-modal id="modal-1-account" ref="modal-1-account" title="Agregar cuenta">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <b-form @submit="$event.preventDefault()">
+        <b-form-group label="Fecha de ingreso:">
+          <b-form-input
+            type="date"
+            v-model.trim="$v.form.fecha_ingreso.$model"
+            :state="!$v.form.fecha_ingreso.$error"
+            placeholder="Ingresar la fecha de ingreso"
+          ></b-form-input>
+          <div v-if="$v.form.fecha_ingreso.required.$invalid" class="invalid-feedback">
+            Debe ingresar una fecha de ingreso
+          </div>
+        </b-form-group><b-form-group label="Motivo:">
+          <b-form-input
+            v-model.trim="$v.form.motivo.$model"
+            :state="!$v.form.motivo.$error"
+            placeholder="Ingresar motivo"
+          ></b-form-input>
+          <div v-if="$v.form.motivo.required.$invalid" class="invalid-feedback">
+            Debe ingresar un motivo
+          </div>
+        </b-form-group>
+        <b-form-group label="Descripción:">
+          <b-form-input
+            v-model.trim="$v.form.descripcion.$model"
+            :state="!$v.form.descripcion.$error"
+            placeholder="Ingresar descripción"
+          ></b-form-input>
+        </b-form-group>
+        <b-form-group label="Otros:">
+          <b-form-input
+            v-model.trim="$v.form.otros.$model"
+            :state="!$v.form.otros.$error"
+            placeholder="Ingresar otros"
+          ></b-form-input>
+        </b-form-group>
+        <b-form-group label="Expediente:">
+          <v-select
+            name="type"
+            v-model="form.id_expediente"
+            :state="!$v.form.id_expediente.$error"
+            :options="expedientes"
+            :filterable="false"
+            placeholder="Seleccione el expediente"
+            @search="onSearchExpedientes"
+          />
+        </b-form-group>
+      </b-form>
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click="onValidate('save')"
+          >Guardar</b-button
+        >
+        <b-button variant="danger" @click="closeModal('save')"
+          >Cancelar</b-button
+        >
+      </template>
+    </b-modal>
+    <b-modal id="modal-2-account" ref="modal-2-account" title="Editar cuenta">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <b-form @submit="$event.preventDefault()">
+        <b-form-group label="Nombre:"><b-form-group label="Fecha de ingreso:">
+          <b-form-input
+            type="date"
+            v-model.trim="$v.form.fecha_ingreso.$model"
+            :state="!$v.form.fecha_ingreso.$error"
+            placeholder="Ingresar fecha de ingreso"
+          ></b-form-input>
+          <div v-if="$v.form.fecha_ingreso.required.$invalid" class="invalid-feedback">
+            Debe ingresar una fecha válida
+          </div>
+        </b-form-group>
+        <b-form-group label="Motivo:">
+          <b-form-input
+            v-model.trim="$v.form.motivo.$model"
+            :state="!$v.form.motivo.$error"
+            placeholder="Ingresar motivo"
+          ></b-form-input>
+          <div v-if="$v.form.motivo.required.$invalid" class="invalid-feedback">
+            Debe ingresar un motivo
+          </div>
+        </b-form-group>
+        <b-form-group label="Descripción:">
+          <b-form-input
+            v-model.trim="$v.form.descripcion.$model"
+            :state="!$v.form.descripcion.$error"
+            placeholder="Ingresar descripción"
+          ></b-form-input>
+        </b-form-group>
+        <b-form-group label="Otros:">
+          <b-form-input
+            v-model.trim="$v.form.otros.$model"
+            :state="!$v.form.otros.$error"
+            placeholder="Ingresar otros"
+          ></b-form-input>
+        </b-form-group>
+      </b-form-group>
+      </b-form>
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click="onValidate('update')"
+          >Guardar</b-button
+        >
+        <b-button variant="danger" @click="closeModal('update')"
+          >Cancelar</b-button
+        >
+      </template>
+    </b-modal>
+    <b-modal id="modal-3-account" ref="modal-3-account" title="Desactivar cuenta">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <h6 class="my-4">
+        ¿Desea desactivar la cuenta: {{ form.numero }} ?
+      </h6>
+      <template #modal-footer="{}">
+        <b-button
+          type="submit"
+          variant="primary"
+          @click="onState()
+                  $bvModal.hide('modal-3-account')"
+          >Desactivar</b-button
+        >
+        <b-button variant="danger" @click="$bvModal.hide('modal-3-account')"
+          >Cancelar</b-button
+        >
+      </template>
+    </b-modal>
+    <b-modal id="modal-4-account" ref="modal-4-account" title="Activar cuenta">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <h6 class="my-4">
+        ¿Desea activar la cuenta: {{ form.numero }} ?
+      </h6>
+      <template #modal-footer="{}">
+        <b-button
+          type="submit"
+          variant="primary"
+          @click="onState()
+                  $bvModal.hide('modal-4-account')"
+          >Activar</b-button
+        >
+        <b-button variant="danger" @click="$bvModal.hide('modal-4-account')"
+          >Cancelar</b-button
+        >
+      </template>
+    </b-modal>
+    <b-row>
+      <b-col md="12">
+        <iq-card>
+            <template v-slot:headerTitle>
+              <h4 class="card-title mt-3">Reportes</h4>
+               <div>
+                  <b-form-group label="Seleccione el área de la cual quiere generar su reporte" v-slot="{ ariaDescribedby }">
+                    <b-form-radio-group
+                      id="radio-group-2"
+                      v-model="selectedArea"
+                      :aria-describedby="ariaDescribedby"
+                      name="radio-sub-component"
+                      @change="selectedReport = null"
+                    >
+                      <b-form-radio value=1>Caja</b-form-radio>
+                      <b-form-radio value=2>Farmacia</b-form-radio>
+                      <b-form-radio value=3>Enfermería</b-form-radio>
+                      <b-form-radio value=4>Médicos</b-form-radio>
+                      <b-form-radio value=5>Pacientes</b-form-radio>
+                    </b-form-radio-group>
+                  </b-form-group>
+               </div>
+               <div>
+                <b-form-select v-model="selectedReport" v-if="selectedArea == 1" :options="reportOptionsCaja" @change="onReportChange()"></b-form-select>
+                <b-form-select v-model="selectedReport" v-if="selectedArea == 2" :options="reportOptionsFarmacia" @change="onReportChange()"></b-form-select>
+                <b-form-select v-model="selectedReport" v-if="selectedArea == 3" :options="reportOptionsEnfermeria" @change="onReportChange()"></b-form-select>
+                <b-form-select v-model="selectedReport" v-if="selectedArea == 4" :options="reportOptionsMedicos" @change="onReportChange()"></b-form-select>
+                <b-form-select v-model="selectedReport" v-if="selectedArea == 5" :options="reportOptionsPacientes" @change="onReportChange()"></b-form-select>
+               </div>
+               <div>
+                <label for="example-datepicker">Fecha de inicio</label>
+                <b-form-datepicker id="example-datepicker" v-model="startDate" class="mb-2"></b-form-datepicker>
+              </div>
+              <div>
+                <label for="example-datepicker">Fecha fin</label>
+                <b-form-datepicker id="example-datepicker" v-model="endDate" class="mb-2"></b-form-datepicker>
+              </div>
+              <div v-if="selectedReport != null">
+                <b-button variant="primary">Descargar PDF</b-button>
+                <b-button variant="primary">Descargar Excel</b-button>
+              </div>
+            </template>
+            <template v-slot:headerAction>
+          </template>
+          <template v-slot:body>
+            <datatable-heading
+              :changePageSize="changePageSizes"
+              :searchChange="searchChange"
+              :from="from"
+              :to="to"
+              :total="total"
+              :perPage="perPage"
+            >
+            </datatable-heading>
+            <div v-show="selectedReport == 1">
+              <vuetable
+              ref="vuetable"
+              class="table-divided order-with-arrow"
+              :api-url="apiBase"
+              :query-params="makeQueryParams"
+              :per-page="perPage"
+              :reactive-api-url="true"
+              :fields="fieldsCaja"
+              pagination-path
+              @vuetable:pagination-data="onPaginationData"
+            >
+              <!-- Estado -->
+              <div slot="estado" slot-scope="props">
+                <h5 v-if="props.rowData.estado == 1">
+                  <b-badge variant="light"
+                    ><h6 class="success"><strong>ACTIVO</strong></h6></b-badge
+                  >
+                </h5>
+                <h5 v-else>
+                  <b-badge variant="light"
+                    ><h6 class="danger"><strong>INACTIVO</strong></h6></b-badge
+                  >
+                </h5>
+              </div>
+              <!-- Paginacion -->
+            </vuetable>
+            </div>
+            <div v-show="selectedReport == 2">
+              <vuetable
+
+              ref="vuetable"
+              class="table-divided order-with-arrow"
+              :api-url="apiBase"
+              :query-params="makeQueryParams"
+              :per-page="perPage"
+              :reactive-api-url="true"
+              :fields="fieldsFarmacia"
+              pagination-path
+              @vuetable:pagination-data="onPaginationData"
+            >
+              <!-- Estado -->
+              <div slot="estado" slot-scope="props">
+                <h5 v-if="props.rowData.estado == 1">
+                  <b-badge variant="light"
+                    ><h6 class="success"><strong>ACTIVO</strong></h6></b-badge
+                  >
+                </h5>
+                <h5 v-else>
+                  <b-badge variant="light"
+                    ><h6 class="danger"><strong>INACTIVO</strong></h6></b-badge
+                  >
+                </h5>
+              </div>
+              <!-- Paginacion -->
+            </vuetable>
+            </div>
+            <div v-show="selectedReport == 3">
+              <vuetable
+              ref="vuetable"
+              class="table-divided order-with-arrow"
+              :api-url="apiBase"
+              :query-params="makeQueryParams"
+              :per-page="perPage"
+              :reactive-api-url="true"
+              :fields="fieldsEnfermeria"
+              pagination-path
+              @vuetable:pagination-data="onPaginationData"
+            >
+              <!-- Estado -->
+              <div slot="estado" slot-scope="props">
+                <h5 v-if="props.rowData.estado == 1">
+                  <b-badge variant="light"
+                    ><h6 class="success"><strong>ACTIVO</strong></h6></b-badge
+                  >
+                </h5>
+                <h5 v-else>
+                  <b-badge variant="light"
+                    ><h6 class="danger"><strong>INACTIVO</strong></h6></b-badge
+                  >
+                </h5>
+              </div>
+              <!-- Paginacion -->
+            </vuetable>
+            </div>
+            <div v-show="selectedReport == 4">
+              <vuetable
+              ref="vuetable"
+              class="table-divided order-with-arrow"
+              :api-url="apiBase"
+              :query-params="makeQueryParams"
+              :per-page="perPage"
+              :reactive-api-url="true"
+              :fields="fieldsMedicos"
+              pagination-path
+              @vuetable:pagination-data="onPaginationData"
+            >
+              <!-- Estado -->
+              <div slot="estado" slot-scope="props">
+                <h5 v-if="props.rowData.estado == 1">
+                  <b-badge variant="light"
+                    ><h6 class="success"><strong>ACTIVO</strong></h6></b-badge
+                  >
+                </h5>
+                <h5 v-else>
+                  <b-badge variant="light"
+                    ><h6 class="danger"><strong>INACTIVO</strong></h6></b-badge
+                  >
+                </h5>
+              </div>
+              <!-- Paginacion -->
+            </vuetable>
+            </div>
+            <vuetable-pagination-bootstrap
+                ref="pagination"
+                @vuetable-pagination:change-page="onChangePage"
+              />
+          </template>
+        </iq-card>
+      </b-col>
+    </b-row>
+  </b-container>
+</template>
+<script>
+import { xray } from '../../../config/pluginInit'
+import DatatableHeading from '../../Tables/DatatableHeading'
+import Vuetable from 'vuetable-2/src/components/Vuetable'
+import VuetablePaginationBootstrap from '../../../components/common/VuetablePaginationBootstrap'
+import useVuelidate from '@vuelidate/core'
+import { required } from '@vuelidate/validators'
+import axios from 'axios'
+import { apiUrl } from '../../../config/constant'
+
+export default {
+  name: 'CuentasPendientes',
+  components: {
+    vuetable: Vuetable,
+    'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
+    'datatable-heading': DatatableHeading
+  },
+  setup () {
+    return { $v: useVuelidate() }
+  },
+  mounted () {
+    xray.index()
+    this.fetchExpedientes()
+  },
+  data () {
+    return {
+      from: 0,
+      selectedReport: null,
+      reportOptionsCaja: [
+        { value: null, text: 'Seleccione un reporte' },
+        { value: 1, text: 'Reporte Caja 1' },
+        { value: 2, text: 'Reporte Caja 2' },
+        { value: 3, text: 'Reporte Caja 3' },
+        { value: 4, text: 'Reporte Caja 4' }
+      ],
+      reportOptionsFarmacia: [
+        { value: null, text: 'Seleccione un reporte' },
+        { value: 1, text: 'Reporte Farmacia 1' },
+        { value: 2, text: 'Reporte Farmacia 2' },
+        { value: 3, text: 'Reporte Farmacia 3' },
+        { value: 4, text: 'Reporte Farmacia 4' }
+      ],
+      reportOptionsEnfermeria: [
+        { value: null, text: 'Seleccione un reporte' },
+        { value: 1, text: 'Reporte Enfermería 1' },
+        { value: 2, text: 'Reporte Enfermería 2' },
+        { value: 3, text: 'Reporte Enfermería 3' },
+        { value: 4, text: 'Reporte Enfermería 4' }
+      ],
+      reportOptionsMedicos: [
+        { value: null, text: 'Seleccione un reporte' },
+        { value: 1, text: 'Reporte Médicos 1' },
+        { value: 2, text: 'Reporte Médicos 2' },
+        { value: 3, text: 'Reporte Médicos 3' },
+        { value: 4, text: 'Reporte Médicos 4' }
+      ],
+      reportOptionsPacientes: [
+        { value: null, text: 'Seleccione un reporte' },
+        { value: 1, text: 'Reporte Pacientes 1' },
+        { value: 2, text: 'Reporte Pacientes 2' },
+        { value: 3, text: 'Reporte Pacientes 3' },
+        { value: 4, text: 'Reporte Pacientes 4' }
+      ],
+      to: 0,
+      total: 0,
+      perPage: 5,
+      search: '',
+      selectedArea: 1,
+      form: {
+        id: 0,
+        numero: 0,
+        fecha_ingreso: '',
+        motivo: '',
+        descripcion: '',
+        otros: '',
+        total: 0,
+        state: 1,
+        id_expediente: 1
+      },
+      alertSecs: 5,
+      alertCountDown: 0,
+      alertCountDownError: 0,
+      alertText: '',
+      alertErrorText: '',
+      alertVariant: '',
+      apiBase: apiUrl + '/cuentas/list',
+      fields: [
+        {
+          name: 'expediente.expediente',
+          sortField: 'expediente.expediente',
+          title: 'Expediente',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'expediente.nombres',
+          sortField: 'expediente.nombres',
+          title: 'Nombre',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'expediente.apellidos',
+          sortField: 'expediente.apellidos',
+          title: 'Apellidos',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'numero',
+          sortField: 'numero',
+          title: 'Número',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'fecha_ingreso',
+          sortField: 'fecha_ingreso',
+          title: 'Fecha de ingreso',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'motivo',
+          sortField: 'motivo',
+          title: 'Motivo',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'descripcion',
+          sortField: 'descripcion',
+          title: 'Descripción',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'otros',
+          sortField: 'otros',
+          title: 'Otros...',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'total',
+          sortField: 'total',
+          title: 'Total',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: '__slot:estado',
+          title: 'Estado',
+          titleClass: '',
+          dataClass: 'text-muted',
+          width: '25%'
+        }
+      ],
+      fieldsEnfermeria: [
+        {
+          name: 'expediente.nombres',
+          sortField: 'expediente.nombres',
+          title: 'Nombre',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'expediente.apellidos',
+          sortField: 'expediente.apellidos',
+          title: 'Apellidos',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'numero',
+          sortField: 'numero',
+          title: 'Número',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'fecha_ingreso',
+          sortField: 'fecha_ingreso',
+          title: 'Fecha de ingreso',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'motivo',
+          sortField: 'motivo',
+          title: 'Motivo',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'descripcion',
+          sortField: 'descripcion',
+          title: 'Descripción',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'otros',
+          sortField: 'otros',
+          title: 'Otros...',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'total',
+          sortField: 'total',
+          title: 'Total',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: '__slot:estado',
+          title: 'Estado',
+          titleClass: '',
+          dataClass: 'text-muted',
+          width: '25%'
+        }
+      ],
+      fieldsCaja: [
+        {
+          name: 'expediente.apellidos',
+          sortField: 'expediente.apellidos',
+          title: 'Apellidos',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'numero',
+          sortField: 'numero',
+          title: 'Número',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'fecha_ingreso',
+          sortField: 'fecha_ingreso',
+          title: 'Fecha de ingreso',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'motivo',
+          sortField: 'motivo',
+          title: 'Motivo',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'descripcion',
+          sortField: 'descripcion',
+          title: 'Descripción',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'otros',
+          sortField: 'otros',
+          title: 'Otros...',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'total',
+          sortField: 'total',
+          title: 'Total',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: '__slot:estado',
+          title: 'Estado',
+          titleClass: '',
+          dataClass: 'text-muted',
+          width: '25%'
+        }
+      ],
+      fieldsMedicos: [
+        {
+          name: 'numero',
+          sortField: 'numero',
+          title: 'Número',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'fecha_ingreso',
+          sortField: 'fecha_ingreso',
+          title: 'Fecha de ingreso',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'motivo',
+          sortField: 'motivo',
+          title: 'Motivo',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'descripcion',
+          sortField: 'descripcion',
+          title: 'Descripción',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'otros',
+          sortField: 'otros',
+          title: 'Otros...',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'total',
+          sortField: 'total',
+          title: 'Total',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: '__slot:estado',
+          title: 'Estado',
+          titleClass: '',
+          dataClass: 'text-muted',
+          width: '25%'
+        }
+      ],
+      fieldsPacientes: [
+        {
+          name: 'fecha_ingreso',
+          sortField: 'fecha_ingreso',
+          title: 'Fecha de ingreso',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'motivo',
+          sortField: 'motivo',
+          title: 'Motivo',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'descripcion',
+          sortField: 'descripcion',
+          title: 'Descripción',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'otros',
+          sortField: 'otros',
+          title: 'Otros...',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'total',
+          sortField: 'total',
+          title: 'Total',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: '__slot:estado',
+          title: 'Estado',
+          titleClass: '',
+          dataClass: 'text-muted',
+          width: '25%'
+        }
+      ],
+      fieldsFarmacia: [
+        {
+          name: 'expediente.expediente',
+          sortField: 'expediente.expediente',
+          title: 'Expediente',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'expediente.nombres',
+          sortField: 'expediente.nombres',
+          title: 'Nombre',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'expediente.apellidos',
+          sortField: 'expediente.apellidos',
+          title: 'Apellidos',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'numero',
+          sortField: 'numero',
+          title: 'Número',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'fecha_ingreso',
+          sortField: 'fecha_ingreso',
+          title: 'Fecha de ingreso',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'motivo',
+          sortField: 'motivo',
+          title: 'Motivo',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'descripcion',
+          sortField: 'descripcion',
+          title: 'Descripción',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'otros',
+          sortField: 'otros',
+          title: 'Otros...',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'total',
+          sortField: 'total',
+          title: 'Total',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: '__slot:estado',
+          title: 'Estado',
+          titleClass: '',
+          dataClass: 'text-muted',
+          width: '25%'
+        }
+      ],
+      expedientes: []
+    }
+  },
+  validations () {
+    return {
+      form: {
+        fecha_ingreso: { required },
+        descripcion: { required },
+        motivo: { required },
+        otros: { required },
+        total: { required },
+        id_expediente: { required },
+        state: { required }
+      }
+    }
+  },
+  computed: {
+    fieldsToDisplay () {
+      switch (this.selectedArea) {
+        case 3:
+          return this.fieldsEnfermeria
+        case 4:
+          return this.fieldsMedicos
+        case 5:
+          return this.fieldsPacientes
+        case 1:
+          return this.fieldsCaja
+        case 2:
+          return this.fieldsFarmacia
+        default:
+          return this.fields
+      }
+    }
+  },
+  methods: {
+    onReportChange () {
+      this.$nextTick(() => {
+        this.$refs.vuetable.refresh()
+      })
+    },
+    openModal (modal, action) {
+      switch (modal) {
+        case 'save': {
+          this.$v.$reset()
+          this.form.id = 0
+          this.form.fecha_ingreso = ''
+          this.form.descripcion = ''
+          this.form.motivo = ''
+          this.form.otros = ''
+          this.form.total = 0
+          this.form.id_expediente = 1
+          this.form.state = 1
+          break
+        }
+      }
+    },
+    closeModal (action) {
+      switch (action) {
+        case 'save': {
+          this.$v.$reset()
+          this.$refs['modal-1-account'].hide()
+          this.form.id = 0
+          this.form.fecha_ingreso = ''
+          this.form.descripcion = ''
+          this.form.motivo = ''
+          this.form.otros = ''
+          this.form.total = 0
+          this.form.id_expediente = 1
+          this.form.state = 1
+          break
+        }
+        case 'update': {
+          this.$v.$reset()
+          this.$refs['modal-2-account'].hide()
+          this.form.id = 0
+          this.form.fecha_ingreso = ''
+          this.form.descripcion = ''
+          this.form.motivo = ''
+          this.form.otros = ''
+          this.form.total = 0
+          this.form.id_expediente = 1
+          this.form.state = 1
+          break
+        }
+      }
+    },
+    onValidate (action) {
+      this.$v.$touch()
+      if (this.$v.$error !== true) {
+        if (action === 'save') {
+          this.onSave()
+        } else if (action === 'update') {
+          this.onUpdate()
+        }
+      } else {
+        this.alertErrorText = 'Revisa que todos los campos requeridos esten llenos'
+        this.showAlertError()
+      }
+    },
+    setData (data) {
+      this.form.numero = data.numero
+      this.form.fecha_ingreso = data.fecha_ingreso
+      this.form.descripcion = data.descripcion
+      this.form.motivo = data.motivo
+      this.form.otros = data.otros
+      this.form.total = data.total
+      this.form.id_expediente = data.id_expediente
+      this.form.state = data.estado
+      this.form.id = data.id
+    },
+    /* Guardar */
+    onSave () {
+      const me = this
+      axios.post(apiUrl + '/cuentas/create', {
+        form: me.form })
+        .then((response) => {
+          me.alertVariant = 'success'
+          me.showAlert()
+          me.alertText = 'Se ha creado la cuenta \'' + me.form.numero + '\' exitosamente'
+          me.$refs.vuetable.refresh()
+          me.closeModal('save')
+        })
+        .catch((error) => {
+          me.alertVariant = 'danger'
+          me.showAlertError()
+          me.alertErrorText = error.response.data.msg
+          console.error('Error!', error)
+        })
+    },
+    /* Guardar */
+    onUpdate () {
+      const me = this
+      // this.$refs["modalSave"].hide();
+      axios.put(apiUrl + '/cuentas/update', {
+        form: me.form })
+        .then((response) => {
+          me.alertVariant = 'primary'
+          me.showAlert()
+          me.alertText = 'Se ha actualizado la cuenta \'' + me.form.numero + '\' exitosamente'
+          me.$refs.vuetable.refresh()
+          me.closeModal('update')
+        })
+        .catch((error) => {
+          me.alertVariant = 'danger'
+          me.showAlertError()
+          me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+          console.error('Error!', error)
+        })
+    },
+    onState () {
+      let me = this
+      if (this.form.state === 1) {
+        axios
+          .put(apiUrl + '/cuentas/deactivate', {
+            id: this.form.id
+          })
+          .then((response) => {
+            me.alertVariant = 'warning'
+            me.showAlert()
+            me.alertText = 'Se ha desactivado la cuenta \'' + me.form.numero + '\' exitosamente'
+            me.$refs.vuetable.refresh()
+            me.$refs['modal-3-account'].hide()
+          })
+          .catch((error) => {
+            me.alertVariant = 'danger'
+            me.showAlertError()
+            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+            console.error('There was an error!', error)
+          })
+      } else {
+        axios
+          .put(apiUrl + '/cuentas/activate', {
+            id: this.form.id
+          })
+          .then((response) => {
+            me.alertVariant = 'info'
+            me.showAlert()
+            me.alertText = 'Se ha activado la cuenta \'' + me.form.numero + '\' exitosamente'
+            me.$refs.vuetable.refresh()
+            me.$refs['modal-4-account'].hide()
+          })
+          .catch((error) => {
+            me.alertVariant = 'danger'
+            me.showAlertError()
+            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+            console.error('There was an error!', error)
+          })
+      }
+    },
+    makeQueryParams (sortOrder, currentPage, perPage) {
+      return sortOrder[0]
+        ? {
+          criterio: sortOrder[0] ? sortOrder[0].sortField : 'numero',
+          order: sortOrder[0] ? sortOrder[0].direction : 'desc',
+          page: currentPage,
+          limit: this.perPage,
+          search: this.search
+        }
+        : {
+          criterio: sortOrder[0] ? sortOrder[0].sortField : 'numero',
+          order: sortOrder[0] ? sortOrder[0].direction : 'desc',
+          page: currentPage,
+          limit: this.perPage,
+          search: this.search
+        }
+    },
+    changePageSizes (perPage) {
+      this.perPage = perPage
+      this.$refs.vuetable.refresh()
+    },
+    searchChange (val) {
+      this.search = val.toLowerCase()
+      this.$refs.vuetable.refresh()
+    },
+    onPaginationData (paginationData) {
+      this.from = paginationData.from
+      this.to = paginationData.to
+      this.total = paginationData.total
+      this.lastPage = paginationData.last_page
+      this.items = paginationData.data
+      this.$refs.pagination.setPaginationData(paginationData)
+    },
+    onChangePage (page) {
+      this.$refs.vuetable.changePage(page)
+    },
+    showAlert () {
+      this.alertCountDown = this.alertSecs
+    },
+    showAlertError () {
+      this.alertC.ountDownError = this.alertSecs
+    },
+    onSearchExpedientes (search, loading) {
+      if (search.length) {
+        loading(true)
+        this.searchingExpedientes(search, loading)
+      }
+    },
+    searchingExpedientes (search, loading) {
+      axios.get(apiUrl + '/expedientes/getSearch',
+        {
+          params: {
+            search: search
+          }
+        }
+      ).then((response) => {
+        this.expedientes = response.data
+        loading(false)
+      })
+    }
+  }
+}
+</script>
