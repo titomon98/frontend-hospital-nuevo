@@ -539,6 +539,7 @@
                   >Agregar receta</b-button>
 
                   <b-button
+                  v-if="props.rowData.nombres !== 'PENDIENTE' "
                     @click="verReceta(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
@@ -553,6 +554,7 @@
                   >Agregar servicios</b-button>
 
                   <b-button
+                  v-if="props.rowData.nombres !== 'PENDIENTE' "
                     @click="verServicio(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
@@ -567,6 +569,7 @@
                   >Agregar honorarios</b-button>
 
                   <b-button
+                  v-if="props.rowData.nombres !== 'PENDIENTE' "
                     @click="showModal('modal-ver-honorarios'); getDataHonorarios(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
