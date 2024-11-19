@@ -788,14 +788,7 @@
                     size="sm"
                     variant="success"
                    >Agregar Examen</b-button>
-                  <!-- <b-button
-                    v-b-tooltip.top="'Aregar Insumos Quirofano'"
-                    @click="showModal('modal-2-movimiento'); obtenerIdCuenta(props.rowData.id)"
-                    class="mb-2"
-                    size="sm"
-                    variant="warning"
-                  >Cobro Sala Operaciones</b-button>
-
+                  <!--
                   <b-button
                     @click="showModal('modal-1-movimiento'); obtenerIdCuenta(props.rowData.id)"
                     class="mb-2 button-spacing"
