@@ -230,7 +230,7 @@
                   v-model.trim="varValorMinimoEdit"
                   :placeholder=row.itemvalor_minimo
                 ></b-form-input>
-                <div v-if="varValorMinimoEdit === 0 || varValorMinimoEdit === null" class="invalid-feedback">
+                <div v-if="varValorMinimoEdit < 0 || varValorMinimoEdit === null" class="invalid-feedback">
                   Debe ingresar el valor de referencia mínimo
                 </div>
               </b-form-group>
@@ -859,7 +859,7 @@ export default {
         })
     },
     onNewAttribute () {
-      if (this.varNombreCampo === '' || this.varValorMaximo === 0 || this.varValorMaximo === null || this.varValorMinimo === 0 || this.valor_minimo === null || this.varUnidades === '') {
+      if (this.varNombreCampo === '' || this.varValorMaximo === 0 || this.varValorMaximo === null || this.varValorMinimo < 0 || this.valor_minimo === null || this.varUnidades === '') {
         this.alertErrorText = 'Verifique los datos ingresados'
         this.showAlertError()
       } else {

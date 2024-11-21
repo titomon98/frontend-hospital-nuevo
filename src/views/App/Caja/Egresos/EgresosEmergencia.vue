@@ -265,6 +265,7 @@ import useVuelidate from '@vuelidate/core'
 import { required } from '@vuelidate/validators'
 import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'Bank',
@@ -281,6 +282,11 @@ export default {
   },
   mounted () {
     xray.index()
+  },
+  computed: {
+    ...mapGetters([
+      'currentUser'
+    ])
   },
   data () {
     return {
@@ -501,7 +507,8 @@ export default {
           id: this.form.id,
           estado: this.selectedTrasOption,
           estado_anterior: 5,
-          motivo: this.motivoTrasladoEmergencia
+          motivo: this.motivoTrasladoEmergencia,
+          user: me.currentUser.user
         })
         .then((response) => {
           this.motivoTrasladoEmergencia = ''
@@ -541,7 +548,8 @@ export default {
             id: this.form.id,
             estado: this.selectedQuitOption,
             estado_anterior: 4,
-            motivo: this.motivoEgresoEmergencia
+            motivo: this.motivoEgresoEmergencia,
+            user: me.currentUser.user
           })
           .then((response) => {
             this.motivoEgresoEmergencia = ''

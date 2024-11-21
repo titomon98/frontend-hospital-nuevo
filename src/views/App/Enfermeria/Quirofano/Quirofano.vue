@@ -140,7 +140,7 @@
         :show="alertCountDownError"
         dismissible
         fade
-        @dismissed="alertCountDownError=0"
+        @dismissed="alertCountDownError = 0"
         class="text-white bg-danger"
       >
         <div class="iq-alert-text">{{ alertErrorText }}</div>
@@ -158,7 +158,7 @@
             <template v-slot:option="option">
               {{ option.descripcion + ' - Precio: ' + option.precio }}
             </template>
-            <template slot="selected-option" slot-scope="option">
+            <template v-slot:selected-option="option">
               {{ option.descripcion + ' - Precio: ' + option.precio }}
             </template>
           </v-select>
@@ -166,11 +166,14 @@
         <b-form-group label="Cantidad:">
           <b-form-input
             type="number"
+            v-model="form.cantidad"
+            placeholder="Ingrese la cantidad"
+            min="1"
           ></b-form-input>
         </b-form-group>
       </b-form>
       <template #modal-footer="{}">
-        <b-button variant="primary" @click="saveServicio('add-servicio')"
+        <b-button variant="primary" @click="saveServicio"
           >Guardar</b-button
         >
         <b-button variant="danger" @click="closeModal('add-servicio')"
@@ -572,28 +575,6 @@
         </b-row>
         <b-row class="ml-2">
           <b-col md="4">
-            <b-form-group label="Encargado:">
-              <v-select
-                name="type"
-                v-model="formExamen.id_encargado"
-                :options="encargados"
-                :filterable="false"
-                placeholder="Seleccione un encargado"
-                @search="onSearchEncargado"
-              >
-                <template v-slot:spinner="{ loading }">
-                  <div v-show="loading">Cargando...</div>
-                </template>
-                <template v-slot:option="option">
-                  {{ 'Nombre: '+ option.nombres }}
-                </template>
-                <template slot="selected-option" slot-scope="option">
-                  {{ 'Nombre: '+ option.nombres }}
-                </template>
-              </v-select>
-            </b-form-group>
-          </b-col>
-          <b-col md="4">
             <b-form-group label="Tipo de Examen:">
               <v-select
                 name="type"
@@ -627,61 +608,73 @@
       </template>
       <b-row>
       <b-col sm="12">
-        <iq-card>
-          <template v-slot:headerTitle>
-            <div class="center-text">
-              <h3 class="card-title">EXAMENES REALIZADOS</h3>
-            </div>
-          </template>
-          <template v-slot:body>
-            <datatable-heading
-              :changePageSize="changePageSizesExamenes"
-              :searchChange="searchChangeExamenes"
-              :from="fromExamenes"
-              :to="toExamenes"
-              :total="totalExamenes"
-              :perPage="perPageExamenes"
-            >
-            </datatable-heading>
-            <vuetable
-              ref="vuetableExamenes"
-              class="table-divided order-with-arrow"
-              :api-url="apiBaseExamenes"
-              :query-params="makeQueryParamsExamenes"
-              :per-page="perPageExamenes"
-              :reactive-api-url="true"
-              :fields="fieldsExamenes"
-              pagination-path
-              @vuetable:pagination-data="onPaginationDataExamenes"
-            >
-            <!-- Botones -->
-            <template slot="actions" slot-scope="props">
-              <b-button-group>
-                <div class="button-container">
-                  <b-button
-                    @click="addResultado(props.rowData.id)"
-                    class="mb-2 button-spacing"
-                    size="sm"
-                    variant="success"
-                  >Agregar resultado</b-button>
-                  <b-button
-                    @click="anular(props.rowData.id)"
-                    class="mb-2 button-spacing"
-                    size="sm"
-                    variant="danger"
-                  >Anular Examen</b-button>
-                </div>
-              </b-button-group>
-              </template>
-            </vuetable>
-            <vuetable-pagination-bootstrap
-                ref="paginationExamenes"
-                @vuetable-pagination:change-page="onChangePageExamenes"
-              />
-          </template>
-        </iq-card>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Acciones</th>
+              <th>Nombre</th>
+              <th>CUI</th>
+              <th>Total a Pagar</th>
+              <th>Celular</th>
+              <th>Numero de Muestra</th>
+              <th>Nombre de Encargado</th>
+              <th>Pagado</th>
+              <th>Por Pagar</th>
+              <th>Examen Realizado</th>
+              <th>Fecha y Hora</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="row in item_examenes" :key="row.id">
+              <td>
+                <b-button @click="addResultado(row.id, row.nombre_examen, row)" variant="success">Agregar resultado</b-button>
+                <b-button @click="anular(row.id)" variant="danger">Anular Examen</b-button>
+              </td>
+              <td>{{ row.nombre }}</td>
+              <td>{{ row.cui }}</td>
+              <td>{{ row.total }}</td>
+              <td>{{ row.whatsapp }}</td>
+              <td>{{ row.numero_muestra }}</td>
+              <td>{{ row.nombre_encargado }}</td>
+              <td>{{ row.pagado }}</td>
+              <td>{{ row.por_pagar }}</td>
+              <td>{{ row.nombre_examen }}</td>
+              <td>{{ row.fecha_hora }}</td>
+            </tr>
+          </tbody>
+        </table>
       </b-col>
-    </b-row>
+      </b-row>
+    </b-modal>
+    <b-modal id="modal-add-resultados" size="lg" ref="modal-add-resultados" title="Agregar Resultados">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <b-form @submit.prevent="onSubmit">
+        <b-table :items="this.camposResulado" :fields="this.fieldsCampos" striped hover small responsive>
+          <template #cell(resultado)="data">
+            <b-form-input
+              v-model="data.item.resultado"
+              type="text"
+              placeholder="agregar el resultado"
+            ></b-form-input>
+          </template>
+        </b-table>
+      </b-form>
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click="onValidateResultado('save')"
+          >Guardar</b-button
+        >
+        <b-button variant="danger" @click="closeModal('resultado')"
+          >Cancelar</b-button
+        >
+      </template>
     </b-modal>
     <b-row>
       <b-col md="12">
@@ -737,6 +730,7 @@
                   >Agregar receta</b-button>
 
                   <b-button
+                  v-if="props.rowData.nombres !== 'PENDIENTE' "
                     @click="verReceta(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
@@ -751,6 +745,7 @@
                   >Agregar servicios</b-button>
 
                   <b-button
+                  v-if="props.rowData.nombres !== 'PENDIENTE' "
                     @click="verServicio(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
@@ -765,6 +760,7 @@
                   >Agregar honorarios</b-button>
 
                   <b-button
+                  v-if="props.rowData.nombres !== 'PENDIENTE' "
                    @click="showModal('modal-ver-honorarios'); getDataHonorarios(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
@@ -787,19 +783,12 @@
                    >Consumos</b-button>
 
                    <b-button
-                    @click="showModal('modal_agregar'); realizar_examen(props.rowData.id, props.rowData.nombres, props.rowData.apellidos, props.rowData.cui, props.rowData.telefono )"
+                    @click="showModal('modal_agregar'); ver_examen_realizado (props.rowData.cui); realizar_examen(props.rowData.id, props.rowData.nombres, props.rowData.apellidos, props.rowData.cui, props.rowData.telefono )"
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="success"
                    >Agregar Examen</b-button>
-                  <!-- <b-button
-                    v-b-tooltip.top="'Aregar Insumos Quirofano'"
-                    @click="showModal('modal-2-movimiento'); obtenerIdCuenta(props.rowData.id)"
-                    class="mb-2"
-                    size="sm"
-                    variant="warning"
-                  >Cobro Sala Operaciones</b-button>
-
+                  <!--
                   <b-button
                     @click="showModal('modal-1-movimiento'); obtenerIdCuenta(props.rowData.id)"
                     class="mb-2 button-spacing"
@@ -835,6 +824,7 @@ import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
 import { quillEditor } from 'vue-quill-editor'
 import moment from 'moment'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'Quirofano',
@@ -1149,7 +1139,9 @@ export default {
         state: 1,
         movimiento: 'SALIDAQ'
       },
-
+      /* AREA DE EXAMENES */
+      camposResulado: [],
+      item_examenes: [],
       examenes_almacenados: [],
       encargados: [],
       formExamen: {
@@ -1169,7 +1161,8 @@ export default {
         por_pagar: 0,
         id_examenes_almacenados: null,
         NewExpediente: false,
-        id_expediente: 0
+        id_expediente: 0,
+        examenExterior: false
       },
       selectedExamenAlmacenado: null,
       fromExamenes: 0,
@@ -1179,7 +1172,19 @@ export default {
       searchExamenes: '',
       fechaDesdeExamenes: null,
       fechaHastaExamenes: null,
-      apiBaseExamenes: '',
+      apiBaseExamenes: null,
+      formResultado: {
+        id: null,
+        id_campo: '',
+        id_tipo: '',
+        resultado: null,
+        alarma: ''
+      },
+      fieldsCampos: [
+        { key: 'nombre', label: 'Nombre' },
+        { key: 'unidades', label: 'Unidades' },
+        { key: 'resultado', label: 'Resultado' }
+      ],
       fieldsExamenes: [
         {
           name: '__slot:actions',
@@ -1277,7 +1282,10 @@ export default {
   computed: {
     isCirugiaMayorOMedia () {
       return this.salaOperaciones.categoria === 'Cirugia media' || this.salaOperaciones.categoria === 'Cirugia mayor'
-    }
+    },
+    ...mapGetters([
+      'currentUser'
+    ])
   },
 
   watch: {
@@ -1463,6 +1471,18 @@ export default {
           this.formExamen.por_pagar = 0
           this.formExamen.id_examenes_almacenados = null
           this.formExamen.id_expediente = 0
+          this.formExamen.examenExterior = false
+          this.apiBaseExamenes = null
+          this.item_examenes = []
+          this.examenes_almacenados = []
+          break
+        }
+        case 'resultado': {
+          this.$v.$reset()
+          this.$refs['modal-add-resultados'].hide()
+          this.formResultado.id = null
+          this.formResultado.tipo = ''
+          this.formResultado.resultado = null
           break
         }
       }
@@ -1673,7 +1693,7 @@ export default {
     },
     saveServicio () {
       const me = this
-      if (me.servicio !== null && me.form.cantidad !== null) {
+      if (me.servicio.id !== null && me.form.cantidad !== null) {
         me.form.servicio = me.servicio
         me.form.descripcion = 'Añadido en quirófano'
         axios.post(apiUrl + '/consumos/create', {
@@ -2131,7 +2151,8 @@ export default {
           id: this.form.id,
           estado: this.selectedTrasOption,
           estado_anterior: 5,
-          motivo: this.motivoTrasladoEmergencia
+          motivo: this.motivoTrasladoEmergencia,
+          user: me.currentUser.user
         })
         .then((response) => {
           me.alertVariant = 'info'
@@ -2173,7 +2194,6 @@ export default {
     /* AREA DE EXAMENES DE LABORATORIO */
     anular (id) {
       const me = this
-      console.log(id)
       const ruta = apiUrl + `/Examenes_realizados/update?id=${id}`
       axios.put(ruta, {
         form: me.anularExamen
@@ -2182,7 +2202,7 @@ export default {
           me.alertVariant = 'success'
           me.showAlert()
           me.alertText = 'Se ha ANULADO el examen'
-          me.$refs.vuetableExamenes.refresh()
+          me.ver_examen_realizado(id)
         })
         .catch((error) => {
           me.alertVariant = 'danger'
@@ -2191,85 +2211,105 @@ export default {
           console.error('Error!', error)
         })
     },
-    addResultado (id) {
+    addResultado (id, nombreexamen, row) {
       this.$refs['modal-add-resultados'].show()
-      console.log(id)
+      console.log(id, row)
       this.formResultado.id = id
+      this.getFieldsByExamenId(nombreexamen)
     },
-    makeQueryParamsExamenes (sortOrderExamenes, currentPageExamenes, perPageExamenes) {
-      return {
-        criterio: sortOrderExamenes[0] ? sortOrderExamenes[0].sortField : 'createdAt',
-        order: sortOrderExamenes[0] ? sortOrderExamenes[0].direction : 'desc',
-        page: currentPageExamenes,
-        limit: this.perPageExamenes,
-        search: this.searchExamenes
+
+    onValidateResultado (action) {
+      const camposConErrores = this.camposResulado.filter(campo => campo.resultado === '' || campo.resultado == null)
+      if (camposConErrores.length > 0) {
+        this.alertErrorText = 'Revisa que todos los campos de resultado estén llenos.'
+        this.showAlertError()
+        return
       }
+      this.onSaveResultados()
     },
-    changePageSizesExamenes (perPage) {
-      this.perPageExamenes = perPage
-      this.$refs.vuetableExamenes.refresh()
-    },
-    searchChangeExamenes (val) {
-      this.searchExamenes = val.toLowerCase()
-      this.$refs.vuetableExamenes.refresh()
-    },
-    onPaginationDataExamenes (paginationData) {
-      this.fromExamenes = paginationData.from
-      this.toExamenes = paginationData.to
-      this.totalExamenes = paginationData.total
-      this.lastPageExamenes = paginationData.last_page
-      console.log(paginationData.data + 'ACA APARECERIA LA DATA DE LIST EXAMENES')
-      this.itemsExamenes = paginationData.data.map(item => {
-        item.fecha_hora = moment(item.fecha_hora).format('DD/MM/YYYY HH:mm')
-        return {
-          id: item.id,
-          nombre: item.expediente,
-          cui: item.cui,
-          total: item.total,
-          whatsapp: item.whatsapp,
-          numero_muestra: item.numero_muestra,
-          nombre_encargago: item.nombre_encargago,
-          pagado: item.pagado,
-          por_pagar: item.por_pagar,
-          nombre_examen: item.nombre_examen,
-          fecha_hora: item.fecha_hora
-        }
-      })
-      this.$refs.paginationExamenes.setPaginationData(paginationData)
-    },
-    onChangePageExamenes (page) {
-      this.$refs.vuetableExamenes.changePage(page)
-    },
-    guardarExamenRealizado () {
-      axios.post(apiUrl + '/Examenes_realizados/create', {
-        form: this.formExamen })
+
+    onSaveResultados () {
+      const me = this
+      const resultados = this.camposResulado.map(campo => ({
+        id: me.formResultado.id,
+        id_campo: campo.id,
+        id_tipo: campo.id_tipo,
+        resultado: campo.resultado
+      }))
+
+      axios.post(apiUrl + '/detalleExamenRealizado/create', { resultados })
         .then((response) => {
-          this.alertVariant = 'success'
-          this.showAlert()
-          this.alertText = 'Se ingresado al pasciente ' + this.formExamen.nombre + ' exitosamente'
-          this.$refs.vuetable.refresh()
-          this.closeModal('modal_agregar')
-          this.$refs.vuetable.refresh()
+          me.alertVariant = 'success'
+          me.showAlert()
+          me.alertText = 'Se han ingresado los resultados de los exámenes exitosamente'
+          me.$refs.vuetable2.refresh()
+          me.$refs.vuetable3.refresh()
+          me.closeModal('resultado')
         })
         .catch((error) => {
-          this.alertVariant = 'danger'
-          this.showAlertError()
-          this.alertErrorText = error.response.data.msg
-          console.error('Error!', error)
+          me.alertVariant = 'danger'
+          me.showAlertError()
+          me.alertErrorText = error.response.data.msg
+          console.error('Error al guardar los resultados!', error)
         })
     },
+
+    getFieldsByExamenId (examenId) {
+      axios.get(apiUrl + '/campoLaboratorio/getByExamenId', {
+        params: {
+          id: examenId
+        }
+      })
+        .then((response) => {
+          this.camposResulado = response.data.map(item => ({
+            id: item.id,
+            nombre: item.nombre,
+            unidades: item.unidades,
+            resultado: '',
+            id_tipo: item.id_examenes_almacenados
+          }))
+          const campos = response.data
+          this.campos = campos
+        })
+        .catch((error) => {
+          console.error('Error al obtener los campos del examen:', error)
+        })
+    },
+
+    guardarExamenRealizado () {
+      if (this.formExamen.total !== 0 && this.formExamen.numero_muestra !== 0 && this.formExamen.id_examenes_almacenados !== null) {
+        axios.post(apiUrl + '/Examenes_realizados/create', {
+          form: this.formExamen })
+          .then((response) => {
+            this.alertVariant = 'success'
+            this.showAlert()
+            this.alertText = 'Se ingresado al pasciente ' + this.formExamen.nombre + ' exitosamente'
+            this.closeModal('modal_agregar')
+          })
+          .catch((error) => {
+            this.alertVariant = 'danger'
+            this.showAlertError()
+            this.alertErrorText = error.response.data.msg
+            console.error('Error!', error)
+          })
+      } else {
+        this.alertVariant = 'danger'
+        this.showAlertError()
+        this.alertErrorText = 'Por favor llene los campos solicitados'
+      }
+    },
     realizar_examen (id, nombre, apellido, cui, telefono) {
-      this.$refs['modal_agregar'].show()
-      console.log(nombre + apellido + cui)
       this.formExamen.nombre = nombre + ' ' + apellido
       this.formExamen.cui = cui
       this.formExamen.whatsapp = telefono
       this.formExamen.id_expediente = id
-      this.apiBaseExamenes = apiUrl + `/Examenes_realizados/list/cui?cui=${cui}`
     },
     ver_examen_realizado (cui) {
-      this.$refs['modal-add-resultados'].show()
-      console.log(cui)
+      axios.get(apiUrl + `/Examenes_realizados/list/cui?cui=${cui}`
+      ).then((response) => {
+        console.log('Datos de exámenes:', response.data)
+        this.item_examenes = response.data
+      })
     },
     onSearch_id_examenes_almacenados (search, loading) {
       if (search.length) {

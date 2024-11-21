@@ -459,19 +459,29 @@
                 <div class="button-container">
                   <b-button @click="
                     setData(props.rowData)
-                    traslado(props.rowData.id)" class="mb-2 button-spacing" size="sm"
-                    variant="dark">Trasladar</b-button>
-                  <b-button @click="addReceta(props.rowData.id)" class="mb-2 button-spacing" size="sm" variant="success">Agregar
-                    receta</b-button>
-                  <b-button @click="verReceta(props.rowData.id)" class="mb-2 button-spacing" size="sm" variant="dark">Ver
-                    recetas</b-button>
+                    traslado(props.rowData.id)"
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="dark"
+                    >Trasladar</b-button>
+                  <b-button
+                    @click="addReceta(props.rowData.id)"
+                    class="mb-2 button-spacing"
+                    size="sm" variant="success"
+                  >Agregar receta</b-button>
+                  <b-button
+                    v-if="props.rowData.nombres !== 'PENDIENTE' "
+                    @click="verReceta(props.rowData.id)"
+                    class="mb-2 button-spacing"
+                    size="sm" variant="dark"
+                  >Ver ecetas</b-button>
                   <b-button @click="addServicio(props.rowData.id)" class="mb-2 button-spacing" size="sm" variant="success">Agregar
                     servicios</b-button>
-                  <b-button @click="verServicio(props.rowData.id)" class="mb-2 button-spacing" size="sm" variant="dark">Ver
+                  <b-button v-if="props.rowData.nombres !== 'PENDIENTE' " @click="verServicio(props.rowData.id)" class="mb-2 button-spacing" size="sm" variant="dark">Ver
                     servicios</b-button>
                   <b-button @click="showModal('modal-add-honorarios'); obtenerIdCuenta(props.rowData.id)" class="mb-2 button-spacing"
                     size="sm" variant="success">Agregar honorarios</b-button>
-                  <b-button @click="showModal('modal-ver-honorarios'); getDataHonorarios(props.rowData.id)"
+                  <b-button v-if="props.rowData.nombres !== 'PENDIENTE' " @click="showModal('modal-ver-honorarios'); getDataHonorarios(props.rowData.id)"
                     class="mb-2 button-spacing" size="sm" variant="dark">Ver honorarios</b-button>
                   <b-button
                     v-b-tooltip.top="'Agregar consumo'"
@@ -505,6 +515,7 @@ import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
 import { quillEditor } from 'vue-quill-editor'
 import moment from 'moment'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'Emergencias',
@@ -523,6 +534,11 @@ export default {
   },
   mounted () {
     xray.index()
+  },
+  computed: {
+    ...mapGetters([
+      'currentUser'
+    ])
   },
   data () {
     return {
@@ -1552,7 +1568,8 @@ export default {
           id: this.form.id,
           estado: this.selectedTrasOption,
           estado_anterior: 5,
-          motivo: this.motivoTrasladoEmergencia
+          motivo: this.motivoTrasladoEmergencia,
+          user: me.currentUser.user
         })
         .then((response) => {
           me.alertVariant = 'info'

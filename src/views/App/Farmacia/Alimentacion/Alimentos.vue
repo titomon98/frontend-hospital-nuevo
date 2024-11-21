@@ -271,6 +271,7 @@ import useVuelidate from '@vuelidate/core'
 import { required } from '@vuelidate/validators'
 import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'Alimentos',
@@ -284,6 +285,11 @@ export default {
   },
   mounted () {
     xray.index()
+  },
+  computed: {
+    ...mapGetters([
+      'currentUser'
+    ])
   },
   data () {
     return {
@@ -412,7 +418,9 @@ export default {
     onSave () {
       const me = this
       axios.post(apiUrl + '/alimentos/create', {
-        form: me.form })
+        form: me.form,
+        user: me.currentUser.user
+      })
         .then((response) => {
           me.alertVariant = 'success'
           me.showAlert()
@@ -432,7 +440,9 @@ export default {
       const me = this
       // this.$refs["modalSave"].hide();
       axios.put(apiUrl + '/alimentos/update', {
-        form: me.form })
+        form: me.form,
+        user: me.currentUser.user
+      })
         .then((response) => {
           me.alertVariant = 'primary'
           me.showAlert()
