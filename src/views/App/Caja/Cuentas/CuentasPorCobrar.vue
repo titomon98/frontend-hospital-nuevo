@@ -271,41 +271,48 @@
               </div>
               <!-- Botones -->
               <template slot="actions" slot-scope="props">
-                <div class="button-container" v-if="props.rowData.solicitud_descuento == 3">
-                  <b-button
-                    @click="
-                      setData(props.rowData)
-                      $bvModal.show('modal-2-account')
-                    "
-                    class="mb-2 button-spacing"
-                    size="sm"
-                    variant="dark"
-                  >Cobrar</b-button>
-                  <b-button
-                    @click="
-                      setData(props.rowData)
-                      $bvModal.show('modal-3-discount')
-                    "
-                    class="mb-2 button-spacing"
-                    size="sm"
-                    variant="success"
-                  >Solicitar descuento</b-button>
-                </div>
-                <div class="button-container" v-else-if="props.rowData.solicitud_descuento == 2">
+                <h5 v-if="props.rowData.expediente.estado == 1 || props.rowData.expediente.estado == 3 || props.rowData.expediente.estado == 4 || props.rowData.expediente.estado == 5">
                   <b-badge variant="light"
-                    ><h6 class="danger"><strong>EN ESPERA</strong></h6></b-badge
+                    ><h6 class="success"><strong>PACIENTE NO EGRESADO</strong></h6></b-badge
                   >
-                </div>
-                <div class="button-container" v-else>
-                  <b-button
-                    @click="
-                      setData(props.rowData)
-                      $bvModal.show('modal-2-account')
-                    "
-                    class="mb-2 button-spacing"
-                    size="sm"
-                    variant="dark"
-                  >Cobrar</b-button>
+                </h5>
+                <div v-else>
+                  <div class="button-container" v-if="props.rowData.solicitud_descuento == 3">
+                    <b-button
+                      @click="
+                        setData(props.rowData)
+                        $bvModal.show('modal-2-account')
+                      "
+                      class="mb-2 button-spacing"
+                      size="sm"
+                      variant="dark"
+                    >Cobrar</b-button>
+                    <b-button
+                      @click="
+                        setData(props.rowData)
+                        $bvModal.show('modal-3-discount')
+                      "
+                      class="mb-2 button-spacing"
+                      size="sm"
+                      variant="success"
+                    >Solicitar descuento</b-button>
+                  </div>
+                  <div class="button-container" v-else-if="props.rowData.solicitud_descuento == 2">
+                    <b-badge variant="light"
+                      ><h6 class="danger"><strong>EN ESPERA</strong></h6></b-badge
+                    >
+                  </div>
+                  <div class="button-container" v-else>
+                    <b-button
+                      @click="
+                        setData(props.rowData)
+                        $bvModal.show('modal-2-account')
+                      "
+                      class="mb-2 button-spacing"
+                      size="sm"
+                      variant="dark"
+                    >Cobrar</b-button>
+                  </div>
                 </div>
               </template>
               <!-- Paginacion -->
