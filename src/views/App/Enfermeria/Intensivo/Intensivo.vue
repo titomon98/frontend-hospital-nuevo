@@ -539,6 +539,7 @@
                   >Agregar receta</b-button>
 
                   <b-button
+                  v-if="props.rowData.nombres !== 'PENDIENTE' "
                     @click="verReceta(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
@@ -553,6 +554,7 @@
                   >Agregar servicios</b-button>
 
                   <b-button
+                  v-if="props.rowData.nombres !== 'PENDIENTE' "
                     @click="verServicio(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
@@ -567,6 +569,7 @@
                   >Agregar honorarios</b-button>
 
                   <b-button
+                  v-if="props.rowData.nombres !== 'PENDIENTE' "
                     @click="showModal('modal-ver-honorarios'); getDataHonorarios(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
@@ -620,6 +623,7 @@ import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
 import { quillEditor } from 'vue-quill-editor'
 import moment from 'moment'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'Intensivo',
@@ -638,6 +642,11 @@ export default {
   },
   mounted () {
     xray.index()
+  },
+  computed: {
+    ...mapGetters([
+      'currentUser'
+    ])
   },
   data () {
     return {
@@ -1625,7 +1634,8 @@ export default {
           id: this.form.id,
           estado: this.selectedTrasOption,
           estado_anterior: 4,
-          motivo: this.motivoTrasladoIntensivo
+          motivo: this.motivoTrasladoIntensivo,
+          user: me.currentUser.user
         })
         .then((response) => {
           axios.put(apiUrl + '/habitaciones/available',

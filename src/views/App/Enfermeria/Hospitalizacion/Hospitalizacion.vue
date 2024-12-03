@@ -473,6 +473,7 @@
                   >Agregar receta</b-button>
 
                   <b-button
+                  v-if="props.rowData.nombres !== 'PENDIENTE' "
                     @click="verReceta(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
@@ -487,6 +488,7 @@
                   >Agregar servicios</b-button>
 
                   <b-button
+                  v-if="props.rowData.nombres !== 'PENDIENTE' "
                     @click="verServicio(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
@@ -501,6 +503,7 @@
                   >Agregar honorarios</b-button>
 
                   <b-button
+                  v-if="props.rowData.nombres !== 'PENDIENTE' "
                     @click="showModal('modal-ver-honorarios'); getDataHonorarios(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
@@ -553,6 +556,7 @@ import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
 import { quillEditor } from 'vue-quill-editor'
 import moment from 'moment'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'Hospitalizacion',
@@ -571,6 +575,11 @@ export default {
   },
   mounted () {
     xray.index()
+  },
+  computed: {
+    ...mapGetters([
+      'currentUser'
+    ])
   },
   data () {
     return {
@@ -1138,7 +1147,8 @@ export default {
     },
     saveServicio () {
       const me = this
-      if (me.servicio !== null && me.form.cantidad !== null) {
+      console.log(me.form.id)
+      if (me.servicio.id !== null && me.form.cantidad !== null) {
         me.form.servicio = me.servicio
         me.form.descripcion = 'Añadido en hospitalización'
         axios.post(apiUrl + '/consumos/create', {
@@ -1545,7 +1555,8 @@ export default {
           id: this.form.id,
           estado: this.selectedTrasOption,
           estado_anterior: 1,
-          motivo: this.motivoTrasladoHospi
+          motivo: this.motivoTrasladoHospi,
+          user: me.currentUser.user
         })
         .then((response) => {
           me.alertVariant = 'info'

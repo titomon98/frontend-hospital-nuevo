@@ -330,6 +330,7 @@ import useVuelidate from '@vuelidate/core'
 import { required } from '@vuelidate/validators'
 import axios from 'axios'
 import { apiUrl } from '../../../../../config/constant'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'CuentasPorCobrarLab',
@@ -346,6 +347,11 @@ export default {
   },
   mounted () {
     xray.index()
+  },
+  computed: {
+    ...mapGetters([
+      'currentUser'
+    ])
   },
   data () {
     return {
@@ -608,7 +614,8 @@ export default {
       axios
         .put(apiUrl + '/expedientes/changeState', {
           id: this.form.id,
-          estado: this.selectedTrasOption
+          estado: this.selectedTrasOption,
+          user: me.currentUser.user
         })
         .then((response) => {
           me.alertVariant = 'info'
