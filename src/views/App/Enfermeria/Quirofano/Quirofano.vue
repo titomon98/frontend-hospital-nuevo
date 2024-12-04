@@ -2283,7 +2283,6 @@ export default {
     },
     addResultado (id, nombreexamen, row) {
       this.$refs['modal-add-resultados'].show()
-      console.log(id, row)
       this.formResultado.id = id
       this.getFieldsByExamenId(nombreexamen)
     },
@@ -2377,7 +2376,6 @@ export default {
     ver_examen_realizado (cui) {
       axios.get(apiUrl + `/Examenes_realizados/list/cui?cui=${cui}`
       ).then((response) => {
-        console.log('Datos de exámenes:', response.data)
         this.item_examenes = response.data
       })
     },
@@ -2458,7 +2456,6 @@ export default {
     },
 
     generarPDF_CuentaParcial () {
-      console.log('Datos del reporte:', this.dataPDF)
       const doc = new JsPDF()
       let y = 20
       doc.setFontSize(18)
@@ -2582,7 +2579,6 @@ export default {
     },
 
     mostrarHistorial (historial) {
-      console.log(historial)
       let totalDeuda = 0
 
       const ConsumoTotal = historial.Consumo.reduce((acc, item) => {
