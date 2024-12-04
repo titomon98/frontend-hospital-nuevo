@@ -63,6 +63,17 @@
         "class_name": "",
         "is_icon_class": true,
         "icon": "ri-file-warning-line"
+      },
+      {
+        "title": "Descuentos",
+        "name": "Descuentos",
+        "is_active": false,
+        "link": {
+          "name" : "laboratorio.descuentos"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-shopping-cart-fill"
       }
     ]
   },

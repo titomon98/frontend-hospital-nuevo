@@ -145,7 +145,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-3-discount" ref="modal-3-discount" title="Solicitar descuento">
+    <b-modal id="modal-3-discount" ref="modal-3-discount" title="Validar descuento">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -156,16 +156,34 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6 class="my-4">
-        ¿Desea solicitar un descuento para: {{ form.name }} {{ form.apellidos }} ?
+        ¿Desea validar un descuento para: {{ this.form.name }} {{this.form.apellidos}} ?
       </h6>
-      Descuento:
-      <b-input :type="'number'" id="discountAmount" ref="discountAmount" v-model="discountAmount" />
+      <div>
+        Descuento:
+        <b-input :type="'number'" id="discountAmount" ref="discountAmount" v-model="discountAmount" />
+      </div>
+      <div>
+        <h6>
+          Total: {{ this.form.total }}
+        </h6>
+      </div>
+      <div>
+        <h6>
+          Total pagado: {{ this.form.total_pagado }}
+        </h6>
+      </div>
       <template #modal-footer="{}">
         <b-button
           type="submit"
           variant="primary"
           @click="requestDiscount()"
-          >Solicitar</b-button
+          >Validar</b-button
+        >
+        <b-button
+          type="submit"
+          variant="danger"
+          @click="negateDiscount()"
+          >Negar</b-button
         >
         <b-button variant="danger" @click="$bvModal.hide('modal-3-discount')"
           >Cancelar</b-button
@@ -202,7 +220,7 @@
       <b-col md="12">
         <iq-card>
             <template v-slot:headerTitle>
-              <h4 class="card-title mt-3">Cuentas por cobrar</h4>
+              <h4 class="card-title mt-3">Validar Descuentos</h4>
                <div class="iq-search-bar mt-2">
                 <b-form action="#" class="searchbox">
                     <b-input id="search" placeholder="Buscar..." @input="(val) => searchChange(val)" />
@@ -265,54 +283,22 @@
                 </h5>
                 <h5 v-if="props.rowData.solicitud_descuento == 0">
                   <b-badge variant="light"
-                    ><h6 class="danger"><strong>SIN DESCUENTO</strong></h6></b-badge
+                    ><h6 class="danger"><strong>DESCUENTO NEGADO</strong></h6></b-badge
                   >
                 </h5>
               </div>
               <!-- Botones -->
               <template slot="actions" slot-scope="props">
-                <h5 v-if="props.rowData.expediente.estado == 1 || props.rowData.expediente.estado == 3 || props.rowData.expediente.estado == 4 || props.rowData.expediente.estado == 5">
-                  <b-badge variant="light"
-                    ><h6 class="success"><strong>PACIENTE NO EGRESADO</strong></h6></b-badge
-                  >
-                </h5>
-                <div v-else>
-                  <div class="button-container" v-if="props.rowData.solicitud_descuento == 3">
-                    <b-button
-                      @click="
-                        setData(props.rowData)
-                        $bvModal.show('modal-2-account')
-                      "
-                      class="mb-2 button-spacing"
-                      size="sm"
-                      variant="dark"
-                    >Cobrar</b-button>
-                    <b-button
-                      @click="
-                        setData(props.rowData)
-                        $bvModal.show('modal-3-discount')
-                      "
-                      class="mb-2 button-spacing"
-                      size="sm"
-                      variant="success"
-                    >Solicitar descuento</b-button>
-                  </div>
-                  <div class="button-container" v-else-if="props.rowData.solicitud_descuento == 2">
-                    <b-badge variant="light"
-                      ><h6 class="danger"><strong>EN ESPERA</strong></h6></b-badge
-                    >
-                  </div>
-                  <div class="button-container" v-else>
-                    <b-button
-                      @click="
-                        setData(props.rowData)
-                        $bvModal.show('modal-2-account')
-                      "
-                      class="mb-2 button-spacing"
-                      size="sm"
-                      variant="dark"
-                    >Cobrar</b-button>
-                  </div>
+                <div class="button-container">
+                  <b-button
+                    @click="
+                      setData(props.rowData)
+                      $bvModal.show('modal-3-discount')
+                    "
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="success"
+                  >Validar descuento</b-button>
                 </div>
               </template>
               <!-- Paginacion -->
@@ -336,7 +322,6 @@ import useVuelidate from '@vuelidate/core'
 import { required } from '@vuelidate/validators'
 import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
-import { mapGetters } from 'vuex'
 
 export default {
   name: 'CuentasPorCobrarHospital',
@@ -349,15 +334,9 @@ export default {
     return { $v: useVuelidate() }
   },
   beforeMount () {
-    this.getHabitaciones(0)
   },
   mounted () {
     xray.index()
-  },
-  computed: {
-    ...mapGetters([
-      'currentUser'
-    ])
   },
   data () {
     return {
@@ -417,7 +396,7 @@ export default {
         { text: 'Hospitalización', value: 1 },
         { text: 'Intensivos', value: 4 }
       ],
-      apiBase: apiUrl + '/cuentas/debtList',
+      apiBase: apiUrl + '/lab_cuentas/listDiscount',
       fields: [
         {
           name: '__slot:actions',
@@ -555,6 +534,7 @@ export default {
       }
     },
     setData (data) {
+      this.discountAmount = data.descuento
       this.form.name = data.expediente.nombres
       this.form.apellidos = data.expediente.apellidos
       this.form.state = data.estado
@@ -568,6 +548,7 @@ export default {
       this.totalPayment = data.pendiente_de_pago
       this.totPagado = data.total_pagado
       this.expediente = data.id_expediente
+      console.log(this.cuentas)
       this.onLoadAssurances(data.id_expediente)
       // this.getCuentas(data.id)
     },
@@ -615,8 +596,7 @@ export default {
       axios
         .put(apiUrl + '/expedientes/changeState', {
           id: this.form.id,
-          estado: this.selectedTrasOption,
-          user: me.currentUser.user
+          estado: this.selectedTrasOption
         })
         .then((response) => {
           me.alertVariant = 'info'
@@ -655,6 +635,7 @@ export default {
         })
     },
     requestDiscount () {
+      console.log('HOLA')
       if (this.discountAmount <= 0) {
         this.alertErrorText = 'El descuento debe ser mayor a 0.00'
         this.showAlertError()
@@ -662,14 +643,14 @@ export default {
         this.alertErrorText = `El descuento debe ser menor a ${this.totalPayment}`
         this.showAlertError()
       } else {
-        axios.post(apiUrl + '/cuentas/requestDiscount', {
+        axios.post(apiUrl + '/lab_cuentas/requestDiscount', {
           form: {
             id: this.form.id,
-            solicitud_descuento: 2,
-            descuento: parseFloat(this.discountAmount)
+            solicitud_descuento: 1,
+            descuento: this.discountAmount
           }
         })
-          .then((tipo) => {
+          .then((res) => {
             this.discountAmount = 0
             this.$bvModal.hide('modal-3-discount')
             this.$refs.vuetable.refresh()
@@ -679,6 +660,24 @@ export default {
             console.error(error)
           })
       }
+    },
+    negateDiscount () {
+      axios.post(apiUrl + '/lab_cuentas/requestDiscount', {
+        form: {
+          id: this.form.id,
+          solicitud_descuento: 0,
+          descuento: this.discountAmount
+        }
+      })
+        .then((res) => {
+          this.discountAmount = 0
+          this.$bvModal.hide('modal-3-discount')
+          this.$refs.vuetable.refresh()
+        }
+        )
+        .catch((error) => {
+          console.error(error)
+        })
     },
     onPatientQuit () {
       this.paymentSum = parseFloat(this.paymentType.Efectivo) + parseFloat(this.paymentType.Tarjeta) + parseFloat(this.paymentType.Deposito) + parseFloat(this.paymentType.Cheque) + parseFloat(this.paymentType.Seguro) + parseFloat(this.paymentType.Transferencia)

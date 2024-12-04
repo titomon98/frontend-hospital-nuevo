@@ -91,6 +91,7 @@ import AppTreeView from '../views/Plugins/AppTreeView'
 // gerencia
 import AdminParent from '../views/App/Admin/AdminParent'
 import Asuetos from '../views/App/Admin/Asuetos.vue'
+import Reportes from '../views/App/Admin/Reportes.vue'
 import Cuartos from '../views/App/Admin/Cuartos.vue'
 import Users from '../views/App/Admin/Users'
 
@@ -147,7 +148,9 @@ import PacientesParent from '../views/App/Pacientes/PacientesParent'
 // Laboratorio
 // Caja
 import Cortes from '../views/App/Laboratorio/Caja/Cortes.vue'
+import ValDescuentos from '../views/App/Laboratorio/Caja/ValidarDescuentos.vue'
 import CuentasParentLaboratorio from '../views/App/Laboratorio/Caja/CuentasParent.vue'
+// import Descuentos from '../views/App/Laboratorio/Caja/ValidarDescuentos.vue'
 
 // Examenes
 import Examenes from '../views/App/Laboratorio/Examenes.vue'
@@ -180,6 +183,13 @@ const LaboratorioRoutes = (prop, mode) => [
     name: prop + '.cuentas',
     meta: { dark: mode, auth: true, name: 'cuentas' },
     component: CuentasParentLaboratorio
+  },
+  {
+    path: 'descuentos',
+    name: prop + '.descuentos',
+    meta: { dark: mode, auth: true, name: 'descuentos' },
+    component: ValDescuentos
+
   },
   {
     path: 'facturacion',
@@ -243,6 +253,12 @@ const AdminRoutes = (prop, mode) => [
     name: prop + '.asuetos',
     meta: { dark: mode, auth: true, name: 'Asuetos' },
     component: Asuetos
+  },
+  {
+    path: 'reportes',
+    name: prop + '.reportes',
+    meta: { dark: mode, auth: true, name: 'Reportes' },
+    component: Reportes
   },
   {
     path: 'adminparent',
