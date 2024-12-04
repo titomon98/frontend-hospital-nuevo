@@ -40,7 +40,7 @@
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-shopping-cart-fill"
+        "icon": "ri-file-warning-line"
       },
       {
         "title": "Cuentas por cobrar",
@@ -51,7 +51,7 @@
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-shopping-cart-fill"
+        "icon": "ri-file-warning-line"
       },
       {
         "title": "Facturación",
@@ -62,7 +62,7 @@
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-shopping-cart-fill"
+        "icon": "ri-file-warning-line"
       }
     ]
   },
@@ -76,7 +76,7 @@
     },
     "class_name": "",
     "is_icon_class": true,
-    "icon": "ri-briefcase-4-fill"
+    "icon": "ri-article-line"
   },
   {
     "title": "Estadísticas",
@@ -85,7 +85,7 @@
     "is_active": false,
     "class_name": "",
     "is_icon_class": true,
-    "icon": "ri-briefcase-4-fill",
+    "icon": "ri-bar-chart-fill",
     "link": {
     },
     "children": [
@@ -98,7 +98,7 @@
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-shopping-cart-fill"
+        "icon": "ri-file-text-line"
       },
       {
         "title": "Incentivos",
@@ -109,7 +109,7 @@
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-shopping-cart-fill"
+        "icon": "ri-money-dollar-circle-line"
       }
     ]
   },
@@ -123,7 +123,7 @@
     },
     "class_name": "",
     "is_icon_class": true,
-    "icon": "ri-briefcase-4-fill"
+    "icon": "ri-folders-fill"
   },
   {
     "title": "Inventario",
@@ -135,7 +135,7 @@
     },
     "class_name": "",
     "is_icon_class": true,
-    "icon": "ri-briefcase-4-fill"
+    "icon": "ri-archive-fill"
   },
   {
     "title": "Encargados",
@@ -147,6 +147,6 @@
     },
     "class_name": "",
     "is_icon_class": true,
-    "icon": "ri-briefcase-4-fill"
+    "icon": "ri-account-box-fill"
   }
 ]
