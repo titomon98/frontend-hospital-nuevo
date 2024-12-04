@@ -258,21 +258,9 @@
         @vuetable:pagination-data="onPaginationDataResultado"
       >
         <template slot-scope="props">
-          <td :class="{ 'text-danger-custom': props.rowData.alarma ===  'SI' }">
+          <td :style="{ color: this.getColorForAlarma (props.rowData.alarma)}">
             {{ props.rowData.alarma }}
           </td>
-        </template>
-        <template slot="actions" slot-scope="props">
-          <b-button-group>
-            <b-button
-              v-b-tooltip.top="'Generar PDF'"
-              @click="voucherData(props.rowData)"
-              class="mb-2"
-              size="sm"
-              variant="outline-info"
-              ><i :class="'fas fa-money-bill'"
-            /></b-button>
-          </b-button-group>
         </template>
       </vuetable>
 
@@ -281,7 +269,7 @@
         @vuetable-pagination:change-page="onChangePageResultado"
       />
 
-      <template #modal-footer="{}">
+      <template #modal-footer="{}" >
         <b-button variant="danger" @click="closeModal('verresultado')">Cerrar</b-button>
       </template>
     </b-modal>
@@ -604,7 +592,7 @@ export default {
         id: 0,
         nombre: '',
         apellido: '',
-        cui: 0,
+        cui: 'NO DISPONIBLE',
         comision: '',
         total: 0,
         correo: '',
@@ -895,8 +883,9 @@ export default {
     }
   },
   methods: {
-    logRowData (rowData) {
-      console.log('Row Data:', rowData.alarma)
+    getColorForAlarma (alarma) {
+      console.log(alarma)
+      return alarma === 'SI' ? 'text-danger-custom' : 'text-safe'
     },
     closeModal (action) {
       switch (action) {
