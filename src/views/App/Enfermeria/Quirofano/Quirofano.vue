@@ -701,7 +701,7 @@
         <p><strong>Total de exámenes realizados:</strong> Q{{ reporteHisotiral.ExamenesTotal }}</p>
         <p><strong>Total de servicios en sala de operaciones:</strong> Q{{ reporteHisotiral.ServicioSalaOperacionesTotal }}</p>
         <hr />
-        <p><strong><u>Total deuda:</u> Q{{ reporteHisotiral.TotalDeuda }}</strong></p>
+        <!-- <p><strong><u>Total deuda:</u> Q{{ reporteHisotiral.TotalDeuda }}</strong></p> -->
       </div>
       <template #modal-footer>
         <b-button variant="primary" @click="generarPDF_Historial">Generar PDF</b-button>
@@ -2482,16 +2482,20 @@ export default {
           ]),
           theme: 'striped',
           margin: { top: 10 },
-          styles: { halign: 'center', fontSize: 10 }
+          styles: { halign: 'center', fontSize: 10 },
+          headStyles: {
+            fillColor: [229, 31, 45], // Color de fondo para el encabezado (Azul en este caso)
+            textColor: [255, 255, 255] // Color de texto para el encabezado (Blanco en este caso)
+          }
         })
         y = doc.lastAutoTable.finalY + 10
       }
 
       if (this.dataPDF.Consumo && this.dataPDF.Consumo.length > 0) {
         const consumosData = this.dataPDF.Consumo.map(consumo => ({
-          descripcion: consumo.descripcion || '',
+          descripcion: consumo.servicio.descripcion || '',
           cantidad: consumo.cantidad || 0,
-          precio_unitario: consumo.precio_unitario || 0,
+          precio_unitario: consumo.servicio.precio || 0,
           subtotal: consumo.subtotal || 0
         }))
         agregarTabla('Consumo de Servicios', consumosData)
@@ -2499,7 +2503,7 @@ export default {
 
       if (this.dataPDF['Consumo Comun'] && this.dataPDF['Consumo Comun'].length > 0) {
         const consumosComunesData = this.dataPDF['Consumo Comun'].map(consumo => ({
-          descripcion: consumo.descripcion || '',
+          descripcion: consumo.comune.nombre || '',
           cantidad: consumo.cantidad || 0,
           precio_unitario: consumo.precio_venta || 0,
           subtotal: consumo.total || 0
@@ -2509,7 +2513,7 @@ export default {
 
       if (this.dataPDF['Consumo Medicamentos'] && this.dataPDF['Consumo Medicamentos'].length > 0) {
         const consumosMedicamentosData = this.dataPDF['Consumo Medicamentos'].map(consumo => ({
-          descripcion: consumo.descripcion || '',
+          descripcion: consumo.medicamento.nombre || '',
           cantidad: consumo.cantidad || 0,
           precio_unitario: consumo.precio_venta || 0,
           subtotal: consumo.total || 0
@@ -2519,7 +2523,7 @@ export default {
 
       if (this.dataPDF['Consumo Quirurgicos'] && this.dataPDF['Consumo Quirurgicos'].length > 0) {
         const consumosQuirurgicosData = this.dataPDF['Consumo Quirurgicos'].map(consumo => ({
-          descripcion: consumo.descripcion || '',
+          descripcion: consumo.quirurgico.nombre || '',
           cantidad: consumo.cantidad || 0,
           precio_unitario: consumo.precio_venta || 0,
           subtotal: consumo.total || 0
@@ -2529,7 +2533,7 @@ export default {
 
       if (this.dataPDF.Examenes && this.dataPDF.Examenes.length > 0) {
         const examenesData = this.dataPDF.Examenes.map(examen => ({
-          descripcion: examen.nombre_examen || '',
+          descripcion: examen.examenes_almacenado.nombre || '',
           cantidad: 1,
           precio_unitario: examen.total || 0,
           subtotal: examen.total || 0
@@ -2643,7 +2647,11 @@ export default {
           ]),
           theme: 'striped',
           margin: { top: 10 },
-          styles: { halign: 'center', fontSize: 10 }
+          styles: { halign: 'center', fontSize: 10 },
+          headStyles: {
+            fillColor: [229, 31, 45], // Color de fondo para el encabezado (Azul en este caso)
+            textColor: [255, 255, 255] // Color de texto para el encabezado (Blanco en este caso)
+          }
         })
         y = doc.lastAutoTable.finalY + 10
       }
@@ -2651,9 +2659,9 @@ export default {
       // Agregar tabla para cada categoría
       if (this.dataPDF_Historial.Consumo && this.dataPDF_Historial.Consumo.length > 0) {
         const consumosData = this.dataPDF_Historial.Consumo.map(consumo => ({
-          descripcion: consumo.descripcion || '',
+          descripcion: consumo.servicio.descripcion || '',
           cantidad: consumo.cantidad || 0,
-          precio_unitario: consumo.precio_unitario || 0,
+          precio_unitario: consumo.servicio.precio || 0,
           subtotal: consumo.subtotal || 0
         }))
         agregarTabla('Consumo de Servicios', consumosData)
@@ -2661,7 +2669,7 @@ export default {
 
       if (this.dataPDF_Historial['Consumo Comun'] && this.dataPDF_Historial['Consumo Comun'].length > 0) {
         const consumosComunesData = this.dataPDF_Historial['Consumo Comun'].map(consumo => ({
-          descripcion: consumo.descripcion || '',
+          descripcion: consumo.comune.nombre || '',
           cantidad: consumo.cantidad || 0,
           precio_unitario: consumo.precio_venta || 0,
           subtotal: consumo.total || 0
@@ -2671,7 +2679,7 @@ export default {
 
       if (this.dataPDF_Historial['Consumo Medicamentos'] && this.dataPDF_Historial['Consumo Medicamentos'].length > 0) {
         const consumosMedicamentosData = this.dataPDF_Historial['Consumo Medicamentos'].map(consumo => ({
-          descripcion: consumo.descripcion || '',
+          descripcion: consumo.medicamento.nombre || '',
           cantidad: consumo.cantidad || 0,
           precio_unitario: consumo.precio_venta || 0,
           subtotal: consumo.total || 0
@@ -2681,7 +2689,7 @@ export default {
 
       if (this.dataPDF_Historial['Consumo Quirurgicos'] && this.dataPDF_Historial['Consumo Quirurgicos'].length > 0) {
         const consumosQuirurgicosData = this.dataPDF_Historial['Consumo Quirurgicos'].map(consumo => ({
-          descripcion: consumo.descripcion || '',
+          descripcion: consumo.quirurgico.nombre || '',
           cantidad: consumo.cantidad || 0,
           precio_unitario: consumo.precio_venta || 0,
           subtotal: consumo.total || 0
@@ -2691,7 +2699,7 @@ export default {
 
       if (this.dataPDF_Historial.Examenes && this.dataPDF_Historial.Examenes.length > 0) {
         const examenesData = this.dataPDF_Historial.Examenes.map(examen => ({
-          descripcion: examen.nombre || '',
+          descripcion: examen.examenes_almacenado.nombre || '',
           cantidad: 1,
           precio_unitario: examen.total || 0,
           subtotal: examen.total || 0
@@ -2710,9 +2718,9 @@ export default {
       }
 
       // Mostrar el total de deuda
-      const totalDeuda = this.reporte.TotalDeuda || 0
-      doc.setFontSize(16)
-      doc.text(`Total Deuda: Q${totalDeuda}`, 14, y)
+      // const totalDeuda = this.reporte.TotalDeuda || 0
+      // doc.setFontSize(16)
+      // doc.text(`Total Deuda: Q${totalDeuda}`, 14, y)
       y += 10
 
       // Guardar el PDF
