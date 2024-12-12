@@ -81,10 +81,10 @@
               <b-form-input
                 v-model.trim="$v.form.comision.$model"
                 :state="!$v.form.comision.$error"
-                placeholder="Ingresar Comisión"
+                placeholder="Ingresar Nomnre del Medico"
               ></b-form-input>
               <div v-if="$v.form.comision.required.$invalid" class="invalid-feedback">
-                Debe ingresar Comisión
+                Debe Ingresar Nomnre del Medico
               </div>
             </b-form-group>
           </b-col>
@@ -1047,6 +1047,7 @@ export default {
 
       axios.get(apiUrl + '/examenesAlmacenadosBuscar/getSearch', { params })
         .then((response) => {
+          console.log(response.data.data)
           this.examenes_almacenadosBuscar = response.data.data
           this.$refs.vuetableBuscar.setData(response.data)
           this.isLoading = false
