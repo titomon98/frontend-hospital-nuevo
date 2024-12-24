@@ -435,6 +435,15 @@
         >
       </template>
     </b-modal>
+    <b-modal id="modal-contrato" ref="modal-contrato" title="Generar Contrato" size="xl">
+      <div id="previewContainer">
+        <iframe :src="previewURL" width="100%" height="700px"></iframe>
+      </div>
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click="descargarpdf()">Guardar</b-button>
+        <b-button variant="danger" @click="closeModal('contrato')">Cancelar</b-button>
+      </template>
+    </b-modal>
     <b-row>
       <b-col md="12">
         <iq-card>
@@ -532,6 +541,15 @@
                     variant="outline-primary"
                     ><i :class="'fas fa-stethoscope'"
                   /></b-button>
+                  <b-button
+                    v-b-tooltip.top="'Generar Contrato'"
+                    @click="generatePDF(props.rowData)"
+                    class="mb-2"
+                    size="sm"
+                    variant="outline-primary"
+                  >
+                    <i :class="'fas fa-file-signature'" />
+                  </b-button>
                 </b-button-group>
               </template>
               <!-- Paginacion -->
@@ -556,6 +574,7 @@ import { helpers, numeric, required } from '@vuelidate/validators'
 import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
 import moment from 'moment'
+import JsPDF from 'jspdf'
 
 export default {
   name: 'Bank',
@@ -737,7 +756,10 @@ export default {
           dataClass: 'text-muted',
           width: '25%'
         }
-      ]
+      ],
+      previewURL: null,
+      pdf: null,
+      pdfName: 'Contrato_General.pdf'
     }
   },
   validations () {
@@ -805,6 +827,10 @@ export default {
         }
         case 'assignDoctor': {
           this.$refs['modal-3-medico'].hide()
+          break
+        }
+        case 'contrato': {
+          this.$refs['modal-contrato'].hide()
           break
         }
       }
@@ -1037,6 +1063,68 @@ export default {
           this.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
           console.error('Error!', error)
         })
+    },
+
+    generatePDF (data) {
+      console.log(data)
+      const { nombres, apellidos, cui } = data
+      const fechaActual = moment().format('DD/MM/YYYY')
+      // Crear PDF
+      this.pdf = new JsPDF({
+        unit: 'cm',
+        format: 'letter'
+      })
+
+      // Encabezado
+      this.pdf.setFontSize(14).setFont(undefined, 'bold')
+      this.pdf.text('CONTRATO', 10.5, 2, { align: 'center' })
+
+      // Declaraciones
+      let altura = 4
+      this.pdf.setFontSize(11).setFont(undefined, 'normal')
+      this.pdf.text(
+        `En la fecha ${fechaActual}, las partes acuerdan las siguientes declaraciones y cláusulas:`,
+        2,
+        altura,
+        { maxWidth: 17 }
+      )
+
+      altura += 2
+      this.pdf.setFontSize(11).setFont(undefined, 'bold')
+      this.pdf.text('DECLARACIONES', 2, altura)
+
+      altura += 1
+      this.pdf.setFontSize(11).setFont(undefined, 'normal')
+      this.pdf.text(
+        `I. El C. ${nombres} ${apellidos}, identificado con el CUI: ${cui}, manifiesta ser mayor de edad y declara estar de acuerdo con los términos establecidos en este contrato.`,
+        2,
+        altura,
+        { maxWidth: 17 }
+      )
+
+      altura += 3
+      this.pdf.text(
+        'II. Las condiciones establecidas serán aplicadas conforme a las leyes y reglamentos vigentes.',
+        2,
+        altura,
+        { maxWidth: 17 }
+      )
+
+      // Firma
+      altura += 4
+      this.pdf.text(`Fecha: ${fechaActual}`, 2, altura)
+      altura += 2
+      this.pdf.text('_________________________', 2, altura)
+      this.pdf.text('Firma del Contratante', 2, altura + 0.5)
+
+      // Previsualización del PDF
+      const pdfData = this.pdf.output('blob')
+      const pdfURL = URL.createObjectURL(pdfData)
+      this.previewURL = pdfURL
+      this.$refs['modal-contrato'].show()
+    },
+    descargarpdf () {
+      this.pdf.save(this.pdfName)
     }
   }
 }
