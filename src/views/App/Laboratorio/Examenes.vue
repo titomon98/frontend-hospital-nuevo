@@ -156,7 +156,7 @@
           </b-col>
         </b-row>
         <b-row class="ml-2">
-          <b-col md="4">
+          <b-col md="12">
             <b-form-group label="Tipo de Examen:">
               <div v-if="isLoading">
               <p>Cargando...</p>
@@ -185,7 +185,7 @@
               <div>
                 <ul class="selected-options-list" v-if="selectedExamenes.length > 0">
                   <li v-for="(examen, index) in selectedExamenes" :key="examen.id">
-                    {{ index + 1 }}. {{ examen.nombre }}
+                    {{ index + 1 }}. {{ examen.nombre }} - Precio normal: {{ examen.precio_normal }} - Precio extraordinario: {{ examen.precio_sobrecargo }}
                   </li>
                 </ul>
               </div>
