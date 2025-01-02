@@ -730,6 +730,12 @@ export default {
       }
     },
     modPdf (type) {
+      const transformedData = this.reportItems.map(item => ({
+        numero_cuenta: item.numero_cuenta,
+        total: item.total,
+        expediente: item.expediente.expediente + ' ' + item.expediente.nombres + ' ' + item.expediente.apellidos,
+        total_pagado: item.total_pagado
+      }))
       this.$refs['modal-pdf'].show()
       var altura = 1
       var ahora = new Date()
@@ -744,7 +750,7 @@ export default {
       var imgData = logoLab
       this.pdf.addImage(imgData, 'PNG', 1.5, 0.2, 4.37, 4)
       this.pdf.setFontSize(10).setFont(undefined, 'bold')
-      this.pdf.text('Laboratorio Biomédico S.A.', 1.5, 4)
+      this.pdf.text('Hospital de Especialidades S.A.', 1.5, 4.5)
       if (type === 1) {
         // this.pdf.text('Detalle de cuenta ' + data.numero + ' - Paciente: ' + data.expediente.nombres + ' ' + data.expediente.apellidos, 7, altura)
         this.pdfName = 'DetalleCuenta.pdf'
@@ -769,8 +775,8 @@ export default {
       // Tabla
       if (type === 1) {
         autoTable(this.pdf, {
-          columns: [{ header: 'Cuenta', dataKey: 'numero_cuenta' }, { header: 'total', dataKey: 'total' }, { header: 'expediente', dataKey: 'expediente.expediente' }],
-          body: this.reportItems,
+          columns: [{ header: 'Cuenta', dataKey: 'numero_cuenta' }, { header: 'Total', dataKey: 'total' }, { header: 'Total pagado', dataKey: 'total_pagado' }, { header: 'Expediente', dataKey: 'expediente' }],
+          body: transformedData,
           margin: { top: 5 },
           headStyles: {
             fillColor: [21, 21, 21],
@@ -781,7 +787,7 @@ export default {
       } else {
         autoTable(this.pdf, {
           columns: [{ header: 'Expediente', dataKey: 'expediente' }, { header: 'Nombre', dataKey: 'nombres' }, { header: 'Apellido', dataKey: 'apellidos' }, { header: 'Cuenta número', dataKey: 'numero' }, { header: 'Total', dataKey: 'total' }],
-          body: this.reportItems,
+          body: transformedData,
           margin: { top: 5 },
           headStyles: {
             fillColor: [21, 21, 21],
