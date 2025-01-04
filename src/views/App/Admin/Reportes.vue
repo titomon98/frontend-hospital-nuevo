@@ -19,6 +19,54 @@
         <b-button variant="danger" @click="closeModal('pdf')">Cancelar</b-button>
       </template>
     </b-modal>
+    <b-modal id="modal-voucher" ref="modal-voucher" title="Crear Voucher">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <b-form @submit="$event.preventDefault()">
+        <b-form-group label="Seleccionar Medico">
+          <v-select
+            name="medico"
+            v-model="formVoucher.medico"
+            :options="medicos"
+            :filterable="false"
+            placeholder="Seleccione el médico"
+            @search="onSearchDatosMedicos"
+          >
+            <template v-slot:option="option">
+              {{ option.nombre}}
+            </template>
+            <template slot="selected-option" slot-scope="option">
+              {{option.nombre}}
+            </template>
+          </v-select>
+        </b-form-group>
+        <b-form-group label="Cantidad:">
+          <b-form-input
+            type="number"
+            v-model="formVoucher.cantidad"
+            placeholder="Ingresar cantidad"
+          ></b-form-input>
+        </b-form-group>
+        <b-form-group label="Cantidad en letras:">
+          <b-form-input
+            type="text"
+            v-model="formVoucher.cantidadEscrita"
+            placeholder="Ingresar la Cantidad escrita con Inicial Mayúscula"
+          ></b-form-input>
+        </b-form-group>
+      </b-form>
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click="crearVoucher()">Crear</b-button>
+        <b-button variant="danger" @click="closeModal('save')">Cancelar</b-button>
+      </template>
+    </b-modal>
     <b-modal id="modal-1-account" ref="modal-1-account" title="Agregar cuenta">
       <b-alert
         :show="alertCountDownError"
@@ -211,11 +259,11 @@
                   </b-form-group>
                </div>
                <div>
-                <b-form-select v-model="selectedReport" v-if="selectedArea == 1" :options="reportOptionsCaja" @change="incomeByDate()"></b-form-select>
-                <b-form-select v-model="selectedReport" v-if="selectedArea == 2" :options="reportOptionsFarmacia" @change="incomeByDay()"></b-form-select>
-                <b-form-select v-model="selectedReport" v-if="selectedArea == 3" :options="reportOptionsEnfermeria" @change="incomeByDay()"></b-form-select>
-                <b-form-select v-model="selectedReport" v-if="selectedArea == 4" :options="reportOptionsMedicos" @change="incomeByDay()"></b-form-select>
-                <b-form-select v-model="selectedReport" v-if="selectedArea == 5" :options="reportOptionsPacientes" @change="incomeByDay()"></b-form-select>
+                <b-form-select v-model="selectedReport" v-if="selectedArea == 1" :options="reportOptionsCaja" @change="onReportChange()"></b-form-select>
+                <b-form-select v-model="selectedReport" v-if="selectedArea == 2" :options="reportOptionsFarmacia" @change="onReportChange()"></b-form-select>
+                <b-form-select v-model="selectedReport" v-if="selectedArea == 3" :options="reportOptionsEnfermeria" @change="onReportChange()"></b-form-select>
+                <b-form-select v-model="selectedReport" v-if="selectedArea == 4" :options="reportOptionsMedicos" @change="onReportChange()"></b-form-select>
+                <b-form-select v-model="selectedReport" v-if="selectedArea == 5" :options="reportOptionsPacientes" @change="onReportChange()"></b-form-select>
                </div>
                <div>
                 <label for="start-date">Fecha de inicio</label>
@@ -272,7 +320,6 @@ import logo from '../../../assets/images/login/1.png'
 import logoLab from '../../../assets/images/logo.png'
 import moment from 'moment'
 import ExcelJS from 'exceljs'
-
 
 export default {
   name: 'CuentasPendientes',
@@ -687,14 +734,22 @@ export default {
         }
       ],
       expedientes: [],
-      pdf_select: null,
+      pdf_select_enfermeria: null,
       pdf_select_medicos: null,
       // Enfermeria
       dataEnfermeria1: null,
       startDateEnfermeria: null,
       endDateEnfermeria: null,
       // MEDICOS
-      dataMedicos: null
+      fechaActual: null,
+      numero_voucher: null,
+      dataMedicos: null,
+      medicos: [],
+      formVoucher: {
+        medico: null,
+        cantidad: null,
+        cantidadEscrita: null
+      }
     }
   },
   validations () {
@@ -732,9 +787,11 @@ export default {
     onReportChange () {
       if (!this.startDate || !this.endDate) {
         alert('Por favor, seleccione las fechas antes de continuar.')
+        this.selectedReport = null
         return
       }
       if (this.selectedArea === '1') {
+        this.incomeByDate()
         this.pdf_select_caja = 1
         this.modPdf(1)
       }
@@ -742,31 +799,31 @@ export default {
         switch (this.selectedReport) {
           case 1:
             this.primerReporteEnfermeria(this.startDate, this.endDate)
-            this.pdf_select = 1
+            this.pdf_select_enfermeria = 1
             return
           case 2:
             this.segundoReporteEnfermeria(this.startDate, this.endDate)
-            this.pdf_select = 2
+            this.pdf_select_enfermeria = 2
             return
           case 3:
             this.tercerReporteEnfermeria(this.startDate, this.endDate)
-            this.pdf_select = 3
+            this.pdf_select_enfermeria = 3
             return
           case 4:
             this.cuartoReporteEnfermeria(this.startDate, this.endDate)
-            this.pdf_select = 4
+            this.pdf_select_enfermeria = 4
             return
           case 5:
             this.quintoReporteEnfermeria(this.startDate, this.endDate)
-            this.pdf_select = 5
+            this.pdf_select_enfermeria = 5
             return
           case 6:
             this.sextoReporteEnfermeria(this.startDate, this.endDate)
-            this.pdf_select = 6
+            this.pdf_select_enfermeria = 6
             return
           case 7:
             this.septimoReporteEnfermeria(this.startDate, this.endDate)
-            this.pdf_select = 7
+            this.pdf_select_enfermeria = 7
         }
       }
       if (this.selectedArea === '4') {
@@ -780,8 +837,10 @@ export default {
             this.pdf_select_medicos = 2
             return
           case 3:
-            this.tercerReporteMedicos(this.startDate, this.endDate)
+            // this.tercerReporteMedicos(this.startDate, this.endDate)
+            this.$refs['modal-voucher'].show()
             this.pdf_select_medicos = 3
+            this.selectedReport = null
         }
       }
       this.$nextTick(() => {
@@ -884,16 +943,6 @@ export default {
       console.log(this.reportItems)
       this.$refs.reportTable.refresh()
     },
-    async incomeByDay () {
-      let res = await axios.get(apiUrl + '/reporte/ingresosDia', {
-        params: {
-          fecha: '08/12/2012'
-        }
-      })
-      this.reportItems = res.data
-      console.log(this.reportItems)
-      this.$refs.reportTable.refresh()
-    },
     closeModal (action) {
       switch (action) {
         case 'save': {
@@ -907,6 +956,10 @@ export default {
           this.form.total = 0
           this.form.id_expediente = 1
           this.form.state = 1
+          this.$refs['modal-voucher'].hide()
+          this.formVoucher.medico = null
+          this.formVoucher.cantidad = null
+          this.selectedReport = null
           break
         }
         case 'update': {
@@ -923,17 +976,6 @@ export default {
           break
         }
       }
-    },
-    async incomeByDate () {
-      let res = await axios.get(apiUrl + '/reporte/ingresosFechas', {
-        params: {
-          fecha_inicio: '12/12/2012',
-          fecha_final: '12/12/2024'
-        }
-      })
-      this.reportItems = res.data
-      console.log(this.reportItems)
-      this.$refs.reportTable.refresh()
     },
     async incomeByDay () {
       let res = await axios.get(apiUrl + '/reporte/ingresosDia', {
@@ -976,75 +1018,105 @@ export default {
           break
       }
 
-      switch (this.pdf_select) {
+      switch (this.pdf_select_enfermeria) {
         case 1:
           this.generarPDFPacientes()
+          this.selectedReport = null
+          this.pdf_select_enfermeria = null
           break
         case 2:
           this.generarPDFPacientes2()
+          this.selectedReport = null
+          this.pdf_select_enfermeria = null
           break
         case 3:
           this.generarPDFPacientes3()
+          this.selectedReport = null
+          this.pdf_select_enfermeria = null
           break
         case 4:
           this.generarPDFPacientes4()
+          this.selectedReport = null
+          this.pdf_select_enfermeria = null
           break
         case 5:
           this.generarPDFPacientes5()
+          this.selectedReport = null
+          this.pdf_select_enfermeria = null
           break
         case 6:
           this.generarPDFPacientes6()
+          this.selectedReport = null
+          this.pdf_select_enfermeria = null
           break
         case 7:
           this.generarPDFPacientes7()
+          this.selectedReport = null
+          this.pdf_select_enfermeria = null
           break
       }
 
       switch (this.pdf_select_medicos) {
         case 1:
           this.generarPDFMedicos()
+          this.selectedReport = null
+          this.pdf_select_medicos = null
           break
         case 2:
           this.generarPDFMedicos2()
+          this.selectedReport = null
+          this.pdf_select_medicos = null
           break
         case 3:
           this.generarPDFMedicos3()
+          this.selectedReport = null
+          this.pdf_select_medicos = null
           break
       }
     },
     generarEXCEL () {
-      switch (this.pdf_select) {
+      switch (this.pdf_select_enfermeria) {
         case 1:
           this.generarExcelPacientes()
+          this.selectedReport = null
           break
         case 2:
           this.generarExcelPacientes2()
+          this.selectedReport = null
           break
         case 3:
           this.generarExcelPacientes3()
+          this.selectedReport = null
           break
         case 4:
           this.generarExcelPacientes4()
+          this.selectedReport = null
           break
         case 5:
           this.generarExcelPacientes5()
+          this.selectedReport = null
           break
         case 6:
           this.generarExcelPacientes6()
+          this.selectedReport = null
           break
         case 7:
           this.generarExcelPacientes7()
+          this.selectedReport = null
           break
       }
       switch (this.pdf_select_medicos) {
         case 1:
           this.generarExcelMedicos()
+          this.selectedReport = null
           break
         case 2:
           this.generarExcelMedicos2()
+          this.selectedReport = null
           break
         case 3:
           this.generarExcelMedicos3()
+          this.selectedReport = null
           break
       }
     },
@@ -2377,7 +2449,6 @@ export default {
           this.dataMedicos = response.data
           this.startDateEnfermeria = fechainicio
           this.endDateEnfermeria = fechafin
-          console.log(response.data)
         })
         .catch((error) => {
           console.error('Error al generar el reporte de cuenta parcial:', error)
@@ -2402,7 +2473,7 @@ export default {
         doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 50, 32)
 
         doc.setFontSize(16)
-        doc.text('Reporte de Honorarios', 105, 50, { align: 'center' })
+        doc.text('Reporte de Honorarios asignados sin pagar', 105, 50, { align: 'center' })
         doc.setFontSize(12)
         doc.text(`Desde: ${moment(fechaInicio).format('DD/MM/YYYY')} | Hasta: ${moment(fechaFin).format('DD/MM/YYYY')}`, 105, 58, { align: 'center' })
 
@@ -2466,7 +2537,7 @@ export default {
       worksheet.getCell('A3').alignment = { horizontal: 'center' }
 
       worksheet.mergeCells('A5:E5')
-      worksheet.getCell('A5').value = `Reporte Detallado de Honorarios de Medicos (${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')})`
+      worksheet.getCell('A5').value = `Reporte Detallado de Honorarios de Medicos asignados sin pagar  (${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')})`
       worksheet.getCell('A5').font = { bold: true, size: 14 }
       worksheet.getCell('A5').alignment = { horizontal: 'center' }
 
@@ -2549,7 +2620,7 @@ export default {
         doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 50, 32)
 
         doc.setFontSize(16)
-        doc.text('Reporte Detallado de honorarios Medicos', 105, 50, { align: 'center' })
+        doc.text('Reporte Detallado de honorarios Medicos asignados sin pagar', 105, 50, { align: 'center' })
         doc.setFontSize(12)
         doc.text(`Desde: ${moment(fechaInicio).format('DD/MM/YYYY')} | Hasta: ${moment(fechaFin).format('DD/MM/YYYY')}`, 105, 58, { align: 'center' })
 
@@ -2560,9 +2631,6 @@ export default {
         doc.text(`Nombre: ${medicoConMasHonorarios.nombre_medico}`, 14, 78)
         doc.text(`Total Honorarios: Q${medicoConMasHonorarios.total_honorarios}`, 14, 84)
         doc.text(`Fechas: ${medicoConMasHonorarios.fechas}`, 14, 90)
-
-        doc.setFontSize(14)
-        doc.text('Otros Consumos', 14, 110)
 
         const tableRows = medicosOrdenados.map((medico, index) => [
           index + 1,
@@ -2619,7 +2687,7 @@ export default {
       worksheet.getCell('A3').alignment = { horizontal: 'center' }
 
       worksheet.mergeCells('A5:E5')
-      worksheet.getCell('A5').value = `Reporte Detallado de Honorarios de Medicos (${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')})`
+      worksheet.getCell('A5').value = `Reporte Detallado de Honorarios de Medicos asignados sin pagar (${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')})`
       worksheet.getCell('A5').font = { bold: true, size: 14 }
       worksheet.getCell('A5').alignment = { horizontal: 'center' }
 
@@ -2671,6 +2739,75 @@ export default {
         })
         .catch((error) => {
           console.error('Error al generar el archivo Excel:', error)
+        })
+    },
+
+    onSearchDatosMedicos (search, loading) {
+      if (search.length) {
+        loading(true)
+        this.onSearchMedicos(search, loading)
+      }
+    },
+    onSearchMedicos (search, loading) {
+      axios.get(apiUrl + '/voucher/getSearch',
+        {
+          params: {
+            search: search
+          }
+        }
+      ).then((response) => {
+        this.fechaActual = response.data.fechaActual
+        this.numero_voucher = response.data.numero
+        this.medicos = response.data.Medicos
+        loading(false)
+      })
+    },
+    generarPDFMedicos3 () {
+      const data = this.formVoucher
+      const numero = this.numero_voucher
+      const fechaInicio = this.fechaActual
+
+      try {
+        const doc = new JsPDF()
+
+        doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
+        doc.setFontSize(16)
+        doc.text(`VOUCHER DE PAGO No. ${numero}`, 65, 20)
+        doc.setFontSize(12)
+        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 50, 26)
+
+        doc.setFontSize(10)
+        doc.text('TIPO DE PAGO:     HONORARIOS.', 15, 50)
+        doc.text(`FECHA DE PAGO:     ${moment(fechaInicio).format('DD/MM/YYYY')}`, 140, 50)
+
+        doc.setFontSize(10)
+        doc.text('PROVEEDOR:      HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 15, 60)
+        doc.text(`TOTAL:      Q${data.cantidad}`, 140, 60)
+        doc.setFontSize(10)
+        doc.text('F)._________________________________________', 20, 85)
+        doc.text(`PAGUESE A: ${data.medico.nombre}.`, 20, 91)
+        doc.text(`LA SUMA DE: ${data.cantidadEscrita}.`, 20, 97)
+        doc.text('-------------------------------------------------------------', 0, 110)
+        doc.text('-------------------------------------------------------------', 71.7, 110)
+        doc.text('---------------------------------------------------------', 142.3, 110)
+
+        doc.save(`Vaouches_Pago_Honorarios_${data.medico.nombre}_Fecha_${moment(fechaInicio).format('DD/MM/YYYY')}.pdf`)
+      } catch (error) {
+        console.error('Error al generar el reporte:', error)
+        this.$alert('Ocurrió un error al generar el reporte. Por favor, intente de nuevo.', 'Error')
+      }
+    },
+
+    crearVoucher () {
+      axios.post(apiUrl + '/voucher/create', this.formVoucher)
+        .then(response => {
+          this.generarPDFMedicos3()
+          this.closeModal('save')
+          this.selectedReport = null
+          this.medicos = []
+        })
+        .catch(error => {
+          console.error('Error al crear el voucher:', error)
         })
     }
   }
