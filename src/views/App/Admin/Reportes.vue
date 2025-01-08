@@ -364,10 +364,11 @@ export default {
       ],
       reportOptionsFarmacia: [
         { value: null, text: 'Seleccione un reporte' },
-        { value: 1, text: 'Reporte Farmacia 1' },
-        { value: 2, text: 'Reporte Farmacia 2' },
-        { value: 3, text: 'Reporte Farmacia 3' },
-        { value: 4, text: 'Reporte Farmacia 4' }
+        { value: 1, text: 'Reporte Productos Más Utilizados' },
+        { value: 2, text: 'Reporte Proveedores Más Solicitados' },
+        { value: 3, text: 'Reporte Inventario Detallado de Medicamentos' },
+        { value: 4, text: 'Reporte Inventario General' },
+        { value: 5, text: 'Reporte Suministro de Medicamentos a Pacientes' }
       ],
       reportOptionsEnfermeria: [
         { value: null, text: 'Seleccione un reporte' },
@@ -734,13 +735,16 @@ export default {
         }
       ],
       expedientes: [],
-      pdf_select_enfermeria: null,
-      pdf_select_medicos: null,
+      // Farmcia
+      pdf_select_farmacia: null,
+      dataFarmacia: null,
       // Enfermeria
+      pdf_select_enfermeria: null,
       dataEnfermeria1: null,
       startDateEnfermeria: null,
       endDateEnfermeria: null,
       // MEDICOS
+      pdf_select_medicos: null,
       fechaActual: null,
       numero_voucher: null,
       dataMedicos: null,
@@ -794,6 +798,29 @@ export default {
         this.incomeByDate()
         this.pdf_select_caja = 1
         this.modPdf(1)
+      }
+      if (this.selectedArea === '2') {
+        switch (this.selectedReport) {
+          case 1:
+            this.primerReporteFarmacia(this.startDate, this.endDate)
+            this.pdf_select_farmacia = 1
+            return
+          case 2:
+            this.segundoReporteFarmacia(this.startDate, this.endDate)
+            this.pdf_select_farmacia = 2
+            return
+          case 3:
+            this.tercerReporteFarmacia(this.startDate, this.endDate)
+            this.pdf_select_farmacia = 3
+            return
+          case 4:
+            this.cuartoReporteFarmacia(this.startDate, this.endDate)
+            this.pdf_select_farmacia = 4
+            return
+          case 5:
+            this.quintoReporteFarmacia(this.startDate, this.endDate)
+            this.pdf_select_farmacia = 5
+        }
       }
       if (this.selectedArea === '3') {
         switch (this.selectedReport) {
@@ -1018,6 +1045,34 @@ export default {
           break
       }
 
+      switch (this.pdf_select_farmacia) {
+        case 1:
+          this.generarPDFFarmacia()
+          this.selectedReport = null
+          this.pdf_select_farmacia = null
+          break
+        case 2:
+          this.generarPDFFarmacia2()
+          this.selectedReport = null
+          this.pdf_select_farmacia = null
+          break
+        case 3:
+          this.generarPDFFarmacia3()
+          this.selectedReport = null
+          this.pdf_select_farmacia = null
+          break
+        case 4:
+          this.generarPDFFarmacia4()
+          this.selectedReport = null
+          this.pdf_select_farmacia = null
+          break
+        case 5:
+          this.generarPDFFarmacia5()
+          this.selectedReport = null
+          this.pdf_select_farmacia = null
+          break
+      }
+
       switch (this.pdf_select_enfermeria) {
         case 1:
           this.generarPDFPacientes()
@@ -1075,33 +1130,68 @@ export default {
       }
     },
     generarEXCEL () {
+      switch (this.pdf_select_farmacia) {
+        case 1:
+          this.generarExcelEnfermeria()
+          this.selectedReport = null
+          this.pdf_select_farmacia = null
+          break
+        case 2:
+          this.generarExcelEnfermeria2()
+          this.selectedReport = null
+          this.pdf_select_farmacia = null
+          break
+        case 3:
+          this.generarExcelEnfermeria3()
+          this.selectedReport = null
+          this.pdf_select_farmacia = null
+          break
+        case 4:
+          this.generarExcelEnfermeria4()
+          this.selectedReport = null
+          this.pdf_select_farmacia = null
+          break
+        case 5:
+          this.generarExcelEnfermeria5()
+          this.selectedReport = null
+          this.pdf_select_farmacia = null
+          break
+      }
+
       switch (this.pdf_select_enfermeria) {
         case 1:
           this.generarExcelPacientes()
+          this.selectedReport = null
           this.selectedReport = null
           break
         case 2:
           this.generarExcelPacientes2()
           this.selectedReport = null
+          this.selectedReport = null
           break
         case 3:
           this.generarExcelPacientes3()
+          this.selectedReport = null
           this.selectedReport = null
           break
         case 4:
           this.generarExcelPacientes4()
           this.selectedReport = null
+          this.selectedReport = null
           break
         case 5:
           this.generarExcelPacientes5()
+          this.selectedReport = null
           this.selectedReport = null
           break
         case 6:
           this.generarExcelPacientes6()
           this.selectedReport = null
+          this.selectedReport = null
           break
         case 7:
           this.generarExcelPacientes7()
+          this.selectedReport = null
           this.selectedReport = null
           break
       }
@@ -1109,9 +1199,11 @@ export default {
         case 1:
           this.generarExcelMedicos()
           this.selectedReport = null
+          this.selectedReport = null
           break
         case 2:
           this.generarExcelMedicos2()
+          this.selectedReport = null
           this.selectedReport = null
           break
         case 3:
@@ -1119,6 +1211,845 @@ export default {
           this.selectedReport = null
           break
       }
+    },
+
+    /* FARMACIA REPORTES */
+    primerReporteFarmacia (fechainicio, fechafin) {
+      axios.get(apiUrl + '/reporte/farmacia/productosMasUtilizados',
+        {
+          params: {
+            fechaInicio: fechainicio,
+            fechaFin: fechafin
+          }
+        }
+      )
+        .then((response) => {
+          this.dataFarmacia = response.data
+          this.startDateEnfermeria = fechainicio
+          this.endDateEnfermeria = fechafin
+          console.log(response.data)
+        })
+        .catch((error) => {
+          console.error('Error al generar el reporte de cuenta parcial:', error)
+          this.alertErrorText = 'Hubo un problema al generar el reporte. Por favor, intente nuevamente.'
+          this.showAlertError()
+        })
+    },
+    generarPDFFarmacia () {
+      const {
+        comunMasConsumido,
+        comunes,
+        medicamentoMasConsumido,
+        medicamentos,
+        quirurgicosMasConsumido,
+        quirurgicos
+      } = this.dataFarmacia
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+      const doc = new JsPDF()
+
+      // Encabezado
+      doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+      doc.setFontSize(10).setFont(undefined, 'normal')
+      doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
+      doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
+
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('Reporte de Productos Más Utilizados', 105, 50, { align: 'center' })
+      doc.setFontSize(12).setFont(undefined, 'normal')
+      doc.text(`Rango de Fechas: ${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')}`, 105, 56, { align: 'center' })
+
+      // Material común más consumido
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('Material Común Más Utilizado', 14, 80)
+      doc.setFontSize(12).setFont(undefined, 'normal')
+      doc.text(`Nombre: ${comunMasConsumido.nombre}`, 14, 90)
+      doc.text(`Precio Unitario: Q${comunMasConsumido.precio_unitario}`, 14, 96)
+      doc.text(`Cantidad: ${comunMasConsumido.cantidad_total}`, 14, 102)
+
+      // Detalle de consumos: Material común
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('Detalle de Consumo - Material Común', 14, 112)
+      doc.autoTable({
+        head: [['#', 'Nombre', 'Precio Unitario', 'Cantidad Vendida']],
+        body: comunes.map((item, index) => [
+          index + 1,
+          item.nombre,
+          `Q${item.precio_unitario}`,
+          item.cantidad_total
+        ]),
+        startY: 118,
+        theme: 'grid',
+        styles: { fontSize: 10, cellPadding: 2 },
+        headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [240, 240, 240] }
+      })
+
+      // Detalle de consumos: Medicamentos
+      doc.addPage()
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('Medicamento Más Utilizado', 14, 20)
+      doc.setFontSize(12).setFont(undefined, 'normal')
+      doc.text(`Nombre: ${medicamentoMasConsumido.nombre}`, 14, 30)
+      doc.text(`Precio Unitario: Q${medicamentoMasConsumido.precio_unitario}`, 14, 36)
+      doc.text(`Cantidad: ${medicamentoMasConsumido.cantidad_total}`, 14, 42)
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('Detalle de Consumo - Medicamentos', 14, 52)
+      doc.autoTable({
+        head: [['#', 'Nombre', 'Precio Unitario', 'Cantidad Vendida']],
+        body: medicamentos.map((item, index) => [
+          index + 1,
+          item.nombre,
+          `Q${item.precio_unitario}`,
+          item.cantidad_total
+        ]),
+        startY: 58,
+        theme: 'grid',
+        styles: { fontSize: 10, cellPadding: 2 },
+        headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [240, 240, 240] }
+      })
+
+      // Detalle de consumos: Material quirúrgico
+      doc.addPage()
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('Material Quirúrgico Más Utilizado', 14, 20)
+      doc.setFontSize(12).setFont(undefined, 'normal')
+      doc.text(`Nombre: ${quirurgicosMasConsumido.nombre}`, 14, 30)
+      doc.text(`Precio Unitario: Q${quirurgicosMasConsumido.precio_unitario}`, 14, 36)
+      doc.text(`Cantidad: ${quirurgicosMasConsumido.cantidad_total}`, 14, 42)
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('Detalle de Consumo - Material Quirúrgico', 14, 52)
+      doc.autoTable({
+        head: [['#', 'Nombre', 'Precio Unitario', 'Cantidad Vendida']],
+        body: quirurgicos.map((item, index) => [
+          index + 1,
+          item.nombre,
+          `Q${item.precio_unitario}`,
+          item.cantidad_total
+        ]),
+        startY: 58,
+        theme: 'grid',
+        styles: { fontSize: 10, cellPadding: 2 },
+        headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [240, 240, 240] }
+      })
+
+      doc.save(`Reporte_Productos_Mas_Utilizados_${moment(fechaInicio).format('YYYY-MM-DD')}_a_${moment(fechaFin).format('YYYY-MM-DD')}.pdf`)
+    },
+    generarExcelEnfermeria () {
+      const {
+        comunMasConsumido,
+        comunes,
+        medicamentoMasConsumido,
+        medicamentos,
+        quirurgicosMasConsumido,
+        quirurgicos
+      } = this.dataFarmacia
+
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+
+      // Crear un nuevo workbook
+      const workbook = new ExcelJS.Workbook()
+
+      // Hoja de "Material Común"
+      const hojaComunes = workbook.addWorksheet('Material Común')
+      hojaComunes.addRow(['HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'])
+      hojaComunes.addRow(['Reporte de Productos Más Utilizados'])
+      hojaComunes.addRow([`Rango de Fechas: ${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')}`])
+      hojaComunes.addRow([])
+      hojaComunes.addRow(['Material Común Más Utilizado'])
+      hojaComunes.addRow(['Nombre', 'Precio Unitario', 'Cantidad Total'])
+      hojaComunes.addRow([comunMasConsumido.nombre, comunMasConsumido.precio_unitario, comunMasConsumido.cantidad_total])
+      hojaComunes.addRow([])
+      hojaComunes.addRow(['Detalle de Consumo - Material Común'])
+      hojaComunes.addRow(['#', 'Nombre', 'Precio Unitario', 'Cantidad Vendida'])
+      comunes.forEach((item, index) => {
+        hojaComunes.addRow([index + 1, item.nombre, item.precio_unitario, item.cantidad_total])
+      })
+
+      // Hoja de "Medicamentos"
+      const hojaMedicamentos = workbook.addWorksheet('Medicamentos')
+      hojaMedicamentos.addRow(['HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'])
+      hojaMedicamentos.addRow(['Reporte de Productos Más Utilizados'])
+      hojaMedicamentos.addRow([`Rango de Fechas: ${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')}`])
+      hojaMedicamentos.addRow([])
+      hojaMedicamentos.addRow(['Medicamento Más Utilizado'])
+      hojaMedicamentos.addRow(['Nombre', 'Precio Unitario', 'Cantidad Total'])
+      hojaMedicamentos.addRow([medicamentoMasConsumido.nombre, medicamentoMasConsumido.precio_unitario, medicamentoMasConsumido.cantidad_total])
+      hojaMedicamentos.addRow([])
+      hojaMedicamentos.addRow(['Detalle de Consumo - Medicamentos'])
+      hojaMedicamentos.addRow(['#', 'Nombre', 'Precio Unitario', 'Cantidad Vendida'])
+      medicamentos.forEach((item, index) => {
+        hojaMedicamentos.addRow([index + 1, item.nombre, item.precio_unitario, item.cantidad_total])
+      })
+
+      // Hoja de "Material Quirúrgico"
+      const hojaQuirurgicos = workbook.addWorksheet('Material Quirúrgico')
+      hojaQuirurgicos.addRow(['HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'])
+      hojaQuirurgicos.addRow(['Reporte de Productos Más Utilizados'])
+      hojaQuirurgicos.addRow([`Rango de Fechas: ${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')}`])
+      hojaQuirurgicos.addRow([])
+      hojaQuirurgicos.addRow(['Material Quirúrgico Más Utilizado'])
+      hojaQuirurgicos.addRow(['Nombre', 'Precio Unitario', 'Cantidad Total'])
+      hojaQuirurgicos.addRow([quirurgicosMasConsumido.nombre, quirurgicosMasConsumido.precio_unitario, quirurgicosMasConsumido.cantidad_total])
+      hojaQuirurgicos.addRow([])
+      hojaQuirurgicos.addRow(['Detalle de Consumo - Material Quirúrgico'])
+      hojaQuirurgicos.addRow(['#', 'Nombre', 'Precio Unitario', 'Cantidad Vendida'])
+      quirurgicos.forEach((item, index) => {
+        hojaQuirurgicos.addRow([index + 1, item.nombre, item.precio_unitario, item.cantidad_total])
+      })
+
+      // Guardar el archivo
+      workbook.xlsx.writeBuffer().then((buffer) => {
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `Reporte_Productos_Mas_Utilizados_${moment(fechaInicio).format('YYYY-MM-DD')}_a_${moment(fechaFin).format('YYYY-MM-DD')}.xlsx`
+        a.click()
+        window.URL.revokeObjectURL(url)
+      })
+    },
+
+    segundoReporteFarmacia (fechainicio, fechafin) {
+      axios.get(apiUrl + '/reporte/farmacia/proveedores',
+        {
+          params: {
+            fechaInicio: fechainicio,
+            fechaFin: fechafin
+          }
+        }
+      )
+        .then((response) => {
+          this.dataFarmacia = response.data
+          this.startDateEnfermeria = fechainicio
+          this.endDateEnfermeria = fechafin
+          console.log(response.data)
+        })
+        .catch((error) => {
+          console.error('Error al generar el reporte de cuenta parcial:', error)
+          this.alertErrorText = 'Hubo un problema al generar el reporte. Por favor, intente nuevamente.'
+          this.showAlertError()
+        })
+    },
+    generarPDFFarmacia2 () {
+      const {
+        proveedorMasSolicitado,
+        resultado
+      } = this.dataFarmacia
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+      const doc = new JsPDF()
+
+      // Encabezado
+      doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+      doc.setFontSize(10).setFont(undefined, 'normal')
+      doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
+      doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
+
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('Reporte Proveedores más solicitados', 105, 50, { align: 'center' })
+      doc.setFontSize(12).setFont(undefined, 'normal')
+      doc.text(`Rango de Fechas: ${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')}`, 105, 56, { align: 'center' })
+
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('Proveedor Más Solicitado', 14, 80)
+      doc.setFontSize(12).setFont(undefined, 'normal')
+      doc.text(`Nombre: ${proveedorMasSolicitado.nombre}`, 14, 90)
+      doc.text(`Representante: ${proveedorMasSolicitado.representante}`, 14, 96)
+      doc.text(`Telefono: ${proveedorMasSolicitado.telefono}`, 14, 102)
+
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('Detalle de Proveedores', 14, 112)
+      doc.autoTable({
+        head: [['#', 'Nombre', 'Representante', 'Numero de Telefono']],
+        body: resultado.map((item, index) => [
+          index + 1,
+          item.nombre,
+          item.representante,
+          item.telefono
+        ]),
+        startY: 118,
+        theme: 'grid',
+        styles: { fontSize: 10, cellPadding: 2 },
+        headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [240, 240, 240] }
+      })
+
+      doc.save(`Reporte_Proveedores_Mas_Solicitados_${moment(fechaInicio).format('YYYY-MM-DD')}_a_${moment(fechaFin).format('YYYY-MM-DD')}.pdf`)
+    },
+    async generarExcelEnfermeria2 () {
+      const {
+        proveedorMasSolicitado,
+        resultado
+      } = this.dataFarmacia
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+
+      // Crear un nuevo libro de trabajo
+      const workbook = new ExcelJS.Workbook()
+      const worksheet = workbook.addWorksheet('Proveedores Más Solicitados')
+
+      // Encabezado
+      worksheet.mergeCells('A1:D1')
+      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'
+      worksheet.getCell('A1').font = { bold: true, size: 14 }
+      worksheet.getCell('A1').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A2:D2')
+      worksheet.getCell('A2').value = '6ta. Calle 12-28 Zona 3 Quetzaltenango'
+      worksheet.getCell('A2').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A3:D3')
+      worksheet.getCell('A3').value = 'Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223'
+      worksheet.getCell('A3').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A5:D5')
+      worksheet.getCell('A5').value = 'Reporte Proveedores Más Solicitados'
+      worksheet.getCell('A5').font = { bold: true, size: 14 }
+      worksheet.getCell('A5').alignment = { horizontal: 'center' }
+      worksheet.mergeCells('A6:D6')
+      worksheet.getCell('A6').value = `Rango de Fechas: ${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')}`
+      worksheet.getCell('A6').alignment = { horizontal: 'center' }
+
+      // Proveedor Más Solicitado
+      worksheet.addRow([])
+      worksheet.addRow(['Proveedor Más Solicitado'])
+      worksheet.getCell('A8').font = { bold: true, size: 12 }
+      worksheet.addRow([`Nombre: ${proveedorMasSolicitado.nombre}`])
+      worksheet.addRow([`Representante: ${proveedorMasSolicitado.representante}`])
+      worksheet.addRow([`Teléfono: ${proveedorMasSolicitado.telefono}`])
+
+      // Detalle de Consumos
+      worksheet.addRow([])
+      worksheet.addRow(['Detalle de Proveedores'])
+      worksheet.getCell('A12').font = { bold: true, size: 12 }
+
+      // Agregar encabezados de la tabla
+      const headerRow = worksheet.addRow(['#', 'Nombre', 'Representante', 'Número de Teléfono'])
+      headerRow.font = { bold: true }
+      headerRow.alignment = { horizontal: 'center' }
+
+      // Agregar filas con los datos
+      resultado.forEach((item, index) => {
+        worksheet.addRow([index + 1, item.nombre, item.representante, item.telefono])
+      })
+
+      // Aplicar estilo a las columnas
+      worksheet.columns = [
+        { key: 'numero', width: 5 },
+        { key: 'nombre', width: 25 },
+        { key: 'representante', width: 25 },
+        { key: 'telefono', width: 15 }
+      ]
+
+      // Guardar el archivo Excel
+      const buffer = await workbook.xlsx.writeBuffer()
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+
+      const fileName = `Reporte_Proveedores_Mas_Solicitados_${moment(fechaInicio).format('YYYY-MM-DD')}_a_${moment(fechaFin).format('YYYY-MM-DD')}.xlsx`
+
+      // Descargar el archivo
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      link.download = fileName
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    },
+
+    tercerReporteFarmacia (fechainicio, fechafin) {
+      axios.get(apiUrl + '/reporte/farmacia/inventarioMedicina',
+        {
+          params: {
+            fechaInicio: fechainicio,
+            fechaFin: fechafin
+          }
+        }
+      )
+        .then((response) => {
+          this.dataFarmacia = response.data
+          this.startDateEnfermeria = fechainicio
+          this.endDateEnfermeria = fechafin
+          console.log(response.data)
+        })
+        .catch((error) => {
+          console.error('Error al generar el reporte de cuenta parcial:', error)
+          this.alertErrorText = 'Hubo un problema al generar el reporte. Por favor, intente nuevamente.'
+          this.showAlertError()
+        })
+    },
+    generarPDFFarmacia3 () {
+      const medicamentos = this.dataFarmacia
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+      const doc = new JsPDF()
+
+      let medicamentosArray = []
+      for (let key in medicamentos) {
+        if (Array.isArray(medicamentos[key])) {
+          medicamentosArray = medicamentosArray.concat(medicamentos[key])
+        }
+      }
+
+      // Encabezado
+      doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+      doc.setFontSize(10).setFont(undefined, 'normal')
+      doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
+      doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
+
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('Inventario de todas las medicinas', 105, 50, { align: 'center' })
+      doc.setFontSize(12).setFont(undefined, 'normal')
+      doc.text(`Rango de Fechas: ${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')}`, 105, 56, { align: 'center' })
+
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('Detalle de Inventario Medicamentos', 14, 80)
+      doc.autoTable({
+        head: [['#', 'Nombre Medicamento', 'Marca', 'Precio Costo', 'Precio Venta', 'Exist. Actual', 'Exist. Qirofano', 'Exist. Farmacia']],
+        body: medicamentosArray.map((item, index) => [
+          index + 1,
+          item.nombre_medicamento,
+          item.marca,
+          `Q${item.precio_costo}`,
+          `Q${item.precio_venta}`,
+          item.existencia_actual,
+          item.existencia_actual_quirofano,
+          item.existencia_actual_farmacia
+        ]),
+        startY: 86,
+        theme: 'grid',
+        styles: { fontSize: 10, cellPadding: 2 },
+        headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [240, 240, 240] }
+      })
+
+      doc.save(`Reporte_Productos_Mas_Utilizados_${moment(fechaInicio).format('YYYY-MM-DD')}_a_${moment(fechaFin).format('YYYY-MM-DD')}.pdf`)
+    },
+    async generarExcelEnfermeria3 () {
+      const medicamentos = this.dataFarmacia
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+
+      let medicamentosArray = []
+      for (let key in medicamentos) {
+        if (Array.isArray(medicamentos[key])) {
+          medicamentosArray = medicamentosArray.concat(medicamentos[key])
+        }
+      }
+
+      // Crear un nuevo libro de trabajo
+      const workbook = new ExcelJS.Workbook()
+      const worksheet = workbook.addWorksheet('Inventario Medicamentos')
+
+      // Encabezado del documento
+      worksheet.mergeCells('A1:H1')
+      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'
+      worksheet.getCell('A1').font = { bold: true, size: 14 }
+      worksheet.getCell('A1').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A2:H2')
+      worksheet.getCell('A2').value = '6ta. Calle 12-28 Zona 3 Quetzaltenango'
+      worksheet.getCell('A2').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A3:H3')
+      worksheet.getCell('A3').value = 'Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223'
+      worksheet.getCell('A3').alignment = { horizontal: 'center' }
+      worksheet.mergeCells('A5:H5')
+      worksheet.getCell('A5').value = 'Inventario de todas las medicinas'
+      worksheet.getCell('A5').font = { bold: true, size: 14 }
+      worksheet.getCell('A5').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A6:H6')
+      worksheet.getCell('A6').value = `Rango de Fechas: ${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')}`
+      worksheet.getCell('A6').alignment = { horizontal: 'center' }
+
+      worksheet.addRow([])
+      worksheet.addRow(['Detalle de Inventario Medicamentos'])
+      worksheet.getCell('A8').font = { bold: true, size: 12 }
+
+      const headerRow = worksheet.addRow([
+        '#',
+        'Nombre Medicamento',
+        'Marca',
+        'Precio Costo',
+        'Precio Venta',
+        'Exist. Actual',
+        'Exist. Quirófano',
+        'Exist. Farmacia'
+      ])
+      headerRow.font = { bold: true }
+      headerRow.alignment = { horizontal: 'center' }
+
+      medicamentosArray.forEach((item, index) => {
+        worksheet.addRow([
+          index + 1,
+          item.nombre_medicamento,
+          item.marca,
+          `Q${item.precio_costo.toFixed(2)}`,
+          `Q${item.precio_venta.toFixed(2)}`,
+          item.existencia_actual,
+          item.existencia_actual_quirofano,
+          item.existencia_actual_farmacia
+        ])
+      })
+
+      worksheet.columns = [
+        { key: 'indice', width: 5 },
+        { key: 'nombre_medicamento', width: 30 },
+        { key: 'marca', width: 20 },
+        { key: 'precio_costo', width: 15 },
+        { key: 'precio_venta', width: 15 },
+        { key: 'existencia_actual', width: 15 },
+        { key: 'existencia_actual_quirofano', width: 20 },
+        { key: 'existencia_actual_farmacia', width: 20 }
+      ]
+
+      const buffer = await workbook.xlsx.writeBuffer()
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+
+      const fileName = `Reporte_Inventario_Medicamentos_${moment(fechaInicio).format('YYYY-MM-DD')}_a_${moment(fechaFin).format('YYYY-MM-DD')}.xlsx`
+
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      link.download = fileName
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    },
+
+    cuartoReporteFarmacia (fechainicio, fechafin) {
+      axios.get(apiUrl + '/reporte/farmacia/iventarioGeneral',
+        {
+          params: {
+            fechaInicio: fechainicio,
+            fechaFin: fechafin
+          }
+        }
+      )
+        .then((response) => {
+          this.dataFarmacia = response.data
+          this.startDateEnfermeria = fechainicio
+          this.endDateEnfermeria = fechafin
+          console.log(response.data)
+        })
+        .catch((error) => {
+          console.error('Error al generar el reporte de cuenta parcial:', error)
+          this.alertErrorText = 'Hubo un problema al generar el reporte. Por favor, intente nuevamente.'
+          this.showAlertError()
+        })
+    },
+    generarPDFFarmacia4 () {
+      const {
+        comunes,
+        medicamentos,
+        quirurgicos
+      } = this.dataFarmacia
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+      const doc = new JsPDF()
+
+      // Encabezado
+      doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+      doc.setFontSize(10).setFont(undefined, 'normal')
+      doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
+      doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
+
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('Inventario General', 105, 50, { align: 'center' })
+      doc.setFontSize(12).setFont(undefined, 'normal')
+      doc.text(`Rango de Fechas: ${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')}`, 105, 56, { align: 'center' })
+
+      // Detalle de consumos: Material común
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('Detalle de Inventario - Material Común', 14, 112)
+      doc.autoTable({
+        head: [['#', 'Nombre', 'Marca', 'existencia_actual']],
+        body: comunes.map((item, index) => [
+          index + 1,
+          item.nombre,
+          item.marca,
+          item.existencia_actual
+        ]),
+        startY: 118,
+        theme: 'grid',
+        styles: { fontSize: 10, cellPadding: 2 },
+        headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [240, 240, 240] }
+      })
+
+      // Detalle de consumos: Medicamentos
+      doc.addPage()
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('Detalle de Inventario - Medicamentos', 14, 20)
+      doc.autoTable({
+        head: [['#', 'Nombre', 'Marca', 'existencia_actual']],
+        body: medicamentos.map((item, index) => [
+          index + 1,
+          item.nombre,
+          item.marca,
+          item.existencia_actual
+        ]),
+        startY: 26,
+        theme: 'grid',
+        styles: { fontSize: 10, cellPadding: 2 },
+        headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [240, 240, 240] }
+      })
+
+      // Detalle de consumos: Material quirúrgico
+      doc.addPage()
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('Detalle de Inventario - Material Quirúrgico', 14, 20)
+      doc.autoTable({
+        head: [['#', 'Nombre', 'Marca', 'existencia_actual']],
+        body: quirurgicos.map((item, index) => [
+          index + 1,
+          item.nombre,
+          item.marca,
+          item.existencia_actual
+        ]),
+        startY: 26,
+        theme: 'grid',
+        styles: { fontSize: 10, cellPadding: 2 },
+        headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [240, 240, 240] }
+      })
+
+      doc.save(`Inventario_General_Comunes_Medicamentos_Quirurgicos_${moment(fechaInicio).format('YYYY-MM-DD')}_a_${moment(fechaFin).format('YYYY-MM-DD')}.pdf`)
+    },
+    async generarExcelEnfermeria4 () {
+      const { comunes, medicamentos, quirurgicos } = this.dataFarmacia
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+      const workbook = new ExcelJS.Workbook()
+      function agregarHoja (worksheetName, data, columns) {
+        const worksheet = workbook.addWorksheet(worksheetName)
+        worksheet.mergeCells('A1:D1')
+        worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'
+        worksheet.getCell('A1').font = { bold: true, size: 14 }
+        worksheet.getCell('A1').alignment = { horizontal: 'center' }
+
+        worksheet.mergeCells('A2:D2')
+        worksheet.getCell('A2').value = '6ta. Calle 12-28 Zona 3 Quetzaltenango'
+        worksheet.getCell('A2').alignment = { horizontal: 'center' }
+
+        worksheet.mergeCells('A3:D3')
+        worksheet.getCell('A3').value = 'Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223'
+        worksheet.getCell('A3').alignment = { horizontal: 'center' }
+
+        worksheet.mergeCells('A5:D5')
+        worksheet.getCell('A5').value = `Rango de Fechas: ${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')}`
+        worksheet.getCell('A5').alignment = { horizontal: 'center' }
+
+        worksheet.addRow([])
+        worksheet.addRow(columns.map(col => col.header)).font = { bold: true }
+        data.forEach((item, index) => {
+          const row = [index + 1]
+          columns.slice(1).forEach(col => {
+            row.push(item[col.key])
+          })
+          worksheet.addRow(row)
+        })
+        worksheet.columns = columns.map(col => ({ key: col.key, width: col.width }))
+      }
+
+      agregarHoja('Material Común', comunes, [
+        { header: '#', key: 'index', width: 5 },
+        { header: 'Nombre', key: 'nombre', width: 30 },
+        { header: 'Marca', key: 'marca', width: 20 },
+        { header: 'Existencia Actual', key: 'existencia_actual', width: 20 }
+      ])
+
+      agregarHoja('Medicamentos', medicamentos, [
+        { header: '#', key: 'index', width: 5 },
+        { header: 'Nombre', key: 'nombre', width: 30 },
+        { header: 'Marca', key: 'marca', width: 20 },
+        { header: 'Existencia Actual', key: 'existencia_actual', width: 20 }
+      ])
+
+      agregarHoja('Material Quirúrgico', quirurgicos, [
+        { header: '#', key: 'index', width: 5 },
+        { header: 'Nombre', key: 'nombre', width: 30 },
+        { header: 'Marca', key: 'marca', width: 20 },
+        { header: 'Existencia Actual', key: 'existencia_actual', width: 20 }
+      ])
+
+      const buffer = await workbook.xlsx.writeBuffer()
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+
+      const fileName = `Inventario_General_${moment(fechaInicio).format('YYYY-MM-DD')}_a_${moment(fechaFin).format('YYYY-MM-DD')}.xlsx`
+
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      link.download = fileName
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    },
+
+    quintoReporteFarmacia (fechainicio, fechafin) {
+      axios.get(apiUrl + '/reporte/farmacia/suministroMedicamentos',
+        {
+          params: {
+            fechaInicio: fechainicio,
+            fechaFin: fechafin
+          }
+        }
+      )
+        .then((response) => {
+          this.dataFarmacia = response.data
+          this.startDateEnfermeria = fechainicio
+          this.endDateEnfermeria = fechafin
+          console.log(response.data)
+        })
+        .catch((error) => {
+          console.error('Error al generar el reporte de cuenta parcial:', error)
+          this.alertErrorText = 'Hubo un problema al generar el reporte. Por favor, intente nuevamente.'
+          this.showAlertError()
+        })
+    },
+    generarPDFFarmacia5 () {
+      const medicamentos = this.dataFarmacia
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+      const doc = new JsPDF()
+
+      let medicamentosArray = []
+      for (let key in medicamentos) {
+        if (Array.isArray(medicamentos[key])) {
+          medicamentosArray = medicamentosArray.concat(medicamentos[key])
+        }
+      }
+
+      // Encabezado
+      doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+      doc.setFontSize(10).setFont(undefined, 'normal')
+      doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
+      doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
+
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('Suministro de Medicamentos a Pacientes', 105, 50, { align: 'center' })
+      doc.setFontSize(12).setFont(undefined, 'normal')
+      doc.text(`Rango de Fechas: ${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')}`, 105, 56, { align: 'center' })
+
+      doc.autoTable({
+        head: [['#', 'Nombre Medicamento', 'Cantidad Suministrada', 'Nombre Paciente', 'Expediente', 'Administracion']],
+        body: medicamentosArray.map((item, index) => [
+          index + 1,
+          item.nombre_medicamento,
+          item.cantidad_total,
+          item.paciente,
+          item.cui,
+          new Date(item.fecha).toLocaleDateString()
+        ]),
+        startY: 80,
+        theme: 'grid',
+        styles: { fontSize: 10, cellPadding: 2 },
+        headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [240, 240, 240] }
+      })
+
+      doc.save(`Suministro_medicamentos_a_pacientes_de_${moment(fechaInicio).format('YYYY-MM-DD')}_a_${moment(fechaFin).format('YYYY-MM-DD')}.pdf`)
+    },
+    async generarExcelEnfermeria5 () {
+      const medicamentos = this.dataFarmacia
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+
+      let medicamentosArray = []
+      for (let key in medicamentos) {
+        if (Array.isArray(medicamentos[key])) {
+          medicamentosArray = medicamentosArray.concat(medicamentos[key])
+        }
+      }
+
+      // Crear un nuevo libro de trabajo
+      const workbook = new ExcelJS.Workbook()
+      const worksheet = workbook.addWorksheet('Inventario Medicamentos')
+
+      // Encabezado del documento
+      worksheet.mergeCells('A1:H1')
+      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'
+      worksheet.getCell('A1').font = { bold: true, size: 14 }
+      worksheet.getCell('A1').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A2:H2')
+      worksheet.getCell('A2').value = '6ta. Calle 12-28 Zona 3 Quetzaltenango'
+      worksheet.getCell('A2').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A3:H3')
+      worksheet.getCell('A3').value = 'Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223'
+      worksheet.getCell('A3').alignment = { horizontal: 'center' }
+      worksheet.mergeCells('A5:H5')
+      worksheet.getCell('A5').value = 'Inventario de todas las medicinas'
+      worksheet.getCell('A5').font = { bold: true, size: 14 }
+      worksheet.getCell('A5').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A6:H6')
+      worksheet.getCell('A6').value = `Rango de Fechas: ${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')}`
+      worksheet.getCell('A6').alignment = { horizontal: 'center' }
+
+      worksheet.addRow([])
+      worksheet.addRow(['Detalle de Inventario Medicamentos'])
+      worksheet.getCell('A8').font = { bold: true, size: 12 }
+
+      const headerRow = worksheet.addRow([
+        '#',
+        'Nombre Medicamento',
+        'Cantidad Suministrada',
+        'Nombre Paciente',
+        'Expediente',
+        'Administracion'
+      ])
+      headerRow.font = { bold: true }
+      headerRow.alignment = { horizontal: 'center' }
+
+      medicamentosArray.forEach((item, index) => {
+        worksheet.addRow([
+          index + 1,
+          item.nombre_medicamento,
+          item.cantidad_total,
+          item.paciente,
+          item.cui,
+          new Date(item.fecha).toLocaleDateString()
+        ])
+      })
+
+      worksheet.columns = [
+        { key: 'indice', width: 5 },
+        { key: 'nombre_medicamento', width: 30 },
+        { key: 'marca', width: 20 },
+        { key: 'precio_costo', width: 15 },
+        { key: 'precio_venta', width: 15 },
+        { key: 'existencia_actual', width: 15 },
+        { key: 'existencia_actual_quirofano', width: 20 },
+        { key: 'existencia_actual_farmacia', width: 20 }
+      ]
+
+      const buffer = await workbook.xlsx.writeBuffer()
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+
+      const fileName = `Reporte_Inventario_Medicamentos_${moment(fechaInicio).format('YYYY-MM-DD')}_a_${moment(fechaFin).format('YYYY-MM-DD')}.xlsx`
+
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      link.download = fileName
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
     },
 
     /* ENFERMERIA REPORTES */
@@ -1152,17 +2083,16 @@ export default {
 
       doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
 
-      doc.setFontSize(14)
-      doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 50, 20)
-      doc.setFontSize(10)
-      doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 50, 26)
-      doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 50, 32)
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+      doc.setFontSize(10).setFont(undefined, 'normal')
+      doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
+      doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
 
       doc.setFontSize(14)
-      doc.text('Reporte de Pacientes por lugar', 14, 50)
-
+      doc.text('Reporte de Pacientes por lugar', 105, 50, { align: 'center' })
       doc.setFontSize(12)
-      doc.text(`Rango de Fechas: ${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')}`, 14, 60)
+      doc.text(`Rango de Fechas: ${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')}`, 105, 60, { align: 'center' })
 
       let currentY = 75
       for (const lugar in detalles) {
@@ -1331,11 +2261,11 @@ export default {
         const doc = new JsPDF()
 
         doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
-        doc.setFontSize(14)
-        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 50, 20)
-        doc.setFontSize(10)
-        doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 50, 26)
-        doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 50, 32)
+        doc.setFontSize(14).setFont(undefined, 'bold')
+        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+        doc.setFontSize(10).setFont(undefined, 'normal')
+        doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
+        doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
 
         doc.setFontSize(16)
         doc.text('Reporte de Pacientes Actuales', 105, 50, { align: 'center' })
@@ -1537,11 +2467,11 @@ export default {
         const doc = new JsPDF()
 
         doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
-        doc.setFontSize(14)
-        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 50, 20)
-        doc.setFontSize(10)
-        doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 50, 26)
-        doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 50, 32)
+        doc.setFontSize(14).setFont(undefined, 'bold')
+        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+        doc.setFontSize(10).setFont(undefined, 'normal')
+        doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
+        doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
 
         doc.setFontSize(16)
         doc.text('Reporte Detallado de Todos los Pacientes', 105, 50, { align: 'center' })
@@ -1726,11 +2656,11 @@ export default {
         const doc = new JsPDF()
 
         doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
-        doc.setFontSize(14)
-        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 50, 20)
-        doc.setFontSize(10)
-        doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 50, 26)
-        doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 50, 32)
+        doc.setFontSize(14).setFont(undefined, 'bold')
+        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+        doc.setFontSize(10).setFont(undefined, 'normal')
+        doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
+        doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
 
         doc.setFontSize(16)
         doc.text('Reporte de Consumos de Servicios', 105, 50, { align: 'center' })
@@ -1900,11 +2830,11 @@ export default {
         const doc = new JsPDF()
 
         doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
-        doc.setFontSize(14)
-        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 50, 20)
-        doc.setFontSize(10)
-        doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 50, 26)
-        doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 50, 32)
+        doc.setFontSize(14).setFont(undefined, 'bold')
+        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+        doc.setFontSize(10).setFont(undefined, 'normal')
+        doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
+        doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
 
         doc.setFontSize(16)
         doc.text('Reporte de Consumo de Medicamentos', 105, 50, { align: 'center' })
@@ -2087,11 +3017,11 @@ export default {
         const doc = new JsPDF()
 
         doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
-        doc.setFontSize(14)
-        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 50, 20)
-        doc.setFontSize(10)
-        doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 50, 26)
-        doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 50, 32)
+        doc.setFontSize(14).setFont(undefined, 'bold')
+        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+        doc.setFontSize(10).setFont(undefined, 'normal')
+        doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
+        doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
 
         doc.setFontSize(16)
         doc.text('Reporte de Pacientes Fallecidos', 105, 50, { align: 'center' })
@@ -2284,11 +3214,11 @@ export default {
         const doc = new JsPDF()
 
         doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
-        doc.setFontSize(14)
-        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 50, 20)
-        doc.setFontSize(10)
-        doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 50, 26)
-        doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 50, 32)
+        doc.setFontSize(14).setFont(undefined, 'bold')
+        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+        doc.setFontSize(10).setFont(undefined, 'normal')
+        doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
+        doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
 
         doc.setFontSize(16)
         doc.text('Reporte de Pacientes Egresados', 105, 50, { align: 'center' })
@@ -2466,11 +3396,11 @@ export default {
         const doc = new JsPDF()
 
         doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
-        doc.setFontSize(14)
-        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 50, 20)
-        doc.setFontSize(10)
-        doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 50, 26)
-        doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 50, 32)
+        doc.setFontSize(14).setFont(undefined, 'bold')
+        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+        doc.setFontSize(10).setFont(undefined, 'normal')
+        doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
+        doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
 
         doc.setFontSize(16)
         doc.text('Reporte de Honorarios asignados sin pagar', 105, 50, { align: 'center' })
@@ -2613,11 +3543,11 @@ export default {
         const doc = new JsPDF()
 
         doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
-        doc.setFontSize(14)
-        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 50, 20)
-        doc.setFontSize(10)
-        doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 50, 26)
-        doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 50, 32)
+        doc.setFontSize(14).setFont(undefined, 'bold')
+        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+        doc.setFontSize(10).setFont(undefined, 'normal')
+        doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
+        doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
 
         doc.setFontSize(16)
         doc.text('Reporte Detallado de honorarios Medicos asignados sin pagar', 105, 50, { align: 'center' })
