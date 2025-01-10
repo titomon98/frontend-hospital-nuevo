@@ -291,13 +291,12 @@
                 <b-button variant="primary" @click="generarEXCEL">Descargar Excel</b-button>
               </div>
               </div>
-               </div>
-               <div v-else>
+               <div v-if="selectedArea==1">
               <div v-if="selectedReport === 2 && selectedArea === 1 ">
                 <label for="example-datepicker">Fecha a buscar</label>
                 <b-form-datepicker id="example-datepicker" v-model="startDate" :date-format-options="{ year: 'numeric', month: 'numeric', day: 'numeric' }" class="mb-2"></b-form-datepicker>
               </div>
-              <div v-else-if="selectedReport === 4 && selectedArea === 1 ">
+              <div v-if="selectedReport === 4 && selectedArea === 1 ">
                 <label for="reportPAyment">tipo de pago</label>
                 <b-form-select id="reportPAyment" v-model="reportPayment" :options="paymentOptions"></b-form-select>
               </div>
@@ -345,7 +344,7 @@ import { required } from '@vuelidate/validators'
 import axios from 'axios'
 import { apiUrl } from '../../../config/constant'
 import JsPDF from 'jspdf'
-import 'jspdf-autotable'
+import autoTable from 'jspdf-autotable'
 import logo from '../../../assets/images/login/1.png'
 import logoLab from '../../../assets/images/logo.png'
 import moment from 'moment'
@@ -872,11 +871,6 @@ export default {
         alert('Por favor, seleccione las fechas antes de continuar.')
         this.selectedReport = null
         return
-      }
-      if (this.selectedArea === '1') {
-        this.incomeByDate()
-        this.pdf_select_caja = 1
-        this.modPdf(1)
       }
       if (this.selectedArea === '2') {
         switch (this.selectedReport) {
