@@ -217,37 +217,50 @@
                   </b-form-group>
                </div>
                <div>
-                <b-form-select v-model="selectedReport" v-if="selectedArea == 1" :options="reportOptionsCaja" @change="incomeByDate()"></b-form-select>
+                <b-form-select v-model="selectedReport" v-if="selectedArea == 1" :options="reportOptionsCaja"></b-form-select>
                 <b-form-select v-model="selectedReport" v-if="selectedArea == 2" :options="reportOptionsFarmacia" @change="incomeByDay()"></b-form-select>
-                <b-form-select v-model="selectedReport" v-if="selectedArea == 3" :options="reportOptionsEnfermeria" @change="incomeByDay()"></b-form-select>
-                <b-form-select v-model="selectedReport" v-if="selectedArea == 4" :options="reportOptionsMedicos" @change="incomeByDay()"></b-form-select>
+                <b-form-select v-model="selectedReport" v-if="selectedArea == 3" :options="reportOptionsEnfermeria" @change="wallet()"></b-form-select>
+                <b-form-select v-model="selectedReport" v-if="selectedArea == 4" :options="reportOptionsMedicos" @change="simpleWallet()"></b-form-select>
                 <b-form-select v-model="selectedReport" v-if="selectedArea == 5" :options="reportOptionsPacientes" @change="incomeByDay()"></b-form-select>
                </div>
-               <div>
-                <label for="example-datepicker">Fecha de inicio</label>
-                <b-form-datepicker id="example-datepicker" v-model="startDate" class="mb-2"></b-form-datepicker>
+              <div v-if="selectedReport === 2 && selectedArea === 1 ">
+                <label for="example-datepicker">Fecha a buscar</label>
+                <b-form-datepicker id="example-datepicker" v-model="startDate" :date-format-options="{ year: 'numeric', month: 'numeric', day: 'numeric' }" class="mb-2"></b-form-datepicker>
               </div>
-              <div>
-                <label for="example-datepicker">Fecha fin</label>
-                <b-form-datepicker id="example-datepicker" v-model="endDate" class="mb-2"></b-form-datepicker>
+              <div v-else-if="selectedReport === 4 && selectedArea === 1 ">
+                <label for="reportPAyment">tipo de pago</label>
+                <b-form-select id="reportPAyment" v-model="reportPayment" :options="paymentOptions"></b-form-select>
+              </div>
+              <div v-if="selectedReport !== 2 && selectedArea === 1 ">
+                <label for="example-datepicker">Fecha de inicio</label>
+                <b-form-datepicker id="example-datepicker" v-model="startDate" :date-format-options="{ day: 'numeric', month: 'numeric', year: 'numeric' }" class="mb-2"></b-form-datepicker>
+                <label for="example-datepicker2">Fecha fin</label>
+                <b-form-datepicker id="example-datepicker2" v-model="endDate" :date-format-options="{ day: 'numeric', month: 'numeric', year: 'numeric' }" class="mb-2"></b-form-datepicker>
               </div>
               <div v-if="selectedReport != null">
-                <b-button variant="primary" @click="modPdf(1)">Descargar PDF</b-button>
-                <b-button variant="primary">Descargar Excel</b-button>
+                <b-button variant="primary" @click="generateReport()">Generar Reporte</b-button>
+                <b-button variant="primary" @click="selectPDFReport()">Descargar PDF</b-button>
+                <b-button v-if="selectedReport <= 2 && selectedArea === 1 " variant="primary" @click="generateExcel()">Descargar Excel</b-button>
               </div>
             </template>
             <template v-slot:headerAction>
           </template>
           <template v-slot:body>
-            <b-table
-                hover
-                ref="reportTable"
-                :items="reportItems"
-                :fields="reportFields"
-                :select-mode="'single'"
-                selectable
-              >
-              </b-table>
+            <div v-if ="selectedReport === 4 && selectedArea === 1">
+              {{ selectedReport === 4 && selectedArea === 1 ? 'Reporte de pagos en ' + reportPayment : '' }} {{simpWallet.length > 0?simpWallet[0].total:'' }}
+            </div>
+            <div v-else>
+              <b-table
+                  hover
+                  ref="reportTable"
+                  id="reportTable"
+                  :items="selectedReport==3?walletItems:reportItems"
+                  :fields="selectedReport==3?walletFields:reportFields"
+                  :select-mode="'single'"
+                  selectable
+                >
+                </b-table>
+            </div>
           </template>
         </iq-card>
       </b-col>
@@ -264,6 +277,7 @@ import JsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import logoLab from '../../../assets/images/logo.png'
 import moment from 'moment'
+import * as XLSX from 'xlsx'
 // import { mapGetters } from 'vuex'
 
 export default {
@@ -289,6 +303,8 @@ export default {
       pdfName: '',
       previewURL: '',
       reportItems: [],
+      walletItems: [],
+      simpWallet: [],
       reportFields: [
         {
           key: 'total',
@@ -296,13 +312,58 @@ export default {
           sortable: true
         }
       ],
+      walletFields: [
+        {
+          key: 'efectivo',
+          label: 'Efectivo',
+          sortable: true
+        },
+        {
+          key: 'tarjeta',
+          label: 'Tarjeta',
+          sortable: true
+        },
+        {
+          key: 'tarjeta',
+          label: 'Tarjeta',
+          sortable: true
+        },
+        {
+          key: 'deposito',
+          label: 'Deposito',
+          sortable: true
+        },
+        {
+          key: 'cheque',
+          label: 'Cheque',
+          sortable: true
+        },
+        {
+          key: 'seguro',
+          label: 'Seguro',
+          sortable: true
+        },
+        {
+          key: 'transferencia',
+          label: 'Transferencia',
+          sortable: true
+        }
+      ],
       selectedReport: null,
       reportOptionsCaja: [
         { value: null, text: 'Seleccione un reporte' },
-        { value: 1, text: 'Reporte Caja 1' },
-        { value: 2, text: 'Reporte Caja 2' },
-        { value: 3, text: 'Reporte Caja 3' },
-        { value: 4, text: 'Reporte Caja 4' }
+        { value: 1, text: 'Ingresos entre fechas' },
+        { value: 2, text: 'Ingresos por día' },
+        { value: 3, text: 'Medios de pago' },
+        { value: 4, text: 'Medio de pago específico' }
+      ],
+      paymentOptions: [
+        { value: 'efectivo', text: 'Efectivo' },
+        { value: 'tarjeta', text: 'Tarjeta' },
+        { value: 'deposito', text: 'Deposito' },
+        { value: 'cheque', text: 'Cheque' },
+        { value: 'seguro', text: 'Seguro' },
+        { value: 'transferencia', text: 'Transferencia' }
       ],
       reportOptionsFarmacia: [
         { value: null, text: 'Seleccione un reporte' },
@@ -730,12 +791,7 @@ export default {
       }
     },
     modPdf (type) {
-      const transformedData = this.reportItems.map(item => ({
-        numero_cuenta: item.numero_cuenta,
-        total: item.total,
-        expediente: item.expediente.expediente + ' ' + item.expediente.nombres + ' ' + item.expediente.apellidos,
-        total_pagado: item.total_pagado
-      }))
+      console.log(type)
       this.$refs['modal-pdf'].show()
       var altura = 1
       var ahora = new Date()
@@ -751,50 +807,79 @@ export default {
       this.pdf.addImage(imgData, 'PNG', 1.5, 0.2, 4.37, 4)
       this.pdf.setFontSize(10).setFont(undefined, 'bold')
       this.pdf.text('Hospital de Especialidades S.A.', 1.5, 4.5)
-      if (type === 1) {
-        // this.pdf.text('Detalle de cuenta ' + data.numero + ' - Paciente: ' + data.expediente.nombres + ' ' + data.expediente.apellidos, 7, altura)
-        this.pdfName = 'DetalleCuenta.pdf'
-        altura = altura + 0.5
-        // this.pdf.text('Total: ' + data.total, 7, altura)
-        altura = altura + 0.5
-        // this.pdf.text('Total pagado: ' + data.total_pagado, 7, altura)
-        altura = altura + 0.5
-        // this.pdf.text('Pendiente de pago: ' + data.pendiente_de_pago, 7, altura)
-      } /*  else {
-         this.pdf.text('Ingresos del día ' + this.selectedDate, 7, altura)
-        this.pdfName = 'Ingresos' + this.selectedDate + '.pdf'
-      } */
+      switch (type) {
+        case 1: {
+          this.pdfName = 'ReporteIngresos.pdf'
+          altura = altura + 0.5
+          altura = altura + 0.5
+          altura = altura + 0.5
+          this.selectedReport === 1 ? this.pdf.text('Reporte de ingresos entre ' + this.startDate + ' y ' + this.endDate, 7, altura) : this.pdf.text('Reporte de ingresos del ' + this.startDate, 7, altura)
+          break
+        }
+        case 2: {
+          this.pdfName = 'ReporteMedioDePago.pdf'
+          altura = altura + 0.5
+          altura = altura + 0.5
+          altura = altura + 0.5
+          this.pdf.text('Reporte del dinero por medio de pago del ' + this.startDate + ' al ' + this.endDate, 7, altura)
+          break
+        }
+        case 3: {
+          this.pdfName = 'Reporte' + this.reportPayment + '.pdf'
+          altura = altura + 0.5
+          altura = altura + 0.5
+          altura = altura + 0.5
+          this.pdf.text('Reporte del ingreso a ' + this.reportPayment + ' del ' + this.startDate + ' al ' + this.endDate, 7, altura)
+          break
+        }
+      }
       // Encabezado
       altura = altura + 0.5
       this.pdf.text('Fecha de generación: ' + ingreso, 7, altura)
       altura = altura + 0.5
-      this.pdf.text('Informe generado por: ', 7, altura)
+      // this.pdf.text('Informe generado por: ', 7, altura)
       this.pdf.setFontSize(10).setFont(undefined, 'normal')
       // this.pdf.text(this.currentUser.user, 10.75, altura)
       altura = altura + 0.5
       // Tabla
-      if (type === 1) {
-        autoTable(this.pdf, {
-          columns: [{ header: 'Cuenta', dataKey: 'numero_cuenta' }, { header: 'Total', dataKey: 'total' }, { header: 'Total pagado', dataKey: 'total_pagado' }, { header: 'Expediente', dataKey: 'expediente' }],
-          body: transformedData,
-          margin: { top: 5 },
-          headStyles: {
-            fillColor: [21, 21, 21],
-            textColor: [225, 225, 225],
-            fontStyle: 'bold'
-          }
-        })
-      } else {
-        autoTable(this.pdf, {
-          columns: [{ header: 'Expediente', dataKey: 'expediente' }, { header: 'Nombre', dataKey: 'nombres' }, { header: 'Apellido', dataKey: 'apellidos' }, { header: 'Cuenta número', dataKey: 'numero' }, { header: 'Total', dataKey: 'total' }],
-          body: transformedData,
-          margin: { top: 5 },
-          headStyles: {
-            fillColor: [21, 21, 21],
-            textColor: [225, 225, 225],
-            fontStyle: 'bold'
-          }
-        })
+      switch (type) {
+        case 1: {
+          const transformedData = this.reportItems.map(item => ({
+            numero_cuenta: item.numero_cuenta,
+            total: item.total,
+            expediente: item.expediente.expediente + ' ' + item.expediente.nombres + ' ' + item.expediente.apellidos,
+            total_pagado: item.total_pagado
+          }))
+          autoTable(this.pdf, {
+            columns: [{ header: 'Cuenta', dataKey: 'numero_cuenta' }, { header: 'Total', dataKey: 'total' }, { header: 'Total pagado', dataKey: 'total_pagado' }, { header: 'Expediente', dataKey: 'expediente' }],
+            body: transformedData,
+            margin: { top: 5 },
+            headStyles: {
+              fillColor: [21, 21, 21],
+              textColor: [225, 225, 225],
+              fontStyle: 'bold'
+            }
+          })
+          break
+        }
+        case 2: {
+          autoTable(this.pdf, {
+            columns: [{ header: 'Efectivo', dataKey: 'efectivo' }, { header: 'Tarjeta', dataKey: 'tarjeta' }, { header: 'Deposito', dataKey: 'deposito' }, { header: 'Cheque', dataKey: 'cheque' }, { header: 'Transferencia', dataKey: 'transferencia' }],
+            body: this.walletItems,
+            margin: { top: 5 },
+            headStyles: {
+              fillColor: [21, 21, 21],
+              textColor: [225, 225, 225],
+              fontStyle: 'bold'
+            }
+          })
+          break
+        }
+        case 3: {
+          altura = altura + 2
+          this.pdf.text('Pagos por medio de ' + this.reportPayment + ' del ' + this.startDate + ' al ' + this.endDate + ': ' + this.simpWallet[0].total, 7, altura)
+          break
+        }
       }
       var pdfData = this.pdf.output('blob')
       // Convert PDF to data URL
@@ -803,6 +888,70 @@ export default {
     },
     descargarpdf () {
       this.pdf.save(this.pdfName)
+    },
+    generateExcel () {
+      const transformedData = this.reportItems.map(item => ({
+        numero_cuenta: item.numero_cuenta,
+        total: item.total,
+        expediente: item.expediente.expediente + ' ' + item.expediente.nombres + ' ' + item.expediente.apellidos,
+        total_pagado: item.total_pagado
+      }))
+      const ws = XLSX.utils.json_to_sheet(transformedData)
+      const colWidths = transformedData.reduce((acc, row) => {
+        Object.keys(row).forEach((key, index) => {
+          const cellValue = String(row[key])
+          acc[index] = Math.max(acc[index] || 0, cellValue.length)
+        })
+        return acc
+      }, [])
+      ws['!cols'] = colWidths.map(width => ({ wch: width }))
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, 'Datos')
+      XLSX.writeFile(wb, 'reporte.xlsx')
+    },
+    selectPDFReport () {
+      switch (this.selectedReport) {
+        case 1: {
+          this.modPdf(1)
+          break
+        }
+        case 2: {
+          this.modPdf(1)
+          break
+        }
+        case 3: {
+          this.modPdf(2)
+          break
+        }
+        case 4: {
+          this.modPdf(3)
+          break
+        }
+      }
+      console.log(this.selectedReport)
+    },
+    async generateReport () {
+      switch (this.selectedReport) {
+        case 1: {
+          await this.incomeByDate()
+          break
+        }
+        case 2: {
+          await this.incomeByDay()
+          break
+        }
+        case 3: {
+          await this.wallet()
+          break
+        }
+        case 4: {
+          await this.simpleWallet()
+          break
+        }
+        default: {
+          break
+        }
+      }
     },
     closeModal (action) {
       switch (action) {
@@ -837,18 +986,38 @@ export default {
     async incomeByDate () {
       let res = await axios.get(apiUrl + '/reporte/ingresosFechas', {
         params: {
-          fecha_inicio: '12/12/2012',
-          fecha_final: '12/12/2024'
+          fecha_inicio: this.startDate,
+          fecha_final: this.endDate
         }
       })
       this.reportItems = res.data
       console.log(this.reportItems)
       this.$refs.reportTable.refresh()
     },
+    async wallet () {
+      let res = await axios.get(apiUrl + '/reporte/detalleMediosDePago')
+      this.walletItems = []
+      this.walletItems.push(res.data)
+      console.log(this.walletItems)
+      this.$refs.reportTable.refresh()
+    },
+    async simpleWallet () {
+      let res = await axios.get(apiUrl + '/reporte/simpleMediosDePago', {
+        params: {
+          tipo: 'efectivo',
+          fecha_inicio: this.startDate,
+          fecha_final: this.endDate
+        }
+      })
+      this.simpWallet = []
+      this.simpWallet.push(res.data)
+      console.log(this.simpWallet)
+      this.$refs.reportTable.refresh()
+    },
     async incomeByDay () {
       let res = await axios.get(apiUrl + '/reporte/ingresosDia', {
         params: {
-          fecha: '08/12/2012'
+          fecha: this.startDate
         }
       })
       this.reportItems = res.data
