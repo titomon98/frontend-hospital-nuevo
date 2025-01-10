@@ -81,10 +81,10 @@
               <b-form-input
                 v-model.trim="$v.form.comision.$model"
                 :state="!$v.form.comision.$error"
-                placeholder="Ingresar Comisión"
+                placeholder="Ingresar Nomnre del Medico"
               ></b-form-input>
               <div v-if="$v.form.comision.required.$invalid" class="invalid-feedback">
-                Debe ingresar Comisión
+                Debe Ingresar Nomnre del Medico
               </div>
             </b-form-group>
           </b-col>
@@ -156,7 +156,7 @@
           </b-col>
         </b-row>
         <b-row class="ml-2">
-          <b-col md="4">
+          <b-col md="12">
             <b-form-group label="Tipo de Examen:">
               <div v-if="isLoading">
               <p>Cargando...</p>
@@ -185,7 +185,7 @@
               <div>
                 <ul class="selected-options-list" v-if="selectedExamenes.length > 0">
                   <li v-for="(examen, index) in selectedExamenes" :key="examen.id">
-                    {{ index + 1 }}. {{ examen.nombre }}
+                    {{ index + 1 }}. {{ examen.nombre }} - Precio normal: {{ examen.precio_normal }} - Precio extraordinario: {{ examen.precio_sobrecargo }}
                   </li>
                 </ul>
               </div>
@@ -1047,6 +1047,7 @@ export default {
 
       axios.get(apiUrl + '/examenesAlmacenadosBuscar/getSearch', { params })
         .then((response) => {
+          console.log(response.data.data)
           this.examenes_almacenadosBuscar = response.data.data
           this.$refs.vuetableBuscar.setData(response.data)
           this.isLoading = false

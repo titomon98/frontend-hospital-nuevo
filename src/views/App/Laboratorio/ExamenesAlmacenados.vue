@@ -52,14 +52,24 @@
         </b-form-group>
       </b-form>
       <b-form-group label="Tipo de examen:">
-          <b-form-input
-            v-model.trim="varTipo"
+          <v-select
+            name="tipo"
+            v-model="varTipo"
+            :options="tipos"
+            :filterable="false"
             placeholder="Ingresar tipo del examen"
-          ></b-form-input>
+          >
+            <template v-slot:option="option">
+              {{ option.nombre }}
+            </template>
+            <template v-slot:selected-option="option">
+              {{ option.nombre }}
+            </template>
+          </v-select>
           <div v-if="varTipo === ''" class="invalid-feedback">
             Debe ingresar el tipo
           </div>
-        </b-form-group>
+      </b-form-group>
       <template #modal-footer="{}">
         <b-button variant="primary" @click="onCreateTest()"
           >Guardar</b-button
@@ -111,14 +121,24 @@
         </b-form-group>
       </b-form>
       <b-form-group label="Tipo de examen:">
-          <b-form-input
-            v-model.trim="varTipo"
+          <v-select
+            name="tipo"
+            v-model="varTipo"
+            :options="tipos"
+            :filterable="false"
             placeholder="Ingresar tipo del examen"
-          ></b-form-input>
+          >
+            <template v-slot:option="option">
+              {{ option.nombre }}
+            </template>
+            <template v-slot:selected-option="option">
+              {{ option.nombre }}
+            </template>
+          </v-select>
           <div v-if="varTipo === ''" class="invalid-feedback">
             Debe ingresar el tipo
           </div>
-        </b-form-group>
+      </b-form-group>
       <template #modal-footer="{}">
         <b-button variant="primary" @click="onUpdateTest()"
           >Guardar</b-button
@@ -437,6 +457,52 @@ export default {
       perPage: 5,
       search: '',
       campos: [],
+      tipos: [
+        {
+          id: 1,
+          nombre: 'HEMATOLOGÍA'
+        },
+        {
+          id: 2,
+          nombre: 'COAGULACIÓN'
+        },
+        {
+          id: 3,
+          nombre: 'UROLOGÍA'
+        },
+        {
+          id: 4,
+          nombre: 'COPROLOGÍA'
+        },
+        {
+          id: 5,
+          nombre: 'ELECTROLITOS'
+        },
+        {
+          id: 6,
+          nombre: 'PRUEBAS CARDIACAS'
+        },
+        {
+          id: 7,
+          nombre: 'ENZIMAS'
+        },
+        {
+          id: 8,
+          nombre: 'QUÍMICA SANGUÍNEA'
+        },
+        {
+          id: 9,
+          nombre: 'BACTERIOSCOPÍA'
+        },
+        {
+          id: 10,
+          nombre: 'SEROLOGÍA'
+        },
+        {
+          id: 11,
+          nombre: 'HORMONAS'
+        }
+      ],
       fieldsCampos: [
         {
           key: 'nombre',
@@ -759,7 +825,7 @@ export default {
             nombre: this.varNombreExamen,
             precio_normal: this.varPrecioNormal,
             precio_sobrecargo: this.varPrecioSobrecargo,
-            tipo_examen: this.varTipo
+            tipo_examen: this.varTipo.nombre
           })
           .then((res) => {
             me.alertVariant = 'info'
@@ -795,7 +861,7 @@ export default {
             nombre: this.varNombreExamen,
             precio_normal: this.varPrecioNormal,
             precio_sobrecargo: this.varPrecioSobrecargo,
-            tipo_examen: this.varTipo
+            tipo_examen: this.varTipo.nombre
           })
           .then((res) => {
             me.alertVariant = 'info'
