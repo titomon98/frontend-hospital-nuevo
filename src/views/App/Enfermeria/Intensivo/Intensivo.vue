@@ -496,7 +496,7 @@
         <p><strong><u>Total deuda:</u> Q{{ reporte.TotalDeuda }}</strong></p>
       </div>
       <template #modal-footer>
-        <b-button variant="primary" @click="generarPDF_CuentaParcial">Generar PDF</b-button>
+        <b-button variant="primary" @click="generarPDF_CuentaParcial">Generar Excel</b-button>
         <b-button variant="secondary" @click="$bvModal.hide('reporteModal')">Cerrar</b-button>
       </template>
     </b-modal>
@@ -616,7 +616,7 @@
                    >Consumos</b-button>
 
                    <b-button
-                    @click="generarReporteCuentaParcial(props.rowData.id)"
+                    @click="generarReporteCuentaParcial(props.rowData.id, props.rowData.nombres, props.rowData.apellidos, props.rowData.fecha_ingreso_reciente)"
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="dark"
@@ -672,6 +672,7 @@ import moment from 'moment'
 import { mapGetters } from 'vuex'
 import JsPDF from 'jspdf'
 import 'jspdf-autotable'
+import ExcelJS from 'exceljs'
 
 export default {
   name: 'Intensivo',
@@ -933,6 +934,7 @@ export default {
       servicios: [],
       honorario: {
         medico: null,
+        lugar: 'Intensivos',
         descripcion: '',
         total: null
       },
@@ -972,7 +974,9 @@ export default {
         ServicioSalaOperacionesTotal: '0.00',
         TotalDeuda: '0.00'
       },
-      dataPDF: null,
+      dataPDFsumario: null,
+      nombrePaciente: null,
+      fechaIngreso: null,
       dataPDF_Historial: null,
       reporteHisotiral: {
         ConsumoTotal: '0.00',
@@ -1321,7 +1325,8 @@ export default {
           id_medico: this.honorario.medico.id,
           id_cuenta: this.idCuentaSeleccionada,
           descripcion: this.honorario.descripcion,
-          total: this.honorario.total
+          total: this.honorario.total,
+          lugar: 'Hospitalización'
         })
         this.$refs['modal-add-honorarios'].hide()
         this.honorario = {
@@ -1754,12 +1759,13 @@ export default {
       this.form.id = data.id
     },
           /* GENERAR CUENTA PARCIAL PARA EL PACIENTE */
-          generarReporteCuentaParcial (id) {
-      axios.get(apiUrl + `/consumos/getById/${id}`)
+    generarReporteCuentaParcial (id, nombres, apellidos, fechaIngreso) {
+      axios.get(apiUrl + `/consumos/sumario/${id}`)
         .then((response) => {
-          const reporte = response.data
-          this.dataPDF = response.data
-          this.mostrarReporte(reporte)
+          this.dataPDFsumario = response.data
+          this.nombrePaciente = nombres + ' ' + apellidos
+          this.fechaIngreso = fechaIngreso
+          this.mostrarReporte(response.data)
         })
         .catch((error) => {
           console.error('Error al generar el reporte de cuenta parcial:', error)
@@ -1771,14 +1777,26 @@ export default {
     mostrarReporte (reporte) {
       let totalDeuda = 0
 
-      const ConsumoTotal = reporte.Consumo.reduce((acc, item) => acc + parseFloat(item.subtotal), 0)
-      const ConsumoComunTotal = reporte['Consumo Comun'].reduce((acc, item) => acc + parseFloat(item.total), 0)
-      const ConsumoMedicamentosTotal = reporte['Consumo Medicamentos'].reduce((acc, item) => acc + parseFloat(item.total), 0)
-      const ConsumoQuirurgicosTotal = reporte['Consumo Quirurgicos'].reduce((acc, item) => acc + parseFloat(item.total), 0)
-      const ExamenesTotal = reporte.Examenes.reduce((acc, item) => acc + item.total, 0)
-      const ServicioSalaOperacionesTotal = reporte.ServicioSalaOperaciones.reduce((acc, item) => acc + parseFloat(item.total), 0)
+      const ConsumoTotal = (Array.isArray(reporte.Consumo) ? reporte.Consumo : [])
+        .reduce((acc, item) => acc + parseFloat(item.subtotal || 0), 0)
+      const ConsumoComunTotal = (Array.isArray(reporte.consumosComunes) ? reporte.consumosComunes : [])
+        .reduce((acc, item) => acc + parseFloat(item.total || 0), 0)
+      const ConsumoMedicamentosTotal = (Array.isArray(reporte.consumosMedicamentos) ? reporte.consumosMedicamentos : [])
+        .reduce((acc, item) => acc + parseFloat(item.total || 0), 0)
+      const ConsumoQuirurgicosTotal = (Array.isArray(reporte.consumosQuirurgicos) ? reporte.consumosQuirurgicos : [])
+        .reduce((acc, item) => acc + parseFloat(item.total || 0), 0)
+      const ExamenesTotal = (Array.isArray(reporte.Examenes) ? reporte.Examenes : [])
+        .reduce((acc, item) => acc + parseFloat(item.total || 0), 0)
+      const ServicioSalaOperacionesTotal = (Array.isArray(reporte.salaOperaciones) ? reporte.salaOperaciones : [])
+        .reduce((acc, item) => acc + parseFloat(item.total || 0), 0)
 
-      totalDeuda = parseFloat(ConsumoTotal) + parseFloat(ConsumoComunTotal) + parseFloat(ConsumoMedicamentosTotal) + parseFloat(ConsumoQuirurgicosTotal) + parseFloat(ExamenesTotal) + parseFloat(ServicioSalaOperacionesTotal)
+      totalDeuda = parseFloat(ConsumoTotal) +
+                  parseFloat(ConsumoComunTotal) +
+                  parseFloat(ConsumoMedicamentosTotal) +
+                  parseFloat(ConsumoQuirurgicosTotal) +
+                  parseFloat(ExamenesTotal) +
+                  parseFloat(ServicioSalaOperacionesTotal)
+
       this.reporte = {
         ConsumoTotal: this.formatearMonto(ConsumoTotal),
         ConsumoComunTotal: this.formatearMonto(ConsumoComunTotal),
@@ -1792,104 +1810,176 @@ export default {
       this.$bvModal.show('reporteModal')
     },
 
-    generarPDF_CuentaParcial () {
-      const doc = new JsPDF()
-      let y = 20
-      doc.setFontSize(18)
-      doc.text('Reporte de Cuenta Parcial', 14, y)
-      y += 10
+    async generarPDF_CuentaParcial () {
+      const data = this.dataPDFsumario
+      console.log(data)
+      const FechaIngreso = this.fechaIngreso
+      const fechaActual = new Date()
+      const fechaFormateada = fechaActual.toLocaleDateString('es-ES')
+      const opcionesHora = { hour: '2-digit', minute: '2-digit', hour12: true }
+      const horaFormateada = fechaActual.toLocaleTimeString('es-ES', opcionesHora)
 
-      const agregarTabla = (title, data) => {
-        doc.setFontSize(14)
-        doc.text(title, 14, y)
-        y += 10
+      let mensajeDias
 
-        const headers = ['Descripción', 'Cantidad', 'Precio Unitario', 'Subtotal']
-        doc.autoTable({
-          startY: y,
-          head: [headers],
-          body: data.map(item => [
-            item.descripcion,
-            item.cantidad.toString(),
-            item.precio_unitario.toString(2),
-            item.subtotal.toString(2)
-          ]),
-          theme: 'striped',
-          margin: { top: 10 },
-          styles: { halign: 'center', fontSize: 10 },
-          headStyles: {
-            fillColor: [229, 31, 45], // Color de fondo para el encabezado (Azul en este caso)
-            textColor: [255, 255, 255] // Color de texto para el encabezado (Blanco en este caso)
-          }
+      if (!FechaIngreso) {
+        mensajeDias = 'NO ASIGNADA'
+      } else {
+        const fechaIngreso = new Date(FechaIngreso)
+        const diferenciaMs = fechaActual - fechaIngreso
+        const diasDiferencia = Math.floor(diferenciaMs / (1000 * 60 * 60 * 24))
+        mensajeDias = diasDiferencia
+      }
+
+      try {
+        const ConsumoTotal = data.consumos.reduce((acc, item) => acc + parseFloat(item.subtotal), 0)
+        const ConsumoComunTotal = data.consumosComunes.reduce((acc, item) => acc + parseFloat(item.total), 0)
+        const ConsumoMedicamentosTotal = data.consumosMedicamentos.reduce((acc, item) => acc + parseFloat(item.total), 0)
+        const ConsumoQuirurgicosTotal = data.consumosQuirurgicos.reduce((acc, item) => acc + parseFloat(item.total), 0)
+        const ExamenesTotal = data.examenes.reduce((acc, item) => acc + parseFloat(item.total), 0)
+        const ServicioSalaOperacionesTotal = data.salaOperaciones.reduce((acc, item) => acc + parseFloat(item.total), 0)
+        const TotalHonorarios = data.honorarios.reduce((acc, item) => acc + parseFloat(item.total), 0)
+        const medicosOrdenados = data.honorarios.sort((a, b) => b.total - a.total)
+        const TotalGeneral =
+          ConsumoTotal +
+          ConsumoComunTotal +
+          ConsumoMedicamentosTotal +
+          ConsumoQuirurgicosTotal +
+          ExamenesTotal +
+          ServicioSalaOperacionesTotal
+
+        const TotalApagar = TotalGeneral + TotalHonorarios
+
+        const workbook = new ExcelJS.Workbook()
+        const sheet = workbook.addWorksheet('Resumen')
+
+        // Título
+        sheet.mergeCells('A1:F1')
+        sheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'
+        sheet.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' }
+
+        sheet.mergeCells('A2:F2')
+        sheet.getCell('A2').value = 'CUENTA DE PACIENTE'
+        sheet.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle' }
+
+        // Información de paciente
+        sheet.getCell('A3').value = 'NOMBRE DEL PACIENTE:'
+        sheet.getCell('B3').value = `${this.nombrePaciente}`
+        sheet.getCell('A4').value = 'CUARTO NO.:'
+        sheet.getCell('B4').value = `${data.numerohabitacion}`
+        sheet.getCell('A5').value = 'TIPO DE SERVICIO:'
+        sheet.getCell('B5').value = ''
+        sheet.getCell('A6').value = 'D/ESTANCIA:'
+        sheet.getCell('B6').value = `${mensajeDias}`
+        sheet.getCell('A7').value = 'MD TRATANTE:'
+        sheet.getCell('B7').value = `${data.nombremedico}`
+
+        // Tabla de consumos
+        sheet.getCell('A9').value = 'CONSUMOS'
+        sheet.getCell('A10').value = 'HOSPITALIZACION'
+        sheet.getCell('B10').value = `Q 0.00`
+        sheet.getCell('A11').value = 'SALA DE OPERACIONES'
+        sheet.getCell('B11').value = `Q${ServicioSalaOperacionesTotal.toFixed(2)}`
+        sheet.getCell('A12').value = 'CONSUMO MEDICAMENTOS'
+        sheet.getCell('B12').value = `Q${ConsumoMedicamentosTotal.toFixed(2)}`
+        sheet.getCell('A13').value = 'MATERIAL MEDICO QUIRÚRGICO'
+        sheet.getCell('B13').value = `Q${ConsumoQuirurgicosTotal.toFixed(2)}`
+        sheet.getCell('A14').value = 'ANESTESICOS'
+        sheet.getCell('B14').value = ''
+        sheet.getCell('A15').value = 'MATERIAL COMÚN'
+        sheet.getCell('B15').value = `Q${ConsumoComunTotal.toFixed(2)}`
+        sheet.getCell('A16').value = 'LABORATORIO CLINICO'
+        sheet.getCell('B16').value = `Q${ExamenesTotal.toFixed(2)}`
+        sheet.getCell('A17').value = 'SERVICIOS'
+        sheet.getCell('B17').value = `Q${ConsumoTotal.toFixed(2)}`
+        sheet.getCell('A18').value = 'RECUPERACION'
+        sheet.getCell('B18').value = ''
+        sheet.getCell('A19').value = 'INTENSIVO'
+        sheet.getCell('B19').value = 'Q 0.00'
+        sheet.getCell('A20').value = 'EMERGENCIAS Medico Interno'
+        sheet.getCell('B20').value = ''
+        sheet.getCell('A21').value = 'OTROS'
+        sheet.getCell('B21').value = ''
+        sheet.getCell('A22').value = 'TOTAL ='
+        sheet.getCell('A22').alignment = { horizontal: 'right', vertical: 'middle' }
+        sheet.getCell('B22').value = `Q${TotalGeneral.toFixed(2)}`
+        sheet.getCell('A23').value = 'TOTAL MENOS DESCUENTO ='
+        sheet.getCell('A23').alignment = { horizontal: 'right', vertical: 'middle' }
+        sheet.getCell('B23').value = `Q${TotalGeneral.toFixed(2)}`
+
+        // Fecha y hora debajo de la tabla
+        sheet.getCell('A25').value = `FECHA: ${fechaFormateada} ${horaFormateada}`
+
+        // Honorarios médicos
+        sheet.mergeCells('A27:D27')
+        sheet.getCell('A27').value = 'HONORARIOS MEDICOS'
+        sheet.getCell('A27').alignment = { horizontal: 'center', vertical: 'middle' }
+        sheet.getCell('A27').font = { bold: true }
+
+        let row = 28
+        sheet.getCell(`A${row}`).value = '#'
+        sheet.getCell(`B${row}`).value = 'MEDICO'
+        sheet.getCell(`C${row}`).value = 'DESCRIPCION'
+        sheet.getCell(`D${row}`).value = 'VALOR'
+
+        medicosOrdenados.forEach((medico, index) => {
+          row++
+          sheet.getCell(`A${row}`).value = index + 1
+          sheet.getCell(`B${row}`).value = medico.medico.nombre
+          sheet.getCell(`C${row}`).value = medico.descripcion
+          sheet.getCell(`D${row}`).value = `Q${(Number(medico.total) || 0).toFixed(2)}`
         })
-        y = doc.lastAutoTable.finalY + 10
-      }
 
-      if (this.dataPDF.Consumo && this.dataPDF.Consumo.length > 0) {
-        const consumosData = this.dataPDF.Consumo.map(consumo => ({
-          descripcion: consumo.servicio.descripcion || '',
-          cantidad: consumo.cantidad || 0,
-          precio_unitario: consumo.servicio.precio || 0,
-          subtotal: consumo.subtotal || 0
-        }))
-        agregarTabla('Consumo de Servicios', consumosData)
-      }
+        // Liquidación
+        row += 2
+        sheet.mergeCells(`A${row}:D${row}`)
+        sheet.getCell(`A${row}`).value = 'LIQUIDACION'
+        sheet.getCell(`A${row}`).alignment = { horizontal: 'center', vertical: 'middle' }
+        sheet.getCell(`A${row}`).font = { bold: true }
 
-      if (this.dataPDF['Consumo Comun'] && this.dataPDF['Consumo Comun'].length > 0) {
-        const consumosComunesData = this.dataPDF['Consumo Comun'].map(consumo => ({
-          descripcion: consumo.comune.nombre || '',
-          cantidad: consumo.cantidad || 0,
-          precio_unitario: consumo.precio_venta || 0,
-          subtotal: consumo.total || 0
-        }))
-        agregarTabla('Consumo de Materiales Comunes', consumosComunesData)
-      }
+        row++
+        sheet.getCell(`A${row}`).value = 'TOTAL HOSPITALIZACION ='
+        sheet.getCell(`B${row}`).value = `Q${(Number(TotalGeneral) || 0).toFixed(2)}`
+        sheet.getCell(`A${row}`).alignment = { horizontal: 'right' }
+        sheet.getCell(`B${row}`).alignment = { horizontal: 'left' }
 
-      if (this.dataPDF['Consumo Medicamentos'] && this.dataPDF['Consumo Medicamentos'].length > 0) {
-        const consumosMedicamentosData = this.dataPDF['Consumo Medicamentos'].map(consumo => ({
-          descripcion: consumo.medicamento.nombre || '',
-          cantidad: consumo.cantidad || 0,
-          precio_unitario: consumo.precio_venta || 0,
-          subtotal: consumo.total || 0
-        }))
-        agregarTabla('Consumo de Medicamentos', consumosMedicamentosData)
-      }
+        row++;
+        sheet.getCell(`A${row}`).value = 'TOTAL HONORARIOS ='
+        sheet.getCell(`B${row}`).value = `Q${(Number(TotalHonorarios) || 0).toFixed(2)}`
+        sheet.getCell(`A${row}`).alignment = { horizontal: 'right' }
+        sheet.getCell(`B${row}`).alignment = { horizontal: 'left' }
 
-      if (this.dataPDF['Consumo Quirurgicos'] && this.dataPDF['Consumo Quirurgicos'].length > 0) {
-        const consumosQuirurgicosData = this.dataPDF['Consumo Quirurgicos'].map(consumo => ({
-          descripcion: consumo.quirurgico.nombre || '',
-          cantidad: consumo.cantidad || 0,
-          precio_unitario: consumo.precio_venta || 0,
-          subtotal: consumo.total || 0
-        }))
-        agregarTabla('Consumo de Material Quirúrgico', consumosQuirurgicosData)
-      }
+        row++;
+        sheet.getCell(`A${row}`).value = 'TOTAL A PAGAR =';
+        sheet.getCell(`B${row}`).value = `Q${(Number(TotalApagar) || 0).toFixed(2)}`
+        sheet.getCell(`A${row}`).alignment = { horizontal: 'right' }
+        sheet.getCell(`B${row}`).alignment = { horizontal: 'left' }
+        sheet.getCell(`A${row}`).font = { bold: true }
+        sheet.getCell(`B${row}`).font = { bold: true }
 
-      if (this.dataPDF.Examenes && this.dataPDF.Examenes.length > 0) {
-        const examenesData = this.dataPDF.Examenes.map(examen => ({
-          descripcion: examen.examenes_almacenado.nombre || '',
-          cantidad: 1,
-          precio_unitario: examen.total || 0,
-          subtotal: examen.total || 0
-        }))
-        agregarTabla('Exámenes Realizados', examenesData)
-      }
+        // Firma
+        row++
+        sheet.mergeCells(`A${row}:D${row}`)
+        sheet.getCell(`A${row}`).value = '_______________________________________'
+        sheet.getCell(`A${row}`).alignment = { horizontal: 'center', vertical: 'middle' }
 
-      if (this.dataPDF.ServicioSalaOperaciones && this.dataPDF.ServicioSalaOperaciones.length > 0) {
-        const serviciosData = this.dataPDF.ServicioSalaOperaciones.map(servicio => ({
-          descripcion: servicio.descripcion || '',
-          cantidad: 1,
-          precio_unitario: servicio.total || 0,
-          subtotal: servicio.total || 0
-        }))
-        agregarTabla('Servicios en Sala de Operaciones', serviciosData)
-      }
+        row++
+        sheet.mergeCells(`A${row}:D${row}`)
+        sheet.getCell(`A${row}`).value = 'Nombre y Firma del Cajero'
+        sheet.getCell(`A${row}`).alignment = { horizontal: 'center', vertical: 'middle' }
 
-      const totalDeuda = this.reporte.TotalDeuda || 0
-      doc.setFontSize(16)
-      doc.text(`Total Deuda: Q${totalDeuda}`, 14, y)
-      y += 10
-      doc.save('reporte_cuenta_parcial.pdf')
+        // Guardar el archivo Excel
+        const buffer = await workbook.xlsx.writeBuffer()
+        const blob = new Blob([buffer], { type: 'application/octet-stream' })
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = 'SUMARIO.xlsx'
+        a.click()
+        window.URL.revokeObjectURL(url)
+      } catch (error) {
+        console.error('Error al generar el reporte:', error)
+        this.$alert('Ocurrió un error al generar el reporte. Por favor, intente de nuevo.', 'Error')
+      }
     },
 
     formatearMonto (monto) {

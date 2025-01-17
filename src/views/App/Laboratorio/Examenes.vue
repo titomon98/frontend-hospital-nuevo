@@ -77,15 +77,31 @@
             </b-form-group>
           </b-col>
           <b-col md="3">
-            <b-form-group label="Comisión:">
+            <b-form-group label="Edad:">
               <b-form-input
-                v-model.trim="$v.form.comision.$model"
-                :state="!$v.form.comision.$error"
-                placeholder="Ingresar Nomnre del Medico"
+              type="number"
+              v-model.trim="form.edad"
+              placeholder="Ingresar la edad del paciente"
               ></b-form-input>
-              <div v-if="$v.form.comision.required.$invalid" class="invalid-feedback">
-                Debe Ingresar Nomnre del Medico
-              </div>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Nombre del medico:">
+              <v-select
+                name="medico"
+                v-model="form.comision"
+                :options="medicos"
+                :filterable="false"
+                placeholder="Seleccione el médico"
+                @search="onSearchDatosMedicos"
+              >
+                <template v-slot:option="option">
+                  {{ option.nombre}}
+                </template>
+                <template slot="selected-option" slot-scope="option">
+                  {{option.nombre}}
+                </template>
+              </v-select>
             </b-form-group>
           </b-col>
           <b-col md="3">
@@ -117,6 +133,7 @@
                 v-model.trim="$v.form.whatsapp.$model"
                 :state="!$v.form.whatsapp.$error"
                 placeholder="Ingresar el numero de celular"
+                type="number"
               ></b-form-input>
               <div v-if="$v.form.whatsapp.required.$invalid" class="invalid-feedback">
                 Debe ingresar el numero de celular
@@ -129,6 +146,7 @@
                 v-model.trim="$v.form.numero_muestra.$model"
                 :state="!$v.form.numero_muestra.$error"
                 placeholder="Ingresar el numero de muestra"
+                type="number"
               ></b-form-input>
               <div v-if="$v.form.numero_muestra.required.$invalid" class="invalid-feedback">
                 Debe ingresar el numero de muestra
@@ -145,6 +163,24 @@
               <div v-if="$v.form.referido.required.$invalid" class="invalid-feedback">
                 Ingresar Rerido
               </div>
+            </b-form-group>
+          </b-col>
+        </b-row>
+        <b-row class="ml-2">
+          <b-col md="3">
+            <b-form-group label="Nombre para Factura:">
+              <b-form-input
+                v-model.trim="form.factura"
+                placeholder="Debe ingresar el nombre para facturar"
+              ></b-form-input>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="NIT">
+              <b-form-input
+                v-model.trim="form.nit"
+                placeholder="Ingresar el NIT para factura"
+              ></b-form-input>
             </b-form-group>
           </b-col>
         </b-row>
@@ -585,6 +621,7 @@ export default {
       selectedExpediente: null,
       selectedExamenAlmacenado: null,
       encargados: [],
+      medicos: [],
       anularExamen: 3,
       TotalAPagar: 0,
       examenId: null,
@@ -592,6 +629,7 @@ export default {
         id: 0,
         nombre: '',
         apellido: '',
+        edad: null,
         cui: 'NO DISPONIBLE',
         comision: '',
         total: 0,
@@ -600,6 +638,8 @@ export default {
         numero_muestra: 0,
         existencia_actual: 0,
         referido: '',
+        factura: null,
+        nit: null,
         id_encargado: null,
         pagado: 0,
         por_pagar: 0,
@@ -673,6 +713,12 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
+          name: 'edad',
+          sortField: 'edad',
+          title: 'Edad',
+          dataClass: 'list-item-heading'
+        },
+        {
           name: 'cui',
           sortField: 'cui',
           title: 'CUI',
@@ -738,6 +784,12 @@ export default {
           name: 'nombre',
           sortField: 'nombre',
           title: 'Nombre',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'edad',
+          sortField: 'edad',
+          title: 'Edad',
           dataClass: 'list-item-heading'
         },
         {
@@ -809,6 +861,12 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
+          name: 'edad',
+          sortField: 'edad',
+          title: 'Edad',
+          dataClass: 'list-item-heading'
+        },
+        {
           name: 'whatsapp',
           sortField: 'whatsapp',
           title: 'Celular',
@@ -839,6 +897,7 @@ export default {
     return {
       form: {
         cui: { required },
+        edad: { required },
         comision: { required },
         total: { required },
         correo: { required },
@@ -884,7 +943,6 @@ export default {
   },
   methods: {
     getColorForAlarma (alarma) {
-      console.log(alarma)
       return alarma === 'SI' ? 'text-danger-custom' : 'text-safe'
     },
     closeModal (action) {
@@ -895,6 +953,7 @@ export default {
           this.form.id = 0
           this.form.nombre = ''
           this.form.cui = 0
+          this.form.edad = null
           this.form.comision = ''
           this.form.total = 0
           this.form.correo = ''
@@ -1402,6 +1461,24 @@ export default {
     },
     onChangePageResultado (page) {
       this.$refs.vuetableResultado.changePage(page)
+    },
+    onSearchDatosMedicos (search, loading) {
+      if (search.length) {
+        loading(true)
+        this.onSearchMedicos(search, loading)
+      }
+    },
+    onSearchMedicos (search, loading) {
+      axios.get(apiUrl + '/voucher/getSearch',
+        {
+          params: {
+            search: search
+          }
+        }
+      ).then((response) => {
+        this.medicos = response.data.Medicos
+        loading(false)
+      })
     }
   }
 }
