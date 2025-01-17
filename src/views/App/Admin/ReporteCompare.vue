@@ -33,25 +33,25 @@
         <b-form-group label="Seleccionar Medico">
           <v-select
             name="medico"
-            v-model="formVoucher.medico"
+            v-model="selectedMedico"
             :options="medicos"
             :filterable="false"
             placeholder="Seleccione el médico"
-            @search="onSearchDatosMedicos"
-          >
+            @search="onSearchDatosMedicos">
+
             <template v-slot:option="option">
-              {{ option.nombre}}
+              {{ option.nombre }}
             </template>
             <template slot="selected-option" slot-scope="option">
-              {{option.nombre}}
+              {{ option.nombre }}
             </template>
           </v-select>
         </b-form-group>
         <b-form-group label="Cantidad:">
           <b-form-input
+            disabled
             type="number"
             v-model="formVoucher.cantidad"
-            placeholder="Ingresar cantidad"
           ></b-form-input>
         </b-form-group>
         <b-form-group label="Cantidad en letras:">
@@ -748,8 +748,11 @@ export default {
       fechaActual: null,
       numero_voucher: null,
       dataMedicos: null,
+      selectedMedico: null,
       medicos: [],
+      pacientes: [],
       formVoucher: {
+        id_paciente: null,
         medico: null,
         cantidad: null,
         cantidadEscrita: null
@@ -766,6 +769,18 @@ export default {
         total: { required },
         id_expediente: { required },
         state: { required }
+      }
+    }
+  },
+  watch: {
+    selectedMedico (newValue) {
+      console.log(newValue)
+      if (newValue) {
+        this.agregarPacientes(newValue)
+      } else {
+        this.pacientes = []
+        this.formVoucher.cantidad = 0
+        console.log('Ningun medico seleccionado, pacientes limpiados')
       }
     }
   },
@@ -987,6 +1002,12 @@ export default {
           this.formVoucher.medico = null
           this.formVoucher.cantidad = null
           this.selectedReport = null
+          this.selectedReport = null
+          this.medicos = []
+          this.pacientes = []
+          this.dataMedicos = null
+          this.selectedMedico = null
+          this.formVoucher.cantidadEscrita = null
           break
         }
         case 'update': {
@@ -2539,7 +2560,6 @@ export default {
       worksheet.columns = [
         { header: 'Nombres', key: 'nombre', width: 30 },
         { header: 'Apellidos', key: 'apellidos', width: 30 },
-        { header: 'CUI', key: 'cui', width: 20 },
         { header: 'Fecha Ingreso', key: 'fechaIngreso', width: 20 },
         { header: 'Fecha Egreso', key: 'fechaEgreso', width: 20 },
         { header: 'Lugar', key: 'estado', width: 25 }
@@ -2609,7 +2629,6 @@ export default {
             worksheet.addRow({
               nombre: paciente.nombres || 'N/A',
               apellidos: paciente.apellidos || 'N/A',
-              cui: paciente.cui || 'N/A',
               fechaIngreso,
               fechaEgreso,
               estado
@@ -2640,7 +2659,6 @@ export default {
           console.error('Error al generar el archivo Excel:', error)
         })
     },
-
     procesarDetalles3 (pacientes) {
       const estadoMap = {
         0: 'Fallecido',
@@ -3433,7 +3451,12 @@ export default {
       const fechaFin = this.endDateEnfermeria
 
       try {
-        const honorariosOrdenados = data.sort((a, b) => b.total_honorario - a.total_honorario)
+        const sinPagar = data.sinPagar
+        const pagado = data.pagados
+
+        const sinPagarOrdenados = sinPagar.sort((a, b) => b.total_honorario - a.total_honorario)
+        const pagadoOrdenados = pagado.sort((a, b) => b.total_honorario - a.total_honorario)
+
         const doc = new JsPDF()
 
         doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
@@ -3444,32 +3467,73 @@ export default {
         doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
 
         doc.setFontSize(16)
-        doc.text('Reporte de Honorarios asignados sin pagar', 105, 50, { align: 'center' })
+        doc.text('Reporte Detallado de Honorarios Medicos', 105, 50, { align: 'center' })
         doc.setFontSize(12)
         doc.text(`Desde: ${moment(fechaInicio).format('DD/MM/YYYY')} | Hasta: ${moment(fechaFin).format('DD/MM/YYYY')}`, 105, 58, { align: 'center' })
 
-        doc.setFontSize(14)
-        doc.text('Detalle de los Honorarios de Medicos', 14, 110)
+        // Sección "Sin pagar"
+        doc.setFontSize(14).setFont(undefined, 'bold')
+        doc.text('Honorarios Sin Pagar', 14, 70)
 
-        const tableRows = honorariosOrdenados.map((medico, index) => [
-          index + 1,
-          medico.nombre_medico,
-          medico.descripcion,
-          `Q${medico.total_honorario}`,
-          medico.fecha
-        ])
+        if (sinPagarOrdenados.length > 0) {
+          const sinPagarRows = sinPagarOrdenados.map((medico, index) => [
+            index + 1,
+            medico.nombre_medico,
+            medico.paciente || 'Desconocido',
+            medico.lugar,
+            medico.descripcion,
+            `Q${medico.total_honorario.toFixed(2)}`,
+            medico.fecha,
+            'Sin Pagar'
+          ])
 
-        doc.autoTable({
-          head: [['#', 'Nombre del Medico', 'Descripcion', 'Honorarios Recibidos', 'Fecha']],
-          body: tableRows,
-          startY: 120,
-          theme: 'grid',
-          styles: { fontSize: 10, cellPadding: 2 },
-          headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
-          alternateRowStyles: { fillColor: [240, 240, 240] }
-        })
+          doc.autoTable({
+            head: [['#', 'Nombre del Medico', 'Nombre del Paciente', 'Lugar', 'Descripción', 'Total Honorarios', 'Fecha', 'Estado']],
+            body: sinPagarRows,
+            startY: 75,
+            theme: 'grid',
+            styles: { fontSize: 10, cellPadding: 2 },
+            headStyles: { fillColor: [255, 99, 71], textColor: 255, fontStyle: 'bold' }, // Color de encabezado para "Sin pagar"
+            alternateRowStyles: { fillColor: [240, 240, 240] }
+          })
+        } else {
+          doc.setFontSize(10)
+          doc.text('No hay honorarios pendientes de pago.', 14, 90)
+        }
 
-        doc.save(`reporte_honorarios_${fechaInicio}_a_${fechaFin}.pdf`)
+        // Sección "Pagado"
+        const startYPagado = doc.lastAutoTable ? doc.lastAutoTable.finalY + 20 : 120
+        doc.setFontSize(14).setFont(undefined, 'bold')
+        doc.text('Honorarios Pagados', 14, startYPagado)
+
+        if (pagadoOrdenados.length > 0) {
+          const pagadoRows = pagadoOrdenados.map((medico, index) => [
+            index + 1,
+            medico.nombre_medico,
+            medico.paciente || 'Desconocido',
+            medico.lugar,
+            medico.descripcion,
+            `Q${medico.total_honorario.toFixed(2)}`,
+            medico.fecha,
+            'Pagado'
+          ])
+
+          doc.autoTable({
+            head: [['#', 'Nombre del Medico', 'Nombre del Paciente', 'Lugar', 'Descripción', 'Total Honorarios', 'Fecha', 'Estado']],
+            body: pagadoRows,
+            startY: startYPagado + 5,
+            theme: 'grid',
+            styles: { fontSize: 10, cellPadding: 2 },
+            headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' }, // Color de encabezado para "Pagado"
+            alternateRowStyles: { fillColor: [240, 240, 240] }
+          })
+        } else {
+          doc.setFontSize(10)
+          doc.text('No hay honorarios pagados.', 14, startYPagado + 10)
+        }
+
+        // Guardar el PDF
+        doc.save(`reporte_detallado_honorarios_${fechaInicio}_a_${fechaFin}.pdf`)
       } catch (error) {
         console.error('Error al generar el reporte:', error)
         this.$alert('Ocurrió un error al generar el reporte. Por favor, intente de nuevo.', 'Error')
@@ -3478,60 +3542,93 @@ export default {
     generarExcelMedicos () {
       const data = this.dataMedicos
       const workbook = new ExcelJS.Workbook()
-      const worksheet = workbook.addWorksheet('Reporte de Honrarios Medicos')
+      const worksheet = workbook.addWorksheet('Reporte de Honorarios Médicos')
 
       worksheet.columns = [
         { header: '#', key: 'numero_orden', width: 10 },
-        { header: 'Nombre del Medico', key: 'nombre_medico', width: 30 },
-        { header: 'Descripcion', key: 'descripcion', width: 20 },
-        { header: 'Honorario Recibido', key: 'total_honorarios', width: 20 },
-        { header: 'Fecha', key: 'fecha', width: 15 }
+        { header: 'Nombre del Médico', key: 'nombre_medico', width: 30 },
+        { header: 'Nombre del Paciente', key: 'nombre_paciente', width: 30 },
+        { header: 'Lugar', key: 'lugar', width: 20 },
+        { header: 'Descripción', key: 'descripcion', width: 20 },
+        { header: 'Total Honorarios', key: 'total_honorarios', width: 20 },
+        { header: 'Fecha', key: 'fecha', width: 15 },
+        { header: 'Estado', key: 'estado', width: 15 }
       ]
 
       const fechaInicio = this.startDateEnfermeria
       const fechaFin = this.endDateEnfermeria
       const currentDate = new Date().toLocaleDateString('es-ES')
 
-      worksheet.mergeCells('A1:E1')
+      // Encabezados generales
+      worksheet.mergeCells('A1:H1')
       worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'
       worksheet.getCell('A1').font = { bold: true, size: 16 }
       worksheet.getCell('A1').alignment = { horizontal: 'center' }
 
-      worksheet.mergeCells('A2:E2')
+      worksheet.mergeCells('A2:H2')
       worksheet.getCell('A2').value = '6ta. Calle 12-28 Zona 3 Quetzaltenango'
       worksheet.getCell('A2').font = { bold: true, size: 14 }
       worksheet.getCell('A2').alignment = { horizontal: 'center' }
 
-      worksheet.mergeCells('A3:E3')
+      worksheet.mergeCells('A3:H3')
       worksheet.getCell('A3').value = 'Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223'
       worksheet.getCell('A3').font = { bold: true, size: 14 }
       worksheet.getCell('A3').alignment = { horizontal: 'center' }
 
-      worksheet.mergeCells('A5:E5')
-      worksheet.getCell('A5').value = `Reporte Detallado de Honorarios de Medicos asignados sin pagar  (${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')})`
+      worksheet.mergeCells('A5:H5')
+      worksheet.getCell('A5').value = `Reporte Detallado de Honorarios Médicos (${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')})`
       worksheet.getCell('A5').font = { bold: true, size: 14 }
       worksheet.getCell('A5').alignment = { horizontal: 'center' }
 
-      worksheet.mergeCells('A6:E6')
+      worksheet.mergeCells('A6:H6')
       worksheet.getCell('A6').value = `Generado el: ${currentDate}`
       worksheet.getCell('A6').font = { italic: true }
       worksheet.getCell('A6').alignment = { horizontal: 'center' }
 
-      worksheet.getColumn('A').width = 30
+      worksheet.addRow([])
+      worksheet.addRow(['Honorarios Sin Pagar'])
+      worksheet.getRow(8).font = { bold: true, size: 14 }
 
       worksheet.addRow([])
-      worksheet.addRow(['#', 'Nombre del Medico', 'Descripcion', 'Honorarios Recibidos', 'Fecha'])
-      worksheet.getRow(9).font = { bold: true }
-      worksheet.getRow(9).alignment = { horizontal: 'center' }
+      worksheet.getRow(10).values = ['#', 'Nombre del Médico', 'Nombre del Paciente', 'Lugar', 'Descripción', 'Total Honorarios', 'Fecha', 'Estado']
+      worksheet.getRow(10).font = { bold: true }
+      worksheet.getRow(10).alignment = { horizontal: 'center' }
 
-      const MedicosOrdenados = data.sort((a, b) => b.total_honorario - a.total_honorario)
-      MedicosOrdenados.forEach((medico, index) => {
+      const sinPagar = data.sinPagar.sort((a, b) => b.total_honorario - a.total_honorario)
+      sinPagar.forEach((medico, index) => {
         worksheet.addRow({
           numero_orden: index + 1,
           nombre_medico: medico.nombre_medico,
+          nombre_paciente: medico.paciente || 'Desconocido',
+          lugar: medico.lugar,
           descripcion: medico.descripcion,
-          total_honorarios: `Q${medico.total_honorario}`,
-          fecha: medico.fecha
+          total_honorarios: `Q${medico.total_honorario.toFixed(2)}`,
+          fecha: medico.fecha,
+          estado: 'Sin Pagar'
+        })
+      })
+
+      const startRowPagado = worksheet.lastRow.number + 2
+      worksheet.addRow([])
+      worksheet.addRow(['Honorarios Pagados'])
+      worksheet.getRow(startRowPagado).font = { bold: true, size: 14 }
+
+      worksheet.addRow([])
+      worksheet.getRow(startRowPagado + 2).values = ['#', 'Nombre del Médico', 'Nombre del Paciente', 'Lugar', 'Descripción', 'Total Honorarios', 'Fecha', 'Estado']
+      worksheet.getRow(startRowPagado + 2).font = { bold: true }
+      worksheet.getRow(startRowPagado + 2).alignment = { horizontal: 'center' }
+
+      const pagado = data.pagados.sort((a, b) => b.total_honorario - a.total_honorario)
+      pagado.forEach((medico, index) => {
+        worksheet.addRow({
+          numero_orden: index + 1,
+          nombre_medico: medico.nombre_medico,
+          nombre_paciente: medico.paciente || 'Desconocido',
+          lugar: medico.lugar,
+          descripcion: medico.descripcion,
+          total_honorarios: `Q${medico.total_honorario.toFixed(2)}`,
+          fecha: medico.fecha,
+          estado: 'Pagado'
         })
       })
 
@@ -3591,7 +3688,7 @@ export default {
         doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
 
         doc.setFontSize(16)
-        doc.text('Reporte Detallado de honorarios Medicos asignados sin pagar', 105, 50, { align: 'center' })
+        doc.text('Reporte De Honorarios Medicos', 105, 50, { align: 'center' })
         doc.setFontSize(12)
         doc.text(`Desde: ${moment(fechaInicio).format('DD/MM/YYYY')} | Hasta: ${moment(fechaFin).format('DD/MM/YYYY')}`, 105, 58, { align: 'center' })
 
@@ -3601,17 +3698,15 @@ export default {
         doc.setTextColor(0, 0, 0)
         doc.text(`Nombre: ${medicoConMasHonorarios.nombre_medico}`, 14, 78)
         doc.text(`Total Honorarios: Q${medicoConMasHonorarios.total_honorarios}`, 14, 84)
-        doc.text(`Fechas: ${medicoConMasHonorarios.fechas}`, 14, 90)
 
         const tableRows = medicosOrdenados.map((medico, index) => [
           index + 1,
           medico.nombre_medico,
-          `Q${medico.total_honorarios}`,
-          medico.fechas
+          `Q${medico.total_honorarios}`
         ])
 
         doc.autoTable({
-          head: [['#', 'Nombre del Medico', 'Honorarios Recibidos', 'Fecha']],
+          head: [['#', 'Nombre del Medico', 'Honorarios Recibidos']],
           body: tableRows,
           startY: 120,
           theme: 'grid',
@@ -3620,7 +3715,7 @@ export default {
           alternateRowStyles: { fillColor: [240, 240, 240] }
         })
 
-        doc.save(`Reporte_Detallado_Medico_Con_Mas_Honorarios_${fechaInicio}_a_${fechaFin}.pdf`)
+        doc.save(`Reporte_Medicos_Con_Mas_Honorarios_${fechaInicio}_a_${fechaFin}.pdf`)
       } catch (error) {
         console.error('Error al generar el reporte:', error)
         this.$alert('Ocurrió un error al generar el reporte. Por favor, intente de nuevo.', 'Error')
@@ -3634,8 +3729,7 @@ export default {
       worksheet.columns = [
         { header: '#', key: 'numero_orden', width: 10 },
         { header: 'Nombre del Medico', key: 'nombre_medico', width: 30 },
-        { header: 'Honorarios Recibidos', key: 'total_honorarios', width: 20 },
-        { header: 'Fechas', key: 'fechas', width: 15 }
+        { header: 'Honorarios Recibidos', key: 'total_honorarios', width: 20 }
       ]
 
       const fechaInicio = this.startDateEnfermeria
@@ -3658,7 +3752,7 @@ export default {
       worksheet.getCell('A3').alignment = { horizontal: 'center' }
 
       worksheet.mergeCells('A5:E5')
-      worksheet.getCell('A5').value = `Reporte Detallado de Honorarios de Medicos asignados sin pagar (${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')})`
+      worksheet.getCell('A5').value = `Reporte de Medicos Con Más honorarios (${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')})`
       worksheet.getCell('A5').font = { bold: true, size: 14 }
       worksheet.getCell('A5').alignment = { horizontal: 'center' }
 
@@ -3675,13 +3769,11 @@ export default {
       worksheet.getCell('B9').value = medicoConMasHonorarios.nombre_medico
       worksheet.getCell('A10').value = 'Total Honorarios Recibidos'
       worksheet.getCell('B10').value = `Q${medicoConMasHonorarios.total_honorarios}`
-      worksheet.getCell('A11').value = 'Fechas'
-      worksheet.getCell('B11').value = medicoConMasHonorarios.fechas
 
       worksheet.getColumn('B').width = 30
 
       worksheet.addRow([])
-      worksheet.addRow(['#', 'Nombre del Medico', 'Honorarios Recibidos', 'Fecha'])
+      worksheet.addRow(['#', 'Nombre del Medico', 'Honorarios Recibidos'])
       worksheet.getRow(9).font = { bold: true }
       worksheet.getRow(9).alignment = { horizontal: 'center' }
 
@@ -3690,8 +3782,7 @@ export default {
         worksheet.addRow({
           numero_orden: index + 1,
           nombre_medico: medico.nombre_medico,
-          total_honorarios: `Q${medico.total_honorarios}`,
-          fechas: medico.fechas
+          total_honorarios: `Q${medico.total_honorarios}`
         })
       })
 
@@ -3704,7 +3795,7 @@ export default {
           const url = URL.createObjectURL(blob)
           const link = document.createElement('a')
           link.href = url
-          link.download = `Reporte_Detallado_Medico_Con_Mas_Honorarios_${fechaInicio}_a_${fechaFin}.xlsx`
+          link.download = `Reporte_Medicos_Con_Mas_Honorarios_${fechaInicio}_a_${fechaFin}.xlsx`
           link.click()
           console.log('¡Archivo Excel generado correctamente!')
         })
@@ -3733,8 +3824,47 @@ export default {
         loading(false)
       })
     },
+    agregarPacientes (newValue) {
+      this.formVoucher.medico = newValue
+      const idMedico = newValue.id
+      axios.get(apiUrl + '/reporte/medicos/optenerPacientes', {
+        params: {
+          idMedico: idMedico
+        }
+      })
+        .then(response => {
+          this.pacientes = response.data.pacientes
+          this.formVoucher.cantidad = response.data.Total
+          const idsPacientes = this.pacientes.map(paciente => paciente.id)
+          this.formVoucher.id_paciente = idsPacientes
+          console.log(response.data)
+          if (response.data.Total === 0) {
+            alert('El medico seleccionado no posee honorarios')
+            this.closeModal('save')
+          }
+        })
+        .catch(error => {
+          console.error('Error al obtener los pacientes:', error)
+        })
+    },
+    crearVoucher () {
+      if (!this.formVoucher.cantidadEscrita || this.formVoucher.cantidadEscrita.trim() === '') {
+        alert('Debe agregar la cantidad por escrito.')
+        return
+      }
+
+      axios.post(apiUrl + '/voucher/create', this.formVoucher)
+        .then(response => {
+          this.generarPDFMedicos3()
+          this.closeModal('save')
+        })
+        .catch(error => {
+          console.error('Error al crear el voucher:', error)
+        })
+    },
     generarPDFMedicos3 () {
       const data = this.formVoucher
+      const Pacientes = this.pacientes
       const numero = this.numero_voucher
       const fechaInicio = this.fechaActual
 
@@ -3753,33 +3883,47 @@ export default {
 
         doc.setFontSize(10)
         doc.text('PROVEEDOR:      HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 15, 60)
-        doc.text(`TOTAL:      Q${data.cantidad}`, 140, 60)
-        doc.setFontSize(10)
-        doc.text('F)._________________________________________', 20, 85)
-        doc.text(`PAGUESE A: ${data.medico.nombre}.`, 20, 91)
-        doc.text(`LA SUMA DE: ${data.cantidadEscrita}.`, 20, 97)
-        doc.text('-------------------------------------------------------------', 0, 110)
-        doc.text('-------------------------------------------------------------', 71.7, 110)
-        doc.text('---------------------------------------------------------', 142.3, 110)
 
-        doc.save(`Vaouches_Pago_Honorarios_${data.medico.nombre}_Fecha_${moment(fechaInicio).format('DD/MM/YYYY')}.pdf`)
+        let currentY = 70
+
+        const tableRows = Pacientes.map((paciente, index) => [
+          index + 1,
+          paciente.paciente,
+          paciente.expediente,
+          new Date(paciente.fecha).toLocaleDateString(),
+          `Q${paciente.total}`
+        ])
+
+        doc.autoTable({
+          head: [['#', 'Nombre del Paciente', 'No. Expediente', 'Fecha', 'Honorarios']],
+          body: tableRows,
+          startY: currentY + 5,
+          theme: 'grid',
+          styles: { fontSize: 10, cellPadding: 2 },
+          headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
+          alternateRowStyles: { fillColor: [240, 240, 240] }
+        })
+
+        currentY = doc.lastAutoTable.finalY + 10
+
+        doc.setFontSize(10).setFont(undefined, 'bold')
+        doc.text(`TOTAL:                    Q${data.cantidad}`, 133, currentY - 5)
+        doc.text('________________________________', 133, currentY - 4)
+        doc.text('________________________________', 133, currentY - 3)
+
+        doc.setFontSize(10).setFont(undefined, 'normal')
+        doc.text('F)._________________________________________', 20, currentY + 10)
+        doc.text(`PAGUESE A: ${data.medico.nombre}.`, 20, currentY + 16)
+        doc.text(`LA SUMA DE: ${data.cantidadEscrita}.`, 20, currentY + 22)
+        doc.text('-------------------------------------------------------------', 0, currentY + 28)
+        doc.text('-------------------------------------------------------------', 71.7, currentY + 28)
+        doc.text('---------------------------------------------------------', 142.3, currentY + 28)
+
+        doc.save(`Vaoucher_Pago_Honorarios_${data.medico.nombre}_Fecha_${moment(fechaInicio).format('DD/MM/YYYY')}.pdf`)
       } catch (error) {
         console.error('Error al generar el reporte:', error)
         this.$alert('Ocurrió un error al generar el reporte. Por favor, intente de nuevo.', 'Error')
       }
-    },
-
-    crearVoucher () {
-      axios.post(apiUrl + '/voucher/create', this.formVoucher)
-        .then(response => {
-          this.generarPDFMedicos3()
-          this.closeModal('save')
-          this.selectedReport = null
-          this.medicos = []
-        })
-        .catch(error => {
-          console.error('Error al crear el voucher:', error)
-        })
     }
   }
 }
