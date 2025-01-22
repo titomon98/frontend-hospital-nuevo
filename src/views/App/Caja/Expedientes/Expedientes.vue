@@ -435,6 +435,15 @@
         >
       </template>
     </b-modal>
+    <b-modal id="modal-contrato" ref="modal-contrato" title="Generar Contrato" size="xl">
+      <div id="previewContainer">
+        <iframe :src="previewURL" width="100%" height="700px"></iframe>
+      </div>
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click="descargarpdf()">Guardar</b-button>
+        <b-button variant="danger" @click="closeModal('contrato')">Cancelar</b-button>
+      </template>
+    </b-modal>
     <b-row>
       <b-col md="12">
         <iq-card>
@@ -532,6 +541,15 @@
                     variant="outline-primary"
                     ><i :class="'fas fa-stethoscope'"
                   /></b-button>
+                  <b-button
+                    v-b-tooltip.top="'Generar Contrato'"
+                    @click="generatePDF(props.rowData)"
+                    class="mb-2"
+                    size="sm"
+                    variant="outline-primary"
+                  >
+                    <i :class="'fas fa-file-signature'" />
+                  </b-button>
                 </b-button-group>
               </template>
               <!-- Paginacion -->
@@ -556,6 +574,8 @@ import { helpers, numeric, required } from '@vuelidate/validators'
 import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
 import moment from 'moment'
+import JsPDF from 'jspdf'
+import logo from '../../../../assets/images/login/1.png'
 
 export default {
   name: 'Bank',
@@ -737,7 +757,10 @@ export default {
           dataClass: 'text-muted',
           width: '25%'
         }
-      ]
+      ],
+      previewURL: null,
+      pdf: null,
+      pdfName: 'Contrato_General.pdf'
     }
   },
   validations () {
@@ -805,6 +828,10 @@ export default {
         }
         case 'assignDoctor': {
           this.$refs['modal-3-medico'].hide()
+          break
+        }
+        case 'contrato': {
+          this.$refs['modal-contrato'].hide()
           break
         }
       }
@@ -1037,6 +1064,176 @@ export default {
           this.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
           console.error('Error!', error)
         })
+    },
+
+    generatePDF (data) {
+      // Crear PDF
+      this.pdf = new JsPDF({
+        unit: 'cm',
+        format: 'legal'
+      })
+
+      // Encabezado
+      this.pdf.addImage(logo, 'JPEG', 1.5, 1, 3, 3)
+
+      this.pdf.setFontSize(16).setFont(undefined, 'bold')
+      this.pdf.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 12, 2, { align: 'center' })
+      this.pdf.setFontSize(14)
+      this.pdf.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 12, 3, { align: 'center' })
+      this.pdf.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 12, 3.5, { align: 'center' })
+
+      this.pdf.setFontSize(18).setFont(undefined, 'bold')
+      const text = 'CONTRATO DE SERVICIOS DE HOSPITALIZACION'
+      const x = 10.5
+      const y = 4.5
+      this.pdf.text(text, x, y, { align: 'center' })
+      const textWidth = this.pdf.getTextWidth(text)
+      this.pdf.setLineWidth(0.05)
+      const lineY = y + 0.2
+      this.pdf.line(x - textWidth / 2, lineY, x + textWidth / 2, lineY)
+
+      // Declaraciones
+      let altura = 6
+      this.pdf.setFontSize(12).setFont(undefined, 'normal')
+      this.pdf.text(
+        'YO:_____________________________________________________________________',
+        2,
+        altura,
+        { maxWidth: 17 }
+      )
+      altura += 0.7
+      this.pdf.setFontSize(12).setFont(undefined, 'normal')
+      this.pdf.text(
+        'DE:___________________________________años',
+        2,
+        altura,
+        { maxWidth: 17 }
+      )
+      altura += 0.7
+      this.pdf.setFontSize(12).setFont(undefined, 'normal')
+      this.pdf.text(
+        'De estado civil:____________________________________________________________',
+        2,
+        altura,
+        { maxWidth: 17 }
+      )
+      altura += 0.7
+      this.pdf.setFontSize(12).setFont(undefined, 'normal')
+      this.pdf.text(
+        'De nacionalidad:___________________________________________________________',
+        2,
+        altura,
+        { maxWidth: 17 }
+      )
+      altura += 0.7
+      this.pdf.setFontSize(12).setFont(undefined, 'normal')
+      this.pdf.text(
+        'Profesion u oficio:__________________________________________________________',
+        2,
+        altura,
+        { maxWidth: 17 }
+      )
+      altura += 0.7
+      this.pdf.setFontSize(12).setFont(undefined, 'normal')
+      this.pdf.text(
+        'Domiciliado en:____________________________________________________________',
+        2,
+        altura,
+        { maxWidth: 17 }
+      )
+      altura += 0.7
+      this.pdf.setFontSize(12).setFont(undefined, 'normal')
+      this.pdf.text(
+        'Con residencia:____________________________________________________________',
+        2,
+        altura,
+        { maxWidth: 17 }
+      )
+
+      altura += 1
+      this.pdf.setFontSize(10).setFont(undefined, 'normal')
+      this.pdf.text(
+        `Lugar que  señalo  para recibir  notificaciones  por  el  presente documento  hago constar:  PRIMERO: que autorizo
+expresamente al  HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A. para que le preste tratamiento  médico
+necesario a:____________________________________________  utilizando los servicios médicos necesarios así
+como  los  medicamentos  que  los  profesionales  de  mérito  estimen  conveniente,  aplicando los tratamientos que
+estos  prescriban. SEGUNDO: que  me  comprometo expresamente  a  cancelar  el monto  de la liquidación que me
+presente  el  HOSPITAL  DE  ESPECIALIDADES  DE  OCCIDENTE,  S.A.  Por los conceptos indicados en el punto
+anterior,  ósea  HOSPITALIZACIÓN,  MEDICINAS,  Y  HONORARIOS  por servicios  médicos prestados;  y para tal
+efecto  acepto  desde ya  como  líquidas,  exigibles,  ejecutivas y de  plazo  vencido,  las  cantidades  que  arroje  la
+liquidación relacionada. TERCERO:  la falta de pago de la cantidad a que haciende la liquidación mencionada en el
+punto anterior, dará derecho al  HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.  a cobrar ejecutivamente
+la misma, para cuyo efecto servirá de título ejecutivo el presente documento y la liquidación que presente la entidad
+indicada,  que formará  parte del mismo  renunciando para dicho efecto al fuero de mi domicilio y sujetándome a los
+tribunales que fija el HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A. CUARTO: en fe de lo anterior, firmo
+este documento como FIADOR SOLIDARIO DE.
+____________________________________________________________________________
+        `,
+        2,
+        altura,
+        { maxWidth: 18 }
+      )
+
+      altura += 7
+      this.pdf.text(
+        `En la ciudad de Quetzaltenango, el______________del mes de_________________dos mil__________________
+
+                                            Quetzaltenango___________________de_________________de 20______________
+
+
+
+
+
+
+______________________________________               ______________________________________
+
+                   F) Paciente o responsable                                                        f) fiador
+                                                               
+
+
+
+______________________________________               ______________________________________
+
+                             No. DPI                                                                        No. DPI  
+                             
+
+
+
+
+______________________________________               ______________________________________
+
+                   Dirección y Teléfono                                                          Dirección y Teléfono
+      `,
+        2,
+        altura,
+        { maxWidth: 18 }
+      )
+
+      altura += 12
+      this.pdf.text(
+        `COMO NOTARIO DOY FE: que las firmas que anteceden son autenticas por haber sido puestas en mi presencia el
+dia de hoy por____________________________________y por____________________________________
+
+Con el Código Único de Identificación arriba indicadas y que los nombrados firman al pie de la presente, en la ciudad de Quetzaltenango, el día____________________ del mes de _____________________ del dos mil ________________
+
+
+E MI
+
+
+                              F)_________________________                        F)__________________________`,
+        2,
+        altura,
+        { maxWidth: 18 }
+      )
+
+      // Previsualización del PDF
+      const pdfData = this.pdf.output('blob')
+      const pdfURL = URL.createObjectURL(pdfData)
+      this.previewURL = pdfURL
+      this.$refs['modal-contrato'].show()
+    },
+    descargarpdf () {
+      this.pdf.save(this.pdfName)
     }
   }
 }

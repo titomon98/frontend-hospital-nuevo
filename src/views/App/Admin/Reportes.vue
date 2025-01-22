@@ -10,6 +10,63 @@
     >
       <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
+    <b-modal id="modal-pdf" ref="modal-pdf" title="Generar PDF" size="xl">
+      <div id="previewContainer">
+        <iframe :src="previewURL" width="100%" height="700px"></iframe>
+      </div>
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click="descargarpdf()">Guardar</b-button>
+        <b-button variant="danger" @click="closeModal('pdf')">Cancelar</b-button>
+      </template>
+    </b-modal>
+    <b-modal id="modal-voucher" ref="modal-voucher" title="Crear Voucher">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <b-form @submit="$event.preventDefault()">
+        <b-form-group label="Seleccionar Medico">
+          <v-select
+            name="medico"
+            v-model="formVoucher.medico"
+            :options="medicos"
+            :filterable="false"
+            placeholder="Seleccione el médico"
+            @search="onSearchDatosMedicos"
+          >
+            <template v-slot:option="option">
+              {{ option.nombre}}
+            </template>
+            <template slot="selected-option" slot-scope="option">
+              {{option.nombre}}
+            </template>
+          </v-select>
+        </b-form-group>
+        <b-form-group label="Cantidad:">
+          <b-form-input
+            type="number"
+            v-model="formVoucher.cantidad"
+            placeholder="Ingresar cantidad"
+          ></b-form-input>
+        </b-form-group>
+        <b-form-group label="Cantidad en letras:">
+          <b-form-input
+            type="text"
+            v-model="formVoucher.cantidadEscrita"
+            placeholder="Ingresar la Cantidad escrita con Inicial Mayúscula"
+          ></b-form-input>
+        </b-form-group>
+      </b-form>
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click="crearVoucher()">Crear</b-button>
+        <b-button variant="danger" @click="closeModal('save')">Cancelar</b-button>
+      </template>
+    </b-modal>
     <b-modal id="modal-1-account" ref="modal-1-account" title="Agregar cuenta">
       <b-alert
         :show="alertCountDownError"
@@ -133,31 +190,25 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-3-account" ref="modal-3-account" title="Desactivar cuenta">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
-      >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
-      </b-alert>
-      <h6 class="my-4">
-        ¿Desea desactivar la cuenta: {{ form.numero }} ?
-      </h6>
-      <template #modal-footer="{}">
-        <b-button
-          type="submit"
-          variant="primary"
-          @click="onState()
-                  $bvModal.hide('modal-3-account')"
-          >Desactivar</b-button
-        >
-        <b-button variant="danger" @click="$bvModal.hide('modal-3-account')"
-          >Cancelar</b-button
-        >
-      </template>
+    <b-modal id="modal-3-enfermeria" ref="modal-3-enfermeria" title="Reportes en Enfermeria">
+      <template v-slot:headerTitle>
+              <h4 class="card-title mt-3">Reportes</h4>
+                <div>
+                <b-form-select v-model="selectedReport" v-if="selectedArea == 3" :options="reportOptionsEnfermeria" @change="onReportChange()"></b-form-select>
+                </div>
+                <div>
+                <label for="example-datepicker">Fecha de inicio</label>
+                <b-form-datepicker id="example-datepicker" v-model="startDateEnfermeria" class="mb-2"></b-form-datepicker>
+              </div>
+              <div>
+                <label for="example-datepicker">Fecha fin</label>
+                <b-form-datepicker id="example-datepicker" v-model="endDateEnfermeria" class="mb-2"></b-form-datepicker>
+              </div>
+              <div v-if="selectedReport != null">
+                <b-button variant="primary">Descargar PDF</b-button>
+                <b-button variant="primary">Descargar Excel</b-button>
+              </div>
+            </template>
     </b-modal>
     <b-modal id="modal-4-account" ref="modal-4-account" title="Activar cuenta">
       <b-alert
@@ -208,154 +259,78 @@
                   </b-form-group>
                </div>
                <div>
-                <b-form-select v-model="selectedReport" v-if="selectedArea == 1" :options="reportOptionsCaja" @change="onReportChange()"></b-form-select>
+                <b-form-select v-model="selectedReport" v-if="selectedArea == 1" :options="reportOptionsCaja"></b-form-select>
                 <b-form-select v-model="selectedReport" v-if="selectedArea == 2" :options="reportOptionsFarmacia" @change="onReportChange()"></b-form-select>
                 <b-form-select v-model="selectedReport" v-if="selectedArea == 3" :options="reportOptionsEnfermeria" @change="onReportChange()"></b-form-select>
                 <b-form-select v-model="selectedReport" v-if="selectedArea == 4" :options="reportOptionsMedicos" @change="onReportChange()"></b-form-select>
                 <b-form-select v-model="selectedReport" v-if="selectedArea == 5" :options="reportOptionsPacientes" @change="onReportChange()"></b-form-select>
                </div>
+               <div v-if="selectedArea != 1">
                <div>
-                <label for="example-datepicker">Fecha de inicio</label>
-                <b-form-datepicker id="example-datepicker" v-model="startDate" class="mb-2"></b-form-datepicker>
+                <label for="start-date">Fecha de inicio</label>
+                  <b-form-datepicker
+                    id="start-date"
+                    v-model="startDate"
+                    placeholder="Seleccione la fecha de inicio"
+                    @input="onStartDateChange"
+                    class="mb-2"
+                  ></b-form-datepicker>
+                </div>
+                <div>
+                  <label for="end-date">Fecha de fin</label>
+                  <b-form-datepicker
+                    id="end-date"
+                    v-model="endDate"
+                    placeholder="Seleccione la fecha de fin"
+                    @input="onEndDateChange"
+                    class="mb-2"
+                  ></b-form-datepicker>
+                </div>
+              <div v-if="selectedReport != null">
+                <b-button variant="primary" @click="generarPDF">Generar PDF</b-button>
+                <b-button variant="primary" @click="generarEXCEL">Descargar Excel</b-button>
               </div>
-              <div>
-                <label for="example-datepicker">Fecha fin</label>
-                <b-form-datepicker id="example-datepicker" v-model="endDate" class="mb-2"></b-form-datepicker>
+              </div>
+               <div v-if="selectedArea==1">
+              <div v-if="selectedReport === 2 && selectedArea === 1 ">
+                <label for="example-datepicker">Fecha a buscar</label>
+                <b-form-datepicker id="example-datepicker" v-model="startDate" :date-format-options="{ year: 'numeric', month: 'numeric', day: 'numeric' }" class="mb-2"></b-form-datepicker>
+              </div>
+              <div v-if="selectedReport === 4 && selectedArea === 1 ">
+                <label for="reportPAyment">tipo de pago</label>
+                <b-form-select id="reportPAyment" v-model="reportPayment" :options="paymentOptions"></b-form-select>
+              </div>
+              <div v-if="selectedReport !== 2 && selectedArea === 1 ">
+                <label for="example-datepicker">Fecha de inicio</label>
+                <b-form-datepicker id="example-datepicker" v-model="startDate" :date-format-options="{ day: 'numeric', month: 'numeric', year: 'numeric' }" class="mb-2"></b-form-datepicker>
+                <label for="example-datepicker2">Fecha fin</label>
+                <b-form-datepicker id="example-datepicker2" v-model="endDate" :date-format-options="{ day: 'numeric', month: 'numeric', year: 'numeric' }" class="mb-2"></b-form-datepicker>
               </div>
               <div v-if="selectedReport != null">
-                <b-button variant="primary">Descargar PDF</b-button>
-                <b-button variant="primary">Descargar Excel</b-button>
+                <b-button variant="primary" @click="generateReport()">Generar Reporte</b-button>
+                <b-button variant="primary" @click="selectPDFReport()">Descargar PDF</b-button>
+                <b-button v-if="selectedReport <= 2 && selectedArea === 1 " variant="primary" @click="generateExcel()">Descargar Excel</b-button>
+              </div>
               </div>
             </template>
-            <template v-slot:headerAction>
+          <template v-slot:headerAction>
           </template>
           <template v-slot:body>
-            <datatable-heading
-              :changePageSize="changePageSizes"
-              :searchChange="searchChange"
-              :from="from"
-              :to="to"
-              :total="total"
-              :perPage="perPage"
-            >
-            </datatable-heading>
-            <div v-show="selectedReport == 1">
-              <vuetable
-              ref="vuetable"
-              class="table-divided order-with-arrow"
-              :api-url="apiBase"
-              :query-params="makeQueryParams"
-              :per-page="perPage"
-              :reactive-api-url="true"
-              :fields="fieldsCaja"
-              pagination-path
-              @vuetable:pagination-data="onPaginationData"
-            >
-              <!-- Estado -->
-              <div slot="estado" slot-scope="props">
-                <h5 v-if="props.rowData.estado == 1">
-                  <b-badge variant="light"
-                    ><h6 class="success"><strong>ACTIVO</strong></h6></b-badge
-                  >
-                </h5>
-                <h5 v-else>
-                  <b-badge variant="light"
-                    ><h6 class="danger"><strong>INACTIVO</strong></h6></b-badge
-                  >
-                </h5>
-              </div>
-              <!-- Paginacion -->
-            </vuetable>
+            <div v-if ="selectedReport === 4 && selectedArea === 1">
+              {{ selectedReport === 4 && selectedArea === 1 ? 'Reporte de pagos en ' + reportPayment : '' }} {{simpWallet.length > 0?simpWallet[0].total:'' }}
             </div>
-            <div v-show="selectedReport == 2">
-              <vuetable
-
-              ref="vuetable"
-              class="table-divided order-with-arrow"
-              :api-url="apiBase"
-              :query-params="makeQueryParams"
-              :per-page="perPage"
-              :reactive-api-url="true"
-              :fields="fieldsFarmacia"
-              pagination-path
-              @vuetable:pagination-data="onPaginationData"
-            >
-              <!-- Estado -->
-              <div slot="estado" slot-scope="props">
-                <h5 v-if="props.rowData.estado == 1">
-                  <b-badge variant="light"
-                    ><h6 class="success"><strong>ACTIVO</strong></h6></b-badge
-                  >
-                </h5>
-                <h5 v-else>
-                  <b-badge variant="light"
-                    ><h6 class="danger"><strong>INACTIVO</strong></h6></b-badge
-                  >
-                </h5>
-              </div>
-              <!-- Paginacion -->
-            </vuetable>
+            <div v-else>
+              <b-table
+                  hover
+                  ref="reportTable"
+                  id="reportTable"
+                  :items="selectedReport==3?walletItems:reportItems"
+                  :fields="selectedReport==3?walletFields:reportFields"
+                  :select-mode="'single'"
+                  selectable
+                >
+                </b-table>
             </div>
-            <div v-show="selectedReport == 3">
-              <vuetable
-              ref="vuetable"
-              class="table-divided order-with-arrow"
-              :api-url="apiBase"
-              :query-params="makeQueryParams"
-              :per-page="perPage"
-              :reactive-api-url="true"
-              :fields="fieldsEnfermeria"
-              pagination-path
-              @vuetable:pagination-data="onPaginationData"
-            >
-              <!-- Estado -->
-              <div slot="estado" slot-scope="props">
-                <h5 v-if="props.rowData.estado == 1">
-                  <b-badge variant="light"
-                    ><h6 class="success"><strong>ACTIVO</strong></h6></b-badge
-                  >
-                </h5>
-                <h5 v-else>
-                  <b-badge variant="light"
-                    ><h6 class="danger"><strong>INACTIVO</strong></h6></b-badge
-                  >
-                </h5>
-              </div>
-              <!-- Paginacion -->
-            </vuetable>
-            </div>
-            <div v-show="selectedReport == 4">
-              <vuetable
-              ref="vuetable"
-              class="table-divided order-with-arrow"
-              :api-url="apiBase"
-              :query-params="makeQueryParams"
-              :per-page="perPage"
-              :reactive-api-url="true"
-              :fields="fieldsMedicos"
-              pagination-path
-              @vuetable:pagination-data="onPaginationData"
-            >
-              <!-- Estado -->
-              <div slot="estado" slot-scope="props">
-                <h5 v-if="props.rowData.estado == 1">
-                  <b-badge variant="light"
-                    ><h6 class="success"><strong>ACTIVO</strong></h6></b-badge
-                  >
-                </h5>
-                <h5 v-else>
-                  <b-badge variant="light"
-                    ><h6 class="danger"><strong>INACTIVO</strong></h6></b-badge
-                  >
-                </h5>
-              </div>
-              <!-- Paginacion -->
-            </vuetable>
-            </div>
-            <vuetable-pagination-bootstrap
-                ref="pagination"
-                @vuetable-pagination:change-page="onChangePage"
-              />
           </template>
         </iq-card>
       </b-col>
@@ -364,21 +339,21 @@
 </template>
 <script>
 import { xray } from '../../../config/pluginInit'
-import DatatableHeading from '../../Tables/DatatableHeading'
-import Vuetable from 'vuetable-2/src/components/Vuetable'
-import VuetablePaginationBootstrap from '../../../components/common/VuetablePaginationBootstrap'
 import useVuelidate from '@vuelidate/core'
 import { required } from '@vuelidate/validators'
 import axios from 'axios'
 import { apiUrl } from '../../../config/constant'
+import JsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
+import logo from '../../../assets/images/login/1.png'
+import logoLab from '../../../assets/images/logo.png'
+import moment from 'moment'
+import ExcelJS from 'exceljs'
+import * as XLSX from 'xlsx'
+// import { mapGetters } from 'vuex'
 
 export default {
   name: 'CuentasPendientes',
-  components: {
-    vuetable: Vuetable,
-    'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
-    'datatable-heading': DatatableHeading
-  },
   setup () {
     return { $v: useVuelidate() }
   },
@@ -388,35 +363,136 @@ export default {
   },
   data () {
     return {
+      pdf_select_caja: null,
+      encabezado: {
+        id: 0,
+        fecha: null,
+        nit: null,
+        usuario: null,
+        total: null
+      },
       from: 0,
+      pdf: new JsPDF(),
+      pdfName: '',
+      previewURL: '',
+      reportItems: [],
+      walletItems: [],
+      simpWallet: [],
+      reportFields: [
+        {
+          key: 'expediente.nombres',
+          label: 'Nombres',
+          sortable: true
+        },
+        {
+          key: 'expediente.apellidos',
+          label: 'Apellidos',
+          sortable: true
+        },
+        {
+          key: 'numero_cuenta',
+          label: 'numero_cuenta',
+          sortable: true
+        },
+        {
+          key: 'total_pagado',
+          label: 'Total',
+          sortable: true
+        },
+        {
+          key: 'pendiente_de_pago',
+          label: 'Pendiente de pago',
+          sortable: true
+        },
+        {
+          key: 'total',
+          label: 'Total',
+          sortable: true
+        },
+        {
+          key: 'descuento',
+          label: 'Descuento',
+          sortable: true
+        }
+      ],
+      walletFields: [
+        {
+          key: 'efectivo',
+          label: 'Efectivo',
+          sortable: true
+        },
+        {
+          key: 'tarjeta',
+          label: 'Tarjeta',
+          sortable: true
+        },
+        {
+          key: 'tarjeta',
+          label: 'Tarjeta',
+          sortable: true
+        },
+        {
+          key: 'deposito',
+          label: 'Deposito',
+          sortable: true
+        },
+        {
+          key: 'cheque',
+          label: 'Cheque',
+          sortable: true
+        },
+        {
+          key: 'seguro',
+          label: 'Seguro',
+          sortable: true
+        },
+        {
+          key: 'transferencia',
+          label: 'Transferencia',
+          sortable: true
+        }
+      ],
       selectedReport: null,
+      startDate: null,
+      endDate: null,
       reportOptionsCaja: [
         { value: null, text: 'Seleccione un reporte' },
-        { value: 1, text: 'Reporte Caja 1' },
-        { value: 2, text: 'Reporte Caja 2' },
-        { value: 3, text: 'Reporte Caja 3' },
-        { value: 4, text: 'Reporte Caja 4' }
+        { value: 1, text: 'Ingresos entre fechas' },
+        { value: 2, text: 'Ingresos por día' },
+        { value: 3, text: 'Medios de pago' },
+        { value: 4, text: 'Medio de pago específico' }
+      ],
+      paymentOptions: [
+        { value: 'efectivo', text: 'Efectivo' },
+        { value: 'tarjeta', text: 'Tarjeta' },
+        { value: 'deposito', text: 'Deposito' },
+        { value: 'cheque', text: 'Cheque' },
+        { value: 'seguro', text: 'Seguro' },
+        { value: 'transferencia', text: 'Transferencia' }
       ],
       reportOptionsFarmacia: [
         { value: null, text: 'Seleccione un reporte' },
-        { value: 1, text: 'Reporte Farmacia 1' },
-        { value: 2, text: 'Reporte Farmacia 2' },
-        { value: 3, text: 'Reporte Farmacia 3' },
-        { value: 4, text: 'Reporte Farmacia 4' }
+        { value: 1, text: 'Reporte Productos Más Utilizados' },
+        { value: 2, text: 'Reporte Proveedores Más Solicitados' },
+        { value: 3, text: 'Reporte Inventario Detallado de Medicamentos' },
+        { value: 4, text: 'Reporte Inventario General' },
+        { value: 5, text: 'Reporte Suministro de Medicamentos a Pacientes' }
       ],
       reportOptionsEnfermeria: [
         { value: null, text: 'Seleccione un reporte' },
-        { value: 1, text: 'Reporte Enfermería 1' },
-        { value: 2, text: 'Reporte Enfermería 2' },
-        { value: 3, text: 'Reporte Enfermería 3' },
-        { value: 4, text: 'Reporte Enfermería 4' }
+        { value: 1, text: 'Reporte de pacientes que hubo en cada lugar' },
+        { value: 2, text: 'Reporte de pacientes actuales en cada lugar' },
+        { value: 3, text: 'Reporte de todos los pacientes por fechas' },
+        { value: 4, text: 'Reporte de servicios más consumidos' },
+        { value: 5, text: 'Reporte de medicamentos más consumidos' },
+        { value: 6, text: 'Reporte de pacientes fallecidos' },
+        { value: 7, text: 'Reporte de pacientes egresados' }
       ],
       reportOptionsMedicos: [
         { value: null, text: 'Seleccione un reporte' },
-        { value: 1, text: 'Reporte Médicos 1' },
-        { value: 2, text: 'Reporte Médicos 2' },
-        { value: 3, text: 'Reporte Médicos 3' },
-        { value: 4, text: 'Reporte Médicos 4' }
+        { value: 1, text: 'Reporte de honorarios médicos por fechas' },
+        { value: 2, text: 'Reporte de médicos que más tienen honorarios por fechas y por día' },
+        { value: 3, text: 'Generar voucher de honorarios de un médico en pdf' }
       ],
       reportOptionsPacientes: [
         { value: null, text: 'Seleccione un reporte' },
@@ -766,7 +842,26 @@ export default {
           width: '25%'
         }
       ],
-      expedientes: []
+      expedientes: [],
+      // Farmcia
+      pdf_select_farmacia: null,
+      dataFarmacia: null,
+      // Enfermeria
+      pdf_select_enfermeria: null,
+      dataEnfermeria1: null,
+      startDateEnfermeria: null,
+      endDateEnfermeria: null,
+      // MEDICOS
+      pdf_select_medicos: null,
+      fechaActual: null,
+      numero_voucher: null,
+      dataMedicos: null,
+      medicos: [],
+      formVoucher: {
+        medico: null,
+        cantidad: null,
+        cantidadEscrita: null
+      }
     }
   },
   validations () {
@@ -802,8 +897,84 @@ export default {
   },
   methods: {
     onReportChange () {
+      if (!this.startDate || !this.endDate) {
+        alert('Por favor, seleccione las fechas antes de continuar.')
+        this.selectedReport = null
+        return
+      }
+      if (this.selectedArea === '2') {
+        switch (this.selectedReport) {
+          case 1:
+            this.primerReporteFarmacia(this.startDate, this.endDate)
+            this.pdf_select_farmacia = 1
+            return
+          case 2:
+            this.segundoReporteFarmacia(this.startDate, this.endDate)
+            this.pdf_select_farmacia = 2
+            return
+          case 3:
+            this.tercerReporteFarmacia(this.startDate, this.endDate)
+            this.pdf_select_farmacia = 3
+            return
+          case 4:
+            this.cuartoReporteFarmacia(this.startDate, this.endDate)
+            this.pdf_select_farmacia = 4
+            return
+          case 5:
+            this.quintoReporteFarmacia(this.startDate, this.endDate)
+            this.pdf_select_farmacia = 5
+        }
+      }
+      if (this.selectedArea === '3') {
+        switch (this.selectedReport) {
+          case 1:
+            this.primerReporteEnfermeria(this.startDate, this.endDate)
+            this.pdf_select_enfermeria = 1
+            return
+          case 2:
+            this.segundoReporteEnfermeria(this.startDate, this.endDate)
+            this.pdf_select_enfermeria = 2
+            return
+          case 3:
+            this.tercerReporteEnfermeria(this.startDate, this.endDate)
+            this.pdf_select_enfermeria = 3
+            return
+          case 4:
+            this.cuartoReporteEnfermeria(this.startDate, this.endDate)
+            this.pdf_select_enfermeria = 4
+            return
+          case 5:
+            this.quintoReporteEnfermeria(this.startDate, this.endDate)
+            this.pdf_select_enfermeria = 5
+            return
+          case 6:
+            this.sextoReporteEnfermeria(this.startDate, this.endDate)
+            this.pdf_select_enfermeria = 6
+            return
+          case 7:
+            this.septimoReporteEnfermeria(this.startDate, this.endDate)
+            this.pdf_select_enfermeria = 7
+        }
+      }
+      if (this.selectedArea === '4') {
+        switch (this.selectedReport) {
+          case 1:
+            this.primerReporteMedicos(this.startDate, this.endDate)
+            this.pdf_select_medicos = 1
+            return
+          case 2:
+            this.segundoReporteMedicos(this.startDate, this.endDate)
+            this.pdf_select_medicos = 2
+            return
+          case 3:
+            // this.tercerReporteMedicos(this.startDate, this.endDate)
+            this.$refs['modal-voucher'].show()
+            this.pdf_select_medicos = 3
+            this.selectedReport = null
+        }
+      }
       this.$nextTick(() => {
-        this.$refs.vuetable.refresh()
+        this.$refs.reportTable.refresh()
       })
     },
     openModal (modal, action) {
@@ -822,6 +993,178 @@ export default {
         }
       }
     },
+    modPdf (type) {
+      console.log(type)
+      this.$refs['modal-pdf'].show()
+      var altura = 1
+      var ahora = new Date()
+      this.encabezado.id = type === 1 ? 1 : null
+      this.encabezado.fecha = new Date().toLocaleDateString('es-us', ahora)
+      this.pdf = new JsPDF({
+        unit: 'cm',
+        format: [14, 21.5],
+        orientation: 'landscape'
+      })
+      var ingreso = moment(ahora).format('DD/MM/YYYY')
+      var imgData = logoLab
+      this.pdf.addImage(imgData, 'PNG', 1.5, 0.2, 4.37, 4)
+      this.pdf.setFontSize(10).setFont(undefined, 'bold')
+      this.pdf.text('Hospital de Especialidades S.A.', 1.5, 4.5)
+      switch (type) {
+        case 1: {
+          this.pdfName = 'ReporteIngresos.pdf'
+          altura = altura + 0.5
+          altura = altura + 0.5
+          altura = altura + 0.5
+          this.selectedReport === 1 ? this.pdf.text('Reporte de ingresos entre ' + this.startDate + ' y ' + this.endDate, 7, altura) : this.pdf.text('Reporte de ingresos del ' + this.startDate, 7, altura)
+          break
+        }
+        case 2: {
+          this.pdfName = 'ReporteMedioDePago.pdf'
+          altura = altura + 0.5
+          altura = altura + 0.5
+          altura = altura + 0.5
+          this.pdf.text('Reporte del dinero por medio de pago del ' + this.startDate + ' al ' + this.endDate, 7, altura)
+          break
+        }
+        case 3: {
+          this.pdfName = 'Reporte' + this.reportPayment + '.pdf'
+          altura = altura + 0.5
+          altura = altura + 0.5
+          altura = altura + 0.5
+          this.pdf.text('Reporte del ingreso a ' + this.reportPayment + ' del ' + this.startDate + ' al ' + this.endDate, 7, altura)
+          break
+        }
+      }
+      // Encabezado
+      altura = altura + 0.5
+      this.pdf.text('Fecha de generación: ' + ingreso, 7, altura)
+      altura = altura + 0.5
+      // this.pdf.text('Informe generado por: ', 7, altura)
+      this.pdf.setFontSize(10).setFont(undefined, 'normal')
+      // this.pdf.text(this.currentUser.user, 10.75, altura)
+      altura = altura + 0.5
+      // Tabla
+      switch (type) {
+        case 1: {
+          const transformedData = this.reportItems.map(item => ({
+            numero_cuenta: item.numero_cuenta,
+            total: item.total,
+            expediente: item.expediente.expediente + ' ' + item.expediente.nombres + ' ' + item.expediente.apellidos,
+            total_pagado: item.total_pagado
+          }))
+          autoTable(this.pdf, {
+            columns: [{ header: 'Cuenta', dataKey: 'numero_cuenta' }, { header: 'Total', dataKey: 'total' }, { header: 'Total pagado', dataKey: 'total_pagado' }, { header: 'Expediente', dataKey: 'expediente' }],
+            body: transformedData,
+            margin: { top: 5 },
+            headStyles: {
+              fillColor: [21, 21, 21],
+              textColor: [225, 225, 225],
+              fontStyle: 'bold'
+            }
+          })
+          break
+        }
+        case 2: {
+          autoTable(this.pdf, {
+            columns: [
+              { header: 'Tipo de Pago', dataKey: 'tipo' },
+              { header: 'Monto', dataKey: 'monto' }
+            ],
+            body: [
+              { tipo: 'Efectivo', monto: this.walletItems[0].efectivo },
+              { tipo: 'Tarjeta', monto: this.walletItems[0].tarjeta },
+              { tipo: 'Deposito', monto: this.walletItems[0].deposito },
+              { tipo: 'Cheque', monto: this.walletItems[0].cheque },
+              { tipo: 'Transferencia', monto: this.walletItems[0].transferencia }
+            ],
+            margin: { top: 5 },
+            headStyles: {
+              fillColor: [21, 21, 21],
+              textColor: [225, 225, 225],
+              fontStyle: 'bold'
+            },
+          })
+          break
+        }
+        case 3: {
+          altura = altura + 2
+          this.pdf.text('Pagos por medio de ' + this.reportPayment + ' del ' + this.startDate + ' al ' + this.endDate + ': ' + this.simpWallet[0].total, 7, altura)
+          break
+        }
+      }
+      var pdfData = this.pdf.output('blob')
+      // Convert PDF to data URL
+      var pdfURL = URL.createObjectURL(pdfData)
+      this.previewURL = pdfURL
+    },
+    descargarpdf () {
+      this.pdf.save(this.pdfName)
+    },
+    generateExcel () {
+      const transformedData = this.reportItems.map(item => ({
+        numero_cuenta: item.numero_cuenta,
+        total: item.total,
+        expediente: item.expediente.expediente + ' ' + item.expediente.nombres + ' ' + item.expediente.apellidos,
+        total_pagado: item.total_pagado
+      }))
+      const ws = XLSX.utils.json_to_sheet(transformedData)
+      const colWidths = transformedData.reduce((acc, row) => {
+        Object.keys(row).forEach((key, index) => {
+          const cellValue = String(row[key])
+          acc[index] = Math.max(acc[index] || 0, cellValue.length)
+        })
+        return acc
+      }, [])
+      ws['!cols'] = colWidths.map(width => ({ wch: width }))
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, 'Datos')
+      XLSX.writeFile(wb, 'reporte.xlsx')
+    },
+    selectPDFReport () {
+      switch (this.selectedReport) {
+        case 1: {
+          this.modPdf(1)
+          break
+        }
+        case 2: {
+          this.modPdf(1)
+          break
+        }
+        case 3: {
+          this.modPdf(2)
+          break
+        }
+        case 4: {
+          this.modPdf(3)
+          break
+        }
+      }
+      console.log(this.selectedReport)
+    },
+    async generateReport () {
+      switch (this.selectedReport) {
+        case 1: {
+          await this.incomeByDate()
+          break
+        }
+        case 2: {
+          await this.incomeByDay()
+          break
+        }
+        case 3: {
+          await this.wallet()
+          break
+        }
+        case 4: {
+          await this.simpleWallet()
+          break
+        }
+        default: {
+          break
+        }
+      }
+    },
     closeModal (action) {
       switch (action) {
         case 'save': {
@@ -835,6 +1178,10 @@ export default {
           this.form.total = 0
           this.form.id_expediente = 1
           this.form.state = 1
+          this.$refs['modal-voucher'].hide()
+          this.formVoucher.medico = null
+          this.formVoucher.cantidad = null
+          this.selectedReport = null
           break
         }
         case 'update': {
@@ -852,144 +1199,46 @@ export default {
         }
       }
     },
-    onValidate (action) {
-      this.$v.$touch()
-      if (this.$v.$error !== true) {
-        if (action === 'save') {
-          this.onSave()
-        } else if (action === 'update') {
-          this.onUpdate()
+    async incomeByDate () {
+      let res = await axios.get(apiUrl + '/reporte/ingresosFechas', {
+        params: {
+          fecha_inicio: this.startDate,
+          fecha_final: this.endDate
         }
-      } else {
-        this.alertErrorText = 'Revisa que todos los campos requeridos esten llenos'
-        this.showAlertError()
-      }
+      })
+      this.reportItems = res.data
+      console.log(this.reportItems)
+      this.$refs.reportTable.refresh()
     },
-    setData (data) {
-      this.form.numero = data.numero
-      this.form.fecha_ingreso = data.fecha_ingreso
-      this.form.descripcion = data.descripcion
-      this.form.motivo = data.motivo
-      this.form.otros = data.otros
-      this.form.total = data.total
-      this.form.id_expediente = data.id_expediente
-      this.form.state = data.estado
-      this.form.id = data.id
+    async wallet () {
+      let res = await axios.get(apiUrl + '/reporte/detalleMediosDePago')
+      this.walletItems = []
+      this.walletItems.push(res.data)
+      console.log(this.walletItems)
+      this.$refs.reportTable.refresh()
     },
-    /* Guardar */
-    onSave () {
-      const me = this
-      axios.post(apiUrl + '/cuentas/create', {
-        form: me.form })
-        .then((response) => {
-          me.alertVariant = 'success'
-          me.showAlert()
-          me.alertText = 'Se ha creado la cuenta \'' + me.form.numero + '\' exitosamente'
-          me.$refs.vuetable.refresh()
-          me.closeModal('save')
-        })
-        .catch((error) => {
-          me.alertVariant = 'danger'
-          me.showAlertError()
-          me.alertErrorText = error.response.data.msg
-          console.error('Error!', error)
-        })
-    },
-    /* Guardar */
-    onUpdate () {
-      const me = this
-      // this.$refs["modalSave"].hide();
-      axios.put(apiUrl + '/cuentas/update', {
-        form: me.form })
-        .then((response) => {
-          me.alertVariant = 'primary'
-          me.showAlert()
-          me.alertText = 'Se ha actualizado la cuenta \'' + me.form.numero + '\' exitosamente'
-          me.$refs.vuetable.refresh()
-          me.closeModal('update')
-        })
-        .catch((error) => {
-          me.alertVariant = 'danger'
-          me.showAlertError()
-          me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-          console.error('Error!', error)
-        })
-    },
-    onState () {
-      let me = this
-      if (this.form.state === 1) {
-        axios
-          .put(apiUrl + '/cuentas/deactivate', {
-            id: this.form.id
-          })
-          .then((response) => {
-            me.alertVariant = 'warning'
-            me.showAlert()
-            me.alertText = 'Se ha desactivado la cuenta \'' + me.form.numero + '\' exitosamente'
-            me.$refs.vuetable.refresh()
-            me.$refs['modal-3-account'].hide()
-          })
-          .catch((error) => {
-            me.alertVariant = 'danger'
-            me.showAlertError()
-            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-            console.error('There was an error!', error)
-          })
-      } else {
-        axios
-          .put(apiUrl + '/cuentas/activate', {
-            id: this.form.id
-          })
-          .then((response) => {
-            me.alertVariant = 'info'
-            me.showAlert()
-            me.alertText = 'Se ha activado la cuenta \'' + me.form.numero + '\' exitosamente'
-            me.$refs.vuetable.refresh()
-            me.$refs['modal-4-account'].hide()
-          })
-          .catch((error) => {
-            me.alertVariant = 'danger'
-            me.showAlertError()
-            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-            console.error('There was an error!', error)
-          })
-      }
-    },
-    makeQueryParams (sortOrder, currentPage, perPage) {
-      return sortOrder[0]
-        ? {
-          criterio: sortOrder[0] ? sortOrder[0].sortField : 'numero',
-          order: sortOrder[0] ? sortOrder[0].direction : 'desc',
-          page: currentPage,
-          limit: this.perPage,
-          search: this.search
+    async simpleWallet () {
+      let res = await axios.get(apiUrl + '/reporte/simpleMediosDePago', {
+        params: {
+          tipo: 'efectivo',
+          fecha_inicio: this.startDate,
+          fecha_final: this.endDate
         }
-        : {
-          criterio: sortOrder[0] ? sortOrder[0].sortField : 'numero',
-          order: sortOrder[0] ? sortOrder[0].direction : 'desc',
-          page: currentPage,
-          limit: this.perPage,
-          search: this.search
+      })
+      this.simpWallet = []
+      this.simpWallet.push(res.data)
+      console.log(this.simpWallet)
+      this.$refs.reportTable.refresh()
+    },
+    async incomeByDay () {
+      let res = await axios.get(apiUrl + '/reporte/ingresosDia', {
+        params: {
+          fecha: this.startDate
         }
-    },
-    changePageSizes (perPage) {
-      this.perPage = perPage
-      this.$refs.vuetable.refresh()
-    },
-    searchChange (val) {
-      this.search = val.toLowerCase()
-      this.$refs.vuetable.refresh()
-    },
-    onPaginationData (paginationData) {
-      this.from = paginationData.from
-      this.to = paginationData.to
-      this.total = paginationData.total
-      this.lastPage = paginationData.last_page
-      this.items = paginationData.data
-      this.$refs.pagination.setPaginationData(paginationData)
-    },
-    onChangePage (page) {
-      this.$refs.vuetable.changePage(page)
+      })
+      this.reportItems = res.data
+      console.log(this.reportItems)
+      this.$refs.reportTable.refresh()
     },
     showAlert () {
       this.alertCountDown = this.alertSecs
@@ -1014,6 +1263,2708 @@ export default {
         this.expedientes = response.data
         loading(false)
       })
+    },
+    generarPDF () {
+      switch (this.pdf_select_caja) {
+        case 1:
+          this.modPdf(1)
+          break
+      }
+
+      switch (this.pdf_select_farmacia) {
+        case 1:
+          this.generarPDFFarmacia()
+          this.selectedReport = null
+          this.pdf_select_farmacia = null
+          break
+        case 2:
+          this.generarPDFFarmacia2()
+          this.selectedReport = null
+          this.pdf_select_farmacia = null
+          break
+        case 3:
+          this.generarPDFFarmacia3()
+          this.selectedReport = null
+          this.pdf_select_farmacia = null
+          break
+        case 4:
+          this.generarPDFFarmacia4()
+          this.selectedReport = null
+          this.pdf_select_farmacia = null
+          break
+        case 5:
+          this.generarPDFFarmacia5()
+          this.selectedReport = null
+          this.pdf_select_farmacia = null
+          break
+      }
+
+      switch (this.pdf_select_enfermeria) {
+        case 1:
+          this.generarPDFPacientes()
+          this.selectedReport = null
+          this.pdf_select_enfermeria = null
+          break
+        case 2:
+          this.generarPDFPacientes2()
+          this.selectedReport = null
+          this.pdf_select_enfermeria = null
+          break
+        case 3:
+          this.generarPDFPacientes3()
+          this.selectedReport = null
+          this.pdf_select_enfermeria = null
+          break
+        case 4:
+          this.generarPDFPacientes4()
+          this.selectedReport = null
+          this.pdf_select_enfermeria = null
+          break
+        case 5:
+          this.generarPDFPacientes5()
+          this.selectedReport = null
+          this.pdf_select_enfermeria = null
+          break
+        case 6:
+          this.generarPDFPacientes6()
+          this.selectedReport = null
+          this.pdf_select_enfermeria = null
+          break
+        case 7:
+          this.generarPDFPacientes7()
+          this.selectedReport = null
+          this.pdf_select_enfermeria = null
+          break
+      }
+
+      switch (this.pdf_select_medicos) {
+        case 1:
+          this.generarPDFMedicos()
+          this.selectedReport = null
+          this.pdf_select_medicos = null
+          break
+        case 2:
+          this.generarPDFMedicos2()
+          this.selectedReport = null
+          this.pdf_select_medicos = null
+          break
+        case 3:
+          this.generarPDFMedicos3()
+          this.selectedReport = null
+          this.pdf_select_medicos = null
+          break
+      }
+    },
+    generarEXCEL () {
+      switch (this.pdf_select_farmacia) {
+        case 1:
+          this.generarExcelEnfermeria()
+          this.selectedReport = null
+          this.pdf_select_farmacia = null
+          break
+        case 2:
+          this.generarExcelEnfermeria2()
+          this.selectedReport = null
+          this.pdf_select_farmacia = null
+          break
+        case 3:
+          this.generarExcelEnfermeria3()
+          this.selectedReport = null
+          this.pdf_select_farmacia = null
+          break
+        case 4:
+          this.generarExcelEnfermeria4()
+          this.selectedReport = null
+          this.pdf_select_farmacia = null
+          break
+        case 5:
+          this.generarExcelEnfermeria5()
+          this.selectedReport = null
+          this.pdf_select_farmacia = null
+          break
+      }
+
+      switch (this.pdf_select_enfermeria) {
+        case 1:
+          this.generarExcelPacientes()
+          this.selectedReport = null
+          this.selectedReport = null
+          break
+        case 2:
+          this.generarExcelPacientes2()
+          this.selectedReport = null
+          this.selectedReport = null
+          break
+        case 3:
+          this.generarExcelPacientes3()
+          this.selectedReport = null
+          this.selectedReport = null
+          break
+        case 4:
+          this.generarExcelPacientes4()
+          this.selectedReport = null
+          this.selectedReport = null
+          break
+        case 5:
+          this.generarExcelPacientes5()
+          this.selectedReport = null
+          this.selectedReport = null
+          break
+        case 6:
+          this.generarExcelPacientes6()
+          this.selectedReport = null
+          this.selectedReport = null
+          break
+        case 7:
+          this.generarExcelPacientes7()
+          this.selectedReport = null
+          this.selectedReport = null
+          break
+      }
+      switch (this.pdf_select_medicos) {
+        case 1:
+          this.generarExcelMedicos()
+          this.selectedReport = null
+          this.selectedReport = null
+          break
+        case 2:
+          this.generarExcelMedicos2()
+          this.selectedReport = null
+          this.selectedReport = null
+          break
+        case 3:
+          this.generarExcelMedicos3()
+          this.selectedReport = null
+          break
+      }
+    },
+
+    /* FARMACIA REPORTES */
+    primerReporteFarmacia (fechainicio, fechafin) {
+      axios.get(apiUrl + '/reporte/farmacia/productosMasUtilizados',
+        {
+          params: {
+            fechaInicio: fechainicio,
+            fechaFin: fechafin
+          }
+        }
+      )
+        .then((response) => {
+          this.dataFarmacia = response.data
+          this.startDateEnfermeria = fechainicio
+          this.endDateEnfermeria = fechafin
+          console.log(response.data)
+        })
+        .catch((error) => {
+          console.error('Error al generar el reporte de cuenta parcial:', error)
+          this.alertErrorText = 'Hubo un problema al generar el reporte. Por favor, intente nuevamente.'
+          this.showAlertError()
+        })
+    },
+    generarPDFFarmacia () {
+      const {
+        comunMasConsumido,
+        comunes,
+        medicamentoMasConsumido,
+        medicamentos,
+        quirurgicosMasConsumido,
+        quirurgicos
+      } = this.dataFarmacia
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+      const doc = new JsPDF()
+
+      // Encabezado
+      doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+      doc.setFontSize(10).setFont(undefined, 'normal')
+      doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
+      doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
+
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('Reporte de Productos Más Utilizados', 105, 50, { align: 'center' })
+      doc.setFontSize(12).setFont(undefined, 'normal')
+      doc.text(`Rango de Fechas: ${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')}`, 105, 56, { align: 'center' })
+
+      // Material común más consumido
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('Material Común Más Utilizado', 14, 80)
+      doc.setFontSize(12).setFont(undefined, 'normal')
+      doc.text(`Nombre: ${comunMasConsumido.nombre}`, 14, 90)
+      doc.text(`Precio Unitario: Q${comunMasConsumido.precio_unitario}`, 14, 96)
+      doc.text(`Cantidad: ${comunMasConsumido.cantidad_total}`, 14, 102)
+
+      // Detalle de consumos: Material común
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('Detalle de Consumo - Material Común', 14, 112)
+      doc.autoTable({
+        head: [['#', 'Nombre', 'Precio Unitario', 'Cantidad Vendida']],
+        body: comunes.map((item, index) => [
+          index + 1,
+          item.nombre,
+          `Q${item.precio_unitario}`,
+          item.cantidad_total
+        ]),
+        startY: 118,
+        theme: 'grid',
+        styles: { fontSize: 10, cellPadding: 2 },
+        headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [240, 240, 240] }
+      })
+
+      // Detalle de consumos: Medicamentos
+      doc.addPage()
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('Medicamento Más Utilizado', 14, 20)
+      doc.setFontSize(12).setFont(undefined, 'normal')
+      doc.text(`Nombre: ${medicamentoMasConsumido.nombre}`, 14, 30)
+      doc.text(`Precio Unitario: Q${medicamentoMasConsumido.precio_unitario}`, 14, 36)
+      doc.text(`Cantidad: ${medicamentoMasConsumido.cantidad_total}`, 14, 42)
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('Detalle de Consumo - Medicamentos', 14, 52)
+      doc.autoTable({
+        head: [['#', 'Nombre', 'Precio Unitario', 'Cantidad Vendida']],
+        body: medicamentos.map((item, index) => [
+          index + 1,
+          item.nombre,
+          `Q${item.precio_unitario}`,
+          item.cantidad_total
+        ]),
+        startY: 58,
+        theme: 'grid',
+        styles: { fontSize: 10, cellPadding: 2 },
+        headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [240, 240, 240] }
+      })
+
+      // Detalle de consumos: Material quirúrgico
+      doc.addPage()
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('Material Quirúrgico Más Utilizado', 14, 20)
+      doc.setFontSize(12).setFont(undefined, 'normal')
+      doc.text(`Nombre: ${quirurgicosMasConsumido.nombre}`, 14, 30)
+      doc.text(`Precio Unitario: Q${quirurgicosMasConsumido.precio_unitario}`, 14, 36)
+      doc.text(`Cantidad: ${quirurgicosMasConsumido.cantidad_total}`, 14, 42)
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('Detalle de Consumo - Material Quirúrgico', 14, 52)
+      doc.autoTable({
+        head: [['#', 'Nombre', 'Precio Unitario', 'Cantidad Vendida']],
+        body: quirurgicos.map((item, index) => [
+          index + 1,
+          item.nombre,
+          `Q${item.precio_unitario}`,
+          item.cantidad_total
+        ]),
+        startY: 58,
+        theme: 'grid',
+        styles: { fontSize: 10, cellPadding: 2 },
+        headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [240, 240, 240] }
+      })
+
+      doc.save(`Reporte_Productos_Mas_Utilizados_${moment(fechaInicio).format('YYYY-MM-DD')}_a_${moment(fechaFin).format('YYYY-MM-DD')}.pdf`)
+    },
+    generarExcelEnfermeria () {
+      const {
+        comunMasConsumido,
+        comunes,
+        medicamentoMasConsumido,
+        medicamentos,
+        quirurgicosMasConsumido,
+        quirurgicos
+      } = this.dataFarmacia
+
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+
+      // Crear un nuevo workbook
+      const workbook = new ExcelJS.Workbook()
+
+      // Hoja de "Material Común"
+      const hojaComunes = workbook.addWorksheet('Material Común')
+      hojaComunes.addRow(['HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'])
+      hojaComunes.addRow(['Reporte de Productos Más Utilizados'])
+      hojaComunes.addRow([`Rango de Fechas: ${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')}`])
+      hojaComunes.addRow([])
+      hojaComunes.addRow(['Material Común Más Utilizado'])
+      hojaComunes.addRow(['Nombre', 'Precio Unitario', 'Cantidad Total'])
+      hojaComunes.addRow([comunMasConsumido.nombre, comunMasConsumido.precio_unitario, comunMasConsumido.cantidad_total])
+      hojaComunes.addRow([])
+      hojaComunes.addRow(['Detalle de Consumo - Material Común'])
+      hojaComunes.addRow(['#', 'Nombre', 'Precio Unitario', 'Cantidad Vendida'])
+      comunes.forEach((item, index) => {
+        hojaComunes.addRow([index + 1, item.nombre, item.precio_unitario, item.cantidad_total])
+      })
+
+      // Hoja de "Medicamentos"
+      const hojaMedicamentos = workbook.addWorksheet('Medicamentos')
+      hojaMedicamentos.addRow(['HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'])
+      hojaMedicamentos.addRow(['Reporte de Productos Más Utilizados'])
+      hojaMedicamentos.addRow([`Rango de Fechas: ${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')}`])
+      hojaMedicamentos.addRow([])
+      hojaMedicamentos.addRow(['Medicamento Más Utilizado'])
+      hojaMedicamentos.addRow(['Nombre', 'Precio Unitario', 'Cantidad Total'])
+      hojaMedicamentos.addRow([medicamentoMasConsumido.nombre, medicamentoMasConsumido.precio_unitario, medicamentoMasConsumido.cantidad_total])
+      hojaMedicamentos.addRow([])
+      hojaMedicamentos.addRow(['Detalle de Consumo - Medicamentos'])
+      hojaMedicamentos.addRow(['#', 'Nombre', 'Precio Unitario', 'Cantidad Vendida'])
+      medicamentos.forEach((item, index) => {
+        hojaMedicamentos.addRow([index + 1, item.nombre, item.precio_unitario, item.cantidad_total])
+      })
+
+      // Hoja de "Material Quirúrgico"
+      const hojaQuirurgicos = workbook.addWorksheet('Material Quirúrgico')
+      hojaQuirurgicos.addRow(['HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'])
+      hojaQuirurgicos.addRow(['Reporte de Productos Más Utilizados'])
+      hojaQuirurgicos.addRow([`Rango de Fechas: ${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')}`])
+      hojaQuirurgicos.addRow([])
+      hojaQuirurgicos.addRow(['Material Quirúrgico Más Utilizado'])
+      hojaQuirurgicos.addRow(['Nombre', 'Precio Unitario', 'Cantidad Total'])
+      hojaQuirurgicos.addRow([quirurgicosMasConsumido.nombre, quirurgicosMasConsumido.precio_unitario, quirurgicosMasConsumido.cantidad_total])
+      hojaQuirurgicos.addRow([])
+      hojaQuirurgicos.addRow(['Detalle de Consumo - Material Quirúrgico'])
+      hojaQuirurgicos.addRow(['#', 'Nombre', 'Precio Unitario', 'Cantidad Vendida'])
+      quirurgicos.forEach((item, index) => {
+        hojaQuirurgicos.addRow([index + 1, item.nombre, item.precio_unitario, item.cantidad_total])
+      })
+
+      // Guardar el archivo
+      workbook.xlsx.writeBuffer().then((buffer) => {
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `Reporte_Productos_Mas_Utilizados_${moment(fechaInicio).format('YYYY-MM-DD')}_a_${moment(fechaFin).format('YYYY-MM-DD')}.xlsx`
+        a.click()
+        window.URL.revokeObjectURL(url)
+      })
+    },
+
+    segundoReporteFarmacia (fechainicio, fechafin) {
+      axios.get(apiUrl + '/reporte/farmacia/proveedores',
+        {
+          params: {
+            fechaInicio: fechainicio,
+            fechaFin: fechafin
+          }
+        }
+      )
+        .then((response) => {
+          this.dataFarmacia = response.data
+          this.startDateEnfermeria = fechainicio
+          this.endDateEnfermeria = fechafin
+          console.log(response.data)
+        })
+        .catch((error) => {
+          console.error('Error al generar el reporte de cuenta parcial:', error)
+          this.alertErrorText = 'Hubo un problema al generar el reporte. Por favor, intente nuevamente.'
+          this.showAlertError()
+        })
+    },
+    generarPDFFarmacia2 () {
+      const {
+        proveedorMasSolicitado,
+        resultado
+      } = this.dataFarmacia
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+      const doc = new JsPDF()
+
+      // Encabezado
+      doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+      doc.setFontSize(10).setFont(undefined, 'normal')
+      doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
+      doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
+
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('Reporte Proveedores más solicitados', 105, 50, { align: 'center' })
+      doc.setFontSize(12).setFont(undefined, 'normal')
+      doc.text(`Rango de Fechas: ${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')}`, 105, 56, { align: 'center' })
+
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('Proveedor Más Solicitado', 14, 80)
+      doc.setFontSize(12).setFont(undefined, 'normal')
+      doc.text(`Nombre: ${proveedorMasSolicitado.nombre}`, 14, 90)
+      doc.text(`Representante: ${proveedorMasSolicitado.representante}`, 14, 96)
+      doc.text(`Telefono: ${proveedorMasSolicitado.telefono}`, 14, 102)
+
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('Detalle de Proveedores', 14, 112)
+      doc.autoTable({
+        head: [['#', 'Nombre', 'Representante', 'Numero de Telefono']],
+        body: resultado.map((item, index) => [
+          index + 1,
+          item.nombre,
+          item.representante,
+          item.telefono
+        ]),
+        startY: 118,
+        theme: 'grid',
+        styles: { fontSize: 10, cellPadding: 2 },
+        headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [240, 240, 240] }
+      })
+
+      doc.save(`Reporte_Proveedores_Mas_Solicitados_${moment(fechaInicio).format('YYYY-MM-DD')}_a_${moment(fechaFin).format('YYYY-MM-DD')}.pdf`)
+    },
+    async generarExcelEnfermeria2 () {
+      const {
+        proveedorMasSolicitado,
+        resultado
+      } = this.dataFarmacia
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+
+      // Crear un nuevo libro de trabajo
+      const workbook = new ExcelJS.Workbook()
+      const worksheet = workbook.addWorksheet('Proveedores Más Solicitados')
+
+      // Encabezado
+      worksheet.mergeCells('A1:D1')
+      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'
+      worksheet.getCell('A1').font = { bold: true, size: 14 }
+      worksheet.getCell('A1').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A2:D2')
+      worksheet.getCell('A2').value = '6ta. Calle 12-28 Zona 3 Quetzaltenango'
+      worksheet.getCell('A2').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A3:D3')
+      worksheet.getCell('A3').value = 'Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223'
+      worksheet.getCell('A3').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A5:D5')
+      worksheet.getCell('A5').value = 'Reporte Proveedores Más Solicitados'
+      worksheet.getCell('A5').font = { bold: true, size: 14 }
+      worksheet.getCell('A5').alignment = { horizontal: 'center' }
+      worksheet.mergeCells('A6:D6')
+      worksheet.getCell('A6').value = `Rango de Fechas: ${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')}`
+      worksheet.getCell('A6').alignment = { horizontal: 'center' }
+
+      // Proveedor Más Solicitado
+      worksheet.addRow([])
+      worksheet.addRow(['Proveedor Más Solicitado'])
+      worksheet.getCell('A8').font = { bold: true, size: 12 }
+      worksheet.addRow([`Nombre: ${proveedorMasSolicitado.nombre}`])
+      worksheet.addRow([`Representante: ${proveedorMasSolicitado.representante}`])
+      worksheet.addRow([`Teléfono: ${proveedorMasSolicitado.telefono}`])
+
+      // Detalle de Consumos
+      worksheet.addRow([])
+      worksheet.addRow(['Detalle de Proveedores'])
+      worksheet.getCell('A12').font = { bold: true, size: 12 }
+
+      // Agregar encabezados de la tabla
+      const headerRow = worksheet.addRow(['#', 'Nombre', 'Representante', 'Número de Teléfono'])
+      headerRow.font = { bold: true }
+      headerRow.alignment = { horizontal: 'center' }
+
+      // Agregar filas con los datos
+      resultado.forEach((item, index) => {
+        worksheet.addRow([index + 1, item.nombre, item.representante, item.telefono])
+      })
+
+      // Aplicar estilo a las columnas
+      worksheet.columns = [
+        { key: 'numero', width: 5 },
+        { key: 'nombre', width: 25 },
+        { key: 'representante', width: 25 },
+        { key: 'telefono', width: 15 }
+      ]
+
+      // Guardar el archivo Excel
+      const buffer = await workbook.xlsx.writeBuffer()
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+
+      const fileName = `Reporte_Proveedores_Mas_Solicitados_${moment(fechaInicio).format('YYYY-MM-DD')}_a_${moment(fechaFin).format('YYYY-MM-DD')}.xlsx`
+
+      // Descargar el archivo
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      link.download = fileName
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    },
+
+    tercerReporteFarmacia (fechainicio, fechafin) {
+      axios.get(apiUrl + '/reporte/farmacia/inventarioMedicina',
+        {
+          params: {
+            fechaInicio: fechainicio,
+            fechaFin: fechafin
+          }
+        }
+      )
+        .then((response) => {
+          this.dataFarmacia = response.data
+          this.startDateEnfermeria = fechainicio
+          this.endDateEnfermeria = fechafin
+          console.log(response.data)
+        })
+        .catch((error) => {
+          console.error('Error al generar el reporte de cuenta parcial:', error)
+          this.alertErrorText = 'Hubo un problema al generar el reporte. Por favor, intente nuevamente.'
+          this.showAlertError()
+        })
+    },
+    generarPDFFarmacia3 () {
+      const medicamentos = this.dataFarmacia
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+      const doc = new JsPDF()
+
+      let medicamentosArray = []
+      for (let key in medicamentos) {
+        if (Array.isArray(medicamentos[key])) {
+          medicamentosArray = medicamentosArray.concat(medicamentos[key])
+        }
+      }
+
+      // Encabezado
+      doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+      doc.setFontSize(10).setFont(undefined, 'normal')
+      doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
+      doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
+
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('Inventario de todas las medicinas', 105, 50, { align: 'center' })
+      doc.setFontSize(12).setFont(undefined, 'normal')
+      doc.text(`Rango de Fechas: ${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')}`, 105, 56, { align: 'center' })
+
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('Detalle de Inventario Medicamentos', 14, 80)
+      doc.autoTable({
+        head: [['#', 'Nombre Medicamento', 'Marca', 'Precio Costo', 'Precio Venta', 'Exist. Actual', 'Exist. Qirofano', 'Exist. Farmacia']],
+        body: medicamentosArray.map((item, index) => [
+          index + 1,
+          item.nombre_medicamento,
+          item.marca,
+          `Q${item.precio_costo}`,
+          `Q${item.precio_venta}`,
+          item.existencia_actual,
+          item.existencia_actual_quirofano,
+          item.existencia_actual_farmacia
+        ]),
+        startY: 86,
+        theme: 'grid',
+        styles: { fontSize: 10, cellPadding: 2 },
+        headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [240, 240, 240] }
+      })
+
+      doc.save(`Reporte_Productos_Mas_Utilizados_${moment(fechaInicio).format('YYYY-MM-DD')}_a_${moment(fechaFin).format('YYYY-MM-DD')}.pdf`)
+    },
+    async generarExcelEnfermeria3 () {
+      const medicamentos = this.dataFarmacia
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+
+      let medicamentosArray = []
+      for (let key in medicamentos) {
+        if (Array.isArray(medicamentos[key])) {
+          medicamentosArray = medicamentosArray.concat(medicamentos[key])
+        }
+      }
+
+      // Crear un nuevo libro de trabajo
+      const workbook = new ExcelJS.Workbook()
+      const worksheet = workbook.addWorksheet('Inventario Medicamentos')
+
+      // Encabezado del documento
+      worksheet.mergeCells('A1:H1')
+      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'
+      worksheet.getCell('A1').font = { bold: true, size: 14 }
+      worksheet.getCell('A1').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A2:H2')
+      worksheet.getCell('A2').value = '6ta. Calle 12-28 Zona 3 Quetzaltenango'
+      worksheet.getCell('A2').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A3:H3')
+      worksheet.getCell('A3').value = 'Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223'
+      worksheet.getCell('A3').alignment = { horizontal: 'center' }
+      worksheet.mergeCells('A5:H5')
+      worksheet.getCell('A5').value = 'Inventario de todas las medicinas'
+      worksheet.getCell('A5').font = { bold: true, size: 14 }
+      worksheet.getCell('A5').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A6:H6')
+      worksheet.getCell('A6').value = `Rango de Fechas: ${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')}`
+      worksheet.getCell('A6').alignment = { horizontal: 'center' }
+
+      worksheet.addRow([])
+      worksheet.addRow(['Detalle de Inventario Medicamentos'])
+      worksheet.getCell('A8').font = { bold: true, size: 12 }
+
+      const headerRow = worksheet.addRow([
+        '#',
+        'Nombre Medicamento',
+        'Marca',
+        'Precio Costo',
+        'Precio Venta',
+        'Exist. Actual',
+        'Exist. Quirófano',
+        'Exist. Farmacia'
+      ])
+      headerRow.font = { bold: true }
+      headerRow.alignment = { horizontal: 'center' }
+
+      medicamentosArray.forEach((item, index) => {
+        worksheet.addRow([
+          index + 1,
+          item.nombre_medicamento,
+          item.marca,
+          `Q${item.precio_costo.toFixed(2)}`,
+          `Q${item.precio_venta.toFixed(2)}`,
+          item.existencia_actual,
+          item.existencia_actual_quirofano,
+          item.existencia_actual_farmacia
+        ])
+      })
+
+      worksheet.columns = [
+        { key: 'indice', width: 5 },
+        { key: 'nombre_medicamento', width: 30 },
+        { key: 'marca', width: 20 },
+        { key: 'precio_costo', width: 15 },
+        { key: 'precio_venta', width: 15 },
+        { key: 'existencia_actual', width: 15 },
+        { key: 'existencia_actual_quirofano', width: 20 },
+        { key: 'existencia_actual_farmacia', width: 20 }
+      ]
+
+      const buffer = await workbook.xlsx.writeBuffer()
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+
+      const fileName = `Reporte_Inventario_Medicamentos_${moment(fechaInicio).format('YYYY-MM-DD')}_a_${moment(fechaFin).format('YYYY-MM-DD')}.xlsx`
+
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      link.download = fileName
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    },
+
+    cuartoReporteFarmacia (fechainicio, fechafin) {
+      axios.get(apiUrl + '/reporte/farmacia/iventarioGeneral',
+        {
+          params: {
+            fechaInicio: fechainicio,
+            fechaFin: fechafin
+          }
+        }
+      )
+        .then((response) => {
+          this.dataFarmacia = response.data
+          this.startDateEnfermeria = fechainicio
+          this.endDateEnfermeria = fechafin
+          console.log(response.data)
+        })
+        .catch((error) => {
+          console.error('Error al generar el reporte de cuenta parcial:', error)
+          this.alertErrorText = 'Hubo un problema al generar el reporte. Por favor, intente nuevamente.'
+          this.showAlertError()
+        })
+    },
+    generarPDFFarmacia4 () {
+      const {
+        comunes,
+        medicamentos,
+        quirurgicos
+      } = this.dataFarmacia
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+      const doc = new JsPDF()
+
+      // Encabezado
+      doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+      doc.setFontSize(10).setFont(undefined, 'normal')
+      doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
+      doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
+
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('Inventario General', 105, 50, { align: 'center' })
+      doc.setFontSize(12).setFont(undefined, 'normal')
+      doc.text(`Rango de Fechas: ${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')}`, 105, 56, { align: 'center' })
+
+      // Detalle de consumos: Material común
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('Detalle de Inventario - Material Común', 14, 112)
+      doc.autoTable({
+        head: [['#', 'Nombre', 'Marca', 'existencia_actual']],
+        body: comunes.map((item, index) => [
+          index + 1,
+          item.nombre,
+          item.marca,
+          item.existencia_actual
+        ]),
+        startY: 118,
+        theme: 'grid',
+        styles: { fontSize: 10, cellPadding: 2 },
+        headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [240, 240, 240] }
+      })
+
+      // Detalle de consumos: Medicamentos
+      doc.addPage()
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('Detalle de Inventario - Medicamentos', 14, 20)
+      doc.autoTable({
+        head: [['#', 'Nombre', 'Marca', 'existencia_actual']],
+        body: medicamentos.map((item, index) => [
+          index + 1,
+          item.nombre,
+          item.marca,
+          item.existencia_actual
+        ]),
+        startY: 26,
+        theme: 'grid',
+        styles: { fontSize: 10, cellPadding: 2 },
+        headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [240, 240, 240] }
+      })
+
+      // Detalle de consumos: Material quirúrgico
+      doc.addPage()
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('Detalle de Inventario - Material Quirúrgico', 14, 20)
+      doc.autoTable({
+        head: [['#', 'Nombre', 'Marca', 'existencia_actual']],
+        body: quirurgicos.map((item, index) => [
+          index + 1,
+          item.nombre,
+          item.marca,
+          item.existencia_actual
+        ]),
+        startY: 26,
+        theme: 'grid',
+        styles: { fontSize: 10, cellPadding: 2 },
+        headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [240, 240, 240] }
+      })
+
+      doc.save(`Inventario_General_Comunes_Medicamentos_Quirurgicos_${moment(fechaInicio).format('YYYY-MM-DD')}_a_${moment(fechaFin).format('YYYY-MM-DD')}.pdf`)
+    },
+    async generarExcelEnfermeria4 () {
+      const { comunes, medicamentos, quirurgicos } = this.dataFarmacia
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+      const workbook = new ExcelJS.Workbook()
+      function agregarHoja (worksheetName, data, columns) {
+        const worksheet = workbook.addWorksheet(worksheetName)
+        worksheet.mergeCells('A1:D1')
+        worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'
+        worksheet.getCell('A1').font = { bold: true, size: 14 }
+        worksheet.getCell('A1').alignment = { horizontal: 'center' }
+
+        worksheet.mergeCells('A2:D2')
+        worksheet.getCell('A2').value = '6ta. Calle 12-28 Zona 3 Quetzaltenango'
+        worksheet.getCell('A2').alignment = { horizontal: 'center' }
+
+        worksheet.mergeCells('A3:D3')
+        worksheet.getCell('A3').value = 'Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223'
+        worksheet.getCell('A3').alignment = { horizontal: 'center' }
+
+        worksheet.mergeCells('A5:D5')
+        worksheet.getCell('A5').value = `Rango de Fechas: ${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')}`
+        worksheet.getCell('A5').alignment = { horizontal: 'center' }
+
+        worksheet.addRow([])
+        worksheet.addRow(columns.map(col => col.header)).font = { bold: true }
+        data.forEach((item, index) => {
+          const row = [index + 1]
+          columns.slice(1).forEach(col => {
+            row.push(item[col.key])
+          })
+          worksheet.addRow(row)
+        })
+        worksheet.columns = columns.map(col => ({ key: col.key, width: col.width }))
+      }
+
+      agregarHoja('Material Común', comunes, [
+        { header: '#', key: 'index', width: 5 },
+        { header: 'Nombre', key: 'nombre', width: 30 },
+        { header: 'Marca', key: 'marca', width: 20 },
+        { header: 'Existencia Actual', key: 'existencia_actual', width: 20 }
+      ])
+
+      agregarHoja('Medicamentos', medicamentos, [
+        { header: '#', key: 'index', width: 5 },
+        { header: 'Nombre', key: 'nombre', width: 30 },
+        { header: 'Marca', key: 'marca', width: 20 },
+        { header: 'Existencia Actual', key: 'existencia_actual', width: 20 }
+      ])
+
+      agregarHoja('Material Quirúrgico', quirurgicos, [
+        { header: '#', key: 'index', width: 5 },
+        { header: 'Nombre', key: 'nombre', width: 30 },
+        { header: 'Marca', key: 'marca', width: 20 },
+        { header: 'Existencia Actual', key: 'existencia_actual', width: 20 }
+      ])
+
+      const buffer = await workbook.xlsx.writeBuffer()
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+
+      const fileName = `Inventario_General_${moment(fechaInicio).format('YYYY-MM-DD')}_a_${moment(fechaFin).format('YYYY-MM-DD')}.xlsx`
+
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      link.download = fileName
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    },
+
+    quintoReporteFarmacia (fechainicio, fechafin) {
+      axios.get(apiUrl + '/reporte/farmacia/suministroMedicamentos',
+        {
+          params: {
+            fechaInicio: fechainicio,
+            fechaFin: fechafin
+          }
+        }
+      )
+        .then((response) => {
+          this.dataFarmacia = response.data
+          this.startDateEnfermeria = fechainicio
+          this.endDateEnfermeria = fechafin
+          console.log(response.data)
+        })
+        .catch((error) => {
+          console.error('Error al generar el reporte de cuenta parcial:', error)
+          this.alertErrorText = 'Hubo un problema al generar el reporte. Por favor, intente nuevamente.'
+          this.showAlertError()
+        })
+    },
+    generarPDFFarmacia5 () {
+      const medicamentos = this.dataFarmacia
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+      const doc = new JsPDF()
+
+      let medicamentosArray = []
+      for (let key in medicamentos) {
+        if (Array.isArray(medicamentos[key])) {
+          medicamentosArray = medicamentosArray.concat(medicamentos[key])
+        }
+      }
+
+      // Encabezado
+      doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+      doc.setFontSize(10).setFont(undefined, 'normal')
+      doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
+      doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
+
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('Suministro de Medicamentos a Pacientes', 105, 50, { align: 'center' })
+      doc.setFontSize(12).setFont(undefined, 'normal')
+      doc.text(`Rango de Fechas: ${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')}`, 105, 56, { align: 'center' })
+
+      doc.autoTable({
+        head: [['#', 'Nombre Medicamento', 'Cantidad Suministrada', 'Nombre Paciente', 'Expediente', 'Administracion']],
+        body: medicamentosArray.map((item, index) => [
+          index + 1,
+          item.nombre_medicamento,
+          item.cantidad_total,
+          item.paciente,
+          item.cui,
+          new Date(item.fecha).toLocaleDateString()
+        ]),
+        startY: 80,
+        theme: 'grid',
+        styles: { fontSize: 10, cellPadding: 2 },
+        headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [240, 240, 240] }
+      })
+
+      doc.save(`Suministro_medicamentos_a_pacientes_de_${moment(fechaInicio).format('YYYY-MM-DD')}_a_${moment(fechaFin).format('YYYY-MM-DD')}.pdf`)
+    },
+    async generarExcelEnfermeria5 () {
+      const medicamentos = this.dataFarmacia
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+
+      let medicamentosArray = []
+      for (let key in medicamentos) {
+        if (Array.isArray(medicamentos[key])) {
+          medicamentosArray = medicamentosArray.concat(medicamentos[key])
+        }
+      }
+
+      // Crear un nuevo libro de trabajo
+      const workbook = new ExcelJS.Workbook()
+      const worksheet = workbook.addWorksheet('Inventario Medicamentos')
+
+      // Encabezado del documento
+      worksheet.mergeCells('A1:H1')
+      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'
+      worksheet.getCell('A1').font = { bold: true, size: 14 }
+      worksheet.getCell('A1').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A2:H2')
+      worksheet.getCell('A2').value = '6ta. Calle 12-28 Zona 3 Quetzaltenango'
+      worksheet.getCell('A2').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A3:H3')
+      worksheet.getCell('A3').value = 'Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223'
+      worksheet.getCell('A3').alignment = { horizontal: 'center' }
+      worksheet.mergeCells('A5:H5')
+      worksheet.getCell('A5').value = 'Inventario de todas las medicinas'
+      worksheet.getCell('A5').font = { bold: true, size: 14 }
+      worksheet.getCell('A5').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A6:H6')
+      worksheet.getCell('A6').value = `Rango de Fechas: ${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')}`
+      worksheet.getCell('A6').alignment = { horizontal: 'center' }
+
+      worksheet.addRow([])
+      worksheet.addRow(['Detalle de Inventario Medicamentos'])
+      worksheet.getCell('A8').font = { bold: true, size: 12 }
+
+      const headerRow = worksheet.addRow([
+        '#',
+        'Nombre Medicamento',
+        'Cantidad Suministrada',
+        'Nombre Paciente',
+        'Expediente',
+        'Administracion'
+      ])
+      headerRow.font = { bold: true }
+      headerRow.alignment = { horizontal: 'center' }
+
+      medicamentosArray.forEach((item, index) => {
+        worksheet.addRow([
+          index + 1,
+          item.nombre_medicamento,
+          item.cantidad_total,
+          item.paciente,
+          item.cui,
+          new Date(item.fecha).toLocaleDateString()
+        ])
+      })
+
+      worksheet.columns = [
+        { key: 'indice', width: 5 },
+        { key: 'nombre_medicamento', width: 30 },
+        { key: 'marca', width: 20 },
+        { key: 'precio_costo', width: 15 },
+        { key: 'precio_venta', width: 15 },
+        { key: 'existencia_actual', width: 15 },
+        { key: 'existencia_actual_quirofano', width: 20 },
+        { key: 'existencia_actual_farmacia', width: 20 }
+      ]
+
+      const buffer = await workbook.xlsx.writeBuffer()
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+
+      const fileName = `Reporte_Inventario_Medicamentos_${moment(fechaInicio).format('YYYY-MM-DD')}_a_${moment(fechaFin).format('YYYY-MM-DD')}.xlsx`
+
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      link.download = fileName
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    },
+
+    /* ENFERMERIA REPORTES */
+    primerReporteEnfermeria (fechainicio, fechafin) {
+      axios.get(apiUrl + '/reporte/enfermeria/pacientesLugar',
+        {
+          params: {
+            fechaInicio: fechainicio,
+            fechaFin: fechafin
+          }
+        }
+      )
+        .then((response) => {
+          this.dataEnfermeria1 = response.data
+          this.startDateEnfermeria = fechainicio
+          this.endDateEnfermeria = fechafin
+          console.log(response.data)
+        })
+        .catch((error) => {
+          console.error('Error al generar el reporte de cuenta parcial:', error)
+          this.alertErrorText = 'Hubo un problema al generar el reporte. Por favor, intente nuevamente.'
+          this.showAlertError()
+        })
+    },
+    generarPDFPacientes () {
+      const data = this.dataEnfermeria1
+      const detalles = data.detalles
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+      const doc = new JsPDF()
+
+      doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
+
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+      doc.setFontSize(10).setFont(undefined, 'normal')
+      doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
+      doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
+
+      doc.setFontSize(14)
+      doc.text('Reporte de Pacientes por lugar', 105, 50, { align: 'center' })
+      doc.setFontSize(12)
+      doc.text(`Rango de Fechas: ${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')}`, 105, 60, { align: 'center' })
+
+      let currentY = 75
+      for (const lugar in detalles) {
+        if (detalles.hasOwnProperty(lugar)) {
+          const pacientes = detalles[lugar]
+          if (pacientes.length > 0) {
+            doc.setFontSize(12)
+            doc.text(`PACIENTES EN ${lugar.toUpperCase()} \t\t Total: ${pacientes.length}`, 14, currentY)
+            const tableColumn = ['Nombre', 'Apellidos', 'CUI', 'Fecha', 'Lugar']
+            const tableRows = []
+            pacientes.forEach((paciente) => {
+              tableRows.push([
+                paciente.nombres || 'N/A',
+                paciente.apellidos || 'N/A',
+                paciente.cui || 'N/A',
+                new Date(paciente.fecha).toLocaleDateString() || 'N/A',
+                lugar || 'N/A'
+              ])
+            })
+            doc.autoTable({
+              head: [tableColumn],
+              body: tableRows,
+              startY: currentY + 5,
+              theme: 'grid',
+              styles: { fontSize: 10, cellPadding: 2 },
+              headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
+              alternateRowStyles: { fillColor: [240, 240, 240] }
+            })
+
+            currentY = doc.lastAutoTable.finalY + 10
+          }
+        }
+      }
+
+      doc.save(`Reporte_Pacientes_${fechaInicio}_a_${fechaFin}.pdf`)
+    },
+    generarExcelPacientes () {
+      const dataEnfermeria = this.dataEnfermeria1
+      const workbook = new ExcelJS.Workbook()
+      const worksheet = workbook.addWorksheet('Reporte de Pacientes Hubo en cada Lugar')
+
+      worksheet.columns = [
+        { header: 'Nombre', key: 'nombre', width: 30 },
+        { header: 'Apellidos', key: 'apellidos', width: 30 },
+        { header: 'CUI', key: 'cui', width: 20 },
+        { header: 'Fecha', key: 'fecha', width: 20 },
+        { header: 'Lugar', key: 'lugar', width: 25 }
+      ]
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+      const currentDate = new Date().toLocaleDateString('es-ES')
+
+      worksheet.mergeCells('A1:E1')
+      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'
+      worksheet.getCell('A1').font = { bold: true, size: 16 }
+      worksheet.getCell('A1').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A2:E2')
+      worksheet.getCell('A2').value = '6ta. Calle 12-28 Zona 3 Quetzaltenango'
+      worksheet.getCell('A2').font = { bold: true, size: 14 }
+      worksheet.getCell('A2').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A3:E3')
+      worksheet.getCell('A3').value = 'Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223'
+      worksheet.getCell('A3').font = { bold: true, size: 14 }
+      worksheet.getCell('A3').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A5:E5')
+      worksheet.getCell('A5').value = `Reporte de Pacientes que Hubo en cada Lugar de la Fecha: ${moment(fechaInicio).format('DD/MM/YYYY')} | Hasta: ${moment(fechaFin).format('DD/MM/YYYY')}`
+      worksheet.getCell('A5').font = { bold: true, size: 14 }
+
+      worksheet.mergeCells('A6:E6')
+      worksheet.getCell('A6').value = `Generado el: ${currentDate}`
+      worksheet.getCell('A6').font = { italic: true }
+
+      let currentRow = 7
+
+      this.procesarDetalles(dataEnfermeria.detalles).then((rows) => {
+        Object.keys(dataEnfermeria.detalles).forEach((lugar) => {
+          const pacientes = dataEnfermeria.detalles[lugar]
+          if (pacientes.length > 0) {
+            worksheet.mergeCells(`A${currentRow}:E${currentRow}`)
+            worksheet.getCell(`A${currentRow}`).value = `${lugar.toUpperCase()} - Total: ${pacientes.length} pacientes`
+            worksheet.getCell(`A${currentRow}`).font = { bold: true, size: 12 }
+            worksheet.addRow(['Nombres', 'Apellidos', 'CUI', 'Fecha', 'Lugar'])
+            currentRow++
+            pacientes.forEach((paciente) => {
+              worksheet.addRow({
+                nombre: paciente.nombres || 'N/A',
+                apellidos: paciente.apellidos || 'N/A',
+                cui: paciente.cui || 'N/A',
+                fecha: new Date(paciente.fecha).toLocaleDateString(),
+                lugar: lugar || 'N/A'
+              })
+              currentRow++
+            })
+            worksheet.addRow([])
+            currentRow++
+          }
+        })
+
+        workbook.xlsx.writeBuffer().then((buffer) => {
+          const blob = new Blob([buffer], {
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+          })
+
+          const url = URL.createObjectURL(blob)
+          const link = document.createElement('a')
+          link.href = url
+          link.download = 'Reporte_Pacientes_hubo_en_cada_Lugar.xlsx'
+          link.click()
+
+          console.log('¡Archivo Excel generado correctamente!')
+        }).catch((error) => {
+          console.error('Error al generar el archivo Excel:', error)
+        })
+      }).catch((error) => {
+        console.error('Error al procesar los detalles:', error)
+      })
+    },
+    procesarDetalles (detalles) {
+      return new Promise((resolve, reject) => {
+        const rows = []
+        Object.keys(detalles).forEach((lugar) => {
+          const pacientes = detalles[lugar]
+          pacientes.forEach((paciente) => {
+            rows.push({
+              nombre: paciente.nombres || 'N/A',
+              apellidos: paciente.apellidos || 'N/A',
+              cui: paciente.cui || 'N/A',
+              fecha: new Date(paciente.fecha).toLocaleDateString(),
+              lugar: lugar || 'N/A'
+            })
+          })
+        })
+        resolve(rows)
+      })
+    },
+
+    segundoReporteEnfermeria (fechainicio, fechafin) {
+      axios.get(apiUrl + '/reporte/enfermeria/pacientesActuales',
+        {
+          params: {
+            fechaInicio: fechainicio,
+            fechaFin: fechafin
+          }
+        }
+      )
+        .then((response) => {
+          this.dataEnfermeria1 = response.data
+          this.startDateEnfermeria = fechainicio
+          this.endDateEnfermeria = fechafin
+          console.log(response.data)
+        })
+        .catch((error) => {
+          console.error('Error al generar el reporte de cuenta parcial:', error)
+          this.alertErrorText = 'Hubo un problema al generar el reporte. Por favor, intente nuevamente.'
+          this.showAlertError()
+        })
+    },
+    generarPDFPacientes2 () {
+      const data = this.dataEnfermeria1
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+      try {
+        const doc = new JsPDF()
+
+        doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
+        doc.setFontSize(14).setFont(undefined, 'bold')
+        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+        doc.setFontSize(10).setFont(undefined, 'normal')
+        doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
+        doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
+
+        doc.setFontSize(16)
+        doc.text('Reporte de Pacientes Actuales', 105, 50, { align: 'center' })
+        doc.setFontSize(12)
+        doc.text(`Desde: ${moment(fechaInicio).format('DD/MM/YYYY')} | Hasta: ${moment(fechaFin).format('DD/MM/YYYY')}`, 105, 58, { align: 'center' })
+
+        let currentY = 75
+
+        const lugares = [
+          { nombre: 'Hospitalización', pacientes: data.pacientes.filter(p => p.estado === 'Hospitalizacion') },
+          { nombre: 'Quirofano', pacientes: data.pacientes.filter(p => p.estado === 'Quirofano') },
+          { nombre: 'Intensivos', pacientes: data.pacientes.filter(p => p.estado === 'Intensivos') },
+          { nombre: 'Emergencia', pacientes: data.pacientes.filter(p => p.estado === 'Emergencia') }
+        ]
+
+        lugares.forEach((lugar) => {
+          const tableColumn = ['#', 'Nombre Completo', 'CUI', 'Fecha de Ingreso']
+          const tableRows = lugar.pacientes.map((paciente, index) => [
+            index + 1,
+            `${paciente.nombres} ${paciente.apellidos}`,
+            paciente.cui || 'N/A',
+            paciente.updatedAt
+              ? new Date(paciente.updatedAt).toLocaleDateString()
+              : 'N/A'
+          ])
+
+          doc.setFontSize(14)
+          doc.text(`${lugar.nombre} (${lugar.pacientes.length} paciente(s))`, 14, currentY)
+
+          doc.autoTable({
+            head: [tableColumn],
+            body: tableRows,
+            startY: currentY + 5,
+            theme: 'grid',
+            styles: { fontSize: 10, cellPadding: 2 },
+            headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
+            alternateRowStyles: { fillColor: [240, 240, 240] }
+          })
+
+          currentY = doc.lastAutoTable.finalY + 10
+
+          if (currentY > 270) {
+            doc.addPage()
+            currentY = 20
+          }
+        })
+
+        doc.save(`Reporte_Pacientes_Actuales_${fechaInicio}_a_${fechaFin}.pdf`)
+      } catch (error) {
+        console.error('Error al generar el reporte:', error)
+        alert('Ocurrió un error al generar el reporte. Por favor, intente de nuevo.')
+      }
+    },
+    generarExcelPacientes2 () {
+      const dataEnfermeria = this.dataEnfermeria1
+      const workbook = new ExcelJS.Workbook()
+      const worksheet = workbook.addWorksheet('Reporte de Pacientes Actuales en cada Lugar')
+
+      worksheet.columns = [
+        { header: 'Nombres', key: 'nombre', width: 30 },
+        { header: 'Apellidos', key: 'apellidos', width: 30 },
+        { header: 'CUI', key: 'cui', width: 20 },
+        { header: 'Fecha', key: 'fecha', width: 20 },
+        { header: 'Lugar', key: 'estado', width: 25 }
+      ]
+
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+      const currentDate = new Date().toLocaleDateString('es-ES')
+
+      worksheet.mergeCells('A1:E1')
+      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'
+      worksheet.getCell('A1').font = { bold: true, size: 16 }
+      worksheet.getCell('A1').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A2:E2')
+      worksheet.getCell('A2').value = '6ta. Calle 12-28 Zona 3 Quetzaltenango'
+      worksheet.getCell('A2').font = { bold: true, size: 14 }
+      worksheet.getCell('A2').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A3:E3')
+      worksheet.getCell('A3').value = 'Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223'
+      worksheet.getCell('A3').font = { bold: true, size: 14 }
+      worksheet.getCell('A3').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A5:E5')
+      worksheet.getCell('A5').value = `Reporte de Pacientes Actuales en cada Lugar de la Fecha: ${moment(fechaInicio).format('DD/MM/YYYY')} | Hasta: ${moment(fechaFin).format('DD/MM/YYYY')}`
+      worksheet.getCell('A5').font = { bold: true, size: 14 }
+
+      worksheet.mergeCells('A6:E6')
+      worksheet.getCell('A6').value = `Generado el: ${currentDate}`
+      worksheet.getCell('A6').font = { italic: true }
+
+      let currentRow = 7
+      const pacientesPorEstado = this.procesarDetalles2(dataEnfermeria.pacientes)
+      Object.keys(pacientesPorEstado).forEach((estado) => {
+        const pacientes = pacientesPorEstado[estado]
+        if (pacientes.length > 0) {
+          worksheet.mergeCells(`A${currentRow}:E${currentRow}`)
+          worksheet.getCell(`A${currentRow}`).value = `${estado} - Total: ${pacientes.length} pacientes`
+          worksheet.getCell(`A${currentRow}`).font = { bold: true, size: 12 }
+          worksheet.addRow(['Nombres', 'Apellidos', 'CUI', 'Fecha', 'Lugar'])
+          currentRow++
+          pacientes.forEach((paciente) => {
+            worksheet.addRow({
+              nombre: paciente.nombres || 'N/A',
+              apellidos: paciente.apellidos || 'N/A',
+              cui: paciente.cui || 'N/A',
+              fecha: paciente.updatedAt ? new Date(paciente.updatedAt).toLocaleDateString() : 'N/A',
+              estado: estado || 'N/A'
+            })
+            currentRow++
+          })
+          worksheet.addRow([])
+          currentRow++
+        }
+      })
+      workbook.xlsx.writeBuffer().then((buffer) => {
+        const blob = new Blob([buffer], {
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        })
+
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.download = 'Reporte_Pacientes_Actuales.xlsx'
+        link.click()
+
+        console.log('¡Archivo Excel generado correctamente!')
+      }).catch((error) => {
+        console.error('Error al generar el archivo Excel:', error)
+      })
+    },
+    procesarDetalles2 (pacientes) {
+      const grupos = {}
+      pacientes.forEach((paciente) => {
+        const estado = paciente.estado
+        if (!grupos[estado]) {
+          grupos[estado] = []
+        }
+        grupos[estado].push(paciente)
+      })
+      return grupos
+    },
+
+    tercerReporteEnfermeria (fechainicio, fechafin) {
+      axios.get(apiUrl + '/reporte/enfermeria/pacientesTodos',
+        {
+          params: {
+            fechaInicio: fechainicio,
+            fechaFin: fechafin
+          }
+        }
+      )
+        .then((response) => {
+          this.dataEnfermeria1 = response.data
+          this.startDateEnfermeria = fechainicio
+          this.endDateEnfermeria = fechafin
+          console.log(response.data)
+        })
+        .catch((error) => {
+          console.error('Error al generar el reporte de cuenta parcial:', error)
+          this.alertErrorText = 'Hubo un problema al generar el reporte. Por favor, intente nuevamente.'
+          this.showAlertError()
+        })
+    },
+    generarPDFPacientes3 () {
+      const pacientes = this.dataEnfermeria1
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+
+      try {
+        const pacientesPorEstado = {
+          0: { estado: 'Fallecido', pacientes: [] },
+          1: { estado: 'Hospitalización', pacientes: [] },
+          3: { estado: 'Quirófano', pacientes: [] },
+          4: { estado: 'Intensivos', pacientes: [] },
+          5: { estado: 'Emergencia', pacientes: [] },
+          6: { estado: 'Desahuciado', pacientes: [] },
+          7: { estado: 'Egreso normal', pacientes: [] },
+          8: { estado: 'Contraindicado', pacientes: [] },
+          9: { estado: 'Referido', pacientes: [] },
+          10: { estado: 'Pendiente', pacientes: [] },
+          11: { estado: 'Laboratorio', pacientes: [] }
+        }
+
+        pacientes.forEach((paciente) => {
+          if (pacientesPorEstado[paciente.estado]) {
+            pacientesPorEstado[paciente.estado].pacientes.push({
+              nombreCompleto: `${paciente.nombres} ${paciente.apellidos}`,
+              cui: paciente.cui || 'N/A',
+              fechaIngreso: paciente.updatedAt
+                ? new Date(paciente.updatedAt).toLocaleDateString()
+                : 'N/A'
+            })
+          }
+        })
+
+        const doc = new JsPDF()
+
+        doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
+        doc.setFontSize(14).setFont(undefined, 'bold')
+        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+        doc.setFontSize(10).setFont(undefined, 'normal')
+        doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
+        doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
+
+        doc.setFontSize(16)
+        doc.text('Reporte Detallado de Todos los Pacientes', 105, 50, { align: 'center' })
+        doc.setFontSize(12)
+        doc.text(`Desde: ${moment(fechaInicio).format('DD/MM/YYYY')} | Hasta: ${moment(fechaFin).format('DD/MM/YYYY')}`, 105, 58, { align: 'center' })
+        let currentY = 65
+
+        Object.keys(pacientesPorEstado).forEach((key) => {
+          const { estado, pacientes } = pacientesPorEstado[key]
+
+          if (pacientes.length > 0) {
+            doc.setFontSize(14)
+            doc.text(`${estado} (${pacientes.length} paciente(s))`, 14, currentY)
+
+            const tableRows = []
+            pacientes.forEach((paciente, i) => {
+              tableRows.push([
+                i + 1,
+                paciente.nombreCompleto,
+                paciente.cui,
+                paciente.fechaIngreso
+              ])
+            })
+
+            doc.autoTable({
+              head: [['#', 'Nombre Completo', 'CUI', 'Fecha Ingreso']],
+              body: tableRows,
+              startY: currentY + 5,
+              theme: 'grid',
+              styles: { fontSize: 10, cellPadding: 2 },
+              headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
+              alternateRowStyles: { fillColor: [240, 240, 240] }
+            })
+
+            currentY = doc.lastAutoTable.finalY + 10
+            if (currentY > 270) {
+              doc.addPage()
+              currentY = 20
+            }
+          }
+        })
+
+        doc.save(`reporte_detallado_de_pacientes_${fechaInicio}_a_${fechaFin}.pdf`)
+      } catch (error) {
+        console.error('Error al generar el reporte:', error)
+        alert('Ocurrió un error al generar el reporte. Por favor, intente de nuevo.')
+      }
+    },
+    generarExcelPacientes3 () {
+      const dataEnfermeria = this.dataEnfermeria1
+      const workbook = new ExcelJS.Workbook()
+      const worksheet = workbook.addWorksheet('Reporte de Pacientes')
+
+      worksheet.columns = [
+        { header: 'Nombres', key: 'nombre', width: 30 },
+        { header: 'Apellidos', key: 'apellidos', width: 30 },
+        { header: 'CUI', key: 'cui', width: 20 },
+        { header: 'Fecha', key: 'fecha', width: 20 },
+        { header: 'Lugar', key: 'estado', width: 25 }
+      ]
+
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+      const currentDate = new Date().toLocaleDateString('es-ES')
+
+      worksheet.mergeCells('A1:E1')
+      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'
+      worksheet.getCell('A1').font = { bold: true, size: 16 }
+      worksheet.getCell('A1').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A2:E2')
+      worksheet.getCell('A2').value = '6ta. Calle 12-28 Zona 3 Quetzaltenango'
+      worksheet.getCell('A2').font = { bold: true, size: 14 }
+      worksheet.getCell('A2').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A3:E3')
+      worksheet.getCell('A3').value = 'Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223'
+      worksheet.getCell('A3').font = { bold: true, size: 14 }
+      worksheet.getCell('A3').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A5:E5')
+      worksheet.getCell('A5').value = `Reporte de Pacientes desde la Fecha: ${moment(fechaInicio).format('DD/MM/YYYY')} | Hasta: ${moment(fechaFin).format('DD/MM/YYYY')}`
+      worksheet.getCell('A5').font = { bold: true, size: 14 }
+
+      worksheet.mergeCells('A6:E6')
+      worksheet.getCell('A6').value = `Generado el: ${currentDate}`
+      worksheet.getCell('A6').font = { italic: true }
+
+      let currentRow = 7
+      const pacientesPorEstado = this.procesarDetalles3(dataEnfermeria)
+      Object.keys(pacientesPorEstado).forEach((estado) => {
+        const pacientes = pacientesPorEstado[estado]
+        if (pacientes.length > 0) {
+          worksheet.mergeCells(`A${currentRow}:E${currentRow}`)
+          worksheet.getCell(`A${currentRow}`).value = `${estado} - Total: ${pacientes.length} pacientes`
+          worksheet.getCell(`A${currentRow}`).font = { bold: true, size: 12 }
+          worksheet.addRow(['Nombres', 'Apellidos', 'CUI', 'Fecha', 'Estado'])
+          currentRow++
+          pacientes.forEach((paciente) => {
+            worksheet.addRow({
+              nombre: paciente.nombres || 'N/A',
+              apellidos: paciente.apellidos || 'N/A',
+              cui: paciente.cui || 'N/A',
+              fecha: paciente.updatedAt ? new Date(paciente.updatedAt).toLocaleDateString() : 'N/A',
+              estado: estado || 'N/A'
+            })
+            currentRow++
+          })
+          worksheet.addRow([])
+          currentRow++
+        }
+      })
+      workbook.xlsx.writeBuffer().then((buffer) => {
+        const blob = new Blob([buffer], {
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        })
+
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.download = 'Reporte_Pacientes.xlsx'
+        link.click()
+
+        console.log('¡Archivo Excel generado correctamente!')
+      }).catch((error) => {
+        console.error('Error al generar el archivo Excel:', error)
+      })
+    },
+    procesarDetalles3 (pacientes) {
+      const estadoMap = {
+        0: 'Fallecido',
+        1: 'Hospitalización',
+        3: 'Quirófano',
+        4: 'Intensivos',
+        5: 'Emergencia',
+        6: 'Desahuciado',
+        7: 'Egreso normal',
+        8: 'Contraindicado',
+        9: 'Referido',
+        10: 'Pendiente',
+        11: 'Laboratorio'
+      }
+      const grupos = {}
+      pacientes.forEach((paciente) => {
+        const estadoNombre = estadoMap[paciente.estado] || 'Desconocido'
+        if (!grupos[estadoNombre]) {
+          grupos[estadoNombre] = []
+        }
+        grupos[estadoNombre].push(paciente)
+      })
+      return grupos
+    },
+
+    cuartoReporteEnfermeria (fechainicio, fechafin) {
+      axios.get(apiUrl + '/reporte/enfermeria/serviciosMasConsumidos',
+        {
+          params: {
+            fechaInicio: fechainicio,
+            fechaFin: fechafin
+          }
+        }
+      )
+        .then((response) => {
+          this.dataEnfermeria1 = response.data
+          this.startDateEnfermeria = fechainicio
+          this.endDateEnfermeria = fechafin
+          console.log(response.data)
+        })
+        .catch((error) => {
+          console.error('Error al generar el reporte de cuenta parcial:', error)
+          this.alertErrorText = 'Hubo un problema al generar el reporte. Por favor, intente nuevamente.'
+          this.showAlertError()
+        })
+    },
+    generarPDFPacientes4 () {
+      const { consumos, consumoMasAlto } = this.dataEnfermeria1
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+
+      try {
+        const consumosOrdenados = consumos.sort((a, b) => b.total_consumido - a.total_consumido)
+        const doc = new JsPDF()
+
+        doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
+        doc.setFontSize(14).setFont(undefined, 'bold')
+        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+        doc.setFontSize(10).setFont(undefined, 'normal')
+        doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
+        doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
+
+        doc.setFontSize(16)
+        doc.text('Reporte de Consumos de Servicios', 105, 50, { align: 'center' })
+        doc.setFontSize(12)
+        doc.text(`Desde: ${moment(fechaInicio).format('DD/MM/YYYY')} | Hasta: ${moment(fechaFin).format('DD/MM/YYYY')}`, 105, 58, { align: 'center' })
+
+        doc.setFontSize(14)
+        doc.text('Servicio Más Consumido', 14, 70)
+        doc.setFontSize(12)
+        doc.setTextColor(0, 0, 0)
+        doc.text(`Nombre: ${consumoMasAlto.nombre_servicio}`, 14, 78)
+        doc.text(`Precio Unitario: Q${consumoMasAlto.precio_unitario}`, 14, 84)
+        doc.text(`Cantidad: ${consumoMasAlto.cantidad}`, 14, 90)
+
+        doc.setFontSize(14)
+        doc.text('Otros Consumos', 14, 110)
+
+        const tableRows = consumosOrdenados.map((consumo, index) => [
+          index + 1,
+          consumo.nombre_servicio,
+          `Q${consumo.precio_unitario}`,
+          consumo.cantidad,
+          `Q${consumo.total_consumido}`
+        ])
+
+        doc.autoTable({
+          head: [['#', 'Nombre del Servicio', 'Precio Unitario', 'Cantidad']],
+          body: tableRows,
+          startY: 120,
+          theme: 'grid',
+          styles: { fontSize: 10, cellPadding: 2 },
+          headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
+          alternateRowStyles: { fillColor: [240, 240, 240] }
+        })
+
+        doc.save(`reporte_consumo_de_servicios_${fechaInicio}_a_${fechaFin}.pdf`)
+      } catch (error) {
+        console.error('Error al generar el reporte:', error)
+        this.$alert('Ocurrió un error al generar el reporte. Por favor, intente de nuevo.', 'Error')
+      }
+    },
+    generarExcelPacientes4 () {
+      const { consumos, consumoMasAlto } = this.dataEnfermeria1
+      const workbook = new ExcelJS.Workbook()
+      const worksheet = workbook.addWorksheet('Reporte de consumo de servicios')
+
+      worksheet.columns = [
+        { header: '#', key: 'numero_orden', width: 10 },
+        { header: 'Nombre del Servicio', key: 'nombre_servicio', width: 30 },
+        { header: 'Precio Unitario', key: 'precio_unitario', width: 20 },
+        { header: 'Cantidad', key: 'cantidad', width: 15 }
+      ]
+
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+      const currentDate = new Date().toLocaleDateString('es-ES')
+
+      worksheet.mergeCells('A1:E1')
+      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'
+      worksheet.getCell('A1').font = { bold: true, size: 16 }
+      worksheet.getCell('A1').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A2:E2')
+      worksheet.getCell('A2').value = '6ta. Calle 12-28 Zona 3 Quetzaltenango'
+      worksheet.getCell('A2').font = { bold: true, size: 14 }
+      worksheet.getCell('A2').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A3:E3')
+      worksheet.getCell('A3').value = 'Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223'
+      worksheet.getCell('A3').font = { bold: true, size: 14 }
+      worksheet.getCell('A3').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A5:E5')
+      worksheet.getCell('A5').value = `Reporte de Consumos de Servicios (${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')})`
+      worksheet.getCell('A5').font = { bold: true, size: 14 }
+      worksheet.getCell('A5').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A6:E6')
+      worksheet.getCell('A6').value = `Generado el: ${currentDate}`
+      worksheet.getCell('A6').font = { italic: true }
+      worksheet.getCell('A6').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A8:E8')
+      worksheet.getCell('A8').value = 'Servicio Más Consumido'
+      worksheet.getCell('A8').font = { bold: true, size: 14 }
+
+      worksheet.getCell('A9').value = 'Nombre'
+      worksheet.getCell('B9').value = consumoMasAlto.nombre_servicio
+      worksheet.getCell('A10').value = 'Precio Unitario'
+      worksheet.getCell('B10').value = `Q${consumoMasAlto.precio_unitario}`
+      worksheet.getCell('A11').value = 'Cantidad'
+      worksheet.getCell('B11').value = consumoMasAlto.cantidad
+
+      worksheet.getColumn('B').width = 30
+
+      worksheet.addRow([])
+      worksheet.addRow(['#', 'Nombre del Servicio', 'Precio Unitario', 'Cantidad'])
+      worksheet.getRow(9).font = { bold: true }
+      worksheet.getRow(9).alignment = { horizontal: 'center' }
+
+      const consumosOrdenados = consumos.sort((a, b) => b.cantidad - a.cantidad)
+      consumosOrdenados.forEach((consumo, index) => {
+        worksheet.addRow({
+          numero_orden: index + 1,
+          nombre_servicio: consumo.nombre_servicio,
+          precio_unitario: `Q${consumo.precio_unitario}`,
+          cantidad: consumo.cantidad
+        })
+      })
+
+      workbook.xlsx
+        .writeBuffer()
+        .then((buffer) => {
+          const blob = new Blob([buffer], {
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+          })
+          const url = URL.createObjectURL(blob)
+          const link = document.createElement('a')
+          link.href = url
+          link.download = `Reporte_Consumo_Servicios_${fechaInicio}_a_${fechaFin}.xlsx`
+          link.click()
+          console.log('¡Archivo Excel generado correctamente!')
+        })
+        .catch((error) => {
+          console.error('Error al generar el archivo Excel:', error)
+        })
+    },
+
+    quintoReporteEnfermeria (fechainicio, fechafin) {
+      axios.get(apiUrl + '/reporte/enfermeria/medicamentos',
+        {
+          params: {
+            fechaInicio: fechainicio,
+            fechaFin: fechafin
+          }
+        }
+      )
+        .then((response) => {
+          this.dataEnfermeria1 = response.data
+          this.startDateEnfermeria = fechainicio
+          this.endDateEnfermeria = fechafin
+          console.log(response.data)
+        })
+        .catch((error) => {
+          console.error('Error al generar el reporte de cuenta parcial:', error)
+          this.alertErrorText = 'Hubo un problema al generar el reporte. Por favor, intente nuevamente.'
+          this.showAlertError()
+        })
+    },
+    generarPDFPacientes5 () {
+      const medicamentos = this.dataEnfermeria1.medicamentos
+      const masconsumido = this.dataEnfermeria1.mas_consumido
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+
+      try {
+        if (!masconsumido || !masconsumido.nombre_medicamento || !masconsumido.precio_unitario || !masconsumido.cantidad_total) {
+          this.$alert('No se encontraron datos del medicamento más consumido.', 'Error')
+          return
+        }
+        if (!Array.isArray(medicamentos) || medicamentos.length === 0) {
+          this.$alert('No se encontraron datos de medicamentos consumidos.', 'Error')
+          return
+        }
+
+        const consumosOrdenados = medicamentos.sort((a, b) => b.total_consumido - a.total_consumido)
+        const doc = new JsPDF()
+
+        doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
+        doc.setFontSize(14).setFont(undefined, 'bold')
+        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+        doc.setFontSize(10).setFont(undefined, 'normal')
+        doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
+        doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
+
+        doc.setFontSize(16)
+        doc.text('Reporte de Consumo de Medicamentos', 105, 50, { align: 'center' })
+        doc.setFontSize(12)
+        doc.text(`Desde: ${moment(fechaInicio).format('DD/MM/YYYY')} | Hasta: ${moment(fechaFin).format('DD/MM/YYYY')}`, 105, 58, { align: 'center' })
+
+        doc.setFontSize(14)
+        doc.text('Medicamento Más Consumido', 14, 70)
+        doc.setFontSize(12)
+        doc.setTextColor(0, 0, 0)
+        doc.text(`Nombre: ${masconsumido.nombre_medicamento}`, 14, 78)
+        doc.text(`Precio Unitario: Q${masconsumido.precio_unitario}`, 14, 84)
+        doc.text(`Cantidad: ${masconsumido.cantidad_total}`, 14, 90)
+
+        doc.setFontSize(14)
+        doc.text('Otros Consumos', 14, 110)
+
+        const tableRows = consumosOrdenados.map((medicamento, index) => {
+          return [
+            index + 1,
+            medicamento.nombre_medicamento || 'Desconocido',
+            `Q${medicamento.precio_unitario || '0.00'}`,
+            medicamento.cantidad_total || '0',
+            `Q${medicamento.total_consumido || '0.00'}`
+          ]
+        })
+
+        if (tableRows.length === 0) {
+          this.$alert('No se encontraron datos de consumos para mostrar en la tabla.', 'Error')
+          return
+        }
+
+        doc.autoTable({
+          head: [['#', 'Nombre del Medicamento', 'Precio Unitario', 'Cantidad']],
+          body: tableRows,
+          startY: 120,
+          theme: 'grid',
+          styles: { fontSize: 10, cellPadding: 2 },
+          headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
+          alternateRowStyles: { fillColor: [240, 240, 240] }
+        })
+
+        doc.save(`reporte_consumo_de_medicamentos_${fechaInicio}_a_${fechaFin}.pdf`)
+      } catch (error) {
+        console.error('Error al generar el reporte:', error)
+        this.$alert('Ocurrió un error al generar el reporte. Por favor, intente de nuevo.', 'Error')
+      }
+    },
+    generarExcelPacientes5 () {
+      const consumoMasAlto = this.dataEnfermeria1.mas_consumido
+      const consumos = this.dataEnfermeria1.medicamentos
+      const workbook = new ExcelJS.Workbook()
+      const worksheet = workbook.addWorksheet('Reporte de Consumo Medicamentos')
+
+      worksheet.columns = [
+        { header: '#', key: 'numero_orden', width: 10 },
+        { header: 'Nombre Medicamento', key: 'nombre_servicio', width: 30 },
+        { header: 'Precio Unitario', key: 'precio_unitario', width: 20 },
+        { header: 'Cantidad', key: 'cantidad', width: 15 }
+      ]
+
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+      const currentDate = new Date().toLocaleDateString('es-ES')
+
+      worksheet.mergeCells('A1:E1')
+      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'
+      worksheet.getCell('A1').font = { bold: true, size: 16 }
+      worksheet.getCell('A1').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A2:E2')
+      worksheet.getCell('A2').value = '6ta. Calle 12-28 Zona 3 Quetzaltenango'
+      worksheet.getCell('A2').font = { bold: true, size: 14 }
+      worksheet.getCell('A2').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A3:E3')
+      worksheet.getCell('A3').value = 'Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223'
+      worksheet.getCell('A3').font = { bold: true, size: 14 }
+      worksheet.getCell('A3').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A5:E5')
+      worksheet.getCell('A5').value = `Reporte de Medicamentos de la Fecha: (${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')})`
+      worksheet.getCell('A5').font = { bold: true, size: 14 }
+      worksheet.getCell('A5').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A6:E6')
+      worksheet.getCell('A6').value = `Generado el: ${currentDate}`
+      worksheet.getCell('A6').font = { italic: true }
+      worksheet.getCell('A6').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A8:E8')
+      worksheet.getCell('A8').value = 'Servicio Más Consumido'
+      worksheet.getCell('A8').font = { bold: true, size: 14 }
+
+      worksheet.getCell('A9').value = 'Nombre'
+      worksheet.getCell('B9').value = consumoMasAlto.nombre_medicamento
+      worksheet.getCell('A10').value = 'Precio Unitario'
+      worksheet.getCell('B10').value = `Q${consumoMasAlto.precio_unitario}`
+      worksheet.getCell('A11').value = 'Cantidad'
+      worksheet.getCell('B11').value = consumoMasAlto.cantidad_total
+
+      worksheet.getColumn('B').width = 30
+
+      worksheet.addRow([])
+      worksheet.addRow(['#', 'Nombre del Medicamento', 'Precio Unitario', 'Cantidad'])
+      worksheet.getRow(9).font = { bold: true }
+      worksheet.getRow(9).alignment = { horizontal: 'center' }
+
+      const consumosOrdenados = consumos.sort((a, b) => b.cantidad_total - a.cantidad_total)
+      consumosOrdenados.forEach((consumo, index) => {
+        worksheet.addRow({
+          numero_orden: index + 1,
+          nombre_servicio: consumo.nombre_medicamento,
+          precio_unitario: `Q${consumo.precio_unitario}`,
+          cantidad: consumo.cantidad_total
+        })
+      })
+
+      workbook.xlsx
+        .writeBuffer()
+        .then((buffer) => {
+          const blob = new Blob([buffer], {
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+          })
+          const url = URL.createObjectURL(blob)
+          const link = document.createElement('a')
+          link.href = url
+          link.download = `Reporte_Consumo_Medicamentos_${fechaInicio}_a_${fechaFin}.xlsx`
+          link.click()
+          console.log('¡Archivo Excel generado correctamente!')
+        })
+        .catch((error) => {
+          console.error('Error al generar el archivo Excel:', error)
+        })
+    },
+
+    sextoReporteEnfermeria (fechainicio, fechafin) {
+      axios.get(apiUrl + '/reporte/enfermeria/fallecidos',
+        {
+          params: {
+            fechaInicio: fechainicio,
+            fechaFin: fechafin
+          }
+        }
+      )
+        .then((response) => {
+          this.dataEnfermeria1 = response.data
+          this.startDateEnfermeria = fechainicio
+          this.endDateEnfermeria = fechafin
+          console.log(response.data)
+        })
+        .catch((error) => {
+          console.error('Error al generar el reporte de cuenta parcial:', error)
+          this.alertErrorText = 'Hubo un problema al generar el reporte. Por favor, intente nuevamente.'
+          this.showAlertError()
+        })
+    },
+    generarPDFPacientes6 () {
+      const pacientes = this.dataEnfermeria1
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+
+      try {
+        const pacientesPorEstado = {
+          0: { estado: 'Fallecido', pacientes: [] }
+        }
+
+        pacientes.forEach((paciente) => {
+          if (pacientesPorEstado[paciente.estado]) {
+            pacientesPorEstado[paciente.estado].pacientes.push({
+              nombreCompleto: `${paciente.nombres} ${paciente.apellidos}`,
+              cui: paciente.cui || 'N/A',
+              fechaIngreso: paciente.updatedAt
+                ? new Date(paciente.updatedAt).toLocaleDateString()
+                : 'N/A'
+            })
+          }
+        })
+
+        const doc = new JsPDF()
+
+        doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
+        doc.setFontSize(14).setFont(undefined, 'bold')
+        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+        doc.setFontSize(10).setFont(undefined, 'normal')
+        doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
+        doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
+
+        doc.setFontSize(16)
+        doc.text('Reporte de Pacientes Fallecidos', 105, 50, { align: 'center' })
+        doc.setFontSize(12)
+        doc.text(`Desde: ${moment(fechaInicio).format('DD/MM/YYYY')} | Hasta: ${moment(fechaFin).format('DD/MM/YYYY')}`, 105, 58, { align: 'center' })
+        let currentY = 65
+
+        Object.keys(pacientesPorEstado).forEach((key) => {
+          const { estado, pacientes } = pacientesPorEstado[key]
+
+          if (pacientes.length > 0) {
+            doc.setFontSize(14)
+            doc.text(`${estado} (${pacientes.length} paciente(s))`, 14, currentY)
+
+            const tableRows = []
+            pacientes.forEach((paciente, i) => {
+              tableRows.push([
+                i + 1,
+                paciente.nombreCompleto,
+                paciente.cui,
+                paciente.fechaIngreso
+              ])
+            })
+
+            doc.autoTable({
+              head: [['#', 'Nombre Completo', 'CUI', 'Fecha de Fallecimiento']],
+              body: tableRows,
+              startY: currentY + 5,
+              theme: 'grid',
+              styles: { fontSize: 10, cellPadding: 2 },
+              headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
+              alternateRowStyles: { fillColor: [240, 240, 240] }
+            })
+
+            currentY = doc.lastAutoTable.finalY + 10
+            if (currentY > 270) {
+              doc.addPage()
+              currentY = 20
+            }
+          }
+        })
+
+        doc.save(`reporte_pacientes_fallecidos_${fechaInicio}_a_${fechaFin}.pdf`)
+      } catch (error) {
+        console.error('Error al generar el reporte:', error)
+        alert('Ocurrió un error al generar el reporte. Por favor, intente de nuevo.')
+      }
+    },
+    generarExcelPacientes6 () {
+      const dataEnfermeria = this.dataEnfermeria1
+      const workbook = new ExcelJS.Workbook()
+      const worksheet = workbook.addWorksheet('Reporte de Pacientes Fallecidos')
+
+      worksheet.columns = [
+        { header: 'Nombres', key: 'nombre', width: 30 },
+        { header: 'Apellidos', key: 'apellidos', width: 30 },
+        { header: 'CUI', key: 'cui', width: 20 },
+        { header: 'Fecha de Fallecimiento', key: 'fecha', width: 20 },
+        { header: 'Lugar', key: 'estado', width: 25 }
+      ]
+
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+      const currentDate = new Date().toLocaleDateString('es-ES')
+
+      worksheet.mergeCells('A1:E1')
+      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'
+      worksheet.getCell('A1').font = { bold: true, size: 16 }
+      worksheet.getCell('A1').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A2:E2')
+      worksheet.getCell('A2').value = '6ta. Calle 12-28 Zona 3 Quetzaltenango'
+      worksheet.getCell('A2').font = { bold: true, size: 14 }
+      worksheet.getCell('A2').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A3:E3')
+      worksheet.getCell('A3').value = 'Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223'
+      worksheet.getCell('A3').font = { bold: true, size: 14 }
+      worksheet.getCell('A3').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A5:E5')
+      worksheet.getCell('A5').value = `Reporte de Pacientes Fallecidos desde la Fecha: ${moment(fechaInicio).format('DD/MM/YYYY')} | Hasta: ${moment(fechaFin).format('DD/MM/YYYY')}`
+      worksheet.getCell('A5').font = { bold: true, size: 14 }
+
+      worksheet.mergeCells('A6:E6')
+      worksheet.getCell('A6').value = `Generado el: ${currentDate}`
+      worksheet.getCell('A6').font = { italic: true }
+
+      let currentRow = 8
+      const pacientesPorEstado = this.procesarDetalles6(dataEnfermeria)
+      Object.keys(pacientesPorEstado).forEach((estado) => {
+        const pacientes = pacientesPorEstado[estado]
+        if (pacientes.length > 0) {
+          worksheet.mergeCells(`A${currentRow}:E${currentRow}`)
+          worksheet.getCell(`A${currentRow}`).value = `${estado} - Total: ${pacientes.length} pacientes`
+          worksheet.getCell(`A${currentRow}`).font = { bold: true, size: 12 }
+          worksheet.addRow(['Nombres', 'Apellidos', 'CUI', 'Fecha de Fallecimiento', 'Estado'])
+          currentRow++
+          pacientes.forEach((paciente) => {
+            worksheet.addRow({
+              nombre: paciente.nombres || 'N/A',
+              apellidos: paciente.apellidos || 'N/A',
+              cui: paciente.cui || 'N/A',
+              fecha: paciente.updatedAt ? new Date(paciente.updatedAt).toLocaleDateString() : 'N/A',
+              estado: estado || 'N/A'
+            })
+            currentRow++
+          })
+          worksheet.addRow([])
+          currentRow++
+        }
+      })
+      workbook.xlsx.writeBuffer().then((buffer) => {
+        const blob = new Blob([buffer], {
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        })
+
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.download = 'Reporte_Pacientes_fallecidos.xlsx'
+        link.click()
+
+        console.log('¡Archivo Excel generado correctamente!')
+      }).catch((error) => {
+        console.error('Error al generar el archivo Excel:', error)
+      })
+    },
+    procesarDetalles6 (pacientes) {
+      const estadoMap = {
+        0: 'Fallecido'
+      }
+      const grupos = {}
+      pacientes.forEach((paciente) => {
+        const estadoNombre = estadoMap[paciente.estado] || 'Desconocido'
+        if (!grupos[estadoNombre]) {
+          grupos[estadoNombre] = []
+        }
+        grupos[estadoNombre].push(paciente)
+      })
+      return grupos
+    },
+
+    septimoReporteEnfermeria (fechainicio, fechafin) {
+      axios.get(apiUrl + '/reporte/enfermeria/egresados',
+        {
+          params: {
+            fechaInicio: fechainicio,
+            fechaFin: fechafin
+          }
+        }
+      )
+        .then((response) => {
+          this.dataEnfermeria1 = response.data
+          this.startDateEnfermeria = fechainicio
+          this.endDateEnfermeria = fechafin
+          console.log(response.data)
+        })
+        .catch((error) => {
+          console.error('Error al generar el reporte de cuenta parcial:', error)
+          this.alertErrorText = 'Hubo un problema al generar el reporte. Por favor, intente nuevamente.'
+          this.showAlertError()
+        })
+    },
+    generarPDFPacientes7 () {
+      const pacientes = this.dataEnfermeria1
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+
+      try {
+        const pacientesPorEstado = {
+          0: { estado: 'Fallecidos', pacientes: [] },
+          6: { estado: 'Desahuciados', pacientes: [] },
+          7: { estado: 'Egreso normal', pacientes: [] },
+          8: { estado: 'Egreso Contraindicado', pacientes: [] }
+        }
+
+        pacientes.forEach((paciente) => {
+          if (pacientesPorEstado[paciente.estado]) {
+            pacientesPorEstado[paciente.estado].pacientes.push({
+              nombreCompleto: `${paciente.nombres} ${paciente.apellidos}`,
+              cui: paciente.cui || 'N/A',
+              fechaIngreso: paciente.updatedAt
+                ? new Date(paciente.updatedAt).toLocaleDateString()
+                : 'N/A'
+            })
+          }
+        })
+
+        const doc = new JsPDF()
+
+        doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
+        doc.setFontSize(14).setFont(undefined, 'bold')
+        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+        doc.setFontSize(10).setFont(undefined, 'normal')
+        doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
+        doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
+
+        doc.setFontSize(16)
+        doc.text('Reporte de Pacientes Egresados', 105, 50, { align: 'center' })
+        doc.setFontSize(12)
+        doc.text(`Desde: ${moment(fechaInicio).format('DD/MM/YYYY')} | Hasta: ${moment(fechaFin).format('DD/MM/YYYY')}`, 105, 58, { align: 'center' })
+        let currentY = 65
+
+        Object.keys(pacientesPorEstado).forEach((key) => {
+          const { estado, pacientes } = pacientesPorEstado[key]
+
+          if (pacientes.length > 0) {
+            doc.setFontSize(14)
+            doc.text(`${estado} (${pacientes.length} paciente(s))`, 14, currentY)
+
+            const tableRows = []
+            pacientes.forEach((paciente, i) => {
+              tableRows.push([
+                i + 1,
+                paciente.nombreCompleto,
+                paciente.cui,
+                paciente.fechaIngreso
+              ])
+            })
+
+            doc.autoTable({
+              head: [['#', 'Nombre Completo', 'CUI', 'Fecha Egreso']],
+              body: tableRows,
+              startY: currentY + 5,
+              theme: 'grid',
+              styles: { fontSize: 10, cellPadding: 2 },
+              headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
+              alternateRowStyles: { fillColor: [240, 240, 240] }
+            })
+
+            currentY = doc.lastAutoTable.finalY + 10
+            if (currentY > 270) {
+              doc.addPage()
+              currentY = 20
+            }
+          }
+        })
+
+        doc.save(`reporte_pacientes_egresados_${fechaInicio}_a_${fechaFin}.pdf`)
+      } catch (error) {
+        console.error('Error al generar el reporte:', error)
+        alert('Ocurrió un error al generar el reporte. Por favor, intente de nuevo.')
+      }
+    },
+    generarExcelPacientes7 () {
+      const dataEnfermeria = this.dataEnfermeria1
+      const workbook = new ExcelJS.Workbook()
+      const worksheet = workbook.addWorksheet('Reporte de Egreso de Pacientes')
+
+      worksheet.columns = [
+        { header: 'Nombres', key: 'nombre', width: 30 },
+        { header: 'Apellidos', key: 'apellidos', width: 30 },
+        { header: 'CUI', key: 'cui', width: 20 },
+        { header: 'Fecha de Egreso', key: 'fecha', width: 20 },
+        { header: 'Lugar', key: 'estado', width: 25 }
+      ]
+
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+      const currentDate = new Date().toLocaleDateString('es-ES')
+
+      worksheet.mergeCells('A1:E1')
+      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'
+      worksheet.getCell('A1').font = { bold: true, size: 16 }
+      worksheet.getCell('A1').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A2:E2')
+      worksheet.getCell('A2').value = '6ta. Calle 12-28 Zona 3 Quetzaltenango'
+      worksheet.getCell('A2').font = { bold: true, size: 14 }
+      worksheet.getCell('A2').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A3:E3')
+      worksheet.getCell('A3').value = 'Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223'
+      worksheet.getCell('A3').font = { bold: true, size: 14 }
+      worksheet.getCell('A3').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A5:E5')
+      worksheet.getCell('A5').value = `Reporte de Egreso de Pacientes desde la Fecha: ${moment(fechaInicio).format('DD/MM/YYYY')} | Hasta: ${moment(fechaFin).format('DD/MM/YYYY')}`
+      worksheet.getCell('A5').font = { bold: true, size: 14 }
+
+      worksheet.mergeCells('A6:E6')
+      worksheet.getCell('A6').value = `Generado el: ${currentDate}`
+      worksheet.getCell('A6').font = { italic: true }
+
+      let currentRow = 8
+      const pacientesPorEstado = this.procesarDetalles7(dataEnfermeria)
+      Object.keys(pacientesPorEstado).forEach((estado) => {
+        const pacientes = pacientesPorEstado[estado]
+        if (pacientes.length > 0) {
+          worksheet.mergeCells(`A${currentRow}:E${currentRow}`)
+          worksheet.getCell(`A${currentRow}`).value = `${estado} - Total: ${pacientes.length} pacientes`
+          worksheet.getCell(`A${currentRow}`).font = { bold: true, size: 12 }
+          worksheet.addRow(['Nombres', 'Apellidos', 'CUI', 'Fecha de Egreso', 'Estado'])
+          currentRow++
+          pacientes.forEach((paciente) => {
+            worksheet.addRow({
+              nombre: paciente.nombres || 'N/A',
+              apellidos: paciente.apellidos || 'N/A',
+              cui: paciente.cui || 'N/A',
+              fecha: paciente.updatedAt ? new Date(paciente.updatedAt).toLocaleDateString() : 'N/A',
+              estado: estado || 'N/A'
+            })
+            currentRow++
+          })
+          worksheet.addRow([])
+          currentRow++
+        }
+      })
+      workbook.xlsx.writeBuffer().then((buffer) => {
+        const blob = new Blob([buffer], {
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        })
+
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.download = 'Reporte__De_Egreso_Pacientes.xlsx'
+        link.click()
+
+        console.log('¡Archivo Excel generado correctamente!')
+      }).catch((error) => {
+        console.error('Error al generar el archivo Excel:', error)
+      })
+    },
+    procesarDetalles7 (pacientes) {
+      const estadoMap = {
+        0: 'Fallecido',
+        6: 'Desahuciado',
+        7: 'Egreso normal',
+        8: 'Egreso Contraindicado'
+      }
+      const grupos = {}
+      pacientes.forEach((paciente) => {
+        const estadoNombre = estadoMap[paciente.estado] || 'Desconocido'
+        if (!grupos[estadoNombre]) {
+          grupos[estadoNombre] = []
+        }
+        grupos[estadoNombre].push(paciente)
+      })
+      return grupos
+    },
+
+    /* REPORTES MEDICOS */
+    primerReporteMedicos (fechainicio, fechafin) {
+      axios.get(apiUrl + '/reporte/medicos/honorarios',
+        {
+          params: {
+            fechaInicio: fechainicio,
+            fechaFin: fechafin
+          }
+        }
+      )
+        .then((response) => {
+          this.dataMedicos = response.data
+          this.startDateEnfermeria = fechainicio
+          this.endDateEnfermeria = fechafin
+        })
+        .catch((error) => {
+          console.error('Error al generar el reporte de cuenta parcial:', error)
+          this.alertErrorText = 'Hubo un problema al generar el reporte. Por favor, intente nuevamente.'
+          this.showAlertError()
+        })
+    },
+    generarPDFMedicos () {
+      const data = this.dataMedicos
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+
+      try {
+        const honorariosOrdenados = data.sort((a, b) => b.total_honorario - a.total_honorario)
+        const doc = new JsPDF()
+
+        doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
+        doc.setFontSize(14).setFont(undefined, 'bold')
+        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+        doc.setFontSize(10).setFont(undefined, 'normal')
+        doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
+        doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
+
+        doc.setFontSize(16)
+        doc.text('Reporte de Honorarios asignados sin pagar', 105, 50, { align: 'center' })
+        doc.setFontSize(12)
+        doc.text(`Desde: ${moment(fechaInicio).format('DD/MM/YYYY')} | Hasta: ${moment(fechaFin).format('DD/MM/YYYY')}`, 105, 58, { align: 'center' })
+
+        doc.setFontSize(14)
+        doc.text('Detalle de los Honorarios de Medicos', 14, 110)
+
+        const tableRows = honorariosOrdenados.map((medico, index) => [
+          index + 1,
+          medico.nombre_medico,
+          medico.descripcion,
+          `Q${medico.total_honorario}`,
+          medico.fecha
+        ])
+
+        doc.autoTable({
+          head: [['#', 'Nombre del Medico', 'Descripcion', 'Honorarios Recibidos', 'Fecha']],
+          body: tableRows,
+          startY: 120,
+          theme: 'grid',
+          styles: { fontSize: 10, cellPadding: 2 },
+          headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
+          alternateRowStyles: { fillColor: [240, 240, 240] }
+        })
+
+        doc.save(`reporte_honorarios_${fechaInicio}_a_${fechaFin}.pdf`)
+      } catch (error) {
+        console.error('Error al generar el reporte:', error)
+        this.$alert('Ocurrió un error al generar el reporte. Por favor, intente de nuevo.', 'Error')
+      }
+    },
+    generarExcelMedicos () {
+      const data = this.dataMedicos
+      const workbook = new ExcelJS.Workbook()
+      const worksheet = workbook.addWorksheet('Reporte de Honrarios Medicos')
+
+      worksheet.columns = [
+        { header: '#', key: 'numero_orden', width: 10 },
+        { header: 'Nombre del Medico', key: 'nombre_medico', width: 30 },
+        { header: 'Descripcion', key: 'descripcion', width: 20 },
+        { header: 'Honorario Recibido', key: 'total_honorarios', width: 20 },
+        { header: 'Fecha', key: 'fecha', width: 15 }
+      ]
+
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+      const currentDate = new Date().toLocaleDateString('es-ES')
+
+      worksheet.mergeCells('A1:E1')
+      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'
+      worksheet.getCell('A1').font = { bold: true, size: 16 }
+      worksheet.getCell('A1').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A2:E2')
+      worksheet.getCell('A2').value = '6ta. Calle 12-28 Zona 3 Quetzaltenango'
+      worksheet.getCell('A2').font = { bold: true, size: 14 }
+      worksheet.getCell('A2').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A3:E3')
+      worksheet.getCell('A3').value = 'Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223'
+      worksheet.getCell('A3').font = { bold: true, size: 14 }
+      worksheet.getCell('A3').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A5:E5')
+      worksheet.getCell('A5').value = `Reporte Detallado de Honorarios de Medicos asignados sin pagar  (${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')})`
+      worksheet.getCell('A5').font = { bold: true, size: 14 }
+      worksheet.getCell('A5').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A6:E6')
+      worksheet.getCell('A6').value = `Generado el: ${currentDate}`
+      worksheet.getCell('A6').font = { italic: true }
+      worksheet.getCell('A6').alignment = { horizontal: 'center' }
+
+      worksheet.getColumn('A').width = 30
+
+      worksheet.addRow([])
+      worksheet.addRow(['#', 'Nombre del Medico', 'Descripcion', 'Honorarios Recibidos', 'Fecha'])
+      worksheet.getRow(9).font = { bold: true }
+      worksheet.getRow(9).alignment = { horizontal: 'center' }
+
+      const MedicosOrdenados = data.sort((a, b) => b.total_honorario - a.total_honorario)
+      MedicosOrdenados.forEach((medico, index) => {
+        worksheet.addRow({
+          numero_orden: index + 1,
+          nombre_medico: medico.nombre_medico,
+          descripcion: medico.descripcion,
+          total_honorarios: `Q${medico.total_honorario}`,
+          fecha: medico.fecha
+        })
+      })
+
+      workbook.xlsx
+        .writeBuffer()
+        .then((buffer) => {
+          const blob = new Blob([buffer], {
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+          })
+          const url = URL.createObjectURL(blob)
+          const link = document.createElement('a')
+          link.href = url
+          link.download = `Reporte_Detallado_de_Honorarios_${fechaInicio}_a_${fechaFin}.xlsx`
+          link.click()
+          console.log('¡Archivo Excel generado correctamente!')
+        })
+        .catch((error) => {
+          console.error('Error al generar el archivo Excel:', error)
+        })
+    },
+
+    segundoReporteMedicos (fechainicio, fechafin) {
+      axios.get(apiUrl + '/reporte/medicos/medicoMasHonorarios',
+        {
+          params: {
+            fechaInicio: fechainicio,
+            fechaFin: fechafin
+          }
+        }
+      )
+        .then((response) => {
+          this.dataMedicos = response.data
+          this.startDateEnfermeria = fechainicio
+          this.endDateEnfermeria = fechafin
+          console.log(response.data)
+        })
+        .catch((error) => {
+          console.error('Error al generar el reporte de cuenta parcial:', error)
+          this.alertErrorText = 'Hubo un problema al generar el reporte. Por favor, intente nuevamente.'
+          this.showAlertError()
+        })
+    },
+    generarPDFMedicos2 () {
+      const { listaDeMedicos, medicoConMasHonorarios } = this.dataMedicos
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+
+      try {
+        const medicosOrdenados = listaDeMedicos.sort((a, b) => b.total_honorarios - a.total_honorarios)
+        const doc = new JsPDF()
+
+        doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
+        doc.setFontSize(14).setFont(undefined, 'bold')
+        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+        doc.setFontSize(10).setFont(undefined, 'normal')
+        doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
+        doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
+
+        doc.setFontSize(16)
+        doc.text('Reporte Detallado de honorarios Medicos asignados sin pagar', 105, 50, { align: 'center' })
+        doc.setFontSize(12)
+        doc.text(`Desde: ${moment(fechaInicio).format('DD/MM/YYYY')} | Hasta: ${moment(fechaFin).format('DD/MM/YYYY')}`, 105, 58, { align: 'center' })
+
+        doc.setFontSize(14)
+        doc.text('Medico que ha recibido mas honorarios', 14, 70)
+        doc.setFontSize(12)
+        doc.setTextColor(0, 0, 0)
+        doc.text(`Nombre: ${medicoConMasHonorarios.nombre_medico}`, 14, 78)
+        doc.text(`Total Honorarios: Q${medicoConMasHonorarios.total_honorarios}`, 14, 84)
+        doc.text(`Fechas: ${medicoConMasHonorarios.fechas}`, 14, 90)
+
+        const tableRows = medicosOrdenados.map((medico, index) => [
+          index + 1,
+          medico.nombre_medico,
+          `Q${medico.total_honorarios}`,
+          medico.fechas
+        ])
+
+        doc.autoTable({
+          head: [['#', 'Nombre del Medico', 'Honorarios Recibidos', 'Fecha']],
+          body: tableRows,
+          startY: 120,
+          theme: 'grid',
+          styles: { fontSize: 10, cellPadding: 2 },
+          headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
+          alternateRowStyles: { fillColor: [240, 240, 240] }
+        })
+
+        doc.save(`Reporte_Detallado_Medico_Con_Mas_Honorarios_${fechaInicio}_a_${fechaFin}.pdf`)
+      } catch (error) {
+        console.error('Error al generar el reporte:', error)
+        this.$alert('Ocurrió un error al generar el reporte. Por favor, intente de nuevo.', 'Error')
+      }
+    },
+    generarExcelMedicos2 () {
+      const { listaDeMedicos, medicoConMasHonorarios } = this.dataMedicos
+      const workbook = new ExcelJS.Workbook()
+      const worksheet = workbook.addWorksheet('Reporte de Honrarios Medicos')
+
+      worksheet.columns = [
+        { header: '#', key: 'numero_orden', width: 10 },
+        { header: 'Nombre del Medico', key: 'nombre_medico', width: 30 },
+        { header: 'Honorarios Recibidos', key: 'total_honorarios', width: 20 },
+        { header: 'Fechas', key: 'fechas', width: 15 }
+      ]
+
+      const fechaInicio = this.startDateEnfermeria
+      const fechaFin = this.endDateEnfermeria
+      const currentDate = new Date().toLocaleDateString('es-ES')
+
+      worksheet.mergeCells('A1:E1')
+      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'
+      worksheet.getCell('A1').font = { bold: true, size: 16 }
+      worksheet.getCell('A1').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A2:E2')
+      worksheet.getCell('A2').value = '6ta. Calle 12-28 Zona 3 Quetzaltenango'
+      worksheet.getCell('A2').font = { bold: true, size: 14 }
+      worksheet.getCell('A2').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A3:E3')
+      worksheet.getCell('A3').value = 'Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223'
+      worksheet.getCell('A3').font = { bold: true, size: 14 }
+      worksheet.getCell('A3').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A5:E5')
+      worksheet.getCell('A5').value = `Reporte Detallado de Honorarios de Medicos asignados sin pagar (${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')})`
+      worksheet.getCell('A5').font = { bold: true, size: 14 }
+      worksheet.getCell('A5').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A6:E6')
+      worksheet.getCell('A6').value = `Generado el: ${currentDate}`
+      worksheet.getCell('A6').font = { italic: true }
+      worksheet.getCell('A6').alignment = { horizontal: 'center' }
+
+      worksheet.mergeCells('A8:E8')
+      worksheet.getCell('A8').value = 'Medico que ha recibido mas honorarios'
+      worksheet.getCell('A8').font = { bold: true, size: 14 }
+
+      worksheet.getCell('A9').value = 'Nombre'
+      worksheet.getCell('B9').value = medicoConMasHonorarios.nombre_medico
+      worksheet.getCell('A10').value = 'Total Honorarios Recibidos'
+      worksheet.getCell('B10').value = `Q${medicoConMasHonorarios.total_honorarios}`
+      worksheet.getCell('A11').value = 'Fechas'
+      worksheet.getCell('B11').value = medicoConMasHonorarios.fechas
+
+      worksheet.getColumn('B').width = 30
+
+      worksheet.addRow([])
+      worksheet.addRow(['#', 'Nombre del Medico', 'Honorarios Recibidos', 'Fecha'])
+      worksheet.getRow(9).font = { bold: true }
+      worksheet.getRow(9).alignment = { horizontal: 'center' }
+
+      const MedicosOrdenados = listaDeMedicos.sort((a, b) => b.total_honorarios - a.total_honorarios)
+      MedicosOrdenados.forEach((medico, index) => {
+        worksheet.addRow({
+          numero_orden: index + 1,
+          nombre_medico: medico.nombre_medico,
+          total_honorarios: `Q${medico.total_honorarios}`,
+          fechas: medico.fechas
+        })
+      })
+
+      workbook.xlsx
+        .writeBuffer()
+        .then((buffer) => {
+          const blob = new Blob([buffer], {
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+          })
+          const url = URL.createObjectURL(blob)
+          const link = document.createElement('a')
+          link.href = url
+          link.download = `Reporte_Detallado_Medico_Con_Mas_Honorarios_${fechaInicio}_a_${fechaFin}.xlsx`
+          link.click()
+          console.log('¡Archivo Excel generado correctamente!')
+        })
+        .catch((error) => {
+          console.error('Error al generar el archivo Excel:', error)
+        })
+    },
+
+    onSearchDatosMedicos (search, loading) {
+      if (search.length) {
+        loading(true)
+        this.onSearchMedicos(search, loading)
+      }
+    },
+    onSearchMedicos (search, loading) {
+      axios.get(apiUrl + '/voucher/getSearch',
+        {
+          params: {
+            search: search
+          }
+        }
+      ).then((response) => {
+        this.fechaActual = response.data.fechaActual
+        this.numero_voucher = response.data.numero
+        this.medicos = response.data.Medicos
+        loading(false)
+      })
+    },
+    generarPDFMedicos3 () {
+      const data = this.formVoucher
+      const numero = this.numero_voucher
+      const fechaInicio = this.fechaActual
+
+      try {
+        const doc = new JsPDF()
+
+        doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
+        doc.setFontSize(16)
+        doc.text(`VOUCHER DE PAGO No. ${numero}`, 65, 20)
+        doc.setFontSize(12)
+        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 50, 26)
+
+        doc.setFontSize(10)
+        doc.text('TIPO DE PAGO:     HONORARIOS.', 15, 50)
+        doc.text(`FECHA DE PAGO:     ${moment(fechaInicio).format('DD/MM/YYYY')}`, 140, 50)
+
+        doc.setFontSize(10)
+        doc.text('PROVEEDOR:      HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 15, 60)
+        doc.text(`TOTAL:      Q${data.cantidad}`, 140, 60)
+        doc.setFontSize(10)
+        doc.text('F)._________________________________________', 20, 85)
+        doc.text(`PAGUESE A: ${data.medico.nombre}.`, 20, 91)
+        doc.text(`LA SUMA DE: ${data.cantidadEscrita}.`, 20, 97)
+        doc.text('-------------------------------------------------------------', 0, 110)
+        doc.text('-------------------------------------------------------------', 71.7, 110)
+        doc.text('---------------------------------------------------------', 142.3, 110)
+
+        doc.save(`Vaouches_Pago_Honorarios_${data.medico.nombre}_Fecha_${moment(fechaInicio).format('DD/MM/YYYY')}.pdf`)
+      } catch (error) {
+        console.error('Error al generar el reporte:', error)
+        this.$alert('Ocurrió un error al generar el reporte. Por favor, intente de nuevo.', 'Error')
+      }
+    },
+
+    crearVoucher () {
+      axios.post(apiUrl + '/voucher/create', this.formVoucher)
+        .then(response => {
+          this.generarPDFMedicos3()
+          this.closeModal('save')
+          this.selectedReport = null
+          this.medicos = []
+        })
+        .catch(error => {
+          console.error('Error al crear el voucher:', error)
+        })
     }
   }
 }
