@@ -99,17 +99,6 @@
         "icon": "ri-wallet-3-fill"
       },
       {
-        "title": "Contratos",
-        "name": "Contratos",
-        "is_active": false,
-        "link": {
-          "name" : "caja.contratos"
-        },
-        "class_name": "",
-        "is_icon_class": true,
-        "icon": "ri-file-lock-line"
-      },
-      {
         "title": "Liquidaciones caja chica",
         "name": "Liquidaciones caja chica",
         "is_active": false,
@@ -470,29 +459,5 @@
     "class_name": "",
     "is_icon_class": true,
     "icon": "ri-shield-cross-fill"
-  },
-  {
-    "title": "Registro de pacientes",
-    "name": "Registro de pacientes",
-    "is_heading": false,
-    "is_active": false,
-    "link": {
-      "name" : "pacientes.pacientesparent"
-    },
-    "class_name": "",
-    "is_icon_class": true,
-    "icon": "ri-account-box-fill"
-  },
-  {
-    "title": "Liquidaciones",
-    "name": "Liquidaciones",
-    "is_heading": false,
-    "is_active": false,
-    "link": {
-      "name" : "liquidacion.liquidacionparent"
-    },
-    "class_name": "",
-    "is_icon_class": true,
-    "icon": "ri-folder-warning-fill"
   }
 ]
