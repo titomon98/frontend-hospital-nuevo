@@ -546,11 +546,22 @@
       <b-form @submit="$event.preventDefault()">
         <b-row class="ml-2">
           <b-col md="3">
-            <b-form-group label="Comisión:">
-              <b-form-input
+            <b-form-group label="Nombre del medico:">
+              <v-select
+                name="medico"
                 v-model="formExamen.comision"
-                placeholder="Ingresar Comisión"
-              ></b-form-input>
+                :options="medicos"
+                :filterable="false"
+                placeholder="Seleccione el médico"
+                @search="onSearchMedicos"
+              >
+                <template v-slot:option="option">
+                  {{ option.nombre}}
+                </template>
+                <template slot="selected-option" slot-scope="option">
+                  {{option.nombre}}
+                </template>
+              </v-select>
             </b-form-group>
           </b-col>
           <b-col md="3">
@@ -572,6 +583,13 @@
               ></b-form-input>
             </b-form-group>
           </b-col>
+          <b-form-group label="Edad:">
+              <b-form-input
+              type="number"
+              v-model.trim="formExamen.edad"
+              placeholder="Ingresar la edad del paciente"
+              ></b-form-input>
+            </b-form-group>
         </b-row>
         <b-row class="ml-2">
           <b-col md="4">
@@ -1200,6 +1218,7 @@ export default {
         nombre: '',
         apellido: '',
         cui: 0,
+        edad: 0,
         comision: '',
         total: 0,
         correo: '',
@@ -1534,6 +1553,7 @@ export default {
           this.formExamen.id = 0
           this.formExamen.nombre = ''
           this.formExamen.cui = 0
+          this.formExamen.edad = 0
           this.formExamen.comision = ''
           this.formExamen.total = 0
           this.formExamen.correo = ''

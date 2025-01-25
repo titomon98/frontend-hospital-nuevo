@@ -40,7 +40,7 @@
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-file-warning-line"
+        "icon": "ri-scissors-fill"
       },
       {
         "title": "Cuentas por cobrar",
@@ -51,7 +51,7 @@
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-file-warning-line"
+        "icon": "ri-money-dollar-circle-fill"
       },
       {
         "title": "Facturación",
@@ -62,7 +62,7 @@
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-file-warning-line"
+        "icon": "ri-file-text-fill"
       },
       {
         "title": "Descuentos",
@@ -73,7 +73,7 @@
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-shopping-cart-fill"
+        "icon": "ri-price-tag-3-line"
       }
     ]
   },
@@ -102,7 +102,7 @@
     "children": [
       {
         "title": "Exámenes internos",
-        "name": "Exámenes internos",
+        "name": "Reporte Exámenes",
         "is_active": false,
         "link": {
           "name" : "laboratorio.examenesinternos"
@@ -113,7 +113,7 @@
       },
       {
         "title": "Incentivos",
-        "name": "Incentivos",
+        "name": "Comisiones a medicos",
         "is_active": false,
         "link": {
           "name" : "laboratorio.incentivos"
