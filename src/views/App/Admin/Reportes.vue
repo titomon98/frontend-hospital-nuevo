@@ -380,8 +380,38 @@ export default {
       simpWallet: [],
       reportFields: [
         {
+          key: 'expediente.nombres',
+          label: 'Nombres',
+          sortable: true
+        },
+        {
+          key: 'expediente.apellidos',
+          label: 'Apellidos',
+          sortable: true
+        },
+        {
+          key: 'numero_cuenta',
+          label: 'numero_cuenta',
+          sortable: true
+        },
+        {
+          key: 'total_pagado',
+          label: 'Total',
+          sortable: true
+        },
+        {
+          key: 'pendiente_de_pago',
+          label: 'Pendiente de pago',
+          sortable: true
+        },
+        {
           key: 'total',
           label: 'Total',
+          sortable: true
+        },
+        {
+          key: 'descuento',
+          label: 'Descuento',
           sortable: true
         }
       ],
@@ -1052,14 +1082,23 @@ export default {
         }
         case 2: {
           autoTable(this.pdf, {
-            columns: [{ header: 'Efectivo', dataKey: 'efectivo' }, { header: 'Tarjeta', dataKey: 'tarjeta' }, { header: 'Deposito', dataKey: 'deposito' }, { header: 'Cheque', dataKey: 'cheque' }, { header: 'Transferencia', dataKey: 'transferencia' }],
-            body: this.walletItems,
+            columns: [
+              { header: 'Tipo de Pago', dataKey: 'tipo' },
+              { header: 'Monto', dataKey: 'monto' }
+            ],
+            body: [
+              { tipo: 'Efectivo', monto: this.walletItems[0].efectivo },
+              { tipo: 'Tarjeta', monto: this.walletItems[0].tarjeta },
+              { tipo: 'Deposito', monto: this.walletItems[0].deposito },
+              { tipo: 'Cheque', monto: this.walletItems[0].cheque },
+              { tipo: 'Transferencia', monto: this.walletItems[0].transferencia }
+            ],
             margin: { top: 5 },
             headStyles: {
               fillColor: [21, 21, 21],
               textColor: [225, 225, 225],
               fontStyle: 'bold'
-            }
+            },
           })
           break
         }
