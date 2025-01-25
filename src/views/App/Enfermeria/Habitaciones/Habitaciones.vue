@@ -65,11 +65,16 @@
     <b-row>
       <b-col md="12">
         <iq-card>
-            <template v-slot:headerTitle>
+          <template v-slot:headerTitle>
               <h4 class="card-title mt-3">Habitaciones</h4>
                <div class="iq-search-bar mt-2">
-                <b-form action="#" class="searchbox">
-                    <b-input id="search" placeholder="Buscar..." @input="(val) => searchChange(val)" />
+                <b-form @submit.prevent class="searchbox">
+                    <b-input
+                      id="search"
+                      v-model="search"
+                      placeholder="Buscar..."
+                      @input="searchChange"
+                    />
                     <a class="search-link" href="#"><i class="ri-search-line"></i></a>
                 </b-form>
               </div>
@@ -247,7 +252,8 @@ export default {
           dataClass: 'text-muted',
           width: '25%'
         }
-      ]
+      ],
+      items: []
     }
   },
   validations () {

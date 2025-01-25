@@ -40,10 +40,8 @@
                     placeholder="Ingresar nombre"
                     required
                   ></b-form-input>
-                  <div v-if="$v.form.nombre.$error" class="invalid-feedback">
-                    <div v-if="!$v.form.nombre.required.$error">Debe ingresar nombre</div>
-                    <div v-if="!$v.form.nombre.ValidateName.$error">El nombre solo debe contener letras mayúsculas y con tildes</div>
-                  </div>
+                    <div v-if="$v.form.nombre.required.$invalid" class="invalid-feedback">Debe ingresar nombre</div>
+                    <div v-if="!$v.form.nombre.ValidateName.$error" class="invalid-feedback">El nombre solo debe contener letras mayúsculas y con tildes</div>
                 </b-form-group>
               </b-col>
               <!-- columna -->
@@ -127,25 +125,18 @@
                 <b-form-group label="CUI:">
                   <div v-if="calcularEdad >= 18">
                     <b-form-input
-                      v-model.trim="$v.form.cui.$model"
-                      :class="{'is-invalid': $v.form.cui.$error}"
+                      type= "number"
+                      v-model.trim="form.cui"
                       placeholder="Ingresar el CUI"
                     ></b-form-input>
                   </div>
-                  <div v-else disabled>
+                  <div v-else>
                     <b-form-input
-                      v-model.trim="$v.form.cui.$model"
-                      :value="0"
-                      :class="{'is-invalid': $v.form.cui.$error}"
+                      v-model.trim="form.cui"
+                      :value="'NO DISPONIBLE'"
                       placeholder="Ingresar el CUI"
                       disabled
                     ></b-form-input>
-                  </div>
-                  <div v-if="$v.form.cui.$error" class="invalid-feedback">
-                    El valor del CUI debe ser numerico.
-                  </div>
-                  <div v-if="$v.form.cui.numeric.$invalid" class="invalid-feedback">
-                    Debe ingresar unicamente numeros
                   </div>
                 </b-form-group>
               </b-col>
@@ -247,11 +238,15 @@
                   <div v-if="$v.form.nombre_encargado.required.$invalid" class="invalid-feedback">
                     Debe ingresar el nombre del encargado
                   </div>
+                  <div v-if="!$v.form.nombre_encargado.ValidateName.$error" class="invalid-feedback">
+                    El nombre solo debe contener letras mayúsculas y con tildes
+                  </div>
                 </b-form-group>
               </b-col>
               <b-col md="2">
                 <b-form-group label="Telefono:">
                   <b-form-input
+                    type= "number"
                     v-model.trim="$v.form.contacto_encargado.$model"
                     :class="{'is-invalid': $v.form.contacto_encargado.$error}"
                     placeholder="Ingresar telefono"
@@ -268,6 +263,7 @@
               <b-col md="2">
                 <b-form-group label="CUI:">
                   <b-form-input
+                    type= "number"
                     v-model.trim="$v.form.cui_encargado.$model"
                     :class="{'is-invalid': $v.form.cui_encargado.$error}"
                     placeholder="Ingresar el CUI"
@@ -432,7 +428,7 @@ export default {
         apellidos: '',
         casada: '',
         nacimiento: null,
-        cui: null,
+        cui: 'NO DISPONIBLE',
         nacionalidad: null,
         telefono: '',
         direccion: '',
@@ -498,9 +494,6 @@ export default {
             const anoActual = new Date().getFullYear()
             return anoNacimiento <= anoActual
           }
-        },
-        cui: {
-          numeric, required
         },
         direccion: {
           required

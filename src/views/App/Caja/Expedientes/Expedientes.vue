@@ -444,6 +444,96 @@
         <b-button variant="danger" @click="closeModal('contrato')">Cancelar</b-button>
       </template>
     </b-modal>
+    <b-modal id="modal-responsable" ref="modal-responsable" title="Datos del Responsable/Fiador">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <b-form @submit.prevent>
+        <div>
+          <b-tabs content-class="mt-3">
+            <b-tab>
+              <b-container>
+                <!-- Campo: Nombre -->
+                <b-form-group label="Nombre" class="mb-3">
+                  <b-form-input
+                    v-model="contrato.nombre"
+                    placeholder="Ingresar nombre"
+                  ></b-form-input>
+                </b-form-group>
+
+                <!-- Campo: Edad -->
+                <b-form-group label="Edad" class="mb-3">
+                  <b-form-input
+                    type="number"
+                    v-model="contrato.edad"
+                    placeholder="Ingresar edad"
+                  ></b-form-input>
+                </b-form-group>
+
+                <!-- Campo: Edad -->
+                <b-form-group label="No. DPI" class="mb-3">
+                  <b-form-input
+                    type="number"
+                    v-model="contrato.cui"
+                    placeholder="Ingresar No. DPI"
+                  ></b-form-input>
+                </b-form-group>
+
+                <!-- Campo: Estado Civil -->
+                <b-form-group label="Estado Civil" class="mb-3">
+                  <b-form-input
+                    v-model="contrato.estadoCivil"
+                    placeholder="Ingresar estado civil"
+                  ></b-form-input>
+                </b-form-group>
+
+                <!-- Campo: Nacionalidad -->
+                <b-form-group label="Nacionalidad" class="mb-3">
+                  <b-form-input
+                    v-model="contrato.nacionalidad"
+                    placeholder="Ingresar nacionalidad"
+                  ></b-form-input>
+                </b-form-group>
+
+                <!-- Campo: Profesion -->
+                <b-form-group label=" Profesion u Oficio" class="mb-3">
+                  <b-form-input
+                    v-model="contrato.profesion"
+                    placeholder="Ingresar la Profesion u Oficio"
+                  ></b-form-input>
+                </b-form-group>
+
+                <!-- Campo: Domicilio -->
+                <b-form-group label="Domicilio" class="mb-3">
+                  <b-form-input
+                    v-model="contrato.domicilio"
+                    placeholder="Ingresar domicilio"
+                  ></b-form-input>
+                </b-form-group>
+
+                <!-- Campo: Residencia -->
+                <b-form-group label="Residencia" class="mb-3">
+                  <b-form-input
+                    v-model="contrato.direccion"
+                    placeholder="Ingresar residencia"
+                  ></b-form-input>
+                </b-form-group>
+              </b-container>
+            </b-tab>
+          </b-tabs>
+        </div>
+      </b-form>
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click="generatePDF()">Generar Contrato</b-button>
+        <b-button variant="danger" @click="closeModal('responsable')">Cancelar</b-button>
+      </template>
+    </b-modal>
     <b-row>
       <b-col md="12">
         <iq-card>
@@ -543,12 +633,21 @@
                   /></b-button>
                   <b-button
                     v-b-tooltip.top="'Generar Contrato'"
-                    @click="generatePDF(props.rowData)"
+                    @click="$bvModal.show('modal-responsable'), setDatos(props.rowData)"
                     class="mb-2"
                     size="sm"
                     variant="outline-primary"
                   >
                     <i :class="'fas fa-file-signature'" />
+                  </b-button>
+                  <b-button
+                    v-b-tooltip.top="'Generar Sumario'"
+                    @click="generarReporteCuentaParcial(props.rowData.id, props.rowData.nombres, props.rowData.apellidos, props.rowData.fecha_ingreso_reciente)"
+                    class="mb-2"
+                    size="sm"
+                    variant="outline-primary"
+                  >
+                    <i :class="'ri-file-list-3-fill'" />
                   </b-button>
                 </b-button-group>
               </template>
@@ -758,9 +857,24 @@ export default {
           width: '25%'
         }
       ],
+      // CONTRATO
+      paciente: null,
       previewURL: null,
       pdf: null,
-      pdfName: 'Contrato_General.pdf'
+      pdfName: 'Contrato_General.pdf',
+      contrato: {
+        nombre: '',
+        edad: null,
+        cui: null,
+        estadoCivil: '',
+        nacionalidad: '',
+        profesion: '',
+        domicilio: '',
+        direccion: ''
+      },
+      // AREA DE SUMARIO
+      dataPDFsumario: null,
+      nombrePaciente: null
     }
   },
   validations () {
@@ -833,6 +947,17 @@ export default {
         case 'contrato': {
           this.$refs['modal-contrato'].hide()
           break
+        }
+        case 'responsable': {
+          this.contrato.nombre = ''
+          this.contrato.edad = null
+          this.contrato.cui = null
+          this.contrato.estadoCivil = ''
+          this.contrato.nacionalidad = ''
+          this.contrato.profesion = ''
+          this.contrato.domicilio = ''
+          this.contrato.direccion = ''
+          this.$refs['modal-responsable'].hide()
         }
       }
     },
@@ -1066,7 +1191,11 @@ export default {
         })
     },
 
-    generatePDF (data) {
+    // CONTRATO
+    setDatos (data) {
+      this.paciente = data
+    },
+    generatePDF () {
       // Crear PDF
       this.pdf = new JsPDF({
         unit: 'cm',
@@ -1096,57 +1225,105 @@ export default {
       let altura = 6
       this.pdf.setFontSize(12).setFont(undefined, 'normal')
       this.pdf.text(
-        'YO:_____________________________________________________________________',
+        `YO: ${this.contrato.nombre}`,
         2,
         altura,
         { maxWidth: 17 }
       )
+      this.pdf.text(
+        '_____________________________________________________________________',
+        2.8,
+        altura + 0.1,
+        { maxWidth: 17 }
+      )
+
       altura += 0.7
       this.pdf.setFontSize(12).setFont(undefined, 'normal')
       this.pdf.text(
-        'DE:___________________________________años',
+        `DE:                  ${this.contrato.edad}                                     años`,
         2,
         altura,
         { maxWidth: 17 }
       )
+      this.pdf.text(
+        '_____________________________',
+        2.8,
+        altura + 0.1,
+        { maxWidth: 17 }
+      )
+
       altura += 0.7
       this.pdf.setFontSize(12).setFont(undefined, 'normal')
       this.pdf.text(
-        'De estado civil:____________________________________________________________',
+        `De estado civil: ${this.contrato.estadoCivil}`,
         2,
         altura,
         { maxWidth: 17 }
       )
+      this.pdf.text(
+        '____________________________________________________________',
+        5,
+        altura + 0.1,
+        { maxWidth: 17 }
+      )
+
       altura += 0.7
       this.pdf.setFontSize(12).setFont(undefined, 'normal')
       this.pdf.text(
-        'De nacionalidad:___________________________________________________________',
+        `De nacionalidad: ${this.contrato.nacionalidad}`,
         2,
         altura,
         { maxWidth: 17 }
       )
+      this.pdf.text(
+        '___________________________________________________________',
+        5.2,
+        altura + 0.1,
+        { maxWidth: 17 }
+      )
+
       altura += 0.7
       this.pdf.setFontSize(12).setFont(undefined, 'normal')
       this.pdf.text(
-        'Profesion u oficio:__________________________________________________________',
+        `Profesion u oficio: ${this.contrato.profesion}`,
         2,
         altura,
         { maxWidth: 17 }
       )
+      this.pdf.text(
+        '__________________________________________________________',
+        5.4,
+        altura + 0.1,
+        { maxWidth: 17 }
+      )
+
       altura += 0.7
       this.pdf.setFontSize(12).setFont(undefined, 'normal')
       this.pdf.text(
-        'Domiciliado en:____________________________________________________________',
+        `Domiciliado en: ${this.contrato.domicilio}`,
         2,
         altura,
         { maxWidth: 17 }
       )
+      this.pdf.text(
+        '____________________________________________________________',
+        5,
+        altura + 0.1,
+        { maxWidth: 17 }
+      )
+
       altura += 0.7
       this.pdf.setFontSize(12).setFont(undefined, 'normal')
       this.pdf.text(
-        'Con residencia:____________________________________________________________',
+        `Con residencia:  ${this.contrato.direccion}`,
         2,
         altura,
+        { maxWidth: 17 }
+      )
+      this.pdf.text(
+        '____________________________________________________________',
+        5,
+        altura + 0.1,
         { maxWidth: 17 }
       )
 
@@ -1155,7 +1332,7 @@ export default {
       this.pdf.text(
         `Lugar que  señalo  para recibir  notificaciones  por  el  presente documento  hago constar:  PRIMERO: que autorizo
 expresamente al  HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A. para que le preste tratamiento  médico
-necesario a:____________________________________________  utilizando los servicios médicos necesarios así
+necesario a: ${this.paciente.nombres} ${this.paciente.apellidos} utilizando los servicios médicos necesarios así
 como  los  medicamentos  que  los  profesionales  de  mérito  estimen  conveniente,  aplicando los tratamientos que
 estos  prescriban. SEGUNDO: que  me  comprometo expresamente  a  cancelar  el monto  de la liquidación que me
 presente  el  HOSPITAL  DE  ESPECIALIDADES  DE  OCCIDENTE,  S.A.  Por los conceptos indicados en el punto
@@ -1166,8 +1343,7 @@ punto anterior, dará derecho al  HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A. 
 la misma, para cuyo efecto servirá de título ejecutivo el presente documento y la liquidación que presente la entidad
 indicada,  que formará  parte del mismo  renunciando para dicho efecto al fuero de mi domicilio y sujetándome a los
 tribunales que fija el HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A. CUARTO: en fe de lo anterior, firmo
-este documento como FIADOR SOLIDARIO DE.
-____________________________________________________________________________
+este documento como FIADOR SOLIDARIO DE. ${this.paciente.nombres} ${this.paciente.apellidos}
         `,
         2,
         altura,
@@ -1191,10 +1367,10 @@ ______________________________________               ___________________________
                                                                
 
 
-
+                       ${this.paciente.cui}                                                                           ${this.contrato.cui}  
 ______________________________________               ______________________________________
 
-                             No. DPI                                                                        No. DPI  
+                             No. DPI                                                                                       No. DPI  
                              
 
 
@@ -1202,7 +1378,7 @@ ______________________________________               ___________________________
 
 ______________________________________               ______________________________________
 
-                   Dirección y Teléfono                                                          Dirección y Teléfono
+                   Dirección y Teléfono                                                               Dirección y Teléfono
       `,
         2,
         altura,
@@ -1212,7 +1388,7 @@ ______________________________________               ___________________________
       altura += 12
       this.pdf.text(
         `COMO NOTARIO DOY FE: que las firmas que anteceden son autenticas por haber sido puestas en mi presencia el
-dia de hoy por____________________________________y por____________________________________
+dia de hoy por ${this.paciente.nombres} ${this.paciente.apellidos} y por ${this.contrato.nombre}
 
 Con el Código Único de Identificación arriba indicadas y que los nombrados firman al pie de la presente, en la ciudad de Quetzaltenango, el día____________________ del mes de _____________________ del dos mil ________________
 
@@ -1231,9 +1407,190 @@ E MI
       const pdfURL = URL.createObjectURL(pdfData)
       this.previewURL = pdfURL
       this.$refs['modal-contrato'].show()
+      this.closeModal('responsable')
     },
+
     descargarpdf () {
       this.pdf.save(this.pdfName)
+    },
+
+    /* AREA SUMARIO */
+    generarReporteCuentaParcial (id, nombres, apellidos, fechaIngreso) {
+      axios.get(apiUrl + `/consumos/sumario/${id}`)
+        .then((response) => {
+          this.dataPDFsumario = response.data
+          this.nombrePaciente = nombres + ' ' + apellidos
+          this.generarPdfSumario(fechaIngreso)
+          this.generarExcelSumario(fechaIngreso)
+        })
+        .catch((error) => {
+          console.error('Error al generar el reporte de cuenta parcial:', error)
+          this.alertErrorText = 'Hubo un problema al generar el reporte. Por favor, intente nuevamente.'
+          this.showAlertError()
+        })
+    },
+    generarPdfSumario (FechaIngreso) {
+      const data = this.dataPDFsumario
+      const fechaActual = new Date()
+      const fechaFormateada = fechaActual.toLocaleDateString('es-ES')
+      const opcionesHora = { hour: '2-digit', minute: '2-digit', hour12: true }
+      const horaFormateada = fechaActual.toLocaleTimeString('es-ES', opcionesHora)
+
+      let mensajeDias
+
+      if (!FechaIngreso) {
+        mensajeDias = 'NO ASIGNADA'
+      } else {
+        const fechaIngreso = new Date(FechaIngreso)
+        const diferenciaMs = fechaActual - fechaIngreso
+        const diasDiferencia = Math.floor(diferenciaMs / (1000 * 60 * 60 * 24))
+        mensajeDias = diasDiferencia
+      }
+
+      try {
+        const ConsumoTotal = data.consumos.reduce((acc, item) => acc + parseFloat(item.subtotal), 0)
+        const ConsumoComunTotal = data.consumosComunes.reduce((acc, item) => acc + parseFloat(item.total), 0)
+        const ConsumoMedicamentosTotal = data.consumosMedicamentos.reduce((acc, item) => acc + parseFloat(item.total), 0)
+        const ConsumoQuirurgicosTotal = data.consumosQuirurgicos.reduce((acc, item) => acc + parseFloat(item.total), 0)
+        const ExamenesTotal = data.examenes.reduce((acc, item) => acc + parseFloat(item.total), 0)
+        const ServicioSalaOperacionesTotal = data.salaOperaciones.reduce((acc, item) => acc + parseFloat(item.total), 0)
+        const TotalHonorarios = data.honorarios.reduce((acc, item) => acc + parseFloat(item.total), 0)
+        const medicosOrdenados = data.honorarios.sort((a, b) => b.total - a.total)
+
+        const TotalGeneral =
+          ConsumoTotal +
+          ConsumoComunTotal +
+          ConsumoMedicamentosTotal +
+          ConsumoQuirurgicosTotal +
+          ExamenesTotal +
+          ServicioSalaOperacionesTotal
+
+        const TotalApagar = TotalGeneral + TotalHonorarios
+        const doc = new JsPDF()
+
+        doc.setFontSize(10).setFont(undefined, 'bold')
+        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 10, { align: 'center' })
+
+        doc.setFontSize(10).setFont(undefined, 'normal')
+        doc.text('CUENTA DE PACIENTE', 110, 14, { align: 'center' })
+
+        doc.setFontSize(8).setFont(undefined, 'normal')
+        doc.text('NOMBRE DEL PACIENTE:', 14, 20)
+        doc.text(`${this.nombrePaciente}`, 50, 20)
+        doc.text('_____________________________________________________________________________________________', 50, 21)
+
+        doc.text('CUARTRO NO.:', 14, 27)
+        doc.text(`${data.numerohabitacion}`, 40, 27)
+        doc.text('__________', 35, 28)
+
+        doc.text('TIPO DE SERVICIO:', 60, 27)
+        doc.text('', 87, 27)
+        doc.text('___________________________', 87, 28)
+
+        doc.text('D/ESTANCIA: ', 130, 27)
+        doc.text(`${mensajeDias}`, 170, 27)
+        doc.text('_____________________________', 150, 28)
+
+        doc.text('MD TRATANTE:', 14, 34)
+        doc.text(`${data.nombremedico}`, 36, 34)
+        doc.text('______________________________________________________________________________________________________', 36, 35)
+
+        doc.autoTable({
+          body: [
+            ['HOSPITALIZACION', `Q 0.00`],
+            ['SALA DE OPERACIONES', `Q${ServicioSalaOperacionesTotal.toFixed(2)}`],
+            ['CONSUMO MEDICAMENTOS', `Q${ConsumoMedicamentosTotal.toFixed(2)}`],
+            ['MATERIAL MEDICO QUIRÚRGICO', `Q${ConsumoQuirurgicosTotal.toFixed(2)}`],
+            ['ANESTESICOS', ''],
+            ['MATERIAL COMÚN', `Q${ConsumoComunTotal.toFixed(2)}`],
+            ['LABORATORIO CLINICO', `Q${ExamenesTotal.toFixed(2)}`],
+            ['SERVICIOS', `Q${ConsumoTotal.toFixed(2)}`],
+            ['RECUPERACION', ''],
+            ['INTENSIVO', `Q 0.00`],
+            ['EMERGENCIAS  Medico Interno', ''],
+            ['OTROS', ''],
+            ['TOTAL =', `Q${TotalGeneral.toFixed(2)}`],
+            ['TOTAL MENOS DESCUENTO =', `Q${TotalGeneral.toFixed(2)}`]
+          ],
+          startY: 41,
+          theme: 'grid',
+          styles: { fontSize: 10, cellPadding: 2, textColor: [0, 0, 0] },
+          columnStyles: {
+            0: { halign: 'left' },
+            1: { halign: 'left' }
+          },
+          didParseCell: function (data) {
+            const rowIndex = data.row.index
+            const colIndex = data.column.index
+            if (rowIndex >= 12 && colIndex === 0) {
+              data.cell.styles.halign = 'right'
+            }
+          }
+        })
+
+        const nextTableStartY = doc.lastAutoTable.finalY + 10
+
+        doc.setFontSize(12).setFont(undefined, 'normal')
+        doc.text(`FECHA ${fechaFormateada} ${horaFormateada}`, 14, nextTableStartY)
+
+        doc.setFontSize(10).setFont(undefined, 'bold')
+        doc.text('HONORARIOS MEDICOS', 100, nextTableStartY + 15, { align: 'center' })
+
+        const tableRows = medicosOrdenados.map((medico, index) => [
+          index + 1,
+          medico.medico.nombre,
+          medico.descripcion,
+          `Q${(Number(medico.total) || 0).toFixed(2)}`
+        ])
+
+        doc.autoTable({
+          head: [['#', 'MEDICO', 'DESCRIPCION', 'VALOR']],
+          body: tableRows,
+          startY: nextTableStartY + 20,
+          theme: 'grid',
+          styles: { fontSize: 10, cellPadding: 2, textColor: [0, 0, 0] },
+          headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], fontStyle: 'bold' },
+          alternateRowStyles: { fillColor: [240, 240, 240] }
+        })
+
+        const nextTableStartY2 = doc.lastAutoTable.finalY + 10
+
+        doc.setFontSize(10).setFont(undefined, 'bold')
+        doc.text('LIQUIDACION', 100, nextTableStartY2, { align: 'center' })
+
+        doc.autoTable({
+          body: [
+            ['TOTAL HOSPITALIZACION =', `Q${TotalGeneral.toFixed(2)}`],
+            ['TOTAL HONORARIOS =', `Q${TotalHonorarios.toFixed(2)}`],
+            ['TOTAL A PAGAR =', `Q${TotalApagar.toFixed(2)}`]
+          ],
+          startY: nextTableStartY2 + 5,
+          theme: 'grid',
+          styles: { fontSize: 10, cellPadding: 2, textColor: [0, 0, 0] },
+          columnStyles: {
+            0: { halign: 'left' },
+            1: { halign: 'left' }
+          },
+          didParseCell: function (data) {
+            const rowIndex = data.row.index
+            const colIndex = data.column.index
+            if (rowIndex >= 2 && colIndex === 0) {
+              data.cell.styles.halign = 'right'
+            }
+          }
+        })
+
+        const nextTableStartY3 = doc.lastAutoTable.finalY + 10
+
+        doc.setFontSize(10).setFont(undefined, 'normal')
+        doc.text('_______________________________________', 110, nextTableStartY3, { align: 'center' })
+        doc.text('Nombre y Firma del Cajero', 110, nextTableStartY3 + 5, { align: 'center' })
+
+        doc.save(`SUMARIO.PDF`)
+      } catch (error) {
+        console.error('Error al generar el reporte:', error)
+        this.$alert('Ocurrió un error al generar el reporte. Por favor, intente de nuevo.', 'Error')
+      }
     }
   }
 }
