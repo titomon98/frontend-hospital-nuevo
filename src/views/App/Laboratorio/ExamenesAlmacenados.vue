@@ -914,7 +914,6 @@ export default {
       }
     },
     async getTipos () {
-      let me = this
       await axios.get(apiUrl + '/tipos_examenes/get')
         .then((response) => {
           this.tipos = response.data.slice()
