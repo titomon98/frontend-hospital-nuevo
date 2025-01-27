@@ -1098,7 +1098,7 @@ export default {
               fillColor: [21, 21, 21],
               textColor: [225, 225, 225],
               fontStyle: 'bold'
-            },
+            }
           })
           break
         }
