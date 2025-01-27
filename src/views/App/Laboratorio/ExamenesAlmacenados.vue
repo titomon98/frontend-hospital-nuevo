@@ -444,6 +444,7 @@ export default {
   },
   mounted () {
     xray.index()
+    this.getTipos()
   },
   data () {
     return {
@@ -457,52 +458,7 @@ export default {
       perPage: 5,
       search: '',
       campos: [],
-      tipos: [
-        {
-          id: 1,
-          nombre: 'HEMATOLOGÍA'
-        },
-        {
-          id: 2,
-          nombre: 'COAGULACIÓN'
-        },
-        {
-          id: 3,
-          nombre: 'UROLOGÍA'
-        },
-        {
-          id: 4,
-          nombre: 'COPROLOGÍA'
-        },
-        {
-          id: 5,
-          nombre: 'ELECTROLITOS'
-        },
-        {
-          id: 6,
-          nombre: 'PRUEBAS CARDIACAS'
-        },
-        {
-          id: 7,
-          nombre: 'ENZIMAS'
-        },
-        {
-          id: 8,
-          nombre: 'QUÍMICA SANGUÍNEA'
-        },
-        {
-          id: 9,
-          nombre: 'BACTERIOSCOPÍA'
-        },
-        {
-          id: 10,
-          nombre: 'SEROLOGÍA'
-        },
-        {
-          id: 11,
-          nombre: 'HORMONAS'
-        }
-      ],
+      tipos: [],
       fieldsCampos: [
         {
           key: 'nombre',
@@ -956,7 +912,14 @@ export default {
             console.error('There was an error!', error)
           })
       }
-    }
+    },
+    async getTipos () {
+      let me = this
+      await axios.get(apiUrl + '/tipos_examenes/get')
+      .then((response) => {
+        this.tipos = response.data.slice()
+      })
+    },
   }
 }
 </script>

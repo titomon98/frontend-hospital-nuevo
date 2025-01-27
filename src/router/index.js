@@ -150,6 +150,7 @@ import PacientesParent from '../views/App/Pacientes/PacientesParent'
 import Cortes from '../views/App/Laboratorio/Caja/Cortes.vue'
 import ValDescuentos from '../views/App/Laboratorio/Caja/ValidarDescuentos.vue'
 import CuentasParentLaboratorio from '../views/App/Laboratorio/Caja/CuentasParent.vue'
+import TiposExamenes from '../views/App/Laboratorio/TiposExamenes.vue'
 // import Descuentos from '../views/App/Laboratorio/Caja/ValidarDescuentos.vue'
 
 // Examenes
@@ -232,6 +233,12 @@ const LaboratorioRoutes = (prop, mode) => [
     name: prop + '.encargados',
     meta: { dark: mode, auth: true, name: 'encargados' },
     component: Encargados
+  },
+  {
+    path: 'tiposexamenes',
+    name: prop + '.tiposexamenes',
+    meta: { dark: mode, auth: true, name: 'tiposexamenes' },
+    component: TiposExamenes
   }
 ]
 

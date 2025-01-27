@@ -159,5 +159,17 @@
     "class_name": "",
     "is_icon_class": true,
     "icon": "ri-account-box-fill"
+  },
+  {
+    "title": "Tipos de examen",
+    "name": "Tipos de examen",
+    "is_heading": false,
+    "is_active": false,
+    "link": {
+      "name" : "laboratorio.tiposexamenes"
+    },
+    "class_name": "",
+    "is_icon_class": true,
+    "icon": "ri-list-check"
   }
 ]
