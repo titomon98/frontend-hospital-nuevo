@@ -98,7 +98,7 @@ import Users from '../views/App/Admin/Users'
 // caja
 import Seguros from '../views/App/Caja/Seguros/Seguros.vue'
 import Contratos from '../views/App/Caja/Contratos/Contratos'
-import CortesParent from '../views/App/Caja/Cortes/CortesParent'
+// import CortesParent from '../views/App/Caja/Cortes/CortesParent'
 import CuentasParent from '../views/App/Caja/Cuentas/CuentasParent'
 import EgresosParent from '../views/App/Caja/Egresos/EgresosParent'
 import Expedientes from '../views/App/Caja/Expedientes/Expedientes'
@@ -169,6 +169,7 @@ import Encargados from '../views/App/Laboratorio/Encargados.vue'
 import Facturacion from '../views/App/Caja/Facturacion.vue'
 import FacturacionLab from '../views/App/Laboratorio/Caja/FacturacionLab.vue'
 import HospitalizacionEnfermeras from '../views/App/Enfermeria/HospitalizacionEnfermeras/HospitalizacionEnfermeras.vue'
+import CortesCaja from '../views/App/Caja/Cortes/Cortes.vue'
 
 Vue.use(VueRouter)
 
@@ -295,17 +296,23 @@ const PacientesRoutes = (prop, mode) => [
 
 const CajaRoutes = (prop, mode) => [
   {
+    path: 'cortes',
+    name: prop + '.cortes',
+    meta: { dark: mode, auth: true, name: 'cortes' },
+    component: CortesCaja
+  },
+  {
     path: 'contratos',
     name: prop + '.contratos',
     meta: { dark: mode, auth: true, name: 'contratos' },
     component: Contratos
   },
-  {
+  /* {
     path: 'cortes',
     name: prop + '.cortes',
     meta: { dark: mode, auth: true, name: 'cortes' },
     component: CortesParent
-  },
+  }, */
   {
     path: 'cuentas',
     name: prop + '.cuentas',
