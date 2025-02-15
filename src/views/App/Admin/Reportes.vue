@@ -61,6 +61,13 @@
             placeholder="Ingresar la Cantidad escrita con Inicial Mayúscula"
           ></b-form-input>
         </b-form-group>
+        <b-form-group label="Observaciones:">
+          <b-form-input
+            type="text"
+            v-model="formVoucher.observaciones"
+            placeholder="Ingresar la Cantidad escrita con Inicial Mayúscula"
+          ></b-form-input>
+        </b-form-group>
       </b-form>
       <template #modal-footer="{}">
         <b-button variant="primary" @click="crearVoucher()">Crear</b-button>
@@ -254,7 +261,7 @@
                       <b-form-radio value=2>Farmacia</b-form-radio>
                       <b-form-radio value=3>Enfermería</b-form-radio>
                       <b-form-radio value=4>Médicos</b-form-radio>
-                      <b-form-radio value=5>Pacientes</b-form-radio>
+                      <!-- <b-form-radio value=5>Pacientes</b-form-radio> -->
                     </b-form-radio-group>
                   </b-form-group>
                </div>
@@ -265,7 +272,7 @@
                 <b-form-select v-model="selectedReport" v-if="selectedArea == 4" :options="reportOptionsMedicos" @change="onReportChange()"></b-form-select>
                 <b-form-select v-model="selectedReport" v-if="selectedArea == 5" :options="reportOptionsPacientes" @change="onReportChange()"></b-form-select>
                </div>
-               <div v-if="selectedArea != 1">
+              <div v-if="selectedArea != 1">
                <div>
                 <label for="start-date">Fecha de inicio</label>
                   <b-form-datepicker
@@ -292,15 +299,15 @@
               </div>
               </div>
                <div v-if="selectedArea==1">
-              <div v-if="selectedReport === 2 && selectedArea === 1 ">
+              <div v-if="selectedReport == 2 && selectedArea == 1 ">
                 <label for="example-datepicker">Fecha a buscar</label>
                 <b-form-datepicker id="example-datepicker" v-model="startDate" :date-format-options="{ year: 'numeric', month: 'numeric', day: 'numeric' }" class="mb-2"></b-form-datepicker>
               </div>
-              <div v-if="selectedReport === 4 && selectedArea === 1 ">
+              <div v-if="selectedReport == 4 && selectedArea == 1 ">
                 <label for="reportPAyment">tipo de pago</label>
                 <b-form-select id="reportPAyment" v-model="reportPayment" :options="paymentOptions"></b-form-select>
               </div>
-              <div v-if="selectedReport !== 2 && selectedArea === 1 ">
+              <div v-if="selectedReport != 2 && selectedArea == 1 ">
                 <label for="example-datepicker">Fecha de inicio</label>
                 <b-form-datepicker id="example-datepicker" v-model="startDate" :date-format-options="{ day: 'numeric', month: 'numeric', year: 'numeric' }" class="mb-2"></b-form-datepicker>
                 <label for="example-datepicker2">Fecha fin</label>
@@ -309,15 +316,15 @@
               <div v-if="selectedReport != null">
                 <b-button variant="primary" @click="generateReport()">Generar Reporte</b-button>
                 <b-button variant="primary" @click="selectPDFReport()">Descargar PDF</b-button>
-                <b-button v-if="selectedReport <= 2 && selectedArea === 1 " variant="primary" @click="generateExcel()">Descargar Excel</b-button>
+                <b-button v-if="selectedReport <= 2 && selectedArea == 1 " variant="primary" @click="generateExcel()">Descargar Excel</b-button>
               </div>
               </div>
             </template>
           <template v-slot:headerAction>
           </template>
           <template v-slot:body>
-            <div v-if ="selectedReport === 4 && selectedArea === 1">
-              {{ selectedReport === 4 && selectedArea === 1 ? 'Reporte de pagos en ' + reportPayment : '' }} {{simpWallet.length > 0?simpWallet[0].total:'' }}
+            <div v-if ="selectedReport == 4 && selectedArea == 1">
+              {{ selectedReport == 4 && selectedArea == 1 ? 'Reporte de pagos en ' + reportPayment : '' }} {{simpWallet.length > 0?simpWallet[0].total:'' }}
             </div>
             <div v-else>
               <b-table
@@ -460,7 +467,8 @@ export default {
         { value: 1, text: 'Ingresos entre fechas' },
         { value: 2, text: 'Ingresos por día' },
         { value: 3, text: 'Medios de pago' },
-        { value: 4, text: 'Medio de pago específico' }
+        { value: 4, text: 'Medio de pago específico' },
+        { value: 5, text: 'Medios de pago por paciente' }
       ],
       paymentOptions: [
         { value: 'efectivo', text: 'Efectivo' },
@@ -843,6 +851,7 @@ export default {
         }
       ],
       expedientes: [],
+      mediosPagoPacientes: null,
       // Farmcia
       pdf_select_farmacia: null,
       dataFarmacia: null,
@@ -863,7 +872,8 @@ export default {
         id_paciente: null,
         medico: null,
         cantidad: null,
-        cantidadEscrita: null
+        cantidadEscrita: null,
+        observaciones: null
       }
     }
   },
@@ -1050,6 +1060,14 @@ export default {
           this.pdf.text('Reporte del ingreso a ' + this.reportPayment + ' del ' + this.startDate + ' al ' + this.endDate, 7, altura)
           break
         }
+        case 5: {
+          this.pdfName = 'Reporte_Medio_de_Pago_por_Paciente.pdf'
+          altura = altura + 0.5
+          altura = altura + 0.5
+          altura = altura + 0.5
+          this.pdf.text('Reporte de Los Medios de pago por paciente del ' + this.startDate + ' al ' + this.endDate, 7, altura)
+          break
+        }
       }
       // Encabezado
       altura = altura + 0.5
@@ -1107,6 +1125,51 @@ export default {
           this.pdf.text('Pagos por medio de ' + this.reportPayment + ' del ' + this.startDate + ' al ' + this.endDate + ': ' + this.simpWallet[0].total, 7, altura)
           break
         }
+        case 5: {
+          const pagos = this.mediosPagoPacientes
+          const tiposPago = Object.keys(pagos)
+          let startY = altura + 1
+          let firstPage = true
+
+          tiposPago.forEach(tipoPago => {
+            if (pagos[tipoPago].length > 0) {
+              if (!firstPage) {
+                this.pdf.addPage()
+                startY = 2
+              }
+              firstPage = false
+
+              this.pdf.setFontSize(14)
+              this.pdf.text(`PAGOS CON ${tipoPago.toUpperCase()}`, 2, startY)
+              startY += 1
+
+              const transformedData = pagos[tipoPago].map(item => ({
+                NumeroCuenta: item.NumeroCuenta,
+                NombreExpediente: item.NombreExpediente,
+                Tipo: item.Tipo,
+                Total: (Number(item.Total)).toFixed(2)
+              }))
+              autoTable(this.pdf, {
+                columns: [
+                  { header: 'Cuenta', dataKey: 'NumeroCuenta' },
+                  { header: 'Paciente', dataKey: 'NombreExpediente' },
+                  { header: 'Tipo', dataKey: 'Tipo' },
+                  { header: 'Total', dataKey: 'Total' }
+                ],
+                body: transformedData,
+                startY: startY,
+                margin: { top: 0.5 },
+                headStyles: {
+                  fillColor: [21, 21, 21],
+                  textColor: [225, 225, 225],
+                  fontStyle: 'bold'
+                }
+              })
+              startY = this.pdf.autoTable.previous.finalY + 2
+            }
+          })
+          break
+        }
       }
       var pdfData = this.pdf.output('blob')
       // Convert PDF to data URL
@@ -1154,6 +1217,10 @@ export default {
           this.modPdf(3)
           break
         }
+        case 5: {
+          this.modPdf(5)
+          break
+        }
       }
       console.log(this.selectedReport)
     },
@@ -1173,6 +1240,10 @@ export default {
         }
         case 4: {
           await this.simpleWallet()
+          break
+        }
+        case 5: {
+          await this.mediosPago()
           break
         }
         default: {
@@ -1260,6 +1331,15 @@ export default {
       this.reportItems = res.data
       console.log(this.reportItems)
       this.$refs.reportTable.refresh()
+    },
+    async mediosPago () {
+      let res = await axios.get(apiUrl + '/reporte/mediosPagoPaciente', {
+        params: {
+          fecha_inicio: this.startDate,
+          fecha_final: this.endDate
+        }
+      })
+      this.mediosPagoPacientes = res.data
     },
     showAlert () {
       this.alertCountDown = this.alertSecs
@@ -4116,12 +4196,13 @@ export default {
           index + 1,
           paciente.paciente,
           paciente.expediente,
+          paciente.tipoPago,
           new Date(paciente.fecha).toLocaleDateString(),
           `Q${paciente.total}`
         ])
 
         doc.autoTable({
-          head: [['#', 'Nombre del Paciente', 'No. Expediente', 'Fecha', 'Honorarios']],
+          head: [['#', 'Nombre del Paciente', 'No. Expediente', 'Tipo pago', 'Fecha', 'Honorarios']],
           body: tableRows,
           startY: currentY + 5,
           theme: 'grid',
@@ -4133,18 +4214,28 @@ export default {
         currentY = doc.lastAutoTable.finalY + 10
 
         doc.setFontSize(10).setFont(undefined, 'bold')
-        doc.text(`TOTAL:                    Q${data.cantidad}`, 133, currentY - 5)
-        doc.text('________________________________', 133, currentY - 4)
-        doc.text('________________________________', 133, currentY - 3)
+        doc.text(`TOTAL:             Q${data.cantidad}`, 143, currentY - 5)
+        doc.text('__________________________', 143, currentY - 4)
+        doc.text('__________________________', 143, currentY - 3)
 
         doc.setFontSize(10).setFont(undefined, 'normal')
         doc.text('F)._________________________________________', 20, currentY + 10)
         doc.text(`PAGUESE A: ${data.medico.nombre}.`, 20, currentY + 16)
         doc.text(`LA SUMA DE: ${data.cantidadEscrita}.`, 20, currentY + 22)
-        doc.text('-------------------------------------------------------------', 0, currentY + 28)
-        doc.text('-------------------------------------------------------------', 71.7, currentY + 28)
-        doc.text('---------------------------------------------------------', 142.3, currentY + 28)
 
+        if (data.observaciones != null) {
+          doc.autoTable({
+            body: [
+              [{ content: 'Observaciones', styles: { halign: 'center' } }],
+              [{ content: `${data.observaciones}`, styles: { halign: 'left' } }]
+            ],
+            startY: currentY + 28,
+            theme: 'grid',
+            styles: { fontSize: 10, cellPadding: 2, textColor: [0, 0, 0] }
+          })
+
+          currentY = doc.lastAutoTable.finalY
+        }
         doc.save(`Vaoucher_Pago_Honorarios_${data.medico.nombre}_Fecha_${moment(fechaInicio).format('DD/MM/YYYY')}.pdf`)
       } catch (error) {
         console.error('Error al generar el reporte:', error)

@@ -616,7 +616,7 @@
                    >Consumos</b-button>
 
                    <b-button
-                    @click="generarReporteCuentaParcial(props.rowData.id, props.rowData.nombres, props.rowData.apellidos, props.rowData.fecha_ingreso_reciente)"
+                    @click="generarReporteCuentaParcial(props.rowData.id, props.rowData.nombres, props.rowData.apellidos)"
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="dark"
@@ -1758,13 +1758,13 @@ export default {
       this.form.state = data.estado
       this.form.id = data.id
     },
-          /* GENERAR CUENTA PARCIAL PARA EL PACIENTE */
-    generarReporteCuentaParcial (id, nombres, apellidos, fechaIngreso) {
+    /* GENERAR CUENTA PARCIAL PARA EL PACIENTE */
+    generarReporteCuentaParcial (id, nombres, apellidos) {
       axios.get(apiUrl + `/consumos/sumario/${id}`)
         .then((response) => {
           this.dataPDFsumario = response.data
           this.nombrePaciente = nombres + ' ' + apellidos
-          this.fechaIngreso = fechaIngreso
+          this.fechaIngreso = this.dataPDFsumario.fechaFormateada
           this.mostrarReporte(response.data)
         })
         .catch((error) => {
@@ -1773,7 +1773,6 @@ export default {
           this.showAlertError()
         })
     },
-
     mostrarReporte (reporte) {
       let totalDeuda = 0
 
@@ -1809,10 +1808,8 @@ export default {
 
       this.$bvModal.show('reporteModal')
     },
-
     async generarPDF_CuentaParcial () {
       const data = this.dataPDFsumario
-      console.log(data)
       const FechaIngreso = this.fechaIngreso
       const fechaActual = new Date()
       const fechaFormateada = fechaActual.toLocaleDateString('es-ES')
@@ -1830,24 +1827,42 @@ export default {
         mensajeDias = diasDiferencia
       }
 
+      let hospitalizacion
+
+      if (mensajeDias >= 2) {
+        hospitalizacion = data.costo2 * mensajeDias
+      } else {
+        hospitalizacion = data.costo1
+      }
+
       try {
         const ConsumoTotal = data.consumos.reduce((acc, item) => acc + parseFloat(item.subtotal), 0)
         const ConsumoComunTotal = data.consumosComunes.reduce((acc, item) => acc + parseFloat(item.total), 0)
         const ConsumoMedicamentosTotal = data.consumosMedicamentos.reduce((acc, item) => acc + parseFloat(item.total), 0)
         const ConsumoQuirurgicosTotal = data.consumosQuirurgicos.reduce((acc, item) => acc + parseFloat(item.total), 0)
-        const ExamenesTotal = data.examenes.reduce((acc, item) => acc + parseFloat(item.total), 0)
+        const ExamenesTotal = data.examenes.reduce((acc, item) => acc + item.total, 0)
         const ServicioSalaOperacionesTotal = data.salaOperaciones.reduce((acc, item) => acc + parseFloat(item.total), 0)
         const TotalHonorarios = data.honorarios.reduce((acc, item) => acc + parseFloat(item.total), 0)
         const medicosOrdenados = data.honorarios.sort((a, b) => b.total - a.total)
+
         const TotalGeneral =
           ConsumoTotal +
           ConsumoComunTotal +
           ConsumoMedicamentosTotal +
           ConsumoQuirurgicosTotal +
           ExamenesTotal +
-          ServicioSalaOperacionesTotal
+          ServicioSalaOperacionesTotal +
+          hospitalizacion
 
-        const TotalApagar = TotalGeneral + TotalHonorarios
+        const TotalGeneral2 =
+          ConsumoTotal +
+          ConsumoComunTotal +
+          ConsumoMedicamentosTotal +
+          ConsumoQuirurgicosTotal +
+          ServicioSalaOperacionesTotal +
+          hospitalizacion
+
+        const TotalApagar = TotalGeneral2 + TotalHonorarios + ExamenesTotal
 
         const workbook = new ExcelJS.Workbook()
         const sheet = workbook.addWorksheet('Resumen')
@@ -1858,7 +1873,7 @@ export default {
         sheet.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' }
 
         sheet.mergeCells('A2:F2')
-        sheet.getCell('A2').value = 'CUENTA DE PACIENTE'
+        sheet.getCell('A2').value = 'CUENTA PARCIAL'
         sheet.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle' }
 
         // Información de paciente
@@ -1876,7 +1891,7 @@ export default {
         // Tabla de consumos
         sheet.getCell('A9').value = 'CONSUMOS'
         sheet.getCell('A10').value = 'HOSPITALIZACION'
-        sheet.getCell('B10').value = `Q 0.00`
+        sheet.getCell('B10').value = `${hospitalizacion.toFixed(2)}`
         sheet.getCell('A11').value = 'SALA DE OPERACIONES'
         sheet.getCell('B11').value = `Q${ServicioSalaOperacionesTotal.toFixed(2)}`
         sheet.getCell('A12').value = 'CONSUMO MEDICAMENTOS'
@@ -1887,21 +1902,22 @@ export default {
         sheet.getCell('B14').value = ''
         sheet.getCell('A15').value = 'MATERIAL COMÚN'
         sheet.getCell('B15').value = `Q${ConsumoComunTotal.toFixed(2)}`
-        sheet.getCell('A16').value = 'LABORATORIO CLINICO'
-        sheet.getCell('B16').value = `Q${ExamenesTotal.toFixed(2)}`
-        sheet.getCell('A17').value = 'SERVICIOS'
-        sheet.getCell('B17').value = `Q${ConsumoTotal.toFixed(2)}`
-        sheet.getCell('A18').value = 'RECUPERACION'
-        sheet.getCell('B18').value = ''
-        sheet.getCell('A19').value = 'INTENSIVO'
-        sheet.getCell('B19').value = 'Q 0.00'
-        sheet.getCell('A20').value = 'EMERGENCIAS Medico Interno'
+        sheet.getCell('A16').value = 'SERVICIOS'
+        sheet.getCell('B16').value = `Q${ConsumoTotal.toFixed(2)}`
+        sheet.getCell('A17').value = 'RECUPERACION'
+        sheet.getCell('B17').value = ''
+        sheet.getCell('A18').value = 'INTENSIVO'
+        sheet.getCell('B18').value = 'Q 0.00'
+        sheet.getCell('A19').value = 'EMERGENCIAS Medico Interno'
+        sheet.getCell('B19').value = ''
+        sheet.getCell('A20').value = 'OTROS'
         sheet.getCell('B20').value = ''
-        sheet.getCell('A21').value = 'OTROS'
-        sheet.getCell('B21').value = ''
-        sheet.getCell('A22').value = 'TOTAL ='
+        sheet.getCell('A21').value = 'TOTAL HOSPITALIZACION ='
+        sheet.getCell('A21').alignment = { horizontal: 'right', vertical: 'middle' }
+        sheet.getCell('B21').value = `Q${TotalGeneral2.toFixed(2)}`
+        sheet.getCell('A22').value = 'TOTAL LAB. BIOMEDICO E.O. S.A. ='
         sheet.getCell('A22').alignment = { horizontal: 'right', vertical: 'middle' }
-        sheet.getCell('B22').value = `Q${TotalGeneral.toFixed(2)}`
+        sheet.getCell('B22').value = `Q${ExamenesTotal.toFixed(2)}`
         sheet.getCell('A23').value = 'TOTAL MENOS DESCUENTO ='
         sheet.getCell('A23').alignment = { horizontal: 'right', vertical: 'middle' }
         sheet.getCell('B23').value = `Q${TotalGeneral.toFixed(2)}`
@@ -1911,7 +1927,7 @@ export default {
 
         // Honorarios médicos
         sheet.mergeCells('A27:D27')
-        sheet.getCell('A27').value = 'HONORARIOS MEDICOS'
+        sheet.getCell('A27').value = 'HONORARIOS MEDICOS Y OTROS SERVICIOS'
         sheet.getCell('A27').alignment = { horizontal: 'center', vertical: 'middle' }
         sheet.getCell('A27').font = { bold: true }
 
@@ -1938,18 +1954,24 @@ export default {
 
         row++
         sheet.getCell(`A${row}`).value = 'TOTAL HOSPITALIZACION ='
-        sheet.getCell(`B${row}`).value = `Q${(Number(TotalGeneral) || 0).toFixed(2)}`
+        sheet.getCell(`B${row}`).value = `Q${(Number(TotalGeneral2) || 0).toFixed(2)}`
         sheet.getCell(`A${row}`).alignment = { horizontal: 'right' }
         sheet.getCell(`B${row}`).alignment = { horizontal: 'left' }
 
-        row++;
-        sheet.getCell(`A${row}`).value = 'TOTAL HONORARIOS ='
+        row++
+        sheet.getCell(`A${row}`).value = 'TOTAL LAB. BIOMEDICO E.O. S.A. ='
+        sheet.getCell(`B${row}`).value = `Q${(Number(ExamenesTotal) || 0).toFixed(2)}`
+        sheet.getCell(`A${row}`).alignment = { horizontal: 'right' }
+        sheet.getCell(`B${row}`).alignment = { horizontal: 'left' }
+
+        row++
+        sheet.getCell(`A${row}`).value = 'TOTAL HONORARIOS MEDICOS Y OTROS SERVICIOS ='
         sheet.getCell(`B${row}`).value = `Q${(Number(TotalHonorarios) || 0).toFixed(2)}`
         sheet.getCell(`A${row}`).alignment = { horizontal: 'right' }
         sheet.getCell(`B${row}`).alignment = { horizontal: 'left' }
 
-        row++;
-        sheet.getCell(`A${row}`).value = 'TOTAL A PAGAR =';
+        row++
+        sheet.getCell(`A${row}`).value = 'TOTAL A PAGAR ='
         sheet.getCell(`B${row}`).value = `Q${(Number(TotalApagar) || 0).toFixed(2)}`
         sheet.getCell(`A${row}`).alignment = { horizontal: 'right' }
         sheet.getCell(`B${row}`).alignment = { horizontal: 'left' }

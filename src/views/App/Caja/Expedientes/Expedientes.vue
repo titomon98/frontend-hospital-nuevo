@@ -642,7 +642,7 @@
                   </b-button>
                   <b-button
                     v-b-tooltip.top="'Generar Sumario'"
-                    @click="generarReporteCuentaParcial(props.rowData.id, props.rowData.nombres, props.rowData.apellidos, props.rowData.fecha_ingreso_reciente)"
+                    @click="generarReporteCuentaParcial(props.rowData.id, props.rowData.nombres, props.rowData.apellidos)"
                     class="mb-2"
                     size="sm"
                     variant="outline-primary"
@@ -1415,13 +1415,12 @@ E MI
     },
 
     /* AREA SUMARIO */
-    generarReporteCuentaParcial (id, nombres, apellidos, fechaIngreso) {
+    generarReporteCuentaParcial (id, nombres, apellidos) {
       axios.get(apiUrl + `/consumos/sumario/${id}`)
         .then((response) => {
           this.dataPDFsumario = response.data
           this.nombrePaciente = nombres + ' ' + apellidos
-          this.generarPdfSumario(fechaIngreso)
-          this.generarExcelSumario(fechaIngreso)
+          this.generarPdfSumario(this.dataPDFsumario.fechaFormateada)
         })
         .catch((error) => {
           console.error('Error al generar el reporte de cuenta parcial:', error)
@@ -1447,6 +1446,14 @@ E MI
         mensajeDias = diasDiferencia
       }
 
+      let hospitalizacion
+
+      if (mensajeDias >= 2) {
+        hospitalizacion = data.costo2 * mensajeDias
+      } else {
+        hospitalizacion = data.costo1
+      }
+
       try {
         const ConsumoTotal = data.consumos.reduce((acc, item) => acc + parseFloat(item.subtotal), 0)
         const ConsumoComunTotal = data.consumosComunes.reduce((acc, item) => acc + parseFloat(item.total), 0)
@@ -1463,9 +1470,18 @@ E MI
           ConsumoMedicamentosTotal +
           ConsumoQuirurgicosTotal +
           ExamenesTotal +
-          ServicioSalaOperacionesTotal
+          ServicioSalaOperacionesTotal +
+          hospitalizacion
 
-        const TotalApagar = TotalGeneral + TotalHonorarios
+        const TotalGeneral2 =
+          ConsumoTotal +
+          ConsumoComunTotal +
+          ConsumoMedicamentosTotal +
+          ConsumoQuirurgicosTotal +
+          ServicioSalaOperacionesTotal +
+          hospitalizacion
+
+        const TotalApagar = TotalGeneral2 + TotalHonorarios + ExamenesTotal
         const doc = new JsPDF()
 
         doc.setFontSize(10).setFont(undefined, 'bold')
@@ -1497,19 +1513,19 @@ E MI
 
         doc.autoTable({
           body: [
-            ['HOSPITALIZACION', `Q 0.00`],
+            ['HOSPITALIZACION', `Q${hospitalizacion.toFixed(2)}`],
             ['SALA DE OPERACIONES', `Q${ServicioSalaOperacionesTotal.toFixed(2)}`],
             ['CONSUMO MEDICAMENTOS', `Q${ConsumoMedicamentosTotal.toFixed(2)}`],
             ['MATERIAL MEDICO QUIRÚRGICO', `Q${ConsumoQuirurgicosTotal.toFixed(2)}`],
             ['ANESTESICOS', ''],
             ['MATERIAL COMÚN', `Q${ConsumoComunTotal.toFixed(2)}`],
-            ['LABORATORIO CLINICO', `Q${ExamenesTotal.toFixed(2)}`],
             ['SERVICIOS', `Q${ConsumoTotal.toFixed(2)}`],
             ['RECUPERACION', ''],
             ['INTENSIVO', `Q 0.00`],
             ['EMERGENCIAS  Medico Interno', ''],
             ['OTROS', ''],
-            ['TOTAL =', `Q${TotalGeneral.toFixed(2)}`],
+            ['TOTAL HOSPITALIZACION =', `Q${TotalGeneral2.toFixed(2)}`],
+            ['TOTAL LAB. BIOMEDICO E.O. S.A. =', `Q${ExamenesTotal.toFixed(2)}`],
             ['TOTAL MENOS DESCUENTO =', `Q${TotalGeneral.toFixed(2)}`]
           ],
           startY: 41,
@@ -1522,7 +1538,7 @@ E MI
           didParseCell: function (data) {
             const rowIndex = data.row.index
             const colIndex = data.column.index
-            if (rowIndex >= 12 && colIndex === 0) {
+            if (rowIndex >= 11 && colIndex === 0) {
               data.cell.styles.halign = 'right'
             }
           }
@@ -1534,7 +1550,7 @@ E MI
         doc.text(`FECHA ${fechaFormateada} ${horaFormateada}`, 14, nextTableStartY)
 
         doc.setFontSize(10).setFont(undefined, 'bold')
-        doc.text('HONORARIOS MEDICOS', 100, nextTableStartY + 15, { align: 'center' })
+        doc.text('HONORARIOS MEDICOS Y OTROS SERVICIOS', 100, nextTableStartY + 15, { align: 'center' })
 
         const tableRows = medicosOrdenados.map((medico, index) => [
           index + 1,
@@ -1560,8 +1576,9 @@ E MI
 
         doc.autoTable({
           body: [
-            ['TOTAL HOSPITALIZACION =', `Q${TotalGeneral.toFixed(2)}`],
-            ['TOTAL HONORARIOS =', `Q${TotalHonorarios.toFixed(2)}`],
+            ['TOTAL HOSPITALIZACION', `Q${TotalGeneral2.toFixed(2)}`],
+            ['TOTAL LAB. BIOMEDICO E.O. S.A.', `Q${ExamenesTotal.toFixed(2)}`],
+            ['TOTAL HONORARIOS MEDICOS Y OTROS SERVICIOS', `Q${TotalHonorarios.toFixed(2)}`],
             ['TOTAL A PAGAR =', `Q${TotalApagar.toFixed(2)}`]
           ],
           startY: nextTableStartY2 + 5,
@@ -1574,7 +1591,7 @@ E MI
           didParseCell: function (data) {
             const rowIndex = data.row.index
             const colIndex = data.column.index
-            if (rowIndex >= 2 && colIndex === 0) {
+            if (rowIndex >= 3 && colIndex === 0) {
               data.cell.styles.halign = 'right'
             }
           }
