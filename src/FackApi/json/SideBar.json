@@ -44,6 +44,17 @@
     "icon": "ri-briefcase-4-fill",
     "children": [
       {
+        "title": "Cortes",
+        "name": "Cortes",
+        "is_active": false,
+        "link": {
+          "name" : "caja.cortes"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-user-add-fill"
+      },
+      {
         "title": "Nuevo Ingreso",
         "name": "Nuevo Ingreso",
         "is_active": false,
