@@ -79,10 +79,14 @@
           <b-col md="3">
             <b-form-group label="Edad:">
               <b-form-input
-              type="number"
-              v-model.trim="form.edad"
-              placeholder="Ingresar la edad del paciente"
+                v-model.trim="$v.form.edad.$model"
+                :state="!$v.form.edad.$error"
+                placeholder="Ingresar la edad del paciente"
+                type="number"
               ></b-form-input>
+              <div v-if="$v.form.edad.required.$invalid" class="invalid-feedback">
+                Debe ingresar la edad del paciente
+              </div>
             </b-form-group>
           </b-col>
           <b-col md="3">
@@ -156,13 +160,9 @@
           <b-col md="3">
             <b-form-group label="Referido:">
               <b-form-input
-                v-model.trim="$v.form.referido.$model"
-                :state="!$v.form.referido.$error"
+                v-model="form.referido"
                 placeholder="Ingresar Referido"
               ></b-form-input>
-              <div v-if="$v.form.referido.required.$invalid" class="invalid-feedback">
-                Ingresar Rerido
-              </div>
             </b-form-group>
           </b-col>
         </b-row>
@@ -195,7 +195,7 @@
           <b-col md="12">
             <b-form-group label="Tipo de Examen:">
               <div v-if="isLoading">
-              <p>Cargando...</p>
+                <p>Cargando...</p>
               </div>
               <Multiselect
                 v-model="selectedExamenes"
@@ -212,12 +212,24 @@
                 :page="currentPageExa"
                 @page-change="onPageChangeExa"
               >
-              <template slot="selection" slot-scope="{ values, search, isOpen }">
-                  <span class="multiselect__single" v-if="values.length &amp;&amp; !isOpen">{{ values.length }}
-                    exámenes seleccionados
-                 </span>
-              </template>
+                <!-- Personalización de las opciones mientras el usuario busca -->
+                <template v-slot:option="{ option }">
+                  <div class="custom-option">
+                    <strong>{{ option.nombre }}</strong> --
+                    <small>Precio normal: Q{{ option.precio_normal }}</small> |
+                    <small>Extraordinario: Q{{ option.precio_sobrecargo }}</small>
+                  </div>
+                </template>
+
+                <!-- Personalización de cómo se muestran los seleccionados -->
+                <template v-slot:selection="{ values, search, isOpen }">
+                  <span class="multiselect__single" v-if="values.length && !isOpen">
+                    {{ values.length }} exámenes seleccionados
+                  </span>
+                </template>
               </Multiselect>
+
+              <!-- Mostrar la lista de exámenes seleccionados -->
               <div>
                 <ul class="selected-options-list" v-if="selectedExamenes.length > 0">
                   <li v-for="(examen, index) in selectedExamenes" :key="examen.id">
@@ -544,9 +556,9 @@ import axios from 'axios'
 import useVuelidate from '@vuelidate/core'
 import { required } from '@vuelidate/validators'
 /* import { quillEditor } from 'vue-quill-editor' */
+import logo from '../../../../src/assets/images/logoLab.jpg'
 import Multiselect from 'vue-multiselect'
 import JsPDF from 'jspdf'
-/* import autoTable from 'jspdf-autotable' */
 export default {
   name: 'Examenes',
   components: {
@@ -896,14 +908,11 @@ export default {
   validations () {
     return {
       form: {
-        cui: { required },
         edad: { required },
         comision: { required },
         total: { required },
-        correo: { required },
         whatsapp: { required },
         numero_muestra: { required },
-        referido: { required },
         pagado: { required },
         por_pagar: { required }
       }
@@ -964,6 +973,8 @@ export default {
           this.form.id_encargado = null
           this.form.pagado = 0
           this.form.por_pagar = 0
+          this.form.nit = null
+          this.form.factura = null
           this.form.id_examenes_almacenados = null
           this.examenes_almacenados = []
           this.expedientesExamenes = []
@@ -1258,91 +1269,6 @@ export default {
 
     /* AREA PARA AGREGAR, VER E IMPRIMIR RESULTADOS */
 
-    /* generarPDF (Data) {
-      const data = Data
-      const Doc = new JsPDF()
-      Doc.setFontSize(12)
-      Doc.text('Resultados del Examen', 10, 10)
-      Doc.line(10, 15, 200, 15)
-
-      let yPos = 25
-      data.forEach(item => {
-        Doc.text(`ID: ${item.id}`, 10, yPos)
-        Doc.text(`Tipo: ${item.tipo}`, 10, yPos + 10)
-        Doc.text(`Resultados: ${item.resultados}`, 10, yPos + 20)
-        Doc.text(`Fecha y Hora: ${item.fecha_hora}`, 10, yPos + 30)
-
-        yPos += 40
-
-        if (yPos < Doc.internal.pageSize.height - 10) {
-          Doc.line(10, yPos - 5, 200, yPos - 5)
-        }
-      })
-      window.open(Doc.output('bloburl'), '_blank')
-    }, */
-
-    generarPDF (Data) {
-      const data = Data.map(item => ({
-        campo: item.campo,
-        tipo_examen: item.tipo_examen,
-        resultado: parseFloat(item.resultado).toFixed(2),
-        intervalo: `${parseFloat(item.valor_minimo).toFixed(2)} - ${parseFloat(item.valor_maximo).toFixed(2)}`,
-        alarma: item.alarma !== null ? item.alarma : ''
-      }))
-
-      const doc = new JsPDF()
-
-      doc.setFontSize(12)
-      doc.text('Resultados del Examen', 10, 10)
-      doc.line(10, 15, 200, 15)
-
-      let yPos = 25
-
-      // Encabezados de la tabla
-      const headers = ['Campo', 'Tipo de Examen', 'Resultado', 'Intervalo', 'Alarma']
-      const headerYPos = yPos
-
-      // Dibuja los encabezados
-      headers.forEach((header, index) => {
-        doc.text(header, 10 + (index * 40), headerYPos) // Ajusta el espacio entre columnas
-      })
-
-      // Dibuja las filas de datos
-      data.forEach((item, index) => {
-        yPos += 10 // Espaciado entre filas
-
-        doc.text(item.campo, 10, yPos)
-        doc.text(item.tipo_examen, 55, yPos)
-        doc.text(item.resultado.toString(), 95, yPos)
-        doc.text(item.intervalo, 130, yPos)
-        doc.text(item.alarma, 175, yPos)
-
-        // Verifica si es necesario agregar una nueva página
-        if (yPos >= 260) { // Cambia el valor según el tamaño de página
-          doc.addPage()
-          yPos = 25 // Reinicia la posición
-        }
-      })
-
-      // Abre el PDF generado en una nueva ventana
-      window.open(doc.output('bloburl'), '_blank')
-    },
-
-    /* ImprimirResultado (id) {
-      this.apiBaseResultado = apiUrl + `/detalleExamenRealizado/get?id=${id}`
-      /* AQUI LLAMAR POR MEDIO DE AXIOS A LA RUTA  PARA LLENAR LA VARIABLE
-      axios.get(this.apiBaseResultado)
-        .then((response) => {
-          this.apiBaseResultado = response.data
-          this.generarPDF(this.apiBaseResultado)
-        })
-        .catch((error) => {
-          console.error('Error al obtener los detalles del examen:', error)
-        })
-      /* AL TENER LLENA LA VARIABLE YA SE PUEDE GENERAR PDF
-      this.generarPDF()
-    }, */
-
     ImprimirResultado (id) {
       this.apiBaseResultado = apiUrl + `/detalleExamenRealizado/get?id=${id}`
 
@@ -1462,6 +1388,53 @@ export default {
     onChangePageResultado (page) {
       this.$refs.vuetableResultado.changePage(page)
     },
+    // GENERAR PDF DE RESULTADOS
+    generarPDF (Data) {
+      const data = Data.map(item => ({
+        campo: item.campo,
+        tipo_examen: item.tipo_examen,
+        resultado: parseFloat(item.resultado).toFixed(2),
+        unidades: item.unidades,
+        intervalo: `${parseFloat(item.valor_minimo).toFixed(2)} - ${parseFloat(item.valor_maximo).toFixed(2)}`,
+        alarma: item.alarma !== null ? item.alarma : ''
+      }))
+
+      const doc = new JsPDF()
+
+      // Encabezado
+      doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('LABORATORIO BIOMÉDICO E.O. S.A.', 110, 20, { align: 'center' })
+
+      // Título del reporte
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text(`RESULTADOS DE EXAMENES`, 105, 30, { align: 'center' })
+
+      // Tipo de examen
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text(`${data.tipo_examen}`, 105, 50, { align: 'center' })
+
+      // Tabla de resultados
+      doc.autoTable({
+        head: [['Prueba', 'Resultado', 'Alarma', 'Unidades', 'Intervalo de referencia']],
+        body: data.map(item => [
+          item.campo,
+          item.resultado,
+          item.alarma,
+          item.unidades,
+          item.intervalo
+        ]),
+        startY: 60,
+        theme: 'grid',
+        styles: { fontSize: 10, cellPadding: 2 },
+        headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [240, 240, 240] }
+      })
+
+      doc.save(`Resultados_Examen_${moment().format('YYYY-MM-DD')}.pdf`)
+    },
+
+    // AREA DE MEDICOS
     onSearchDatosMedicos (search, loading) {
       if (search.length) {
         loading(true)
