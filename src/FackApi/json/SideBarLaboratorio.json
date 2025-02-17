@@ -14,7 +14,7 @@
     "is_heading": false,
     "is_active": false,
     "link": {
-      "name": "dashboard.home-1"
+      "name": "dashboard.home-2"
     },
     "class_name": "",
     "is_icon_class": true,
@@ -36,22 +36,44 @@
         "name": "Cortes",
         "is_active": false,
         "link": {
-          "name" : "caja.cortes_lab"
+          "name" : "laboratorio.cortes"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-shopping-cart-fill"
+        "icon": "ri-scissors-fill"
       },
       {
         "title": "Cuentas por cobrar",
         "name": "Cuentas por cobrar",
         "is_active": false,
         "link": {
-          "name" : "caja.cuentas_lab"
+          "name" : "laboratorio.cuentas"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-shopping-cart-fill"
+        "icon": "ri-money-dollar-circle-fill"
+      },
+      {
+        "title": "Facturación",
+        "name": "Facturación",
+        "is_active": false,
+        "link": {
+          "name" : "laboratorio.facturacion"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-file-text-fill"
+      },
+      {
+        "title": "Descuentos",
+        "name": "Descuentos",
+        "is_active": false,
+        "link": {
+          "name" : "laboratorio.descuentos"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-price-tag-3-line"
       }
     ]
   },
@@ -61,11 +83,11 @@
     "is_heading": false,
     "is_active": false,
     "link": {
-      "name" : "examenes.examenesparent"
+      "name" : "laboratorio.examenes"
     },
     "class_name": "",
     "is_icon_class": true,
-    "icon": "ri-briefcase-4-fill"
+    "icon": "ri-article-line"
   },
   {
     "title": "Estadísticas",
@@ -74,33 +96,45 @@
     "is_active": false,
     "class_name": "",
     "is_icon_class": true,
-    "icon": "ri-briefcase-4-fill",
+    "icon": "ri-bar-chart-fill",
     "link": {
     },
     "children": [
       {
         "title": "Exámenes internos",
-        "name": "Exámenes internos",
+        "name": "Reporte Exámenes",
         "is_active": false,
         "link": {
-          "name" : "estadistica.estadistica_internos"
+          "name" : "laboratorio.examenesinternos"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-shopping-cart-fill"
+        "icon": "ri-file-text-line"
       },
       {
         "title": "Incentivos",
-        "name": "Incentivos",
+        "name": "Comisiones a medicos",
         "is_active": false,
         "link": {
-          "name" : "estadistica.estadistica_incentivos"
+          "name" : "laboratorio.incentivos"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-shopping-cart-fill"
+        "icon": "ri-money-dollar-circle-line"
       }
     ]
+  },
+  {
+    "title": "Exámenes disponibles",
+    "name": "Exámenes disponibles",
+    "is_heading": false,
+    "is_active": false,
+    "link": {
+      "name" : "laboratorio.examenesalmacenados"
+    },
+    "class_name": "",
+    "is_icon_class": true,
+    "icon": "ri-folders-fill"
   },
   {
     "title": "Inventario",
@@ -108,34 +142,11 @@
     "is_heading": false,
     "is_active": false,
     "link": {
+      "name" : "laboratorio.equipo"
     },
     "class_name": "",
     "is_icon_class": true,
-    "icon": "ri-briefcase-4-fill",
-    "children": [
-      {
-        "title": "Insumos",
-        "name": "Insumos",
-        "is_active": false,
-        "link": {
-          "name" : "inventario.insumos"
-        },
-        "class_name": "",
-        "is_icon_class": true,
-        "icon": "ri-shopping-cart-fill"
-      },
-      {
-        "title": "Equipos de laboratorio",
-        "name": "Equipos de laboratorio",
-        "is_active": false,
-        "link": {
-          "name" : "inventario.equipos"
-        },
-        "class_name": "",
-        "is_icon_class": true,
-        "icon": "ri-shopping-cart-fill"
-      }
-    ]
+    "icon": "ri-archive-fill"
   },
   {
     "title": "Encargados",
@@ -143,10 +154,22 @@
     "is_heading": false,
     "is_active": false,
     "link": {
-      "name" : "encargados.encargadosparent"
+      "name" : "laboratorio.encargados"
     },
     "class_name": "",
     "is_icon_class": true,
-    "icon": "ri-briefcase-4-fill"
+    "icon": "ri-account-box-fill"
+  },
+  {
+    "title": "Tipos de examen",
+    "name": "Tipos de examen",
+    "is_heading": false,
+    "is_active": false,
+    "link": {
+      "name" : "laboratorio.tiposexamenes"
+    },
+    "class_name": "",
+    "is_icon_class": true,
+    "icon": "ri-list-check"
   }
 ]

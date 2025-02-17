@@ -4,7 +4,7 @@
       <b-col md="12">
         <iq-card>
           <template v-slot:headerTitle>
-            <h4 class="card-title mt-3">Cuentas</h4>
+            <h4 class="card-title mt-3">Cuentas por cobrar</h4>
             <div class="iq-search-bar mt-2">
               <div class="row">
                 <div class="col-sm">
@@ -18,7 +18,8 @@
           </template>
           <template v-slot:body>
             <b-tabs>
-              <b-tab title="Cuentas por cobrar seguro" active><Cuentas/></b-tab>
+              <b-tab title="Cuentas por cobrar" lazy><CuentasPorCobrar/></b-tab>
+              <b-tab title="Seguros por cobrar" lazy><SegurosPorCobrar/></b-tab>
             </b-tabs>
           </template>
         </iq-card>
@@ -30,12 +31,14 @@
 import { xray } from '../../../../config/pluginInit'
 import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
-import Cuentas from './Cuentas.vue'
+import CuentasPorCobrar from './CuentasPorCobrar.vue'
+import SegurosPorCobrar from './SegurosPorCobrar.vue'
 
 export default {
   name: 'CuentasParent',
   components: {
-    Cuentas
+    CuentasPorCobrar,
+    SegurosPorCobrar
   },
   data () {
     return {

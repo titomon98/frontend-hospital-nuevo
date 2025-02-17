@@ -20,8 +20,10 @@
             <b-tabs>
               <b-tab title="Usuarios" active><Users/></b-tab>
               <b-tab title="Personal" lazy><Personal/></b-tab>
-              <b-tab title="Cuartos" lazy><Cuartos/></b-tab>
               <b-tab title="Asuetos" lazy><Asuetos/></b-tab>
+              <b-tab title="Efectivo" lazy><Efectivo/></b-tab>
+              <b-tab title="Descuentos" lazy><ValidarDescuentos/></b-tab>
+              <b-tab title="Reportes" lazy><Reportes/></b-tab>
             </b-tabs>
           </template>
         </iq-card>
@@ -35,16 +37,20 @@ import axios from 'axios'
 import { apiUrl } from '../../../config/constant'
 import Users from './Users.vue'
 import Personal from './Personal.vue'
-import Cuartos from './Cuartos.vue'
 import Asuetos from './Asuetos.vue'
+import Reportes from './Reportes.vue'
+import Efectivo from './Efectivo.vue'
+import ValidarDescuentos from './Descuentos/ValidarDescuentos.vue'
 
 export default {
   name: 'AdminParent',
   components: {
     Users,
     Personal,
-    Cuartos,
-    Asuetos
+    Asuetos,
+    Reportes,
+    Efectivo,
+    ValidarDescuentos
   },
   data () {
     return {

@@ -18,8 +18,9 @@
           </template>
           <template v-slot:body>
             <b-tabs>
-              <b-tab title="Egresos hospitalización" active><EgresosHospitalizacion/></b-tab>
+              <b-tab title="Egresos hospitalización" lazy><EgresosHospitalizacion/></b-tab>
               <b-tab title="Egresos emergencia" lazy><EgresosEmergencia/></b-tab>
+              <b-tab title="Egresos cuidados intensivos" lazy><EgresosIntensivo/></b-tab>
             </b-tabs>
           </template>
         </iq-card>
@@ -33,12 +34,14 @@ import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
 import EgresosHospitalizacion from './EgresosHospitalizacion.vue'
 import EgresosEmergencia from './EgresosEmergencia.vue'
+import EgresosIntensivo from './EgresosIntensivo'
 
 export default {
   name: 'EgresosParent',
   components: {
     EgresosHospitalizacion,
-    EgresosEmergencia
+    EgresosEmergencia,
+    EgresosIntensivo
   },
   data () {
     return {

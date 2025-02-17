@@ -33,14 +33,15 @@
               <!-- columna -->
               <b-col md="2">
                 <b-form-group label="Nombre:">
+                  <span class="required-asterisk" style="position: absolute; top: 50%; transform: translateY(-50%); right: 5px; color: red;"></span>
                   <b-form-input
                     v-model.trim="$v.form.nombre.$model"
-                    :state="!$v.form.nombre.$error"
+                    :class="{'is-invalid': $v.form.nombre.$error}"
                     placeholder="Ingresar nombre"
+                    required
                   ></b-form-input>
-                  <div v-if="$v.form.nombre.required.$invalid" class="invalid-feedback">
-                    Debe ingresar el nombre
-                  </div>
+                    <div v-if="$v.form.nombre.required.$invalid" class="invalid-feedback">Debe ingresar nombre</div>
+                    <div v-if="!$v.form.nombre.ValidateName.$error" class="invalid-feedback">El nombre solo debe contener letras mayúsculas y con tildes</div>
                 </b-form-group>
               </b-col>
               <!-- columna -->
@@ -48,16 +49,16 @@
                 <b-form-group label="Apellidos:">
                   <b-form-input
                     v-model.trim="$v.form.apellidos.$model"
-                    :state="!$v.form.apellidos.$error"
+                    :class="{'is-invalid': $v.form.apellidos.$error}"
                     placeholder="Ingresar apellidos"
                   ></b-form-input>
                   <div v-if="$v.form.apellidos.required.$invalid" class="invalid-feedback">
-                    Debe ingresar los apellidos
+                    Ingresar los apellidos
                   </div>
                 </b-form-group>
               </b-col>
               <b-col md="2">
-                <b-form-group label="Apellido de casada:">
+                <b-form-group label="Apellido de casada: ">
                   <b-form-input
                     v-model.trim="form.casada"
                     placeholder="Ingresar apellido de casada"
@@ -69,16 +70,32 @@
                   <b-form-input
                     type="date"
                     v-model.trim="$v.form.nacimiento.$model"
-                    :state="!$v.form.nacimiento.$error"
+                    :class="{'is-invalid': $v.form.nacimiento.$error}"
                     placeholder="Ingresar fecha de nacimiento"
+                    @input="validarAnoNacimiento"
+                  ></b-form-input>
+                  <div v-if="$v.form.nacimiento.$error" class="invalid-feedback">
+                    <div v-if="!$v.form.nacimiento.required">Debe ingresar la fecha de nacimiento</div>
+                    <div v-if="!$v.form.nacimiento.isValidYear">El año no puede tener más de 4 dígitos</div>
+                    <div v-if="!$v.form.nacimiento.isPastYear">El año de nacimiento no puede ser mayor al actual</div>
+                  </div>
+                </b-form-group>
+              </b-col>
+
+              <b-col md="2">
+                <b-form-group label="Edad:">
+                  <b-form-input
+                    :value="calcularEdad"
+                    disabled
                   ></b-form-input>
                 </b-form-group>
               </b-col>
+
               <b-col md="2">
                 <b-form-group label="Telefono:">
                   <b-form-input
                     v-model.trim="$v.form.telefono.$model"
-                    :state="!$v.form.telefono.$error"
+                    :class="{'is-invalid': $v.form.telefono.$error}"
                     placeholder="Ingresar telefono"
                   ></b-form-input>
                   <div v-if="$v.form.telefono.required.$invalid" class="invalid-feedback">
@@ -106,13 +123,20 @@
               <!-- columna -->
               <b-col md="2">
                 <b-form-group label="CUI:">
-                  <b-form-input
-                    v-model.trim="$v.form.cui.$model"
-                    :state="!$v.form.cui.$error"
-                    placeholder="Ingresar el CUI"
-                  ></b-form-input>
-                  <div v-if="$v.form.cui.$error" class="invalid-feedback">
-                    El valor del CUI debe ser numerico.
+                  <div v-if="calcularEdad >= 18">
+                    <b-form-input
+                      type= "number"
+                      v-model.trim="form.cui"
+                      placeholder="Ingresar el CUI"
+                    ></b-form-input>
+                  </div>
+                  <div v-else>
+                    <b-form-input
+                      v-model.trim="form.cui"
+                      :value="'NO DISPONIBLE'"
+                      placeholder="Ingresar el CUI"
+                      disabled
+                    ></b-form-input>
                   </div>
                 </b-form-group>
               </b-col>
@@ -130,7 +154,7 @@
                 <b-form-group label="Dirección:">
                   <b-form-input
                     v-model.trim="$v.form.direccion.$model"
-                    :state="!$v.form.direccion.$error"
+                    :class="{'is-invalid': $v.form.direccion.$error}"
                     placeholder="Ingresar dirección"
                   ></b-form-input>
                 </b-form-group>
@@ -179,68 +203,26 @@
                   ></b-form-input>
                 </b-form-group>
               </b-col>
-              <b-col md="2">
-                <b-form-group label="Área a la que ingresa:">
-                  <b-form-radio
-                    v-model="form.selectedOption"
-                    value="hospi"
-                    name="customRadio1"
-                  >Hospitalización</b-form-radio>
-                  <b-form-radio
-                    v-model="form.selectedOption"
-                    value="emergencia"
-                    name="customRadio1"
-                  >Emergencia</b-form-radio>
-                  <b-form-radio
-                    v-model="form.selectedOption"
-                    value="quirofano"
-                    name="customRadio1"
-                  >Quirófano</b-form-radio>
-                  <b-form-radio
-                    v-model="form.selectedOption"
-                    value="intensivo"
-                    name="customRadio1"
-                  >Intensivo</b-form-radio>
+              <!-- <b-col md="2">
+                <b-form-group label="Fecha de ingreso:">
+                  <b-form-input
+                    type="date"
+                    v-model.trim="$v.form.fecha.$model"
+                    :class="{'is-invalid': $v.form.fecha.$error}"
+                    placeholder="Ingresar fecha de ingreso"
+                  ></b-form-input>
                 </b-form-group>
               </b-col>
               <b-col md="2">
-                <b-form-group label="Paciente:">
-                  <b-form-radio
-                    v-model="form.tipo_paciente"
-                    value="0"
-                    name="customRadio"
-                    @change="getHabitaciones(form.tipo_paciente)"
-                  >Normal</b-form-radio>
-                  <b-form-radio
-                    v-model="form.tipo_paciente"
-                    value="1"
-                    name="customRadio"
-                    @change="getHabitaciones(form.tipo_paciente)"
-                  >Ambulatorio</b-form-radio>
+                <b-form-group label="Hora de ingreso:">
+                  <b-form-input
+                    type="time"
+                    v-model.trim="$v.form.hora.$model"
+                    :class="{'is-invalid': $v.form.hora.$error}"
+                    placeholder="Ingresar hora de ingreso"
+                  ></b-form-input>
                 </b-form-group>
-              </b-col>
-              <b-col md="2">
-                <b-form-group label="Habitaciones disponibles:">
-                  <v-select
-                    name="habitacion"
-                    v-model="$v.form.habitacion.$model"
-                    :state="!$v.form.habitacion.$error"
-                    :options="habitaciones"
-                    :filterable="false"
-                    placeholder="Seleccione una habitación disponible"
-                  >
-                    <template v-slot:option="option">
-                      {{ option.numero + ' - Tipo: ' + option.tipo }}
-                    </template>
-                    <template slot="selected-option" slot-scope="option">
-                      {{ option.numero + ' - Tipo: ' + option.tipo }}
-                    </template>
-                  </v-select>
-                  <div v-if="$v.form.habitacion.$error" class="invalid-feedback-vselect">
-                    Debe ingresar habitación para el paciente
-                  </div>
-                </b-form-group>
-              </b-col>
+              </b-col> -->
             </b-row>
             <!-- Datos de encargado -->
             <h4 class="card-title mt-3">Ingreso de encargado</h4>
@@ -250,19 +232,23 @@
                 <b-form-group label="Nombre:">
                   <b-form-input
                     v-model.trim="$v.form.nombre_encargado.$model"
-                    :state="!$v.form.nombre_encargado.$error"
+                    :class="{'is-invalid': $v.form.nombre_encargado.$error}"
                     placeholder="Ingresar nombre"
                   ></b-form-input>
                   <div v-if="$v.form.nombre_encargado.required.$invalid" class="invalid-feedback">
                     Debe ingresar el nombre del encargado
+                  </div>
+                  <div v-if="!$v.form.nombre_encargado.ValidateName.$error" class="invalid-feedback">
+                    El nombre solo debe contener letras mayúsculas y con tildes
                   </div>
                 </b-form-group>
               </b-col>
               <b-col md="2">
                 <b-form-group label="Telefono:">
                   <b-form-input
+                    type= "number"
                     v-model.trim="$v.form.contacto_encargado.$model"
-                    :state="!$v.form.contacto_encargado.$error"
+                    :class="{'is-invalid': $v.form.contacto_encargado.$error}"
                     placeholder="Ingresar telefono"
                   ></b-form-input>
                   <div v-if="$v.form.contacto_encargado.required.$invalid" class="invalid-feedback">
@@ -277,8 +263,9 @@
               <b-col md="2">
                 <b-form-group label="CUI:">
                   <b-form-input
+                    type= "number"
                     v-model.trim="$v.form.cui_encargado.$model"
-                    :state="!$v.form.cui_encargado.$error"
+                    :class="{'is-invalid': $v.form.cui_encargado.$error}"
                     placeholder="Ingresar el CUI"
                   ></b-form-input>
                   <div v-if="$v.form.cui_encargado.required.$invalid" class="invalid-feedback">
@@ -347,9 +334,6 @@
                     v-model.trim="form.telefono_conyuge"
                     placeholder="Ingresar telefono de conyuge"
                   ></b-form-input>
-                  <div v-if="$v.form.telefono_conyuge.numeric.$invalid" class="invalid-feedback">
-                    Debe ingresar unicamente numeros
-                  </div>
                 </b-form-group>
               </b-col>
               <!-- columna -->
@@ -370,10 +354,17 @@
     <b-button block variant="primary" @click="onValidate">Registrar paciente</b-button>
   </b-container>
 </template>
+<style scoped>
+.required-asterisk {
+  color: red;
+  font-size: 12px;
+  margin-right: 1px;
+}
+</style>
 <script>
 import { xray } from '../../../../config/pluginInit'
 import useVuelidate from '@vuelidate/core'
-import { required, numeric } from '@vuelidate/validators'
+import { required, numeric, helpers } from '@vuelidate/validators'
 import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
 import { mapGetters } from 'vuex'
@@ -384,7 +375,6 @@ export default {
     return { $v: useVuelidate() }
   },
   beforeMount () {
-    this.getHabitaciones(0)
     this.form.id_usuario = this.currentUser.uid
   },
   mounted () {
@@ -393,7 +383,21 @@ export default {
   computed: {
     ...mapGetters([
       'currentUser'
-    ])
+    ]),
+    calcularEdad () {
+      if (!this.form.nacimiento) return ''
+
+      const hoy = new Date()
+      const nacimiento = new Date(this.form.nacimiento)
+      let edad = hoy.getFullYear() - nacimiento.getFullYear()
+      const mesCumpleanos = nacimiento.getMonth()
+      const diaCumpleanos = nacimiento.getDate()
+
+      if (hoy.getMonth() < mesCumpleanos || (hoy.getMonth() === mesCumpleanos && hoy.getDate() < diaCumpleanos)) {
+        edad--
+      }
+      return edad
+    }
   },
   data () {
     return {
@@ -424,7 +428,7 @@ export default {
         apellidos: '',
         casada: '',
         nacimiento: null,
-        cui: null,
+        cui: 'NO DISPONIBLE',
         nacionalidad: null,
         telefono: '',
         direccion: '',
@@ -448,13 +452,14 @@ export default {
         telefono_conyuge: '',
         selectedOption: 'hospi',
         tipo_paciente: '0',
-        habitacion: null
+        motivo: ' ',
+        fecha: null,
+        hora: null
       },
       nacionalidades: ['Guatemala', 'El Salvador', 'México', 'Honduras', 'Belice', 'Otro'],
       generos: ['Masculino', 'Femenino'],
       parentescos: ['Padre/Madre', 'Hermano/a', 'Hijo/a', 'Cónyuge', 'Otro'],
       estados_civiles: ['Soltero/a', 'Casado/a', 'Viudo/a', 'Separado/a', 'Divorciado/a', 'Otro'],
-      habitaciones: [],
       alertSecs: 5,
       alertCountDown: 0,
       alertCountDownError: 0,
@@ -468,25 +473,33 @@ export default {
     return {
       form: {
         nombre: {
-          required
+          required, ValidateName: helpers.regex(/^[A-ZÁÉÍÓÚÜÑ\s]+$/)
         },
         apellidos: {
-          required
+          required, ValidateName: helpers.regex(/^[A-ZÁÉÍÓÚÜÑ\s]+$/)
         },
         telefono: {
           required, numeric
         },
         nacimiento: {
-          required
-        },
-        cui: {
-          numeric, required
+          required,
+          isValidYear: (value) => {
+            if (!value) return true
+            const ano = new Date(value).getFullYear()
+            return ano.toString().length <= 4
+          },
+          isPastYear: (value) => {
+            if (!value) return true
+            const anoNacimiento = new Date(value).getFullYear()
+            const anoActual = new Date().getFullYear()
+            return anoNacimiento <= anoActual
+          }
         },
         direccion: {
           required
         },
         nombre_encargado: {
-          required
+          required, ValidateName: helpers.regex(/^[A-ZÁÉÍÓÚÜÑ\s]+$/)
         },
         contacto_encargado: {
           required,
@@ -497,14 +510,14 @@ export default {
         },
         telefono_conyuge: {
           numeric
-        },
-        habitacion: {
-          required
         }
       }
     }
   },
   methods: {
+    validarAnoNacimiento () {
+      this.$v.form.nacimiento.$touch()
+    },
     onValidate () {
       this.$v.$touch()
       if (this.$v.$error !== true) {
@@ -537,15 +550,6 @@ export default {
     },
     showAlertError () {
       this.alertCountDownError = this.alertSecs
-    },
-    getHabitaciones (num) {
-      axios.get(apiUrl + '/habitaciones/get', {
-        params: {
-          tipo: num
-        }
-      }).then((response) => {
-        this.habitaciones = response.data
-      })
     }
   }
 }

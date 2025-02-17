@@ -91,18 +91,21 @@ import AppTreeView from '../views/Plugins/AppTreeView'
 // gerencia
 import AdminParent from '../views/App/Admin/AdminParent'
 import Asuetos from '../views/App/Admin/Asuetos.vue'
+import Reportes from '../views/App/Admin/Reportes.vue'
 import Cuartos from '../views/App/Admin/Cuartos.vue'
 import Users from '../views/App/Admin/Users'
 
 // caja
+import Seguros from '../views/App/Caja/Seguros/Seguros.vue'
 import Contratos from '../views/App/Caja/Contratos/Contratos'
-import CortesParent from '../views/App/Caja/Cortes/CortesParent'
+// import CortesParent from '../views/App/Caja/Cortes/CortesParent'
 import CuentasParent from '../views/App/Caja/Cuentas/CuentasParent'
 import EgresosParent from '../views/App/Caja/Egresos/EgresosParent'
 import Expedientes from '../views/App/Caja/Expedientes/Expedientes'
 import CuentasList from '../views/App/Caja/Cuentas/CuentasList'
 import Ingresos from '../views/App/Caja/Ingresos/Ingresos'
-import Reingresos from '../views/App/Caja/Ingresos/IngresoPrevio'
+import Reingresos from '../views/App/Caja/Reingresos/Reingreso'
+import CajaChica from '../views/App/Caja/CajaChica/CajaChicaParent'
 
 // enfermeria
 import PedidosFarmaciaParent from '../views/App/Enfermeria/Pedidos/PedidosFarmaciaParent'
@@ -112,6 +115,9 @@ import IntensivoParent from '../views/App/Enfermeria/Intensivo/Intensivo'
 import QuirofanoParent from '../views/App/Enfermeria/Quirofano/Quirofano'
 import Habitaciones from '../views/App/Enfermeria/Habitaciones/Habitaciones'
 import Servicios from '../views/App/Enfermeria/Servicios/Servicios.vue'
+import IngresosEnfermeria from '../views/App/Enfermeria/Ingresos/IngresosEnfermeria.vue'
+import CategoriaSalaOperaciones from '../views/App/Enfermeria/CategoriaSalaOperaciones/CategoriaSalaOperaciones.vue'
+import AsignarHabitacion from '../views/App/Enfermeria/AsignarHabitaciones/AsignarHabitaciones.vue'
 
 // farmacia
 import PedidosPendientesParent from '../views/App/Farmacia/Pedidos/PedidosPendientesParent'
@@ -125,6 +131,7 @@ import DatosParent from '../views/App/Farmacia/Datos/DatosParent'
 import AlertasParent from '../views/App/Farmacia/Alertas/AlertasParent'
 import PaquetesParent from '../views/App/Farmacia/Paquetes/PaquetesParent'
 import FacturasParent from '../views/App/Farmacia/Facturas/FacturasParent'
+import Consumos from '../views/App/Farmacia/Consumos/Consumos.vue'
 
 // medicos
 import MedicosParent from '../views/App/Medicos/MedicosParent'
@@ -138,7 +145,103 @@ import LiquidacionParent from '../views/App/Liquidaciones/LiquidacionesParent'
 // pacientes
 import PacientesParent from '../views/App/Pacientes/PacientesParent'
 
+// Laboratorio
+// Caja
+import Cortes from '../views/App/Laboratorio/Caja/Cortes.vue'
+import ValDescuentos from '../views/App/Laboratorio/Caja/ValidarDescuentos.vue'
+import CuentasParentLaboratorio from '../views/App/Laboratorio/Caja/CuentasParent.vue'
+import TiposExamenes from '../views/App/Laboratorio/TiposExamenes.vue'
+// import Descuentos from '../views/App/Laboratorio/Caja/ValidarDescuentos.vue'
+
+// Examenes
+import Examenes from '../views/App/Laboratorio/Examenes.vue'
+import ExamenesAlmacenados from '../views/App/Laboratorio/ExamenesAlmacenados.vue'
+
+// Estadistica
+import ExamenesInternos from '../views/App/Laboratorio/Estadisticas/ExamenesInternos.vue'
+import Incentivos from '../views/App/Laboratorio/Estadisticas/Incentivos.vue'
+
+// Inventario
+import Equipo from '../views/App/Laboratorio/Inventario/Equipo.vue'
+
+// Encargados
+import Encargados from '../views/App/Laboratorio/Encargados.vue'
+import Facturacion from '../views/App/Caja/Facturacion.vue'
+import FacturacionLab from '../views/App/Laboratorio/Caja/FacturacionLab.vue'
+import HospitalizacionEnfermeras from '../views/App/Enfermeria/HospitalizacionEnfermeras/HospitalizacionEnfermeras.vue'
+import CortesCaja from '../views/App/Caja/Cortes/Cortes.vue'
+
 Vue.use(VueRouter)
+
+const LaboratorioRoutes = (prop, mode) => [
+  {
+    path: 'cortes',
+    name: prop + '.cortes',
+    meta: { dark: mode, auth: true, name: 'cortes' },
+    component: Cortes
+  },
+  {
+    path: 'cuentas',
+    name: prop + '.cuentas',
+    meta: { dark: mode, auth: true, name: 'cuentas' },
+    component: CuentasParentLaboratorio
+  },
+  {
+    path: 'descuentos',
+    name: prop + '.descuentos',
+    meta: { dark: mode, auth: true, name: 'descuentos' },
+    component: ValDescuentos
+
+  },
+  {
+    path: 'facturacion',
+    name: prop + '.facturacion',
+    meta: { dark: mode, auth: true, name: 'facturacion' },
+    component: FacturacionLab
+  },
+  {
+    path: 'examenes',
+    name: prop + '.examenes',
+    meta: { dark: mode, auth: true, name: 'examenes' },
+    component: Examenes
+  },
+  {
+    path: 'examenesalmacenados',
+    name: prop + '.examenesalmacenados',
+    meta: { dark: mode, auth: true, name: 'examenesalmacenados' },
+    component: ExamenesAlmacenados
+  },
+  {
+    path: 'examenesinternos',
+    name: prop + '.examenesinternos',
+    meta: { dark: mode, auth: true, name: 'examenesinternos' },
+    component: ExamenesInternos
+  },
+  {
+    path: 'incentivos',
+    name: prop + '.incentivos',
+    meta: { dark: mode, auth: true, name: 'incentivos' },
+    component: Incentivos
+  },
+  {
+    path: 'equipo',
+    name: prop + '.equipo',
+    meta: { dark: mode, auth: true, name: 'equipo' },
+    component: Equipo
+  },
+  {
+    path: 'encargados',
+    name: prop + '.encargados',
+    meta: { dark: mode, auth: true, name: 'encargados' },
+    component: Encargados
+  },
+  {
+    path: 'tiposexamenes',
+    name: prop + '.tiposexamenes',
+    meta: { dark: mode, auth: true, name: 'tiposexamenes' },
+    component: TiposExamenes
+  }
+]
 
 const AdminRoutes = (prop, mode) => [
   {
@@ -158,6 +261,12 @@ const AdminRoutes = (prop, mode) => [
     name: prop + '.asuetos',
     meta: { dark: mode, auth: true, name: 'Asuetos' },
     component: Asuetos
+  },
+  {
+    path: 'reportes',
+    name: prop + '.reportes',
+    meta: { dark: mode, auth: true, name: 'Reportes' },
+    component: Reportes
   },
   {
     path: 'adminparent',
@@ -187,17 +296,23 @@ const PacientesRoutes = (prop, mode) => [
 
 const CajaRoutes = (prop, mode) => [
   {
+    path: 'cortes',
+    name: prop + '.cortes',
+    meta: { dark: mode, auth: true, name: 'cortes' },
+    component: CortesCaja
+  },
+  {
     path: 'contratos',
     name: prop + '.contratos',
     meta: { dark: mode, auth: true, name: 'contratos' },
     component: Contratos
   },
-  {
+  /* {
     path: 'cortes',
     name: prop + '.cortes',
     meta: { dark: mode, auth: true, name: 'cortes' },
     component: CortesParent
-  },
+  }, */
   {
     path: 'cuentas',
     name: prop + '.cuentas',
@@ -205,10 +320,16 @@ const CajaRoutes = (prop, mode) => [
     component: CuentasParent
   },
   {
-    path: 'egresos',
-    name: prop + '.egresos',
-    meta: { dark: mode, auth: true, name: 'egresos' },
-    component: EgresosParent
+    path: 'facturacion',
+    name: prop + '.facturacion',
+    meta: { dark: mode, auth: true, name: 'facturacion' },
+    component: Facturacion
+  },
+  {
+    path: 'seguros',
+    name: prop + '.seguros',
+    meta: { dark: mode, auth: true, name: 'seguros' },
+    component: Seguros
   },
   {
     path: 'expedientes',
@@ -233,6 +354,12 @@ const CajaRoutes = (prop, mode) => [
     name: prop + '.reingresos',
     meta: { dark: mode, auth: true, name: 'reingresos' },
     component: Reingresos
+  },
+  {
+    path: 'cajachica',
+    name: prop + '.cajachica',
+    meta: { dark: mode, auth: true, name: 'cajachica' },
+    component: CajaChica
   }
 ]
 
@@ -254,6 +381,12 @@ const EnfermeriaRoutes = (prop, mode) => [
     name: prop + '.hospitalizacion',
     meta: { dark: mode, auth: true, name: 'hospitalizacion' },
     component: HospitalizacionParent
+  },
+  {
+    path: 'hospitalizacionEnfermeras',
+    name: prop + '.hospitalizacionEnfermeras',
+    meta: { dark: mode, auth: true, name: 'hospitalizacionEnfermeras' },
+    component: HospitalizacionEnfermeras
   },
   {
     path: 'intensivo',
@@ -278,6 +411,36 @@ const EnfermeriaRoutes = (prop, mode) => [
     name: prop + '.servicios',
     meta: { dark: mode, auth: true, name: 'servicios' },
     component: Servicios
+  },
+  {
+    path: 'CategoriaSalaOperaciones',
+    name: prop + '.CategoriaSalaOperaciones',
+    meta: { dark: mode, auth: true, name: 'CategoriaSalaOperaciones' },
+    component: CategoriaSalaOperaciones
+  },
+  {
+    path: 'ingresos',
+    name: prop + '.ingresos',
+    meta: { dark: mode, auth: true, name: 'ingresos' },
+    component: IngresosEnfermeria
+  },
+  {
+    path: 'reingresos',
+    name: prop + '.reingresos',
+    meta: { dark: mode, auth: true, name: 'reingresos' },
+    component: Reingresos
+  },
+  {
+    path: 'egresos',
+    name: prop + '.egresos',
+    meta: { dark: mode, auth: true, name: 'egresos' },
+    component: EgresosParent
+  },
+  {
+    path: 'AsignarHabitacion',
+    name: prop + '.AsignarHabitacion',
+    meta: { dark: mode, auth: true, name: 'AsignarHabitacion' },
+    component: AsignarHabitacion
   }
 ]
 
@@ -323,6 +486,12 @@ const FarmaciaRoutes = (prop, mode) => [
     name: prop + '.quirurgico',
     meta: { dark: mode, auth: true, name: 'quirurgico' },
     component: QuirurgicoParent
+  },
+  {
+    path: 'consumos',
+    name: prop + '.consumos',
+    meta: { dark: mode, auth: true, name: 'consumos' },
+    component: Consumos
   },
   {
     path: 'datos',
@@ -843,6 +1012,13 @@ const pluginsChildRoute = (prop, mode = false) => [
 ]
 
 const routes = [
+  {
+    path: '/laboratorio',
+    name: 'laboratorio',
+    component: Layout1,
+    meta: { auth: true },
+    children: LaboratorioRoutes('laboratorio')
+  },
   {
     path: '/gerencia',
     name: 'gerencia',
