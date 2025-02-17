@@ -19,7 +19,7 @@
         <b-button variant="danger" @click="closeModal('pdf')">Cancelar</b-button>
       </template>
     </b-modal>
-    <b-modal id="modal-voucher" ref="modal-voucher" title="Crear Voucher">
+    <b-modal id="modal-voucher" ref="modal-voucher" title="Crear Voucher" size="lg">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -30,15 +30,15 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <b-form @submit="$event.preventDefault()">
-        <b-form-group label="Seleccionar Medico">
+        <b-form-group label="Seleccionar Médico">
           <v-select
             name="medico"
             v-model="selectedMedico"
             :options="medicos"
             :filterable="false"
             placeholder="Seleccione el médico"
-            @search="onSearchDatosMedicos">
-
+            @search="onSearchDatosMedicos"
+          >
             <template v-slot:option="option">
               {{ option.nombre }}
             </template>
@@ -47,6 +47,7 @@
             </template>
           </v-select>
         </b-form-group>
+
         <b-form-group label="Cantidad:">
           <b-form-input
             disabled
@@ -54,6 +55,7 @@
             v-model="formVoucher.cantidad"
           ></b-form-input>
         </b-form-group>
+
         <b-form-group label="Cantidad en letras:">
           <b-form-input
             type="text"
@@ -61,14 +63,45 @@
             placeholder="Ingresar la Cantidad escrita con Inicial Mayúscula"
           ></b-form-input>
         </b-form-group>
+
         <b-form-group label="Observaciones:">
           <b-form-input
             type="text"
             v-model="formVoucher.observaciones"
-            placeholder="Ingresar la Cantidad escrita con Inicial Mayúscula"
+            placeholder="Ingresar observaciones"
           ></b-form-input>
         </b-form-group>
+
+        <b-form-group label="Observaciones:">
+          <b-form-input
+            type="number"
+            v-model="formVoucher.total"
+            placeholder="Ingresar el total pagado"
+          ></b-form-input>
+        </b-form-group>
+
+        <!-- Tabla de pacientes antes de generar el PDF -->
+        <b-table
+          striped hover bordered
+          :items="pacientes"
+          :fields="[
+            { key: 'paciente', label: 'Nombre del Paciente' },
+            { key: 'expediente', label: 'No. Expediente' },
+            { key: 'tipoPago', label: 'Tipo de Pago' },
+            { key: 'fecha', label: 'Fecha' },
+            { key: 'total', label: 'Honorarios' }
+          ]"
+        >
+          <template #cell(fecha)="data">
+            {{ new Date(data.item.fecha).toLocaleDateString() }}
+          </template>
+          <template #cell(total)="data">
+            Q{{ data.item.total.toFixed(2) }}
+          </template>
+        </b-table>
+
       </b-form>
+
       <template #modal-footer="{}">
         <b-button variant="primary" @click="crearVoucher()">Crear</b-button>
         <b-button variant="danger" @click="closeModal('save')">Cancelar</b-button>
@@ -873,7 +906,8 @@ export default {
         medico: null,
         cantidad: null,
         cantidadEscrita: null,
-        observaciones: null
+        observaciones: null,
+        total: 0
       }
     }
   },
@@ -1266,6 +1300,7 @@ export default {
           this.form.state = 1
           this.$refs['modal-voucher'].hide()
           this.formVoucher.medico = null
+          this.formVoucher.total = 0
           this.formVoucher.cantidad = null
           this.selectedReport = null
           this.selectedReport = null
@@ -4230,6 +4265,20 @@ export default {
               [{ content: `${data.observaciones}`, styles: { halign: 'left' } }]
             ],
             startY: currentY + 28,
+            theme: 'grid',
+            styles: { fontSize: 10, cellPadding: 2, textColor: [0, 0, 0] }
+          })
+
+          currentY = doc.lastAutoTable.finalY
+        }
+
+        if (data.total !== 0) {
+          doc.autoTable({
+            body: [
+              [{ content: 'Total entregado', styles: { halign: 'center' } }],
+              [{ content: `${data.total}`, styles: { halign: 'rigth' } }]
+            ],
+            startY: currentY + 10,
             theme: 'grid',
             styles: { fontSize: 10, cellPadding: 2, textColor: [0, 0, 0] }
           })
