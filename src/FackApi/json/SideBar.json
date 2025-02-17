@@ -140,7 +140,7 @@
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-file-warning-line"
+        "icon": "ri-article-line"
       }
     ]
   },
@@ -189,17 +189,6 @@
         "icon": "ri-heart-fill"
       },
       {
-        "title": "Consumos",
-        "name": "Consumos",
-        "is_active": false,
-        "link": {
-          "name" : "enfermeria.hospitalizacionEnfermeras"
-        },
-        "class_name": "",
-        "is_icon_class": true,
-        "icon": "ri-heart-fill"
-      },
-      {
         "title": "Intensivo",
         "name": "Intensivo",
         "is_active": false,
@@ -220,6 +209,17 @@
         "class_name": "",
         "is_icon_class": true,
         "icon": "ri-spam-line"
+      },     
+      {
+        "title": "Consumos",
+        "name": "Consumos",
+        "is_active": false,
+        "link": {
+          "name" : "enfermeria.hospitalizacionEnfermeras"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-play-list-add-line"
       },
       {
         "title": "Habitaciones",
@@ -296,7 +296,7 @@
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-file-transfer-line"
+        "icon": "ri-hotel-bed-line"
       }
     ]
   },
