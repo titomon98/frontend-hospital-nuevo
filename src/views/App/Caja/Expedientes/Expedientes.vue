@@ -353,6 +353,17 @@
                   ></b-form-input>
                 </b-form-group>
               </b-col>
+              <b-col md="2">
+                <b-form-group label="Edad de encargado:">
+                  <b-form-input
+                    v-model.trim="form.edad_encargado"
+                    type="number"
+                    min="0"
+                    max="100"
+                    placeholder="Ingresar edad"
+                  ></b-form-input>
+                </b-form-group>
+              </b-col>
             </b-row>
             </b-tab>
             <b-tab title="Cónyugue">
@@ -690,6 +701,7 @@ export default {
         nombre_encargado: '',
         contacto_encargado: '',
         parentesco_encargado: '',
+        edad_encargado: '',
         state: 1,
         id_usuario: null,
         estado_civil: null,
@@ -980,6 +992,7 @@ export default {
       this.form.nombre_encargado = data.nombre_encargado
       this.form.contacto_encargado = data.contacto_encargado
       this.form.parentesco_encargado = data.parentesco_encargado
+      this.form.edad_encargado = data.edad_encargado
       this.form.estado_civil = data.estado_civil
       this.form.profesion = data.profesion
       this.form.nombre_madre = data.nombre_madre

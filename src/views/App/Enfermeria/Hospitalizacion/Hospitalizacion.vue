@@ -1659,7 +1659,7 @@ export default {
         this.showAlertError()
       } else {
         this.onState()
-        me.$refs.vuetable.refresh()
+        this.$refs.vuetable.refresh()
         this.$bvModal.hide('modal-traslado')
       }
     },
