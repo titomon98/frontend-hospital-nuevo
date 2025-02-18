@@ -1639,10 +1639,10 @@ export default {
                   })
                   .then((res) => {
                     this.selectedHab = null
-                      this.getHabitaciones(0)
-                    })
+                    this.getHabitaciones(0)
+                  })
                 }
-              })
+            })
         })
         .catch((error) => {
           me.alertVariant = 'danger'
@@ -1658,7 +1658,7 @@ export default {
         this.showAlertError()
       } else {
         this.onState()
-        me.$refs.vuetable.refresh()
+        this.$refs.vuetable.refresh()
         this.$bvModal.hide('modal-traslado')
       }
     },
