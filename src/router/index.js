@@ -98,7 +98,7 @@ import Users from '../views/App/Admin/Users'
 // caja
 import Seguros from '../views/App/Caja/Seguros/Seguros.vue'
 import Contratos from '../views/App/Caja/Contratos/Contratos'
-import CortesParent from '../views/App/Caja/Cortes/CortesParent'
+// import CortesParent from '../views/App/Caja/Cortes/CortesParent'
 import CuentasParent from '../views/App/Caja/Cuentas/CuentasParent'
 import EgresosParent from '../views/App/Caja/Egresos/EgresosParent'
 import Expedientes from '../views/App/Caja/Expedientes/Expedientes'
@@ -150,6 +150,7 @@ import PacientesParent from '../views/App/Pacientes/PacientesParent'
 import Cortes from '../views/App/Laboratorio/Caja/Cortes.vue'
 import ValDescuentos from '../views/App/Laboratorio/Caja/ValidarDescuentos.vue'
 import CuentasParentLaboratorio from '../views/App/Laboratorio/Caja/CuentasParent.vue'
+import TiposExamenes from '../views/App/Laboratorio/TiposExamenes.vue'
 // import Descuentos from '../views/App/Laboratorio/Caja/ValidarDescuentos.vue'
 
 // Examenes
@@ -168,6 +169,7 @@ import Encargados from '../views/App/Laboratorio/Encargados.vue'
 import Facturacion from '../views/App/Caja/Facturacion.vue'
 import FacturacionLab from '../views/App/Laboratorio/Caja/FacturacionLab.vue'
 import HospitalizacionEnfermeras from '../views/App/Enfermeria/HospitalizacionEnfermeras/HospitalizacionEnfermeras.vue'
+import CortesCaja from '../views/App/Caja/Cortes/Cortes.vue'
 
 Vue.use(VueRouter)
 
@@ -232,6 +234,12 @@ const LaboratorioRoutes = (prop, mode) => [
     name: prop + '.encargados',
     meta: { dark: mode, auth: true, name: 'encargados' },
     component: Encargados
+  },
+  {
+    path: 'tiposexamenes',
+    name: prop + '.tiposexamenes',
+    meta: { dark: mode, auth: true, name: 'tiposexamenes' },
+    component: TiposExamenes
   }
 ]
 
@@ -288,17 +296,23 @@ const PacientesRoutes = (prop, mode) => [
 
 const CajaRoutes = (prop, mode) => [
   {
+    path: 'cortes',
+    name: prop + '.cortes',
+    meta: { dark: mode, auth: true, name: 'cortes' },
+    component: CortesCaja
+  },
+  {
     path: 'contratos',
     name: prop + '.contratos',
     meta: { dark: mode, auth: true, name: 'contratos' },
     component: Contratos
   },
-  {
+  /* {
     path: 'cortes',
     name: prop + '.cortes',
     meta: { dark: mode, auth: true, name: 'cortes' },
     component: CortesParent
-  },
+  }, */
   {
     path: 'cuentas',
     name: prop + '.cuentas',
