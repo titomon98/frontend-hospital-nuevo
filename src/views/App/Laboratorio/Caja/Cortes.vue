@@ -353,8 +353,8 @@ export default {
         this.printSale(data, 1)
       })
     },
-    getReport () {
-      axios.get(apiUrl + '/detalle/listCortesPerDate', {
+    async getReport () {
+      await axios.get(apiUrl + '/detalle/listCortesPerDate', {
         params: {
           fecha_corte: this.selectedDate
         }
