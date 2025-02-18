@@ -216,6 +216,7 @@
                 <template v-slot:option="{ option }">
                   <div class="custom-option">
                     <strong>{{ option.nombre }}</strong> --
+                    <small>Tipo de Examen: {{ option.tipo_examen }}</small> |
                     <small>Precio normal: Q{{ option.precio_normal }}</small> |
                     <small>Extraordinario: Q{{ option.precio_sobrecargo }}</small>
                   </div>
@@ -1271,7 +1272,6 @@ export default {
 
     ImprimirResultado (id, paciente, fecha) {
       this.apiBaseResultado = apiUrl + `/detalleExamenRealizado/get?id=${id}`
-      console.log(paciente)
       axios.get(this.apiBaseResultado)
         .then((response) => {
           this.generarPDF(response.data, paciente, fecha)
