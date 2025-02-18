@@ -72,7 +72,7 @@
           ></b-form-input>
         </b-form-group>
 
-        <b-form-group label="Observaciones:">
+        <b-form-group label="Cantidad entregada al momento:">
           <b-form-input
             type="number"
             v-model="formVoucher.total"
