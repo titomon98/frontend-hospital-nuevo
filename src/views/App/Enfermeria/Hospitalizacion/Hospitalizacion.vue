@@ -1652,7 +1652,6 @@ export default {
         })
     },
     onRelocation (action) {
-      let me = this
       this.$v.$touch()
       if (this.selectedHab === null && (this.selectedTrasOption === 1 || this.selectedTrasOption === 4)) {
         this.alertErrorText = 'Revisa que todos los campos requeridos esten llenos'
