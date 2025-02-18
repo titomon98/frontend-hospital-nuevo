@@ -490,7 +490,8 @@ export default {
           nombres: item.expediente.nombres,
           apellidos: item.expediente.apellidos,
           numero: item.numero,
-          total: item.total
+          total: item.total,
+          fecha: item.createdAt
         }))
       if (this.arrayDetalles.length > 0) {
         this.$refs['modal-pdf'].show()
@@ -519,8 +520,8 @@ export default {
           altura = altura + 0.5
           this.pdf.text('Pendiente de pago: ' + data.pendiente_de_pago, 7, altura)
         } else {
-          this.pdf.text('Ingresos del día ' + this.selectedDate, 7, altura)
-          this.pdfName = 'Ingresos' + this.selectedDate + '.pdf'
+          this.pdf.text('Corte del día ' + this.selectedDate, 7, altura)
+          this.pdfName = 'Corte del día ' + this.selectedDate + '.pdf'
         }
         // Encabezado
         altura = altura + 0.5
@@ -544,7 +545,7 @@ export default {
           })
         } else {
           autoTable(this.pdf, {
-            columns: [{ header: 'Expediente', dataKey: 'expediente' }, { header: 'Nombre', dataKey: 'nombres' }, { header: 'Apellido', dataKey: 'apellidos' }, { header: 'Cuenta número', dataKey: 'numero' }, { header: 'Total', dataKey: 'total' }],
+            columns: [{ header: 'Expediente', dataKey: 'expediente' }, { header: 'Nombre', dataKey: 'nombres' }, { header: 'Apellido', dataKey: 'apellidos' }, { header: 'FechaDePago', dataKey: 'fecha' }, { header: 'Total', dataKey: 'total' }],
             body: this.arrayDetalles,
             margin: { top: 5 },
             headStyles: {
