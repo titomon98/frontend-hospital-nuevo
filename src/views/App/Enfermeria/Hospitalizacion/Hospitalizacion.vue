@@ -1641,7 +1641,7 @@ export default {
                     this.selectedHab = null
                     this.getHabitaciones(0)
                   })
-                }
+              }
             })
         })
         .catch((error) => {
