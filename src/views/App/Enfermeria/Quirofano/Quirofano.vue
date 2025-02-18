@@ -994,32 +994,26 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
-          name: 'nacimiento',
-          sortField: 'nacimiento',
-          title: 'Fecha de nacimiento',
+          name: 'medico.nombre',
+          sortField: 'medico.nombre',
+          title: 'Médico tratante',
           dataClass: 'list-item-heading'
         },
         {
-          name: 'edad',
-          title: 'Edad',
+          name: 'habitacione.numero',
+          title: 'Habitación',
           dataClass: 'list-item-heading'
         },
         {
-          name: 'genero',
-          sortField: 'genero',
-          title: 'Género',
+          name: 'fecha_ingreso_reciente',
+          sortField: 'fecha_ingreso_reciente',
+          title: 'Fecha de ingreso',
           dataClass: 'list-item-heading'
         },
         {
-          name: 'nombre_encargado',
-          sortField: 'nombre_encargado',
-          title: 'Nombre de encargado',
-          dataClass: 'list-item-heading'
-        },
-        {
-          name: 'contacto_encargado',
-          sortField: 'contacto_encargado',
-          title: 'Contacto de encargado',
+          name: 'hora_ingreso_reciente',
+          sortField: 'hora_ingreso_reciente',
+          title: 'Hora de ingreso',
           dataClass: 'list-item-heading'
         }
       ],
@@ -1930,6 +1924,7 @@ export default {
       this.items = paginationData.data.map(item => {
         item.nacimiento = moment(item.nacimiento).format('DD/MM/YYYY')
         item.edad = this.calcularEdad(item.nacimiento)
+        item.fecha_ingreso_reciente = moment(item.fecha_ingreso_reciente).format('DD/MM/YYYY')
         return {
           nacimiento: item.nacimiento,
           edad: item.edad

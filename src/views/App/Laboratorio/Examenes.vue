@@ -293,25 +293,25 @@
       >
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
-
       <vuetable
         ref="vuetableResultados"
         class="table-divided table-responsive order-with-arrow"
-        :api-url="apiBaseResultado"
+        :api-url="apiBaseResultadoTabla"
         :query-params="makeQueryParamsResultado"
         :per-page="perPageResultado"
         :reactive-api-url="true"
         :fields="fieldsResultado"
+        :data="itemsResultado"
         pagination-path
         @vuetable:pagination-data="onPaginationDataResultado"
       >
-        <template slot-scope="props">
-          <td :style="{ color: this.getColorForAlarma (props.rowData.alarma)}">
-            {{ props.rowData.alarma }}
-          </td>
+        <template slot="default">
+          <!-- Mostrar el título del tipo de examen -->
+            <td colspan="5" class="font-weight-bold text-center bg-primary text-white">
+              {{ this.TituloResultado }}
+            </td>
         </template>
       </vuetable>
-
       <vuetable-pagination-bootstrap
         ref="paginationResultado"
         @vuetable-pagination:change-page="onChangePageResultado"
@@ -458,7 +458,7 @@
               <b-button-group>
                 <div class="button-container">
                  <b-button
-                    @click="addResultado(props.rowData.id, props.rowData.id_examenes_almacenados, props.rowData)"
+                    @click="addResultado(props.rowData.id, props.rowData.id_examenes_almacenados)"
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="success"
@@ -525,7 +525,7 @@
                   >Ver resultado</b-button>
 
                   <b-button
-                    @click="ImprimirResultado(props.rowData.id)"
+                    @click="ImprimirResultado(props.rowData.id, props.rowData.nombre, props.rowData.fecha_hora)"
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="success"
@@ -610,14 +610,15 @@ export default {
       fechaDesdeResultado: null,
       fechaHastaResultado: null,
       apiBaseResultado: '',
+      apiBaseResultadoTabla: '',
+      itemsResultado: [],
+      TituloResultado: '',
       fieldsResultado: [
-        { name: 'campo', title: 'Campo de Examen', sortField: 'campo' },
-        { name: 'tipo_examen', title: 'Tipo de Examen', sortField: 'tipo_examen' },
+        { name: 'campo', title: 'Prueba', sortField: 'campo' },
         { name: 'resultado', title: 'Resultado', sortField: 'resultado' },
-        { name: 'valor_minimo', title: 'Valor Mínimo', sortField: 'valor_minimo' },
-        { name: 'valor_maximo', title: 'Valor Máximo', sortField: 'valor_maximo' },
         { name: 'alarma', title: 'Alarma', sortField: 'alarma' },
-        { name: 'fecha_hora', title: 'Fecha y Hora', sortField: 'fecha_hora' }
+        { name: 'unidades', title: 'Unidades', sortField: 'unidades' },
+        { name: 'intervalo_referencia', title: 'Intervalo de referencia', sortField: 'valor_minimo' }
       ],
       fieldsCampos: [
         { key: 'nombre', label: 'Nombre' },
@@ -1117,7 +1118,6 @@ export default {
 
       axios.get(apiUrl + '/examenesAlmacenadosBuscar/getSearch', { params })
         .then((response) => {
-          console.log(response.data.data)
           this.examenes_almacenadosBuscar = response.data.data
           this.$refs.vuetableBuscar.setData(response.data)
           this.isLoading = false
@@ -1269,12 +1269,12 @@ export default {
 
     /* AREA PARA AGREGAR, VER E IMPRIMIR RESULTADOS */
 
-    ImprimirResultado (id) {
+    ImprimirResultado (id, paciente, fecha) {
       this.apiBaseResultado = apiUrl + `/detalleExamenRealizado/get?id=${id}`
-
+      console.log(paciente)
       axios.get(this.apiBaseResultado)
         .then((response) => {
-          this.generarPDF(response.data)
+          this.generarPDF(response.data, paciente, fecha)
         })
         .catch((error) => {
           console.error('Error al obtener los detalles del examen:', error)
@@ -1343,7 +1343,7 @@ export default {
     },
     verResultado (id) {
       this.$refs['modal-ver-resultados'].show()
-      this.apiBaseResultado = apiUrl + `/detalleExamenRealizado/list?id=${id}`
+      this.apiBaseResultadoTabla = apiUrl + `/detalleExamenRealizado/list?id=${id}`
     },
     realizarBusquedaResultado () {
       this.$refs.vuetableResultado.refresh()
@@ -1374,23 +1374,39 @@ export default {
       this.toResultado = paginationData.to
       this.totalResultado = paginationData.total
       this.lastPageResultado = paginationData.last_page
-      this.itemsResultado = paginationData.data.map(item => {
-        item.fecha_hora = moment(item.fecha_hora).format('DD/MM/YYYY HH:mm')
-        return {
-          resultados: item.resultados,
-          tipo: item.tipo,
-          fecha_hora: item.fecha_hora,
-          alamar: item.alarma
+      let groupedResults = []
+      paginationData.data.forEach(item => {
+        const tipo = item.tipo_examen
+        if (!groupedResults[tipo]) {
+          groupedResults[tipo] = []
         }
+        groupedResults[tipo].push({
+          campo: item.campo,
+          resultado: parseFloat(item.resultado).toFixed(2),
+          alarma: item.alarma || '',
+          unidades: item.unidades || '',
+          intervalo_referencia:
+            item.valor_minimo !== null && item.valor_maximo !== null
+              ? `${parseFloat(item.valor_minimo).toFixed(2)} - ${parseFloat(item.valor_maximo).toFixed(2)}`
+              : 'N/A'
+        })
       })
+
+      this.itemsResultado = []
+      for (const tipo in groupedResults) {
+        this.TituloResultado = tipo
+        this.itemsResultado.push({ tipo_examen_titulo: tipo, isTitle: true })
+        this.itemsResultado = this.itemsResultado.concat(groupedResults[tipo])
+      }
       this.$refs.paginationResultado.setPaginationData(paginationData)
     },
+
     onChangePageResultado (page) {
       this.$refs.vuetableResultado.changePage(page)
     },
     // GENERAR PDF DE RESULTADOS
-    generarPDF (Data) {
-      const data = Data.map(item => ({
+    generarPDF (Data, paciente, fecha) {
+      const data = Data.examenes.map(item => ({
         campo: item.campo,
         tipo_examen: item.tipo_examen,
         resultado: parseFloat(item.resultado).toFixed(2),
@@ -1410,9 +1426,13 @@ export default {
       doc.setFontSize(14).setFont(undefined, 'bold')
       doc.text(`RESULTADOS DE EXAMENES`, 105, 30, { align: 'center' })
 
+      // Título del reporte
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text(`Paciente: ${paciente}           Fecha y Hora: ${fecha}`, 105, 50, { align: 'center' })
+
       // Tipo de examen
       doc.setFontSize(14).setFont(undefined, 'bold')
-      doc.text(`${data.tipo_examen}`, 105, 50, { align: 'center' })
+      doc.text(`${Data.NombreExamen}`, 14, 70, { align: 'left' })
 
       // Tabla de resultados
       doc.autoTable({
@@ -1424,7 +1444,7 @@ export default {
           item.unidades,
           item.intervalo
         ]),
-        startY: 60,
+        startY: 80,
         theme: 'grid',
         styles: { fontSize: 10, cellPadding: 2 },
         headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },

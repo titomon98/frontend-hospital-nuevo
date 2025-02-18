@@ -382,7 +382,7 @@
               :reactive-api-url="true"
               :fields="fieldsConsumoInsumoQuirurgico"
               pagination-path
-              @vuetable:pagination-data="onPaginationDataConsumoInsumo"
+              @vuetable:pagination-data="onPaginationDataConsumo"
             >
             </vuetable>
             <vuetable-pagination-bootstrap
@@ -400,7 +400,7 @@
               :reactive-api-url="true"
               :fields="fieldsConsumoInsumo"
               pagination-path
-              @vuetable:pagination-data="onPaginationDataConsumoInsumo"
+              @vuetable:pagination-data="onPaginationDataConsumo"
             >
             </vuetable>
             <vuetable-pagination-bootstrap
@@ -710,6 +710,17 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
+          name: 'medico.nombre',
+          sortField: 'medico.nombre',
+          title: 'Médico tratante',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'habitacione.numero',
+          title: 'Habitación',
+          dataClass: 'list-item-heading'
+        },
+        {
           name: 'fecha_ingreso_reciente',
           sortField: 'fecha_ingreso_reciente',
           title: 'Fecha de ingreso',
@@ -719,18 +730,6 @@ export default {
           name: 'hora_ingreso_reciente',
           sortField: 'hora_ingreso_reciente',
           title: 'Hora de ingreso',
-          dataClass: 'list-item-heading'
-        },
-        {
-          name: 'nombre_encargado',
-          sortField: 'nombre_encargado',
-          title: 'Nombre de encargado',
-          dataClass: 'list-item-heading'
-        },
-        {
-          name: 'contacto_encargado',
-          sortField: 'contacto_encargado',
-          title: 'Contacto de encargado',
           dataClass: 'list-item-heading'
         }
       ],
@@ -1219,7 +1218,6 @@ export default {
     },
     saveServicio () {
       const me = this
-      console.log(me.form.id)
       if (me.servicio.id !== null && me.form.cantidad !== null) {
         me.form.servicio = me.servicio
         me.form.descripcion = 'Añadido en hospitalización'
@@ -1334,6 +1332,7 @@ export default {
       this.items = paginationData.data.map(item => {
         item.nacimiento = moment(item.nacimiento).format('DD/MM/YYYY')
         item.edad = this.calcularEdad(item.nacimiento)
+        item.fecha_ingreso_reciente = moment(item.fecha_ingreso_reciente).format('DD/MM/YYYY')
         return {
           nacimiento: item.nacimiento,
           edad: item.edad
@@ -1382,7 +1381,6 @@ export default {
     },
     onSearchServicios (search, loading) {
       if (search.length) {
-        loading(true)
         this.searchingServicios(search, loading)
       }
     },
@@ -1395,7 +1393,6 @@ export default {
         }
       ).then((response) => {
         this.servicios = response.data
-        loading(false)
       })
     },
     makeQueryParamsConsumo (sortOrder, currentPage, perPage) {
@@ -1437,12 +1434,10 @@ export default {
         }
       ).then((response) => {
         this.medicos = response.data
-        loading(false)
       })
     },
     onSearchMedicos (search, loading) {
       if (search.length) {
-        loading(true)
         this.searchingMedicos(search, loading)
       }
     },
@@ -1503,7 +1498,6 @@ export default {
     },
     onSearchMedicamentos (search, loading) {
       if (search.length) {
-        loading(true)
         this.searchingMedicamentos(search, loading)
       }
     },
@@ -1516,12 +1510,10 @@ export default {
             existencias_actuales: medicamento.existencia_actual,
             precio_venta: medicamento.precio_venta
           }))
-          loading(false)
         })
     },
     onSearchQuirugicos (search, loading) {
       if (search.length) {
-        loading(true)
         this.searchingQuirurgico(search, loading)
       }
     },
@@ -1539,10 +1531,8 @@ export default {
     },
     onSearchMaterialComun (search, loading) {
       if (search.length) {
-        loading(true)
         this.searchingComunes(search, loading)
       }
-      loading(false)
     },
     searchingComunes (search, loading) {
       axios.get(apiUrl + '/comun/list'
@@ -1553,7 +1543,6 @@ export default {
           existencias_actuales: medicamento.existencia_actual,
           precio_venta: medicamento.precio_venta
         }))
-        loading(false)
       })
     },
     onSelectChange () {
@@ -1618,7 +1607,6 @@ export default {
         }
       }).then((response) => {
         this.habitaciones = response.data
-        /* eslint-disable */console.log(...oo_oo(`1319611087_605_8_605_34_4`,response.data))
       })
     },
     onState () {
@@ -1651,10 +1639,10 @@ export default {
                   })
                   .then((res) => {
                     this.selectedHab = null
-                      this.getHabitaciones(0)
-                    })
-                }
-              })
+                    this.getHabitaciones(0)
+                  })
+              }
+            })
         })
         .catch((error) => {
           me.alertVariant = 'danger'
@@ -1670,11 +1658,10 @@ export default {
         this.showAlertError()
       } else {
         this.onState()
-        me.$refs.vuetable.refresh()
+        this.$refs.vuetable.refresh()
         this.$bvModal.hide('modal-traslado')
       }
     },
-
 
     /* GENERAR CUENTA PARCIAL PARA EL PACIENTE */
     generarReporteCuentaParcial (id, nombres, apellidos) {
@@ -2089,8 +2076,8 @@ export default {
       // Guardar el PDF
       doc.save('reporte_historial.pdf')
     }
-    }
   }
+}
 </script>
 <style>
 .custom-editor {

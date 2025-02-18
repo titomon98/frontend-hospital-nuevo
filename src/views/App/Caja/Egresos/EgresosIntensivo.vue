@@ -206,32 +206,27 @@
               </div>
               <!-- Botones -->
               <template slot="actions" slot-scope="props">
-                <b-button-group>
+                <div class="button-container">
                   <b-button
-                    v-b-tooltip.top="'Egresar paciente'"
-                    @click="
-                      setData(props.rowData)
-                      $bvModal.show('modal-2-uciegreso')
-                    "
-                    class="mb-2"
+                    @click="setData(props.rowData); $bvModal.show('modal-2-uciegreso')"
+                    class="mb-2 button-spacing"
                     size="sm"
-                    variant="outline-warning"
-                    ><i :class="'fas fa-pencil-alt'"
-                  /></b-button>
+                    variant="dark"
+                  >
+                    Egresar paciente
+                  </b-button>
+
                   <b-button
-                    v-b-tooltip.top="'Trasladar paciente'"
-                    @click="
-                      setData(props.rowData);
-                      $bvModal.show('modal-1-traslado-uci');
-                    "
-                    class="mb-2"
+                    @click="setData(props.rowData); $bvModal.show('modal-1-traslado-uci')"
+                    class="mb-2 button-spacing"
                     size="sm"
-                    :variant="'outline-danger'">
-                    <i
-                      :class="'fas fa-heart'"
-                  /></b-button>
-                </b-button-group>
+                    variant="success"
+                  >
+                    Trasladar paciente
+                  </b-button>
+                </div>
               </template>
+
               <!-- Paginacion -->
             </vuetable>
             <vuetable-pagination-bootstrap

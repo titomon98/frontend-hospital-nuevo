@@ -22,7 +22,7 @@
               <b-tab title="Personal" lazy><Personal/></b-tab>
               <b-tab title="Asuetos" lazy><Asuetos/></b-tab>
               <b-tab title="Efectivo" lazy><Efectivo/></b-tab>
-              <b-tab title="Descuentos" lazy><ValidarDescuentos/></b-tab>
+              <b-tab title="Validar descuentos" lazy><ValidarDescuentos/></b-tab>
               <b-tab title="Reportes" lazy><Reportes/></b-tab>
             </b-tabs>
           </template>

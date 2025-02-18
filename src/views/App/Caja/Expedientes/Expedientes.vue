@@ -585,71 +585,48 @@
               </div>
               <!-- Botones -->
               <template slot="actions" slot-scope="props">
-                <b-button-group>
+                <div class="button-container">
                   <b-button
                     v-b-tooltip.top="'Editar'"
                     @click="setData(props.rowData)"
                     v-b-modal.modal-2-expediente
-                    class="mb-2"
+                    class="mb-2 button-spacing"
                     size="sm"
-                    variant="outline-warning"
-                    ><i :class="'fas fa-pencil-alt'"
-                  /></b-button>
-                  <b-button
-                    v-b-tooltip.top="'Trasladar'"
-                    @click="setData(props.rowData)"
-                    class="mb-2"
-                    size="sm"
-                    variant="outline-danger"
-                    ><i :class="'fas fa-heart'"
-                  /></b-button>
-                  <b-button
-                    v-b-tooltip.top="'Detalle de cuentas previas'"
-                    @click="setData(props.rowData)"
-                    v-b-modal.modal-1-pago
-                    class="mb-2"
-                    size="sm"
-                    variant="outline-dark"
-                    ><i :class="'fas fa-list-alt'"
-                  /></b-button>
+                    variant="dark"
+                  >Editar</b-button>
+
                   <b-button
                     v-b-tooltip.top="'Pago adelantado'"
-                    @click="setData(props.rowData)
-                    $bvModal.show('modal-1-pago')"
-                    class="mb-2"
+                    @click="setData(props.rowData); $bvModal.show('modal-1-pago')"
+                    class="mb-2 button-spacing"
                     size="sm"
-                    variant="outline-success"
-                    ><i :class="'fas fa-money'"
-                  /></b-button>
+                    variant="success"
+                  >Pago por adelantado</b-button>
+
                   <b-button
                     v-b-tooltip.top="'Asignar médico'"
-                    @click="setData(props.rowData)
-                    $bvModal.show('modal-3-medico')
-                    getDoctors()"
-                    class="mb-2"
+                    @click="setData(props.rowData); $bvModal.show('modal-3-medico'); getDoctors()"
+                    class="mb-2 button-spacing"
                     size="sm"
-                    variant="outline-primary"
-                    ><i :class="'fas fa-stethoscope'"
-                  /></b-button>
+                    variant="dark"
+                  >Asignar un médico</b-button>
+
                   <b-button
                     v-b-tooltip.top="'Generar Contrato'"
-                    @click="$bvModal.show('modal-responsable'), setDatos(props.rowData)"
-                    class="mb-2"
+                    @click="$bvModal.show('modal-responsable'); setDatos(props.rowData)"
+                    class="mb-2 button-spacing"
                     size="sm"
-                    variant="outline-primary"
-                  >
-                    <i :class="'fas fa-file-signature'" />
-                  </b-button>
+                    variant="success"
+                  >Generar contrato</b-button>
+
                   <b-button
                     v-b-tooltip.top="'Generar Sumario'"
                     @click="generarReporteCuentaParcial(props.rowData.id, props.rowData.nombres, props.rowData.apellidos)"
-                    class="mb-2"
+                    class="mb-2 button-spacing"
                     size="sm"
-                    variant="outline-primary"
-                  >
-                    <i :class="'ri-file-list-3-fill'" />
-                  </b-button>
-                </b-button-group>
+                    variant="dark"
+                  >Generar sumario de paciente</b-button>
+                </div>
               </template>
               <!-- Paginacion -->
             </vuetable>
@@ -1364,14 +1341,14 @@ este documento como FIADOR SOLIDARIO DE. ${this.paciente.nombres} ${this.pacient
 ______________________________________               ______________________________________
 
                    F) Paciente o responsable                                                        f) fiador
-                                                               
 
 
-                       ${this.paciente.cui}                                                                           ${this.contrato.cui}  
+
+                       ${this.paciente.cui}                                                                           ${this.contrato.cui}
 ______________________________________               ______________________________________
 
-                             No. DPI                                                                                       No. DPI  
-                             
+                             No. DPI                                                                                       No. DPI
+
 
 
 
