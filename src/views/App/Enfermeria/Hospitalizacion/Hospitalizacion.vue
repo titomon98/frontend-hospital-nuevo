@@ -1663,7 +1663,6 @@ export default {
       }
     },
 
-
     /* GENERAR CUENTA PARCIAL PARA EL PACIENTE */
     generarReporteCuentaParcial (id, nombres, apellidos) {
       axios.get(apiUrl + `/consumos/sumario/${id}`)
@@ -2077,8 +2076,8 @@ export default {
       // Guardar el PDF
       doc.save('reporte_historial.pdf')
     }
-    }
   }
+}
 </script>
 <style>
 .custom-editor {
