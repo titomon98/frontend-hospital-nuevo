@@ -531,7 +531,7 @@ export default {
       ],
       reportOptionsMedicos: [
         { value: null, text: 'Seleccione un reporte' },
-        { value: 1, text: 'Reporte de honorarios médicos por fechas' },
+        { value: 1, text: 'Corte de honorarios médicos por fechas' },
         { value: 2, text: 'Reporte de médicos que más tienen honorarios por fechas y por día' },
         { value: 3, text: 'Generar voucher de honorarios de un médico en pdf' }
       ],
@@ -3808,7 +3808,7 @@ export default {
         doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
 
         doc.setFontSize(16)
-        doc.text('Reporte Detallado de Honorarios Medicos', 105, 50, { align: 'center' })
+        doc.text('Corte de Honorarios Medicos', 105, 50, { align: 'center' })
         doc.setFontSize(12)
         doc.text(`Desde: ${moment(fechaInicio).format('DD/MM/YYYY')} | Hasta: ${moment(fechaFin).format('DD/MM/YYYY')}`, 105, 58, { align: 'center' })
 
@@ -3874,7 +3874,7 @@ export default {
         }
 
         // Guardar el PDF
-        doc.save(`reporte_detallado_honorarios_${fechaInicio}_a_${fechaFin}.pdf`)
+        doc.save(`Corte_de_honorarios_${fechaInicio}_a_${fechaFin}.pdf`)
       } catch (error) {
         console.error('Error al generar el reporte:', error)
         this.$alert('Ocurrió un error al generar el reporte. Por favor, intente de nuevo.', 'Error')
@@ -3883,7 +3883,7 @@ export default {
     generarExcelMedicos () {
       const data = this.dataMedicos
       const workbook = new ExcelJS.Workbook()
-      const worksheet = workbook.addWorksheet('Reporte de Honorarios Médicos')
+      const worksheet = workbook.addWorksheet('Corte de Honorarios Médicos')
 
       worksheet.columns = [
         { header: '#', key: 'numero_orden', width: 10 },
@@ -3917,7 +3917,7 @@ export default {
       worksheet.getCell('A3').alignment = { horizontal: 'center' }
 
       worksheet.mergeCells('A5:H5')
-      worksheet.getCell('A5').value = `Reporte Detallado de Honorarios Médicos (${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')})`
+      worksheet.getCell('A5').value = `Corte de Honorarios Médicos (${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')})`
       worksheet.getCell('A5').font = { bold: true, size: 14 }
       worksheet.getCell('A5').alignment = { horizontal: 'center' }
 
@@ -3982,7 +3982,7 @@ export default {
           const url = URL.createObjectURL(blob)
           const link = document.createElement('a')
           link.href = url
-          link.download = `Reporte_Detallado_de_Honorarios_${fechaInicio}_a_${fechaFin}.xlsx`
+          link.download = `Corte_de_Honorarios_${fechaInicio}_a_${fechaFin}.xlsx`
           link.click()
           console.log('¡Archivo Excel generado correctamente!')
         })

@@ -742,8 +742,8 @@ export default {
       ],
       fieldsConsumoInsumo: [
         {
-          name: 'descripcion',
-          sortField: 'descripcion',
+          name: 'comune.nombre',
+          sortField: 'comune.nombre',
           title: 'Nombre del insumo',
           dataClass: 'list-item-heading'
         },
@@ -1569,7 +1569,7 @@ export default {
       loading(false)
     },
     searchingComunes (search, loading) {
-      axios.get(apiUrl + '/comun/list'
+      axios.get(apiUrl + '/comun/list2'
       ).then((response) => {
         this.medicamentos = response.data.map(medicamento => ({
           value: medicamento.id,
@@ -1693,21 +1693,17 @@ export default {
           this.showAlertError()
         })
     },
-    mostrarReporte (reporte) {
+    mostrarReporte (data) {
       let totalDeuda = 0
 
-      const ConsumoTotal = (Array.isArray(reporte.Consumo) ? reporte.Consumo : [])
-        .reduce((acc, item) => acc + parseFloat(item.subtotal || 0), 0)
-      const ConsumoComunTotal = (Array.isArray(reporte.consumosComunes) ? reporte.consumosComunes : [])
-        .reduce((acc, item) => acc + parseFloat(item.total || 0), 0)
-      const ConsumoMedicamentosTotal = (Array.isArray(reporte.consumosMedicamentos) ? reporte.consumosMedicamentos : [])
-        .reduce((acc, item) => acc + parseFloat(item.total || 0), 0)
-      const ConsumoQuirurgicosTotal = (Array.isArray(reporte.consumosQuirurgicos) ? reporte.consumosQuirurgicos : [])
-        .reduce((acc, item) => acc + parseFloat(item.total || 0), 0)
-      const ExamenesTotal = (Array.isArray(reporte.Examenes) ? reporte.Examenes : [])
-        .reduce((acc, item) => acc + parseFloat(item.total || 0), 0)
-      const ServicioSalaOperacionesTotal = (Array.isArray(reporte.salaOperaciones) ? reporte.salaOperaciones : [])
-        .reduce((acc, item) => acc + parseFloat(item.total || 0), 0)
+      const ConsumoTotal = data.consumos.reduce((acc, item) => acc + parseFloat(item.subtotal), 0)
+      const ConsumoComunTotal = data.consumosComunes.reduce((acc, item) => acc + parseFloat(item.total), 0)
+      const ConsumoMedicamentosTotal = data.consumosMedicamentos.reduce((acc, item) => acc + parseFloat(item.total), 0)
+      const ConsumoQuirurgicosTotal = data.consumosQuirurgicos.reduce((acc, item) => acc + parseFloat(item.total), 0)
+      const ExamenesTotal = data.examenes.reduce((acc, item) => acc + item.total, 0)
+      const ServicioSalaOperacionesTotal = data.salaOperaciones.reduce((acc, item) => acc + parseFloat(item.total), 0)
+      // const TotalHonorarios = data.honorarios.reduce((acc, item) => acc + parseFloat(item.total), 0)
+      // const medicosOrdenados = data.honorarios.sort((a, b) => b.total - a.total)
 
       totalDeuda = parseFloat(ConsumoTotal) +
                   parseFloat(ConsumoComunTotal) +
