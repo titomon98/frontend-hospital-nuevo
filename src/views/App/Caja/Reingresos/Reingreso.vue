@@ -200,6 +200,12 @@
                 :state="!varParentescoEncargadoError"
                 placeholder="Ingresar parentesco del encargado">
               </b-form-input>
+              Edad
+              <b-form-input
+                v-model.trim="varEdadEncargado"
+                :state="!varEdadEncargado"
+                placeholder="Ingresar edad del encargado">
+              </b-form-input>
               CUI
               <b-form-input
                 v-model.trim="varCuiEncargado"
@@ -520,6 +526,7 @@ export default {
       this.varContactoEncargado = data.contacto_encargado
       this.varCuiEncargado = data.cui_encargado
       this.varParentescoEncargado = data.parentesco_encargado
+      this.varEdadEncargado = data.edad_encargado
       this.form.state = data.estado
       this.form.id = data.id
     },
@@ -579,6 +586,7 @@ export default {
           contacto_encargado: this.varContactoEncargado,
           cui_encargado: this.varCuiEncargado,
           parentesco_encargado: this.varParentescoEncargado,
+          edad_encargado: this.varEdadEncargado,
           estado_anterior: 2,
           habitaciones: habitacion,
           user: me.currentUser.user

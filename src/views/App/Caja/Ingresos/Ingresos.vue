@@ -315,6 +315,17 @@
                   ></b-form-input>
                 </b-form-group>
               </b-col>
+              <b-col md="2">
+                <b-form-group label="Edad de encargado:">
+                  <b-form-input
+                    v-model.trim="form.edad_encargado"
+                    type="number"
+                    min="0"
+                    max="100"
+                    placeholder="Ingresar edad "
+                  ></b-form-input>
+                </b-form-group>
+              </b-col>
             </b-row>
             <!-- Datos de conyuge -->
             <h4 class="card-title mt-3">Ingreso de conyuge</h4>
@@ -436,6 +447,7 @@ export default {
         nombre_encargado: '',
         contacto_encargado: '',
         parentesco_encargado: '',
+        edad_encargado: '',
         state: 1,
         id_usuario: null,
         estado_civil: null,
