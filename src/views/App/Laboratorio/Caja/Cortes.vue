@@ -343,8 +343,8 @@ export default {
       this.form.name = data.nombres
       this.getDetail(data.id, data)
     },
-    getDetail (num, data) {
-      axios.get(apiUrl + '/detalle/getByAccount', {
+    async getDetail (num, data) {
+      await axios.get(apiUrl + '/detalle/getByAccount', {
         params: {
           id_lab_cuenta: num
         }
