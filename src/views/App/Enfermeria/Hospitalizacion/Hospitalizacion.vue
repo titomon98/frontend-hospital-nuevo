@@ -290,10 +290,21 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <b-table striped hover :items="honorarios" :fields="fieldsHonorarios">
+        <!-- Nombre del Médico -->
         <template #cell(nombreMedico)="row">
           {{ row.item.medico.nombre }}
         </template>
+
+        <!-- Campo editable para Total -->
+        <template #cell(total)="row">
+          <b-form-input
+            v-model="row.item.total"
+            type="number"
+            @change="updateTotal(row.item)"
+          ></b-form-input>
+        </template>
       </b-table>
+
       <b-pagination
         v-if="pagination.total > 0"
         v-model="pagination.currentPage"
@@ -301,6 +312,7 @@
         :per-page="pagination.perPage"
         @change="onChangePageHonorario"
       ></b-pagination>
+
       <template #modal-footer>
         <b-button variant="danger" @click="closeModal('ver-honorarios')">Cerrar</b-button>
       </template>
@@ -868,9 +880,11 @@ export default {
       apiBaseHonorarios: apiUrl + '/detalle_honorarios',
       honorarios: [],
       fieldsHonorarios: [
-        { key: 'medico.nombre', label: 'Nombre del Médico' },
+        { key: 'medico', label: 'Nombre del Médico' },
         { key: 'descripcion', label: 'Descripción' },
-        { key: 'total', label: 'Total' }
+        { key: 'total', label: 'Total' },
+        { key: 'createdAt', label: 'Fecha y Hora' },
+        { key: 'updated_by', label: 'Creado por' }
       ],
       pagination: {
         currentPage: 1,
@@ -1464,6 +1478,24 @@ export default {
     onChangePageHonorario (page) {
       this.pagination.currentPage = page
       this.getDataHonorarios(this.currentExpedienteId)
+    },
+    updateTotal (item) {
+      console.log('Total actualizado:', item)
+      const id = item.id
+      const me = item
+      axios.put(apiUrl + `/detalle_honorarios/${id}`, {
+        form: me })
+        .then((response) => {
+          this.alertVariant = 'primary'
+          this.showAlert()
+          this.alertText = 'Se ha actualizado el expediente los honorarios del / la ' + me.medico + ' exitosamente'
+        })
+        .catch((error) => {
+          this.alertVariant = 'danger'
+          this.showAlertError()
+          this.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+          console.error('Error!', error)
+        })
     },
     async obtenerIdCuenta (idExpediente) {
       try {
