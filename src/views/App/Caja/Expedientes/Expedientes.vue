@@ -455,96 +455,6 @@
         <b-button variant="danger" @click="closeModal('contrato')">Cancelar</b-button>
       </template>
     </b-modal>
-    <b-modal id="modal-responsable" ref="modal-responsable" title="Datos del Responsable/Fiador">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
-      >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
-      </b-alert>
-      <b-form @submit.prevent>
-        <div>
-          <b-tabs content-class="mt-3">
-            <b-tab>
-              <b-container>
-                <!-- Campo: Nombre -->
-                <b-form-group label="Nombre" class="mb-3">
-                  <b-form-input
-                    v-model="contrato.nombre"
-                    placeholder="Ingresar nombre"
-                  ></b-form-input>
-                </b-form-group>
-
-                <!-- Campo: Edad -->
-                <b-form-group label="Edad" class="mb-3">
-                  <b-form-input
-                    type="number"
-                    v-model="contrato.edad"
-                    placeholder="Ingresar edad"
-                  ></b-form-input>
-                </b-form-group>
-
-                <!-- Campo: Edad -->
-                <b-form-group label="No. DPI" class="mb-3">
-                  <b-form-input
-                    type="number"
-                    v-model="contrato.cui"
-                    placeholder="Ingresar No. DPI"
-                  ></b-form-input>
-                </b-form-group>
-
-                <!-- Campo: Estado Civil -->
-                <b-form-group label="Estado Civil" class="mb-3">
-                  <b-form-input
-                    v-model="contrato.estadoCivil"
-                    placeholder="Ingresar estado civil"
-                  ></b-form-input>
-                </b-form-group>
-
-                <!-- Campo: Nacionalidad -->
-                <b-form-group label="Nacionalidad" class="mb-3">
-                  <b-form-input
-                    v-model="contrato.nacionalidad"
-                    placeholder="Ingresar nacionalidad"
-                  ></b-form-input>
-                </b-form-group>
-
-                <!-- Campo: Profesion -->
-                <b-form-group label=" Profesion u Oficio" class="mb-3">
-                  <b-form-input
-                    v-model="contrato.profesion"
-                    placeholder="Ingresar la Profesion u Oficio"
-                  ></b-form-input>
-                </b-form-group>
-
-                <!-- Campo: Domicilio -->
-                <b-form-group label="Domicilio" class="mb-3">
-                  <b-form-input
-                    v-model="contrato.domicilio"
-                    placeholder="Ingresar domicilio"
-                  ></b-form-input>
-                </b-form-group>
-
-                <!-- Campo: Residencia -->
-                <b-form-group label="Residencia" class="mb-3">
-                  <b-form-input
-                    v-model="contrato.direccion"
-                    placeholder="Ingresar residencia"
-                  ></b-form-input>
-                </b-form-group>
-              </b-container>
-            </b-tab>
-          </b-tabs>
-        </div>
-      </b-form>
-      <template #modal-footer="{}">
-        <b-button variant="primary" @click="generatePDF()">Generar Contrato</b-button>
-        <b-button variant="danger" @click="closeModal('responsable')">Cancelar</b-button>
-      </template>
-    </b-modal>
     <b-row>
       <b-col md="12">
         <iq-card>
@@ -937,17 +847,6 @@ export default {
           this.$refs['modal-contrato'].hide()
           break
         }
-        case 'responsable': {
-          this.contrato.nombre = ''
-          this.contrato.edad = null
-          this.contrato.cui = null
-          this.contrato.estadoCivil = ''
-          this.contrato.nacionalidad = ''
-          this.contrato.profesion = ''
-          this.contrato.domicilio = ''
-          this.contrato.direccion = ''
-          this.$refs['modal-responsable'].hide()
-        }
       }
     },
     onValidate (action) {
@@ -1104,7 +1003,6 @@ export default {
           value: medico.id,
           text: medico.nombre
         }))
-        console.log(this.doctors)
         loading(false)
       })
     },
@@ -1163,7 +1061,6 @@ export default {
     },
     onDoctorAssignment () {
       this.form.assignedDoctor = this.selectedDoctor
-      console.log(this.form.id)
       axios.put(apiUrl + '/expedientes/assignDoctor', {
         form: this.form })
         .then((response) => {
@@ -1184,6 +1081,7 @@ export default {
     // CONTRATO
     setDatos (data) {
       this.paciente = data
+      this.generatePDF()
     },
     generatePDF () {
       // Crear PDF
@@ -1215,7 +1113,7 @@ export default {
       let altura = 6
       this.pdf.setFontSize(12).setFont(undefined, 'normal')
       this.pdf.text(
-        `YO: ${this.contrato.nombre}`,
+        `YO: ${this.paciente.nombre_encargado}`,
         2,
         altura,
         { maxWidth: 17 }
@@ -1230,7 +1128,7 @@ export default {
       altura += 0.7
       this.pdf.setFontSize(12).setFont(undefined, 'normal')
       this.pdf.text(
-        `DE:                  ${this.contrato.edad}                                     años`,
+        `DE:                  ${this.paciente.edad_encargado}                                     años`,
         2,
         altura,
         { maxWidth: 17 }
@@ -1245,7 +1143,7 @@ export default {
       altura += 0.7
       this.pdf.setFontSize(12).setFont(undefined, 'normal')
       this.pdf.text(
-        `De estado civil: ${this.contrato.estadoCivil}`,
+        `De estado civil: ${this.paciente.estado_civil_encargado}`,
         2,
         altura,
         { maxWidth: 17 }
@@ -1260,7 +1158,7 @@ export default {
       altura += 0.7
       this.pdf.setFontSize(12).setFont(undefined, 'normal')
       this.pdf.text(
-        `De nacionalidad: ${this.contrato.nacionalidad}`,
+        `De nacionalidad: ${this.paciente.nacionalidad}`,
         2,
         altura,
         { maxWidth: 17 }
@@ -1275,7 +1173,7 @@ export default {
       altura += 0.7
       this.pdf.setFontSize(12).setFont(undefined, 'normal')
       this.pdf.text(
-        `Profesion u oficio: ${this.contrato.profesion}`,
+        `Profesion u oficio: ${this.paciente.profesion_encargado}`,
         2,
         altura,
         { maxWidth: 17 }
@@ -1290,7 +1188,7 @@ export default {
       altura += 0.7
       this.pdf.setFontSize(12).setFont(undefined, 'normal')
       this.pdf.text(
-        `Domiciliado en: ${this.contrato.domicilio}`,
+        `Domiciliado en: ${this.paciente.direccion_encargado}`,
         2,
         altura,
         { maxWidth: 17 }
@@ -1305,7 +1203,7 @@ export default {
       altura += 0.7
       this.pdf.setFontSize(12).setFont(undefined, 'normal')
       this.pdf.text(
-        `Con residencia:  ${this.contrato.direccion}`,
+        `Con residencia:  ${this.paciente.direccion_encargado}`,
         2,
         altura,
         { maxWidth: 17 }
@@ -1357,7 +1255,7 @@ ______________________________________               ___________________________
 
 
 
-                       ${this.paciente.cui}                                                                           ${this.contrato.cui}
+                       ${this.paciente.cui_encargado}                                                                          
 ______________________________________               ______________________________________
 
                              No. DPI                                                                                       No. DPI
@@ -1365,7 +1263,7 @@ ______________________________________               ___________________________
 
 
 
-
+ Direccion: ${this.paciente.direccion_encargado} - Tel: ${this.paciente.contacto_encargado} 
 ______________________________________               ______________________________________
 
                    Dirección y Teléfono                                                               Dirección y Teléfono
@@ -1378,15 +1276,12 @@ ______________________________________               ___________________________
       altura += 12
       this.pdf.text(
         `COMO NOTARIO DOY FE: que las firmas que anteceden son autenticas por haber sido puestas en mi presencia el
-dia de hoy por ${this.paciente.nombres} ${this.paciente.apellidos} y por ${this.contrato.nombre}
+dia de hoy por ${this.paciente.nombre_encargado} con el Código Único de Identificación arriba indicadas y que los nombrados firman al pie de la presente, en la ciudad de Quetzaltenango, el día____________________ del mes de _____________________ del dos mil ________________
 
-Con el Código Único de Identificación arriba indicadas y que los nombrados firman al pie de la presente, en la ciudad de Quetzaltenango, el día____________________ del mes de _____________________ del dos mil ________________
-
-
-E MI
+ANTE MI
 
 
-                              F)_________________________                        F)__________________________`,
+                                                                  F)_________________________                        `,
         2,
         altura,
         { maxWidth: 18 }
@@ -1397,7 +1292,6 @@ E MI
       const pdfURL = URL.createObjectURL(pdfData)
       this.previewURL = pdfURL
       this.$refs['modal-contrato'].show()
-      this.closeModal('responsable')
     },
 
     descargarpdf () {
