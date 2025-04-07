@@ -82,7 +82,7 @@ export default {
     this.year = today.getFullYear()
     if (this.currentUser.user_type === 1) {
       this.verticalMenu = SideBarItems
-    } else if (this.currentUser.user_type === 3) {
+    } else if (this.currentUser.user_type === 2) {
       this.verticalMenu = SideBarLaboratorio
     }
   },

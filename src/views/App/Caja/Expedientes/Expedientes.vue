@@ -542,11 +542,18 @@
 
                   <b-button
                     v-b-tooltip.top="'Generar Sumario'"
-                    @click="generarReporteCuentaParcial(props.rowData.id, props.rowData.nombres, props.rowData.apellidos)"
+                    @click="generarSumario(props.rowData)"
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="dark"
                   >Generar sumario de paciente</b-button>
+                  <b-button
+                    v-b-tooltip.top="'Generar Cuenta Total'"
+                    @click="generarCuentaTotal(props.rowData.id, props.rowData.nombres, props.rowData.apellidos)"
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="success"
+                  >Generar Cuenta Total de paciente</b-button>
                 </div>
               </template>
               <!-- Paginacion -->
@@ -573,6 +580,7 @@ import { apiUrl } from '../../../../config/constant'
 import moment from 'moment'
 import JsPDF from 'jspdf'
 import logo from '../../../../assets/images/login/1.png'
+import ExcelJS from 'exceljs'
 
 export default {
   name: 'Bank',
@@ -1090,6 +1098,29 @@ export default {
         format: 'legal'
       })
 
+      const today = new Date()
+      const diasTexto = [
+        '', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve', 'diez',
+        'once', 'doce', 'trece', 'catorce', 'quince', 'dieciséis', 'diecisiete', 'dieciocho', 'diecinueve',
+        'veinte', 'veintiuno', 'veintidós', 'veintitrés', 'veinticuatro', 'veinticinco', 'veintiséis',
+        'veintisiete', 'veintiocho', 'veintinueve', 'treinta', 'treinta y uno'
+      ]
+
+      const aniosTexto = {
+        2025: 'dos mil veinticinco',
+        2026: 'dos mil veintiséis',
+        2027: 'dos mil veintisiete',
+        2028: 'dos mil veintiocho',
+        2029: 'dos mil veintinueve',
+        2030: 'dos mil treinta',
+        2031: 'dos mil treinta y uno'
+      }
+      const day = today.getDate()
+      const dayText = diasTexto[day]
+      const month = today.toLocaleString('es-ES', { month: 'long' })
+      const year = today.getFullYear()
+      const yearText = aniosTexto[year] || 'Actualizar sistema'
+
       // Encabezado
       this.pdf.addImage(logo, 'JPEG', 1.5, 1, 3, 3)
 
@@ -1240,9 +1271,9 @@ este documento como FIADOR SOLIDARIO DE. ${this.paciente.nombres} ${this.pacient
 
       altura += 7
       this.pdf.text(
-        `En la ciudad de Quetzaltenango, el______________del mes de_________________dos mil__________________
+        `En la ciudad de Quetzaltenango, el dia ${dayText} del mes de ${month} de ${yearText}
 
-                                            Quetzaltenango___________________de_________________de 20______________
+                                            Quetzaltenango ${day} de ${month} de ${year}
 
 
 
@@ -1276,7 +1307,7 @@ ______________________________________               ___________________________
       altura += 12
       this.pdf.text(
         `COMO NOTARIO DOY FE: que las firmas que anteceden son autenticas por haber sido puestas en mi presencia el
-dia de hoy por ${this.paciente.nombre_encargado} con el Código Único de Identificación arriba indicadas y que los nombrados firman al pie de la presente, en la ciudad de Quetzaltenango, el día____________________ del mes de _____________________ del dos mil ________________
+dia de hoy por ${this.paciente.nombre_encargado} con el Código Único de Identificación arriba indicadas y que los nombrados firman al pie de la presente, en la ciudad de Quetzaltenango, el dia ${dayText} del mes de ${month} de ${yearText}
 
 ANTE MI
 
@@ -1299,12 +1330,11 @@ ANTE MI
     },
 
     /* AREA SUMARIO */
-    generarReporteCuentaParcial (id, nombres, apellidos) {
-      axios.get(apiUrl + `/consumos/sumario/${id}`)
+    generarSumario (data) {
+      axios.get(apiUrl + `/consumos/sumario/${data.id}`)
         .then((response) => {
           this.dataPDFsumario = response.data
-          this.nombrePaciente = nombres + ' ' + apellidos
-          this.generarPdfSumario(this.dataPDFsumario.fechaFormateada)
+          this.generarPdfSumario(data)
         })
         .catch((error) => {
           console.error('Error al generar el reporte de cuenta parcial:', error)
@@ -1312,7 +1342,249 @@ ANTE MI
           this.showAlertError()
         })
     },
-    generarPdfSumario (FechaIngreso) {
+    generarPdfSumario (paciente) {
+      const doc = new JsPDF('p', 'mm', 'letter')
+      function dibujarRect (x, y, w, h) {
+        doc.rect(x, y, w, h)
+      }
+
+      function dibujarLinea (x1, y1, x2, y2) {
+        doc.line(x1, y1, x2, y2)
+      }
+
+      function escribirTexto (texto, x, y, size = 10, fontStyle = 'normal') {
+        doc.setFontSize(size)
+        doc.setFont('helvetica', fontStyle)
+        doc.text(texto, x, y)
+      }
+
+      dibujarRect(10, 10, 200, 250)
+
+      doc.addImage(logo, 'JPEG', 14, 10, 25, 20)
+      doc.setFontSize(14).setFont(undefined, 'bold')
+      doc.text('HOSPITAL Y CLINICA DE ESPECIALIDADES DE OCCIDENTE, S.A.', 120, 20, { align: 'center' })
+      doc.text('QUETZALTENANGO', 120, 27, { align: 'center' })
+
+      dibujarLinea(10, 30, 210, 30)
+
+      let posY = 35
+
+      escribirTexto('Apellidos:', 12, posY, 10, 'bold')
+      escribirTexto(paciente.apellidos, 30, posY)
+      escribirTexto('Nombres:', 80, posY, 10, 'bold')
+      escribirTexto(paciente.nombres, 100, posY)
+      escribirTexto('Exp:', 175, posY, 10, 'bold')
+      escribirTexto(paciente.expediente, 185, posY)
+
+      posY += 5
+      dibujarLinea(10, posY, 210, posY)
+      posY += 5
+
+      escribirTexto('Dirección:', 12, posY, 10, 'bold')
+      escribirTexto(paciente.direccion, 30, posY)
+      escribirTexto('Tel:', 165, posY, 10, 'bold')
+      escribirTexto(paciente.telefono, 175, posY)
+
+      posY += 5
+      dibujarLinea(10, posY, 210, posY)
+      posY += 5
+
+      // -------------------------------------
+      // 5) Fecha Nac., Edad, Nacionalidad
+      // -------------------------------------
+      escribirTexto('Fecha Nacimiento:', 12, posY, 10, 'bold')
+      escribirTexto(paciente.nacimiento, 50, posY)
+      escribirTexto('Edad:', 70, posY, 10, 'bold')
+      escribirTexto(String(paciente.edad), 80, posY)
+      escribirTexto('Lugar de Nacimiento:', 100, posY, 10, 'bold')
+      escribirTexto(paciente.lugar_nacimiento, 140, posY)
+      escribirTexto('Sexo:', 170, posY, 10, 'bold')
+      escribirTexto(paciente.genero, 180, posY)
+
+      posY += 5
+      dibujarLinea(10, posY, 210, posY)
+      posY += 5
+
+      // ----------------------------------------------
+      // -----------------------------------------------
+      escribirTexto('Estado Civil:', 12, posY, 10, 'bold')
+      escribirTexto(paciente.estado_civil, 35, posY)
+      escribirTexto('Ocupacion:', 60, posY, 10, 'bold')
+      escribirTexto(paciente.profesion, 70, posY)
+      escribirTexto('Nacionalidad', 110, posY, 10, 'bold')
+      escribirTexto(paciente.nacionalidad, 135, posY)
+      escribirTexto('CUI:', 170, posY, 10, 'bold')
+      escribirTexto(paciente.cui, 180, posY)
+
+      posY += 5
+      dibujarLinea(10, posY, 210, posY)
+      posY += 5
+
+      // -----------------------------------------
+      // -----------------------------------------
+
+      escribirTexto('Nombre  de Conyugue:', 12, posY, 10, 'bold')
+      escribirTexto(paciente.nombre_conyuge, 40, posY)
+      escribirTexto('Direccion:', 105, posY, 10, 'bold')
+      escribirTexto(paciente.direccion_conyuge, 130, posY)
+      escribirTexto('Tel:', 175, posY, 10, 'bold')
+      escribirTexto(paciente.telefono_conyuge, 185, posY)
+
+      posY += 5
+      dibujarLinea(10, posY, 210, posY)
+      posY += 5
+
+      // -------------------------------------
+      // 6) Padre y Madre
+      // -------------------------------------
+      escribirTexto('Nombre del Padre:', 12, posY, 10, 'bold')
+      escribirTexto(paciente.nombre_padre, 50, posY)
+      escribirTexto('Nombre de la Madre:', 120, posY, 10, 'bold')
+      escribirTexto(paciente.nombre_madre, 160, posY)
+
+      posY += 5
+      dibujarLinea(10, posY, 210, posY)
+      posY += 10
+
+      // ----------------------------------------------
+      // -----------------------------------------------
+      escribirTexto('En caso de emergencia notificar a:', 12, posY -= 6, 10, 'bold')
+      escribirTexto(paciente.nombre_encargado, 12, posY += 8)
+      escribirTexto('Parentesco:', 70, posY, 10, 'bold')
+      escribirTexto(paciente.parentesco_encargado, 92, posY)
+      escribirTexto('Direccion:', 118, posY, 10, 'bold')
+      escribirTexto(paciente.direccion_encargado, 137, posY)
+      escribirTexto('Tel:', 175, posY, 10, 'bold')
+      escribirTexto(paciente.contacto_encargado, 185, posY)
+
+      posY += 5
+      dibujarLinea(10, posY, 210, posY)
+      posY += 5
+
+      // -------------------------------------
+      // 6) Teléfono
+      // -------------------------------------
+      escribirTexto('Otras Hospitalizaciones:', 12, posY, 10, 'bold')
+
+      escribirTexto('Referido de:', 112, posY, 10, 'bold')
+
+      posY += 5
+      dibujarLinea(10, posY, 210, posY)
+      posY += 5
+
+      // -------------------------------------
+      // 6) Data
+      // -------------------------------------
+
+      escribirTexto('Ingreso:', 12, posY, 10, 'bold')
+      escribirTexto(paciente.fecha_ingreso_reciente, 30, posY)
+      escribirTexto(String(paciente.hora_ingreso_reciente), 50, posY)
+      escribirTexto('Engreso:', 80, posY, 10, 'bold')
+
+      escribirTexto('Dias Estancia:', 160, posY, 10, 'bold')
+
+      posY += 5
+      dibujarLinea(10, posY, 210, posY)
+      posY += 5
+
+      // -------------------------------------
+      // 8) Diagnóstico
+      // -------------------------------------
+      escribirTexto('Diagnóstico de Impresión:', 12, posY, 10, 'bold')
+
+      posY += 10
+      dibujarLinea(10, posY, 210, posY)
+      posY += 5
+
+      // -------------------------------------
+      // 9) Diagnostico
+      // -------------------------------------
+      escribirTexto('Diagnóstico final: Enumero en orden de importacia', 12, posY, 10, 'bold')
+
+      posY += 5
+      dibujarLinea(10, posY, 210, posY)
+      posY += 5
+
+      posY += 5
+      dibujarLinea(10, posY, 210, posY)
+      posY += 5
+
+      posY += 5
+      dibujarLinea(10, posY, 210, posY)
+      posY += 5
+
+      posY += 5
+      dibujarLinea(10, posY, 210, posY)
+      posY += 5
+
+      posY += 5
+      dibujarLinea(10, posY, 210, posY)
+      posY += 5
+
+      // -------------------------------------
+      // 9) Diagnostico
+      // -------------------------------------
+      escribirTexto('Complicaciones:', 12, posY, 10, 'bold')
+
+      posY += 5
+      dibujarLinea(10, posY, 210, posY)
+      posY += 5
+
+      posY += 5
+      dibujarLinea(10, posY, 210, posY)
+      posY += 5
+
+      posY += 5
+      dibujarLinea(10, posY, 210, posY)
+      posY += 5
+
+      posY += 5
+      dibujarLinea(10, posY, 210, posY)
+      posY += 5
+      // -------------------------------------
+      // 9) Operaciones
+      // -------------------------------------
+      escribirTexto('Operaciones: Enumero en orden de importacia', 12, posY, 10, 'bold')
+
+      posY += 5
+      dibujarLinea(10, posY, 210, posY)
+      posY += 5
+
+      posY += 5
+      dibujarLinea(10, posY, 210, posY)
+      posY += 5
+
+      posY += 5
+      dibujarLinea(10, posY, 210, posY)
+      posY += 5
+      // -------------------------------------
+      // 10) Firma del Médico
+      // -------------------------------------
+      escribirTexto('Firma Médico Responsable:', 12, posY, 10, 'bold')
+      posY += 15
+      // Línea para firmar
+      dibujarLinea(60, posY, 140, posY)
+
+      // -------------------------------------
+      // 11) Guardar el PDF
+      // -------------------------------------
+      doc.save(`Sumario_Paciente_${paciente.nombres}_${paciente.apellidos}.pdf`)
+    },
+    /* CUENTA TOTA */
+    generarCuentaTotal (id, nombres, apellidos) {
+      axios.get(apiUrl + `/consumos/sumario/${id}`)
+        .then((response) => {
+          this.dataPDFsumario = response.data
+          this.nombrePaciente = nombres + ' ' + apellidos
+          this.generarPDF_CuentaTotal(this.dataPDFsumario.fechaFormateada)
+        })
+        .catch((error) => {
+          console.error('Error al generar el reporte de cuenta parcial:', error)
+          this.alertErrorText = 'Hubo un problema al generar el reporte. Por favor, intente nuevamente.'
+          this.showAlertError()
+        })
+    },
+    async generarPDF_CuentaTotal (FechaIngreso) {
       const data = this.dataPDFsumario
       const fechaActual = new Date()
       const fechaFormateada = fechaActual.toLocaleDateString('es-ES')
@@ -1343,7 +1615,7 @@ ANTE MI
         const ConsumoComunTotal = data.consumosComunes.reduce((acc, item) => acc + parseFloat(item.total), 0)
         const ConsumoMedicamentosTotal = data.consumosMedicamentos.reduce((acc, item) => acc + parseFloat(item.total), 0)
         const ConsumoQuirurgicosTotal = data.consumosQuirurgicos.reduce((acc, item) => acc + parseFloat(item.total), 0)
-        const ExamenesTotal = data.examenes.reduce((acc, item) => acc + parseFloat(item.total), 0)
+        const ExamenesTotal = data.examenes.reduce((acc, item) => acc + item.total, 0)
         const ServicioSalaOperacionesTotal = data.salaOperaciones.reduce((acc, item) => acc + parseFloat(item.total), 0)
         const TotalHonorarios = data.honorarios.reduce((acc, item) => acc + parseFloat(item.total), 0)
         const medicosOrdenados = data.honorarios.sort((a, b) => b.total - a.total)
@@ -1366,128 +1638,171 @@ ANTE MI
           hospitalizacion
 
         const TotalApagar = TotalGeneral2 + TotalHonorarios + ExamenesTotal
-        const doc = new JsPDF()
 
-        doc.setFontSize(10).setFont(undefined, 'bold')
-        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 10, { align: 'center' })
+        const workbook = new ExcelJS.Workbook()
+        const sheet = workbook.addWorksheet('Resumen')
 
-        doc.setFontSize(10).setFont(undefined, 'normal')
-        doc.text('CUENTA DE PACIENTE', 110, 14, { align: 'center' })
+        // Título
+        sheet.mergeCells('A1:F1')
+        sheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'
+        sheet.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' }
 
-        doc.setFontSize(8).setFont(undefined, 'normal')
-        doc.text('NOMBRE DEL PACIENTE:', 14, 20)
-        doc.text(`${this.nombrePaciente}`, 50, 20)
-        doc.text('_____________________________________________________________________________________________', 50, 21)
+        sheet.mergeCells('A2:F2')
+        sheet.getCell('A2').value = 'CUENTA PARCIAL'
+        sheet.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle' }
 
-        doc.text('CUARTRO NO.:', 14, 27)
-        doc.text(`${data.numerohabitacion}`, 40, 27)
-        doc.text('__________', 35, 28)
+        // Información de paciente
+        sheet.getCell('A3').value = 'NOMBRE DEL PACIENTE:'
+        sheet.getCell('B3').value = `${this.nombrePaciente}`
+        sheet.getCell('A4').value = 'CUARTO NO.:'
+        sheet.getCell('B4').value = `${data.numerohabitacion}`
+        sheet.getCell('A5').value = 'TIPO DE SERVICIO:'
+        sheet.getCell('B5').value = ''
+        sheet.getCell('A6').value = 'D/ESTANCIA:'
+        sheet.getCell('B6').value = `${mensajeDias}`
+        sheet.getCell('A7').value = 'MD TRATANTE:'
+        sheet.getCell('B7').value = `${data.nombremedico}`
 
-        doc.text('TIPO DE SERVICIO:', 60, 27)
-        doc.text('', 87, 27)
-        doc.text('___________________________', 87, 28)
+        // Tabla de consumos
+        sheet.getCell('A9').value = 'CONSUMOS'
+        sheet.getCell('A10').value = 'HOSPITALIZACION'
+        sheet.getCell('B10').value = `${hospitalizacion.toFixed(2)}`
+        sheet.getCell('A11').value = 'SALA DE OPERACIONES'
+        sheet.getCell('B11').value = `Q${ServicioSalaOperacionesTotal.toFixed(2)}`
+        sheet.getCell('A12').value = 'CONSUMO MEDICAMENTOS'
+        let row2 = 12
+        data.consumosMedicamentos.forEach((consumo) => {
+          row2++
+          sheet.getCell(`A${row2}`).value = `${consumo.medicamento.nombre}  Cantidad: ${parseFloat(consumo.cantidad).toFixed(0)}`
+          sheet.getCell(`B${row2}`).value = parseFloat(consumo.total).toFixed(2)
+        })
+        row2++
+        sheet.getCell(`A${row2}`).value = 'MATERIAL MEDICO QUIRÚRGICO'
+        data.consumosQuirurgicos.forEach((consumo) => {
+          row2++
+          sheet.getCell(`A${row2}`).value = `${consumo.quirurgico.nombre}  Cantidad: ${parseFloat(consumo.cantidad).toFixed(0)}`
+          sheet.getCell(`B${row2}`).value = parseFloat(consumo.total).toFixed(2)
+        })
+        row2++
+        sheet.getCell(`A${row2}`).value = 'ANESTESICOS'
+        sheet.getCell(`B${row2}`).value = ''
+        row2++
+        sheet.getCell(`A${row2}`).value = 'MATERIAL COMÚN'
+        data.consumosComunes.forEach((consumo) => {
+          row2++
+          sheet.getCell(`A${row2}`).value = `${consumo.comune.nombre}  Cantidad: ${parseFloat(consumo.cantidad).toFixed(0)}`
+          sheet.getCell(`B${row2}`).value = parseFloat(consumo.total).toFixed(2)
+        })
+        row2++
+        sheet.getCell(`A${row2}`).value = 'SERVICIOS'
+        data.consumos.forEach((consumo) => {
+          row2++
+          sheet.getCell(`A${row2}`).value = `${consumo.servicio.descripcion}  Cantidad: ${parseFloat(consumo.cantidad).toFixed(0)}`
+          sheet.getCell(`B${row2}`).value = parseFloat(consumo.subtotal).toFixed(2)
+        })
+        row2++
+        sheet.getCell(`A${row2}`).value = 'RECUPERACION'
+        sheet.getCell(`B${row2}`).value = ''
+        row2++
+        sheet.getCell(`A${row2}`).value = 'INTENSIVO'
+        sheet.getCell(`B${row2}`).value = 'Q 0.00'
+        row2++
+        sheet.getCell(`A${row2}`).value = 'EMERGENCIAS Medico Interno'
+        sheet.getCell(`B${row2}`).value = ''
+        row2++
+        sheet.getCell(`A${row2}`).value = 'OTROS'
+        sheet.getCell(`B${row2}`).value = ''
+        row2++
+        sheet.getCell(`A${row2}`).value = 'TOTAL HOSPITALIZACION ='
+        sheet.getCell(`A${row2}`).alignment = { horizontal: 'right', vertical: 'middle' }
+        sheet.getCell(`B${row2}`).value = `Q${TotalGeneral2.toFixed(2)}`
+        row2++
+        sheet.getCell(`A${row2}`).value = 'TOTAL LAB. BIOMEDICO E.O. S.A. ='
+        sheet.getCell(`A${row2}`).alignment = { horizontal: 'right', vertical: 'middle' }
+        sheet.getCell(`B${row2}`).value = `Q${ExamenesTotal.toFixed(2)}`
+        row2++
+        sheet.getCell(`A${row2}`).value = 'TOTAL MENOS DESCUENTO ='
+        sheet.getCell(`A${row2}`).alignment = { horizontal: 'right', vertical: 'middle' }
+        sheet.getCell(`B${row2}`).value = `Q${TotalGeneral.toFixed(2)}`
 
-        doc.text('D/ESTANCIA: ', 130, 27)
-        doc.text(`${mensajeDias}`, 170, 27)
-        doc.text('_____________________________', 150, 28)
+        // Fecha y hora debajo de la tabla
+        row2++
+        sheet.getCell(`A${row2}`).value = `FECHA: ${fechaFormateada} ${horaFormateada}`
 
-        doc.text('MD TRATANTE:', 14, 34)
-        doc.text(`${data.nombremedico}`, 36, 34)
-        doc.text('______________________________________________________________________________________________________', 36, 35)
+        // Honorarios médicos
+        row2++
+        sheet.mergeCells(`A${row2}:D${row2}`)
+        sheet.getCell(`A${row2}`).value = 'HONORARIOS MEDICOS Y OTROS SERVICIOS'
+        sheet.getCell(`A${row2}`).alignment = { horizontal: 'center', vertical: 'middle' }
+        sheet.getCell(`A${row2}`).font = { bold: true }
 
-        doc.autoTable({
-          body: [
-            ['HOSPITALIZACION', `Q${hospitalizacion.toFixed(2)}`],
-            ['SALA DE OPERACIONES', `Q${ServicioSalaOperacionesTotal.toFixed(2)}`],
-            ['CONSUMO MEDICAMENTOS', `Q${ConsumoMedicamentosTotal.toFixed(2)}`],
-            ['MATERIAL MEDICO QUIRÚRGICO', `Q${ConsumoQuirurgicosTotal.toFixed(2)}`],
-            ['ANESTESICOS', ''],
-            ['MATERIAL COMÚN', `Q${ConsumoComunTotal.toFixed(2)}`],
-            ['SERVICIOS', `Q${ConsumoTotal.toFixed(2)}`],
-            ['RECUPERACION', ''],
-            ['INTENSIVO', `Q 0.00`],
-            ['EMERGENCIAS  Medico Interno', ''],
-            ['OTROS', ''],
-            ['TOTAL HOSPITALIZACION =', `Q${TotalGeneral2.toFixed(2)}`],
-            ['TOTAL LAB. BIOMEDICO E.O. S.A. =', `Q${ExamenesTotal.toFixed(2)}`],
-            ['TOTAL MENOS DESCUENTO =', `Q${TotalGeneral.toFixed(2)}`]
-          ],
-          startY: 41,
-          theme: 'grid',
-          styles: { fontSize: 10, cellPadding: 2, textColor: [0, 0, 0] },
-          columnStyles: {
-            0: { halign: 'left' },
-            1: { halign: 'left' }
-          },
-          didParseCell: function (data) {
-            const rowIndex = data.row.index
-            const colIndex = data.column.index
-            if (rowIndex >= 11 && colIndex === 0) {
-              data.cell.styles.halign = 'right'
-            }
-          }
+        let row = row2 + 1
+        sheet.getCell(`A${row}`).value = '#'
+        sheet.getCell(`B${row}`).value = 'MEDICO'
+        sheet.getCell(`C${row}`).value = 'DESCRIPCION'
+        sheet.getCell(`D${row}`).value = 'VALOR'
+
+        medicosOrdenados.forEach((medico, index) => {
+          row++
+          sheet.getCell(`A${row}`).value = index + 1
+          sheet.getCell(`B${row}`).value = medico.medico.nombre
+          sheet.getCell(`C${row}`).value = medico.descripcion
+          sheet.getCell(`D${row}`).value = `Q${(Number(medico.total) || 0).toFixed(2)}`
         })
 
-        const nextTableStartY = doc.lastAutoTable.finalY + 10
+        // Liquidación
+        row += 2
+        sheet.mergeCells(`A${row}:D${row}`)
+        sheet.getCell(`A${row}`).value = 'LIQUIDACION'
+        sheet.getCell(`A${row}`).alignment = { horizontal: 'center', vertical: 'middle' }
+        sheet.getCell(`A${row}`).font = { bold: true }
 
-        doc.setFontSize(12).setFont(undefined, 'normal')
-        doc.text(`FECHA ${fechaFormateada} ${horaFormateada}`, 14, nextTableStartY)
+        row++
+        sheet.getCell(`A${row}`).value = 'TOTAL HOSPITALIZACION ='
+        sheet.getCell(`B${row}`).value = `Q${(Number(TotalGeneral2) || 0).toFixed(2)}`
+        sheet.getCell(`A${row}`).alignment = { horizontal: 'right' }
+        sheet.getCell(`B${row}`).alignment = { horizontal: 'left' }
 
-        doc.setFontSize(10).setFont(undefined, 'bold')
-        doc.text('HONORARIOS MEDICOS Y OTROS SERVICIOS', 100, nextTableStartY + 15, { align: 'center' })
+        row++
+        sheet.getCell(`A${row}`).value = 'TOTAL LAB. BIOMEDICO E.O. S.A. ='
+        sheet.getCell(`B${row}`).value = `Q${(Number(ExamenesTotal) || 0).toFixed(2)}`
+        sheet.getCell(`A${row}`).alignment = { horizontal: 'right' }
+        sheet.getCell(`B${row}`).alignment = { horizontal: 'left' }
 
-        const tableRows = medicosOrdenados.map((medico, index) => [
-          index + 1,
-          medico.medico.nombre,
-          medico.descripcion,
-          `Q${(Number(medico.total) || 0).toFixed(2)}`
-        ])
+        row++
+        sheet.getCell(`A${row}`).value = 'TOTAL HONORARIOS MEDICOS Y OTROS SERVICIOS ='
+        sheet.getCell(`B${row}`).value = `Q${(Number(TotalHonorarios) || 0).toFixed(2)}`
+        sheet.getCell(`A${row}`).alignment = { horizontal: 'right' }
+        sheet.getCell(`B${row}`).alignment = { horizontal: 'left' }
 
-        doc.autoTable({
-          head: [['#', 'MEDICO', 'DESCRIPCION', 'VALOR']],
-          body: tableRows,
-          startY: nextTableStartY + 20,
-          theme: 'grid',
-          styles: { fontSize: 10, cellPadding: 2, textColor: [0, 0, 0] },
-          headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], fontStyle: 'bold' },
-          alternateRowStyles: { fillColor: [240, 240, 240] }
-        })
+        row++
+        sheet.getCell(`A${row}`).value = 'TOTAL A PAGAR ='
+        sheet.getCell(`B${row}`).value = `Q${(Number(TotalApagar) || 0).toFixed(2)}`
+        sheet.getCell(`A${row}`).alignment = { horizontal: 'right' }
+        sheet.getCell(`B${row}`).alignment = { horizontal: 'left' }
+        sheet.getCell(`A${row}`).font = { bold: true }
+        sheet.getCell(`B${row}`).font = { bold: true }
 
-        const nextTableStartY2 = doc.lastAutoTable.finalY + 10
+        // Firma
+        row++
+        sheet.mergeCells(`A${row}:D${row}`)
+        sheet.getCell(`A${row}`).value = '_______________________________________'
+        sheet.getCell(`A${row}`).alignment = { horizontal: 'center', vertical: 'middle' }
 
-        doc.setFontSize(10).setFont(undefined, 'bold')
-        doc.text('LIQUIDACION', 100, nextTableStartY2, { align: 'center' })
+        row++
+        sheet.mergeCells(`A${row}:D${row}`)
+        sheet.getCell(`A${row}`).value = 'Nombre y Firma del Cajero'
+        sheet.getCell(`A${row}`).alignment = { horizontal: 'center', vertical: 'middle' }
 
-        doc.autoTable({
-          body: [
-            ['TOTAL HOSPITALIZACION', `Q${TotalGeneral2.toFixed(2)}`],
-            ['TOTAL LAB. BIOMEDICO E.O. S.A.', `Q${ExamenesTotal.toFixed(2)}`],
-            ['TOTAL HONORARIOS MEDICOS Y OTROS SERVICIOS', `Q${TotalHonorarios.toFixed(2)}`],
-            ['TOTAL A PAGAR =', `Q${TotalApagar.toFixed(2)}`]
-          ],
-          startY: nextTableStartY2 + 5,
-          theme: 'grid',
-          styles: { fontSize: 10, cellPadding: 2, textColor: [0, 0, 0] },
-          columnStyles: {
-            0: { halign: 'left' },
-            1: { halign: 'left' }
-          },
-          didParseCell: function (data) {
-            const rowIndex = data.row.index
-            const colIndex = data.column.index
-            if (rowIndex >= 3 && colIndex === 0) {
-              data.cell.styles.halign = 'right'
-            }
-          }
-        })
-
-        const nextTableStartY3 = doc.lastAutoTable.finalY + 10
-
-        doc.setFontSize(10).setFont(undefined, 'normal')
-        doc.text('_______________________________________', 110, nextTableStartY3, { align: 'center' })
-        doc.text('Nombre y Firma del Cajero', 110, nextTableStartY3 + 5, { align: 'center' })
-
-        doc.save(`SUMARIO.PDF`)
+        // Guardar el archivo Excel
+        const buffer = await workbook.xlsx.writeBuffer()
+        const blob = new Blob([buffer], { type: 'application/octet-stream' })
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = 'CuentaTotal.xlsx'
+        a.click()
+        window.URL.revokeObjectURL(url)
       } catch (error) {
         console.error('Error al generar el reporte:', error)
         this.$alert('Ocurrió un error al generar el reporte. Por favor, intente de nuevo.', 'Error')
