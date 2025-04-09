@@ -530,6 +530,7 @@
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="dark"
+                    :disabled="!hasPermission([5, 7])"
                   >Asignar un médico</b-button>
 
                   <b-button
@@ -581,6 +582,7 @@ import moment from 'moment'
 import JsPDF from 'jspdf'
 import logo from '../../../../assets/images/login/1.png'
 import ExcelJS from 'exceljs'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'Bank',
@@ -594,6 +596,11 @@ export default {
   },
   mounted () {
     xray.index()
+  },
+  computed: {
+    ...mapGetters({
+      currentUser: 'currentUser'
+    })
   },
   data () {
     return {
@@ -823,6 +830,10 @@ export default {
     }
   },
   methods: {
+    hasPermission (blockedRoles = []) {
+      return !blockedRoles.includes(this.currentUser.user_type)
+    },
+
     openModal (modal, action) {
       switch (modal) {
         case 'save': {

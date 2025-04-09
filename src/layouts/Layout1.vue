@@ -3,8 +3,8 @@
     <div id="show-overlay"></div>
     <Loader />
     <div class="wrapper">
-      <!-- Sidebar  -->
-      <SideBarStyle1 :items="verticalMenu" :horizontal="horizontal" :logo="logo" @toggle="sidebarMini" />
+      <!-- Sidebar -->
+      <SideBarStyle1 :items="filteredVerticalMenu" :horizontal="horizontal" :logo="logo" @toggle="sidebarMini" />
       <div id="content-page" class="content-page" :class="horizontal ? 'ml-0' : ''">
         <!-- TOP Nav Bar -->
         <NavBarStyle1 title="Dashboard" :homeURL="{ name: 'dashboard1.home' }" @toggle="sidebarMini" :logo="logo" :horizontal="horizontal" :items="horizontalMenu">
@@ -54,18 +54,20 @@
     </div>
   </div>
 </template>
+
 <script>
 import Loader from '../components/xray/loader/Loader'
 import SideBarStyle1 from '../components/xray/sidebars/SideBarStyle1'
 import NavBarStyle1 from '../components/xray/navbars/NavBarStyle1'
 import SideBarItems from '../FackApi/json/SideBar'
-import SideBarLaboratorio from '../FackApi/json/SideBarLaboratorio'
+// import SideBarLaboratorio from '../FackApi/json/SideBarLaboratorio'
 import HorizontalItems from '../FackApi/json/HorizontalMenu'
 import profile from '../assets/images/user/1.jpg'
 import loader from '../assets/images/logo.png'
 import { xray } from '../config/pluginInit'
 import { Users } from '../FackApi/api/chat'
 import { mapGetters, mapActions } from 'vuex'
+
 export default {
   name: 'Layout1',
   components: {
@@ -77,14 +79,15 @@ export default {
     this.updateRadio()
   },
   beforeMount () {
-    // this.verticalMenu = PatientSideBar
     var today = new Date()
     this.year = today.getFullYear()
-    if (this.currentUser.user_type === 1) {
-      this.verticalMenu = SideBarItems
-    } else if (this.currentUser.user_type === 2) {
-      this.verticalMenu = SideBarLaboratorio
-    }
+
+    // Cargar los items del sidebar dependiendo del tipo de usuario
+    // No asignamos todos los items sin filtrar, sino que usamos el filtro por roles
+    this.verticalMenu = SideBarItems // Por defecto tomamos todos los ítems del menú
+
+    // Filtramos los ítems del menú según los roles del usuario
+    this.filteredVerticalMenu = this.filterMenuByRole(this.verticalMenu, this.currentUser.user_type)
   },
   computed: {
     ...mapGetters({
@@ -94,9 +97,6 @@ export default {
       currentUser: 'currentUser'
     })
   },
-  watch: {
-  },
-  // sidebarTicket
   data () {
     return {
       year: null,
@@ -104,32 +104,13 @@ export default {
       mini: false,
       darkMode: false,
       animated: { enter: 'zoomIn', exit: 'zoomOut' },
-      animateClass: [
-        { value: { enter: 'zoomIn', exit: 'zoomOut' }, text: 'Zoom' },
-        { value: { enter: 'fadeInUp', exit: 'fadeOutDown' }, text: 'Fade' },
-        { value: { enter: 'slideInLeft', exit: 'slideOutRight' }, text: 'Slide' },
-        { value: { enter: 'rotateInDownLeft', exit: 'rotateOutDownLeft' }, text: 'Roll' }
-      ],
       horizontalMenu: HorizontalItems,
       verticalMenu: [],
+      filteredVerticalMenu: [],
       userProfile: profile,
       logo: loader,
       usersList: Users,
-      rtl: false,
-      message: [
-        { image: require('../assets/images/user/01.jpg'), name: 'Nik Emma Watson', date: '13 jan' },
-        { image: require('../assets/images/user/02.jpg'), name: 'Greta Life', date: '14 Jun' },
-        { image: require('../assets/images/user/03.jpg'), name: 'Barb Ackue', date: '16 Aug' },
-        { image: require('../assets/images/user/04.jpg'), name: 'Anna Sthesia', date: '21 Sept' },
-        { image: require('../assets/images/user/05.jpg'), name: 'Bob Frapples', date: '29 Sept' }
-      ],
-      notification: [
-        { image: require('../assets/images/user/01.jpg'), name: 'Nik Emma Watson', date: '23 hour ago', description: 'Enjoy smart access to videos, games' },
-        { image: require('../assets/images/user/02.jpg'), name: 'Greta Life', date: '14 hour ago', description: 'Google Chromecast: Enjoy a world of entertainment' },
-        { image: require('../assets/images/user/03.jpg'), name: 'Barb Ackue', date: '16 hour ago', description: 'Dell Inspiron Laptop: Get speed and performance from' },
-        { image: require('../assets/images/user/04.jpg'), name: 'Anna Sthesia', date: '21 hour ago', description: 'Deliver your favorite playlist anywhere in your home ' },
-        { image: require('../assets/images/user/05.jpg'), name: 'Bob Frapples', date: '11 hour ago', description: 'MacBook Air features up to 8GB of memory, a fifth-generation' }
-      ]
+      rtl: false
     }
   },
   methods: {
@@ -186,10 +167,35 @@ export default {
       langChangeState: 'Setting/setLangAction',
       rtlAdd: 'Setting/setRtlAction',
       rtlRemove: 'Setting/removeRtlAction'
-    })
+    }),
+
+    // Método para filtrar los elementos del menú según los roles del usuario
+    filterMenuByRole (menu, userRole) {
+      return menu
+        .map(item => {
+          if (item.children && Array.isArray(item.children)) {
+            const filteredChildren = item.children.filter(child => {
+              return !child.rol || child.rol.includes(userRole)
+            })
+            if ((item.rol && item.rol.includes(userRole)) || filteredChildren.length > 0) {
+              return {
+                ...item,
+                children: filteredChildren
+              }
+            }
+            return null
+          }
+          if (!item.rol || item.rol.includes(userRole)) {
+            return item
+          }
+          return null
+        })
+        .filter(item => item !== null)
+    }
   }
 }
 </script>
+
 <style>
   @import url("../assets/css/custom.css");
 </style>

@@ -6,7 +6,8 @@
     "is_active": false,
     "class_name": "",
     "is_icon_class": true,
-    "icon": ""
+    "icon": "",
+    "roles": [2, 4, 6, 8, 12, 13]
   },
   {
     "title": "Hospital Dashboard 1",
@@ -18,15 +19,15 @@
     },
     "class_name": "",
     "is_icon_class": true,
-    "icon": "ri-home-8-fill"
+    "icon": "ri-home-8-fill",
+    "roles": [2, 4, 6, 8, 12, 13]
   },
   {
     "title": "Caja",
     "name": "Caja",
     "is_heading": false,
     "is_active": false,
-    "link": {
-    },
+    "link": {},
     "class_name": "",
     "is_icon_class": true,
     "icon": "ri-briefcase-4-fill",
@@ -36,44 +37,48 @@
         "name": "Cortes",
         "is_active": false,
         "link": {
-          "name" : "laboratorio.cortes"
+          "name": "laboratorio.cortes"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-scissors-fill"
+        "icon": "ri-scissors-fill",
+        "roles": [2, 4, 6, 8]
       },
       {
         "title": "Cuentas por cobrar",
         "name": "Cuentas por cobrar",
         "is_active": false,
         "link": {
-          "name" : "laboratorio.cuentas"
+          "name": "laboratorio.cuentas"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-money-dollar-circle-fill"
+        "icon": "ri-money-dollar-circle-fill",
+        "roles": [2, 4, 6, 8]
       },
       {
         "title": "Facturación",
         "name": "Facturación",
         "is_active": false,
         "link": {
-          "name" : "laboratorio.facturacion"
+          "name": "laboratorio.facturacion"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-file-text-fill"
+        "icon": "ri-file-text-fill",
+        "roles": [2, 4, 6, 8]
       },
       {
         "title": "Descuentos",
         "name": "Descuentos",
         "is_active": false,
         "link": {
-          "name" : "laboratorio.descuentos"
+          "name": "laboratorio.descuentos"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-price-tag-3-line"
+        "icon": "ri-price-tag-3-line",
+        "roles": [2, 4, 6, 8]
       }
     ]
   },
@@ -83,11 +88,12 @@
     "is_heading": false,
     "is_active": false,
     "link": {
-      "name" : "laboratorio.examenes"
+      "name": "laboratorio.examenes"
     },
     "class_name": "",
     "is_icon_class": true,
-    "icon": "ri-article-line"
+    "icon": "ri-article-line",
+    "roles": [2, 4, 6, 8, 12, 13]
   },
   {
     "title": "Estadísticas",
@@ -97,30 +103,31 @@
     "class_name": "",
     "is_icon_class": true,
     "icon": "ri-bar-chart-fill",
-    "link": {
-    },
+    "link": {},
     "children": [
       {
         "title": "Exámenes internos",
         "name": "Reporte Exámenes",
         "is_active": false,
         "link": {
-          "name" : "laboratorio.examenesinternos"
+          "name": "laboratorio.examenesinternos"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-file-text-line"
+        "icon": "ri-file-text-line",
+        "roles": [2, 4, 6, 8]
       },
       {
         "title": "Incentivos",
         "name": "Comisiones a medicos",
         "is_active": false,
         "link": {
-          "name" : "laboratorio.incentivos"
+          "name": "laboratorio.incentivos"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-money-dollar-circle-line"
+        "icon": "ri-money-dollar-circle-line",
+        "roles": [2, 4, 6, 8]
       }
     ]
   },
@@ -130,11 +137,12 @@
     "is_heading": false,
     "is_active": false,
     "link": {
-      "name" : "laboratorio.examenesalmacenados"
+      "name": "laboratorio.examenesalmacenados"
     },
     "class_name": "",
     "is_icon_class": true,
-    "icon": "ri-folders-fill"
+    "icon": "ri-folders-fill",
+    "roles": [2, 4, 6, 8, 12, 13]
   },
   {
     "title": "Inventario",
@@ -142,11 +150,12 @@
     "is_heading": false,
     "is_active": false,
     "link": {
-      "name" : "laboratorio.equipo"
+      "name": "laboratorio.equipo"
     },
     "class_name": "",
     "is_icon_class": true,
-    "icon": "ri-archive-fill"
+    "icon": "ri-archive-fill",
+    "roles": [2, 4, 6, 8, 12, 13]
   },
   {
     "title": "Encargados",
@@ -154,11 +163,12 @@
     "is_heading": false,
     "is_active": false,
     "link": {
-      "name" : "laboratorio.encargados"
+      "name": "laboratorio.encargados"
     },
     "class_name": "",
     "is_icon_class": true,
-    "icon": "ri-account-box-fill"
+    "icon": "ri-account-box-fill",
+    "roles": [2, 4, 6, 8]
   },
   {
     "title": "Tipos de examen",
@@ -166,10 +176,11 @@
     "is_heading": false,
     "is_active": false,
     "link": {
-      "name" : "laboratorio.tiposexamenes"
+      "name": "laboratorio.tiposexamenes"
     },
     "class_name": "",
     "is_icon_class": true,
-    "icon": "ri-list-check"
+    "icon": "ri-list-check",
+    "roles": [2, 4, 6, 8]
   }
 ]

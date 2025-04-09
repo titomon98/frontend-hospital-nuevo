@@ -789,6 +789,7 @@
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="success"
+                    :disabled="!hasPermission([10])"
                   >Agregar receta</b-button>
 
                   <b-button
@@ -856,6 +857,7 @@
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="dark"
+                    :disabled="!hasPermission([9, 10])"
                    >Cuenta parcial</b-button>
 
                    <b-button
@@ -863,6 +865,7 @@
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="success"
+                    :disabled="!hasPermission([9, 10])"
                    >Historial Cuenta</b-button>
 
                   <!--
@@ -1384,9 +1387,9 @@ export default {
     isCirugiaMayorOMedia () {
       return this.salaOperaciones.categoria === 'Cirugia media' || this.salaOperaciones.categoria === 'Cirugia mayor'
     },
-    ...mapGetters([
-      'currentUser'
-    ])
+    ...mapGetters({
+      currentUser: 'currentUser'
+    })
   },
 
   watch: {
@@ -1406,6 +1409,9 @@ export default {
     }
   },
   methods: {
+    hasPermission (blockedRoles = []) {
+      return !blockedRoles.includes(this.currentUser.user_type)
+    },
     changeCheck () {
       if (!this.isCirugiaMayorOMedia) {
         this.salaOperaciones.oximetro = false

@@ -6,7 +6,8 @@
     "is_active": false,
     "class_name": "",
     "is_icon_class": true,
-    "icon": ""
+    "icon": "",
+    "rol": [1]
   },
   {
     "title": "Hospital Dashboard 1",
@@ -18,7 +19,8 @@
     },
     "class_name": "",
     "is_icon_class": true,
-    "icon": "ri-home-8-fill"
+    "icon": "ri-home-8-fill",
+    "rol": [1, 3]
   },
   {
     "title": "Gerencia",
@@ -29,118 +31,128 @@
     "is_icon_class": true,
     "icon": "ri-file-list-fill",
     "link": {
-      "name" : "gerencia.adminparent"
-    }
+      "name": "gerencia.adminparent"
+    },
+    "rol": [1]
   },
   {
     "title": "Caja",
     "name": "Caja",
     "is_heading": false,
     "is_active": false,
-    "link": {
-    },
+    "link": {},
     "class_name": "",
     "is_icon_class": true,
     "icon": "ri-briefcase-4-fill",
+    "rol": [1, 3, 5, 6, 7, 8],
     "children": [
       {
         "title": "Cortes",
         "name": "Cortes",
         "is_active": false,
         "link": {
-          "name" : "caja.cortes"
+          "name": "caja.cortes"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-user-add-fill"
+        "icon": "ri-user-add-fill",
+        "rol": [1, 3, 5, 7]
       },
       {
         "title": "Nuevo Ingreso",
         "name": "Nuevo Ingreso",
         "is_active": false,
         "link": {
-          "name" : "caja.ingresos"
+          "name": "caja.ingresos"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-user-add-fill"
+        "icon": "ri-user-add-fill",
+        "rol": [1, 3, 5, 7]
       },
       {
         "title": "Reingreso",
         "name": "Reingreso",
         "is_active": false,
         "link": {
-          "name" : "caja.reingresos"
+          "name": "caja.reingresos"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-user-add-fill"
+        "icon": "ri-user-add-fill",
+        "rol": [1, 3, 5, 7]
       },
       {
         "title": "Expedientes",
         "name": "Expedientes",
         "is_active": false,
         "link": {
-          "name" : "caja.expedientes"
+          "name": "caja.expedientes"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-article-line"
+        "icon": "ri-article-line",
+        "rol": [1, 3, 5, 7]
       },
       {
         "title": "Cuentas",
         "name": "Cuentas",
         "is_active": false,
         "link": {
-          "name" : "caja.cuentaslist"
+          "name": "caja.cuentaslist"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-wallet-3-fill"
+        "icon": "ri-wallet-3-fill",
+        "rol": [1, 3, 5, 7]
       },
       {
         "title": "Seguros",
         "name": "Seguros",
         "is_active": false,
         "link": {
-          "name" : "caja.seguros"
+          "name": "caja.seguros"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-wallet-3-fill"
+        "icon": "ri-wallet-3-fill",
+        "rol": [1, 3, 5, 7]
       },
       {
         "title": "Liquidaciones caja chica",
         "name": "Liquidaciones caja chica",
         "is_active": false,
         "link": {
-          "name" : "caja.cajachica"
+          "name": "caja.cajachica"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-file-add-line"
+        "icon": "ri-file-add-line",
+        "rol": [1, 3, 5, 7]
       },
       {
         "title": "Cuentas por cobrar",
         "name": "Cuentas por cobrar",
         "is_active": false,
         "link": {
-          "name" : "caja.cuentas"
+          "name": "caja.cuentas"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-file-warning-line"
+        "icon": "ri-file-warning-line",
+        "rol": [1, 3, 5, 7]
       },
       {
         "title": "Facturación",
         "name": "facturación",
         "is_active": false,
         "link": {
-          "name" : "caja.facturacion"
+          "name": "caja.facturacion"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-article-line"
+        "icon": "ri-article-line",
+        "rol": [1, 3, 5, 7, 8]
       }
     ]
   },
@@ -152,323 +164,348 @@
     "class_name": "",
     "is_icon_class": true,
     "icon": "ri-home-heart-line",
-    "link": {
-    },
+    "link": {},
+    "rol": [1, 3, 5, 7, 9, 10, 11],
     "children": [
       {
         "title": "Pedidos a farmacia",
         "name": "Pedidos a farmacia",
         "is_active": false,
         "link": {
-          "name" : "enfermeria.pedidos"
+          "name": "enfermeria.pedidos"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-arrow-left-circle-line"
+        "icon": "ri-arrow-left-circle-line",
+        "rol": [1, 3, 5, 7, 9, 10, 11]
       },
       {
         "title": "Quirófano",
         "name": "Quirófano",
         "is_active": false,
         "link": {
-          "name" : "enfermeria.quirofano"
+          "name": "enfermeria.quirofano"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-heart-2-fill"
+        "icon": "ri-heart-2-fill",
+        "rol": [1, 3, 5, 7, 9, 10]
       },
       {
         "title": "Hospitalización",
         "name": "Hospitalización",
         "is_active": false,
         "link": {
-          "name" : "enfermeria.hospitalizacion"
+          "name": "enfermeria.hospitalizacion"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-heart-fill"
+        "icon": "ri-heart-fill",
+        "rol": [1, 3, 5, 7, 9, 10, 11]
       },
       {
         "title": "Intensivo",
         "name": "Intensivo",
         "is_active": false,
         "link": {
-          "name" : "enfermeria.intensivo"
+          "name": "enfermeria.intensivo"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-spam-fill"
+        "icon": "ri-spam-fill",
+        "rol": [1, 3, 5, 7, 9, 10, 11]
       },
       {
         "title": "Emergencia",
         "name": "Emergencia",
         "is_active": false,
         "link": {
-          "name" : "enfermeria.emergencias"
+          "name": "enfermeria.emergencias"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-spam-line"
-      },     
+        "icon": "ri-spam-line",
+        "rol": [1, 3, 5, 7, 9, 11]
+      },
       {
         "title": "Consumos",
         "name": "Consumos",
         "is_active": false,
         "link": {
-          "name" : "enfermeria.hospitalizacionEnfermeras"
+          "name": "enfermeria.hospitalizacionEnfermeras"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-play-list-add-line"
+        "icon": "ri-play-list-add-line",
+        "rol": [1, 3, 5, 7, 9, 10]
       },
       {
         "title": "Habitaciones",
         "name": "Habitaciones",
         "is_active": false,
         "link": {
-          "name" : "enfermeria.habitaciones"
+          "name": "enfermeria.habitaciones"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-hotel-bed-line"
+        "icon": "ri-hotel-bed-line",
+        "rol": [1, 3, 5, 7, 9]
       },
       {
         "title": "Servicios",
         "name": "Servicios",
         "is_active": false,
         "link": {
-          "name" : "enfermeria.servicios"
+          "name": "enfermeria.servicios"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-customer-service-line"
+        "icon": "ri-customer-service-line",
+        "rol": [1, 3, 5, 7, 9]
       },
       {
         "title": "Sala Operaciones",
         "name": "Sala Operaciones",
         "is_active": false,
         "link": {
-          "name" : "enfermeria.CategoriaSalaOperaciones"
+          "name": "enfermeria.CategoriaSalaOperaciones"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-home-heart-line"
+        "icon": "ri-home-heart-line",
+        "rol": [1, 5, 3, 7, 9]
       },
       {
         "title": "Nuevo Ingreso",
         "name": "Nuevo Ingreso",
         "is_active": false,
         "link": {
-          "name" : "enfermeria.ingresos"
+          "name": "enfermeria.ingresos"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-user-add-fill"
+        "icon": "ri-user-add-fill",
+        "rol": [1, 3, 7, 9, 10, 11]
       },
       {
         "title": "Reingreso",
         "name": "Reingreso",
         "is_active": false,
         "link": {
-          "name" : "enfermeria.reingresos"
+          "name": "enfermeria.reingresos"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-user-add-fill"
+        "icon": "ri-user-add-fill",
+        "rol": [1, 3, 7, 9, 10, 11]
       },
       {
         "title": "Egresos",
         "name": "Egresos",
         "is_active": false,
         "link": {
-          "name" : "enfermeria.egresos"
+          "name": "enfermeria.egresos"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-file-transfer-line"
+        "icon": "ri-file-transfer-line",
+        "rol": [1, 3, 7, 9, 10, 11]
       },
       {
         "title": "Asignar Habitaciones",
         "name": "Asignar Habitaciones",
         "is_active": false,
         "link": {
-          "name" : "enfermeria.AsignarHabitacion"
+          "name": "enfermeria.AsignarHabitacion"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-hotel-bed-line"
+        "icon": "ri-hotel-bed-line",
+        "rol": [1, 3, 7, 9, 10, 11]
       }
     ]
-  },
+  },  
   {
     "title": "Farmacia",
     "name": "Farmacia",
     "is_heading": false,
     "is_active": false,
-    "link": {
-    },
+    "link": {},
     "class_name": "",
     "is_icon_class": true,
     "icon": "ri-store-fill",
+    "rol": [1, 3, 5, 7, 11],
     "children": [
       {
         "title": "Pedidos pendientes",
         "name": "Pedidos pendientes",
         "is_active": false,
         "link": {
-          "name" : "farmacia.pendientes"
+          "name": "farmacia.pendientes"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-arrow-right-circle-line"
+        "icon": "ri-arrow-right-circle-line",
+        "rol": [1, 5, 11]
       },
       {
         "title": "Medicamentos",
         "name": "Medicamentos",
         "is_active": false,
         "link": {
-          "name" : "farmacia.medicamentos"
+          "name": "farmacia.medicamentos"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-hospital-line"
+        "icon": "ri-hospital-line",
+        "rol": [1, 5, 11]
       },
       {
         "title": "Material quirúrgico",
         "name": "Material quirúrgico",
         "is_active": false,
         "link": {
-          "name" : "farmacia.quirurgico"
+          "name": "farmacia.quirurgico"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-scissors-fill"
+        "icon": "ri-scissors-fill",
+        "rol": [1, 5, 11]
       },
       {
         "title": "Material común",
         "name": "Material común",
         "is_active": false,
         "link": {
-          "name" : "farmacia.comun"
+          "name": "farmacia.comun"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-file-list-3-fill"
-      }
-      ,
+        "icon": "ri-file-list-3-fill",
+        "rol": [1, 5, 11]
+      },
       {
         "title": "Muestras médicas",
         "name": "Muestras médicas",
         "is_active": false,
         "link": {
-          "name" : "farmacia.muestras"
+          "name": "farmacia.muestras"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-briefcase-line"
+        "icon": "ri-briefcase-line",
+        "rol": [1, 5, 11]
       },
       {
         "title": "Consumos",
         "name": "Consumos",
         "is_active": false,
         "link": {
-          "name" : "farmacia.consumos"
+          "name": "farmacia.consumos"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-file-transfer-line"
+        "icon": "ri-file-transfer-line",
+        "rol": [1, 5, 11]
       },
       {
         "title": "Datos farmacia",
         "name": "Datos farmacia",
         "is_active": false,
         "link": {
-          "name" : "farmacia.datos"
+          "name": "farmacia.datos"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-pie-chart-fill"
+        "icon": "ri-pie-chart-fill",
+        "rol": [1, 5, 11]
       },
       {
         "title": "Alertas existencia",
         "name": "Alertas existencia",
         "is_active": false,
         "link": {
-          "name" : "farmacia.alertas"
+          "name": "farmacia.alertas"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-error-warning-fill"
+        "icon": "ri-error-warning-fill",
+        "rol": [1, 5, 11]
       },
       {
         "title": "Paquetes",
         "name": "Paquetes",
         "is_active": false,
         "link": {
-          "name" : "farmacia.paquetes"
+          "name": "farmacia.paquetes"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-red-packet-fill"
+        "icon": "ri-red-packet-fill",
+        "rol": [1, 5, 11]
       },
       {
         "title": "Ingresos de medicamento",
         "name": "Ingreso de medicamento",
         "is_active": false,
         "link": {
-          "name" : "farmacia.facturas"
+          "name": "farmacia.facturas"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-arrow-down-circle-fill"
+        "icon": "ri-arrow-down-circle-fill",
+        "rol": [1, 5, 11]
       }
     ]
-  },
+  },  
   {
     "title": "Inventario",
     "name": "Inventario",
     "is_heading": false,
     "is_active": false,
-    "link": {
-    },
+    "link": {},
     "class_name": "",
     "is_icon_class": true,
     "icon": "ri-archive-fill",
+    "rol": [1, 3, 5, 7, 11],
     "children": [
       {
         "title": "Equipos médicos",
         "name": "Equipos médicos",
         "is_active": false,
         "link": {
-          "name" : "farmacia.equipos"
+          "name": "farmacia.equipos"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-keyboard-box-fill"
+        "icon": "ri-keyboard-box-fill",
+        "rol": [1, 3, 5, 7, 11]
       },
       {
         "title": "Alimentación",
         "name": "Alimentación",
         "is_active": false,
         "link": {
-          "name" : "farmacia.alimentos"
+          "name": "farmacia.alimentos"
         },
         "class_name": "",
         "is_icon_class": true,
-        "icon": "ri-shopping-cart-fill"
+        "icon": "ri-shopping-cart-fill",
+        "rol": [1, 3, 5, 7, 11]
       }
     ]
-  },
+  },  
   {
     "title": "Médicos",
     "name": "Médicos",
     "is_heading": false,
     "is_active": false,
     "link": {
-      "name" : "medicos.medicosparent"
+      "name": "medicos.medicosparent"
     },
     "class_name": "",
     "is_icon_class": true,
-    "icon": "ri-shield-cross-fill"
-  }
+    "icon": "ri-shield-cross-fill",
+    "rol": [1, 3, 5, 7, 11]
+  }  
 ]
