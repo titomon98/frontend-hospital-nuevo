@@ -540,6 +540,7 @@
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="dark"
+                    :disabled="!hasPermission([9])"
                    >Cuenta parcial</b-button>
 
                    <b-button
@@ -547,6 +548,7 @@
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="success"
+                    :disabled="!hasPermission([9])"
                    >Historial Cuenta</b-button>
 
                 </div>
@@ -598,9 +600,9 @@ export default {
     xray.index()
   },
   computed: {
-    ...mapGetters([
-      'currentUser'
-    ])
+    ...mapGetters({
+      currentUser: 'currentUser'
+    })
   },
   data () {
     return {
@@ -923,6 +925,9 @@ export default {
     }
   },
   methods: {
+    hasPermission (blockedRoles = []) {
+      return !blockedRoles.includes(this.currentUser.user_type)
+    },
     openModal (modal, action) {
       this.form.selected_insumo = '0'
       this.onSelectChange()

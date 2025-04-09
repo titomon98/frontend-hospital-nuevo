@@ -613,7 +613,8 @@
                     class="mb-2"
                     size="sm"
                     :variant="
-                      props.rowData.estado == 1 ? 'outline-danger' : 'outline-info'">
+                      props.rowData.estado == 1 ? 'outline-danger' : 'outline-info'"
+                      :disabled="!hasPermission([5])">
                     <i
                       :class="
                         props.rowData.estado == 1
@@ -643,6 +644,7 @@ import useVuelidate from '@vuelidate/core'
 import { required } from '@vuelidate/validators'
 import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'Bank',
@@ -656,6 +658,11 @@ export default {
   },
   mounted () {
     xray.index()
+  },
+  computed: {
+    ...mapGetters({
+      currentUser: 'currentUser'
+    })
   },
   data () {
     return {
@@ -771,6 +778,9 @@ export default {
     }
   },
   methods: {
+    hasPermission (blockedRoles = []) {
+      return !blockedRoles.includes(this.currentUser.user_type)
+    },
     openModal (modal, action) {
       switch (modal) {
         case 'save': {

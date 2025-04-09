@@ -537,6 +537,7 @@
                         class="mb-2 mt-2 button-spacing"
                         size="sm"
                         variant="dark"
+                        :disabled="!hasPermission([9, 5])"
                     >
                         Editar
                     </b-button>
@@ -548,6 +549,7 @@
                         class="mb-2 mt-2 button-spacing"
                         size="sm"
                         variant="success"
+                        :disabled="!hasPermission([9, 5])"
                     >
                         Asignar habitación
                     </b-button>
@@ -559,6 +561,7 @@
                         class="mb-2 mt-2 button-spacing"
                         size="sm"
                         variant="dark"
+                        :disabled="!hasPermission([9, 5])"
                     >
                         Asignar médico
                     </b-button>
@@ -586,6 +589,7 @@ import { helpers, numeric, required } from '@vuelidate/validators'
 import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
 import moment from 'moment'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'Asignar',
@@ -831,9 +835,15 @@ export default {
       return (tipo) => {
         return this.habitaciones.filter(habitacion => habitacion.tipo.toUpperCase() === tipo.toUpperCase())
       }
-    }
+    },
+    ...mapGetters({
+      currentUser: 'currentUser'
+    })
   },
   methods: {
+    hasPermission (blockedRoles = []) {
+      return !blockedRoles.includes(this.currentUser.user_type)
+    },
     openModal (modal, action) {
       switch (modal) {
         case 'save': {

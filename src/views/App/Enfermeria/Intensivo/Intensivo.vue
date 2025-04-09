@@ -580,6 +580,7 @@
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="success"
+                    :disabled="!hasPermission([10])"
                   >Agregar receta</b-button>
 
                   <b-button
@@ -632,6 +633,7 @@
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="dark"
+                    :disabled="!hasPermission([9, 10])"
                    >Cuenta parcial</b-button>
 
                    <b-button
@@ -639,6 +641,7 @@
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="success"
+                    :disabled="!hasPermission([9, 10, 11])"
                    >Historial Cuenta</b-button>
                 <!--
                   <b-button
@@ -705,9 +708,9 @@ export default {
     xray.index()
   },
   computed: {
-    ...mapGetters([
-      'currentUser'
-    ])
+    ...mapGetters({
+      currentUser: 'currentUser'
+    })
   },
   data () {
     return {
@@ -1014,6 +1017,9 @@ export default {
     }
   },
   methods: {
+    hasPermission (blockedRoles = []) {
+      return !blockedRoles.includes(this.currentUser.user_type)
+    },
     openModal (modal, action) {
       switch (modal) {
         case 'save': {

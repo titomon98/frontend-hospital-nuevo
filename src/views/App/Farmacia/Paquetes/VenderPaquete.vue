@@ -244,7 +244,7 @@
             <b-row class="ml-2">
               <b-col md="4">
                 <b-form-group label="Vender paquete:">
-                  <b-button variant="info" v-b-modal.modal-4>AGREGAR PAQUETE</b-button>
+                  <b-button variant="info" v-b-modal.modal-4 :disabled="!hasPermission([5])">AGREGAR PAQUETE</b-button>
                 </b-form-group>
               </b-col>
               <b-col md="4">
@@ -263,17 +263,17 @@
             <b-row class="ml-2">
               <b-col md="4">
                 <b-form-group label="Agregar medicamento:">
-                  <b-button variant="info" v-b-modal.modal-1>AGREGAR MEDICAMENTO</b-button>
+                  <b-button variant="info" v-b-modal.modal-1 :disabled="!hasPermission([5])">AGREGAR MEDICAMENTO</b-button>
                 </b-form-group>
               </b-col>
               <b-col md="4">
                 <b-form-group label="Agregar material quirúrgico:">
-                  <b-button variant="info" v-b-modal.modal-2>AGREGAR MATERIAL QUIRÚRGICO</b-button>
+                  <b-button variant="info" v-b-modal.modal-2 :disabled="!hasPermission([5])">AGREGAR MATERIAL QUIRÚRGICO</b-button>
                 </b-form-group>
               </b-col>
               <b-col md="4">
                 <b-form-group label="Agregar material común:">
-                  <b-button variant="info" v-b-modal.modal-3>AGREGAR MATERIAL COMÚN</b-button>
+                  <b-button variant="info" v-b-modal.modal-3  :disabled="!hasPermission([5])">AGREGAR MATERIAL COMÚN</b-button>
                 </b-form-group>
               </b-col>
             </b-row>
@@ -325,7 +325,7 @@
             </table>
             <br>
             <br>
-            <b-button variant="dark" v-if="arrayDetalles.length > 0" @click="onValidateAll()">AGREGAR PAQUETE</b-button>
+            <b-button variant="dark" v-if="arrayDetalles.length > 0" @click="onValidateAll()" :disabled="!hasPermission([5])">AGREGAR PAQUETE</b-button>
           </template>
 
         </iq-card>
@@ -356,9 +356,9 @@ export default {
     // console.log('Aqui vamos a meter la validacion')
   },
   computed: {
-    ...mapGetters([
-      'currentUser'
-    ])
+    ...mapGetters({
+      currentUser: 'currentUser'
+    })
   },
   data () {
     return {
@@ -455,6 +455,9 @@ export default {
     }
   },
   methods: {
+    hasPermission (blockedRoles = []) {
+      return !blockedRoles.includes(this.currentUser.user_type)
+    },
     setPaquete (data) {
       console.log(data)
       this.form.nombre = data.nombre

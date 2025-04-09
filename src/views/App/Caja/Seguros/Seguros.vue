@@ -190,7 +190,7 @@
             </template>
             <template v-slot:headerAction>
             <b-button variant="primary" @click="getInsurancesCompanies(); getExpedients()" v-b-modal.modal-1-create>AGREGAR SEGURO</b-button>
-            <b-button variant="primary" @click="getInsurancesCompanies(); getExpedients()" v-b-modal.modal-5-create>AGREGAR ASEGURADORA</b-button>
+            <b-button variant="primary" @click="getInsurancesCompanies(); getExpedients()" v-b-modal.modal-5-create :disabled="!hasPermission([5, 7])">AGREGAR ASEGURADORA</b-button>
           </template>
           <template v-slot:body>
             <datatable-heading
@@ -289,6 +289,7 @@ import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
 import 'quill/dist/quill.bubble.css'
 import { quillEditor } from 'vue-quill-editor'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'Contratos',
@@ -303,6 +304,11 @@ export default {
   },
   mounted () {
     xray.index()
+  },
+  computed: {
+    ...mapGetters({
+      currentUser: 'currentUser'
+    })
   },
   data () {
     return {
@@ -399,6 +405,9 @@ export default {
     }
   },
   methods: {
+    hasPermission (blockedRoles = []) {
+      return !blockedRoles.includes(this.currentUser.user_type)
+    },
     openModal (modal, action) {
       switch (modal) {
         case 'save': {
