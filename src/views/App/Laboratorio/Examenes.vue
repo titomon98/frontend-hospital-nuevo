@@ -377,32 +377,12 @@
             <template slot="actions" slot-scope="props">
               <b-button-group>
                 <div class="button-container">
-                  <!-- <b-button
-                    @click="addResultado(props.rowData.id, props.rowData.id_examenes_almacenados)"
-                    class="mb-2 button-spacing"
-                    size="sm"
-                    variant="success"
-                  >Agregar resultado</b-button>
-
-                  <b-button
-                    @click="verResultado(props.rowData.id)"
-                    class="mb-2 button-spacing"
-                    size="sm"
-                    variant="dark"
-                  >Ver resultado</b-button>
-
-                  <b-button
-                    @click="ImprimirResultado(props.rowData.id)"
-                    class="mb-2 button-spacing"
-                    size="sm"
-                    variant="success"
-                  >Imprimir Resultado</b-button> -->
-
                   <b-button
                   @click="mostrarConfirmacionAnulacion(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="danger"
+                    :disabled="!hasPermission([6,  8, 12, 13])"
                   >Anular Examen</b-button>
                 </div>
               </b-button-group>
@@ -463,6 +443,7 @@
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="success"
+                    :disabled="!hasPermission([6, 8])"
                   >Agregar resultado</b-button>
                 </div>
               </b-button-group>
@@ -556,10 +537,10 @@ import VuetablePaginationBootstrap from '../../../components/common/VuetablePagi
 import axios from 'axios'
 import useVuelidate from '@vuelidate/core'
 import { required } from '@vuelidate/validators'
-/* import { quillEditor } from 'vue-quill-editor' */
 import logo from '../../../../src/assets/images/logoLab.jpg'
 import Multiselect from 'vue-multiselect'
 import JsPDF from 'jspdf'
+import { mapGetters } from 'vuex'
 export default {
   name: 'Examenes',
   components: {
@@ -575,6 +556,11 @@ export default {
   },
   mounted () {
     xray.index()
+  },
+  computed: {
+    ...mapGetters({
+      currentUser: 'currentUser'
+    })
   },
   data: () => {
     return {
@@ -953,6 +939,9 @@ export default {
     }
   },
   methods: {
+    hasPermission (blockedRoles = []) {
+      return !blockedRoles.includes(this.currentUser.user_type)
+    },
     getColorForAlarma (alarma) {
       return alarma === 'SI' ? 'text-danger-custom' : 'text-safe'
     },

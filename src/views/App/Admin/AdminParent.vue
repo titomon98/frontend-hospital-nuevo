@@ -19,7 +19,6 @@
           <template v-slot:body>
             <b-tabs>
               <b-tab title="Usuarios" active><Users/></b-tab>
-              <b-tab title="Personal" lazy><Personal/></b-tab>
               <b-tab title="Asuetos" lazy><Asuetos/></b-tab>
               <b-tab title="Efectivo" lazy><Efectivo/></b-tab>
               <b-tab title="Validar descuentos" lazy><ValidarDescuentos/></b-tab>
@@ -36,7 +35,6 @@ import { xray } from '../../../config/pluginInit'
 import axios from 'axios'
 import { apiUrl } from '../../../config/constant'
 import Users from './Users.vue'
-import Personal from './Personal.vue'
 import Asuetos from './Asuetos.vue'
 import Reportes from './Reportes.vue'
 import Efectivo from './Efectivo.vue'
@@ -46,7 +44,6 @@ export default {
   name: 'AdminParent',
   components: {
     Users,
-    Personal,
     Asuetos,
     Reportes,
     Efectivo,

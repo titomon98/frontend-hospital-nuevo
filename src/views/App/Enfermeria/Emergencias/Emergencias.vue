@@ -553,7 +553,7 @@
 
                 </div>
               </template>
-              <!-- Paginacion -->
+              <!-- Paginacion     -->
             </vuetable>
             <vuetable-pagination-bootstrap
                 ref="pagination"
@@ -926,6 +926,7 @@ export default {
   },
   methods: {
     hasPermission (blockedRoles = []) {
+      console.log(this.currentUser)
       return !blockedRoles.includes(this.currentUser.user_type)
     },
     openModal (modal, action) {
