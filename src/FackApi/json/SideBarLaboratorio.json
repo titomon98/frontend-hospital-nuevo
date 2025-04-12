@@ -7,7 +7,7 @@
     "class_name": "",
     "is_icon_class": true,
     "icon": "",
-    "roles": [2, 4, 6, 8, 12, 13]
+    "rol": [2, 4, 6, 8, 12, 13]
   },
   {
     "title": "Hospital Dashboard 1",
@@ -20,7 +20,7 @@
     "class_name": "",
     "is_icon_class": true,
     "icon": "ri-home-8-fill",
-    "roles": [2, 4, 6, 8, 12, 13]
+    "rol": [2, 4, 6, 8, 12, 13]
   },
   {
     "title": "Caja",
@@ -42,7 +42,7 @@
         "class_name": "",
         "is_icon_class": true,
         "icon": "ri-scissors-fill",
-        "roles": [2, 4, 6, 8]
+        "rol": [2, 4, 6, 8]
       },
       {
         "title": "Cuentas por cobrar",
@@ -54,7 +54,7 @@
         "class_name": "",
         "is_icon_class": true,
         "icon": "ri-money-dollar-circle-fill",
-        "roles": [2, 4, 6, 8]
+        "rol": [2, 4, 6, 8]
       },
       {
         "title": "Facturación",
@@ -66,7 +66,7 @@
         "class_name": "",
         "is_icon_class": true,
         "icon": "ri-file-text-fill",
-        "roles": [2, 4, 6, 8]
+        "rol": [2, 4, 6, 8]
       },
       {
         "title": "Descuentos",
@@ -78,7 +78,7 @@
         "class_name": "",
         "is_icon_class": true,
         "icon": "ri-price-tag-3-line",
-        "roles": [2, 4, 6, 8]
+        "rol": [2, 4]
       }
     ]
   },
@@ -93,7 +93,7 @@
     "class_name": "",
     "is_icon_class": true,
     "icon": "ri-article-line",
-    "roles": [2, 4, 6, 8, 12, 13]
+    "rol": [2, 4, 6, 8, 12, 13]
   },
   {
     "title": "Estadísticas",
@@ -115,7 +115,7 @@
         "class_name": "",
         "is_icon_class": true,
         "icon": "ri-file-text-line",
-        "roles": [2, 4, 6, 8]
+        "rol": [2, 4, 6]
       },
       {
         "title": "Incentivos",
@@ -127,7 +127,7 @@
         "class_name": "",
         "is_icon_class": true,
         "icon": "ri-money-dollar-circle-line",
-        "roles": [2, 4, 6, 8]
+        "rol": [2, 4, 6]
       }
     ]
   },
@@ -142,7 +142,7 @@
     "class_name": "",
     "is_icon_class": true,
     "icon": "ri-folders-fill",
-    "roles": [2, 4, 6, 8, 12, 13]
+    "rol": [2, 4, 6, 12]
   },
   {
     "title": "Inventario",
@@ -155,7 +155,7 @@
     "class_name": "",
     "is_icon_class": true,
     "icon": "ri-archive-fill",
-    "roles": [2, 4, 6, 8, 12, 13]
+    "rol": [2, 4, 6, 13]
   },
   {
     "title": "Encargados",
@@ -168,7 +168,7 @@
     "class_name": "",
     "is_icon_class": true,
     "icon": "ri-account-box-fill",
-    "roles": [2, 4, 6, 8]
+    "rol": [2, 4]
   },
   {
     "title": "Tipos de examen",
@@ -181,6 +181,6 @@
     "class_name": "",
     "is_icon_class": true,
     "icon": "ri-list-check",
-    "roles": [2, 4, 6, 8]
+    "rol": [2, 4]
   }
 ]

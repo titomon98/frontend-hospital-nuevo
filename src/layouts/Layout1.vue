@@ -60,7 +60,7 @@ import Loader from '../components/xray/loader/Loader'
 import SideBarStyle1 from '../components/xray/sidebars/SideBarStyle1'
 import NavBarStyle1 from '../components/xray/navbars/NavBarStyle1'
 import SideBarItems from '../FackApi/json/SideBar'
-// import SideBarLaboratorio from '../FackApi/json/SideBarLaboratorio'
+import SideBarLaboratorio from '../FackApi/json/SideBarLaboratorio'
 import HorizontalItems from '../FackApi/json/HorizontalMenu'
 import profile from '../assets/images/user/1.jpg'
 import loader from '../assets/images/logo.png'
@@ -81,12 +81,7 @@ export default {
   beforeMount () {
     var today = new Date()
     this.year = today.getFullYear()
-
-    // Cargar los items del sidebar dependiendo del tipo de usuario
-    // No asignamos todos los items sin filtrar, sino que usamos el filtro por roles
-    this.verticalMenu = SideBarItems // Por defecto tomamos todos los ítems del menú
-
-    // Filtramos los ítems del menú según los roles del usuario
+    this.verticalMenu = SideBarItems
     this.filteredVerticalMenu = this.filterMenuByRole(this.verticalMenu, this.currentUser.user_type)
   },
   computed: {
@@ -171,7 +166,7 @@ export default {
 
     // Método para filtrar los elementos del menú según los roles del usuario
     filterMenuByRole (menu, userRole) {
-      return menu
+      const filteredMenu = menu
         .map(item => {
           if (item.children && Array.isArray(item.children)) {
             const filteredChildren = item.children.filter(child => {
@@ -191,6 +186,12 @@ export default {
           return null
         })
         .filter(item => item !== null)
+
+      if (filteredMenu.length === 0) {
+        return this.filterMenuByRole(SideBarLaboratorio, userRole)
+      }
+
+      return filteredMenu
     }
   }
 }

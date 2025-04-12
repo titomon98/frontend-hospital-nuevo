@@ -1,63 +1,145 @@
 <template>
   <b-container fluid>
     <b-modal id="modal-1" ref="modal-1" title="Agregar usuario">
-      <form>
-        <div class="col-md-12 mb-3">
-          <label for="user">Usuario</label>
-          <input
-            required
-            type="text"
-            class="form-control"
-            id="user"
-            v-model.trim="$v.form.user.$model"
-            :state="!$v.form.user.$error"
-            placeholder="Ingresar usuario"
-          >
-          <div class="valid-feedback">
-            Looks good!
-          </div>
-          <div class="invalid-feedback">Example invalid feedback text</div>
-        </div>
-        <div class="col-md-12 mb-3">
-          <label for="password">Contraseña</label>
-          <input
-            required
-            type="password"
-            class="form-control"
-            id="password"
-            v-model.trim="$v.form.password.$model"
-            :state="!$v.form.password.$error"
-            placeholder="Ingresar contraseña"
-          >
-          <div class="valid-feedback">
-            Looks good!
-          </div>
-          <div class="invalid-feedback">Example invalid feedback text</div>
-        </div>
-        <div class="col-md-12 mb-3">
-          <label for="type">Tipo de usuario</label>
-          <v-select
-            name="type"
-            v-model="$v.form.userType.$model"
-            :state="!$v.form.userType.$error"
-            :options="typeOptions"
-            label="nombre"
-            placeholder="Seleccione tipo de usuario"
-          />
-          <div class="valid-feedback">
-            Looks good!
-          </div>
-          <div class="invalid-feedback">Example invalid feedback text</div>
-        </div>
-      </form>
-      <template #modal-footer="{}">
-        <b-button  variant="primary" @click="onValidate('save')"
-          >Guardar</b-button
+    <form>
+      <!-- Usuario -->
+      <div class="col-md-12 mb-3">
+        <label for="user">Usuario</label>
+        <input
+          required
+          type="text"
+          class="form-control"
+          id="user"
+          v-model.trim="$v.form.user.$model"
+          :state="!$v.form.user.$error"
+          placeholder="Ingresar usuario"
         >
-        <b-button variant="danger" @click="closeModal('save')"
-          >Cancelar</b-button
+        <div class="valid-feedback">Looks good!</div>
+        <div class="invalid-feedback">Usuario inválido</div>
+      </div>
+
+      <!-- Contraseña -->
+      <div class="col-md-12 mb-3">
+        <label for="password">Contraseña</label>
+        <input
+          required
+          type="password"
+          class="form-control"
+          id="password"
+          v-model.trim="$v.form.password.$model"
+          :state="!$v.form.password.$error"
+          placeholder="Ingresar contraseña"
         >
-      </template>
+        <div class="valid-feedback">Looks good!</div>
+        <div class="invalid-feedback">Contraseña inválida</div>
+      </div>
+
+      <!-- Nombre -->
+      <div class="col-md-12 mb-3">
+        <label for="nombre">Nombre</label>
+        <input
+          required
+          type="text"
+          class="form-control"
+          id="nombre"
+          v-model.trim="$v.form.nombre.$model"
+          :state="!$v.form.nombre.$error"
+          placeholder="Ingresar nombre"
+        >
+        <div class="valid-feedback">Looks good!</div>
+        <div class="invalid-feedback">Nombre inválido</div>
+      </div>
+
+      <!-- Apellidos -->
+      <div class="col-md-12 mb-3">
+        <label for="apellidos">Apellidos</label>
+        <input
+          required
+          type="text"
+          class="form-control"
+          id="apellidos"
+          v-model.trim="$v.form.apellidos.$model"
+          :state="!$v.form.apellidos.$error"
+          placeholder="Ingresar apellidos"
+        >
+        <div class="valid-feedback">Looks good!</div>
+        <div class="invalid-feedback">Apellidos inválidos</div>
+      </div>
+
+      <!-- Teléfono -->
+      <div class="col-md-12 mb-3">
+        <label for="telefono">Teléfono</label>
+        <input
+          required
+          type="text"
+          class="form-control"
+          id="telefono"
+          v-model.trim="$v.form.telefono.$model"
+          :state="!$v.form.telefono.$error"
+          placeholder="Ingresar teléfono"
+        >
+        <div class="valid-feedback">Looks good!</div>
+        <div class="invalid-feedback">Teléfono inválido</div>
+      </div>
+
+      <!-- Correo -->
+      <div class="col-md-12 mb-3">
+        <label for="correo">Correo</label>
+        <input
+          required
+          type="email"
+          class="form-control"
+          id="correo"
+          v-model.trim="$v.form.correo.$model"
+          :state="!$v.form.correo.$error"
+          placeholder="Ingresar correo electrónico"
+        >
+        <div class="valid-feedback">Looks good!</div>
+        <div class="invalid-feedback">Correo inválido</div>
+      </div>
+
+      <!-- Tipo de usuario -->
+      <div class="col-md-12 mb-3">
+        <label for="type">Tipo de usuario</label>
+        <v-select
+          name="type"
+          v-model="$v.form.userType.$model"
+          :state="!$v.form.userType.$error"
+          :options="typeOptions"
+          label="nombre"
+          placeholder="Seleccione tipo de usuario"
+        />
+        <div class="valid-feedback">Looks good!</div>
+        <div class="invalid-feedback">Tipo de usuario inválido</div>
+      </div>
+      <b-form-group
+        v-if="form.userType && form.userType.id === 11"
+        label="Seleccionar Médico"
+      >
+        <v-select
+          v-model="form.medico"
+          :options="medicos"
+          item-text="nombre"
+          item-value="id"
+          label="nombre"
+          :filterable="false"
+          placeholder="Seleccione un médico"
+          @search="onSearchMedicos"
+          required
+        >
+          <template v-slot:option="option">
+            {{ option.nombre }}
+          </template>
+          <template slot="selected-option" slot-scope="option">
+            {{ option.nombre }}
+          </template>
+        </v-select>
+    </b-form-group>
+    </form>
+    <template #modal-footer="{}">
+      <b-button variant="primary" @click="onValidate('save')">Guardar</b-button>
+      <b-button variant="danger" @click="closeModal('save')">Cancelar</b-button>
+    </template>
     </b-modal>
     <b-modal id="modal-2" ref="modal-2" title="Editar especialidad">
       <form>
@@ -271,7 +353,6 @@ import { xray } from '../../../config/pluginInit'
 import DatatableHeading from '../../Tables/DatatableHeading'
 import Vuetable from 'vuetable-2/src/components/Vuetable'
 import VuetablePaginationBootstrap from '../../../components/common/VuetablePaginationBootstrap'
-// import VuetablePagination from 'vuetable-2/src/components/VuetablePagination.vue'
 import useVuelidate from '@vuelidate/core'
 import { required } from '@vuelidate/validators'
 import axios from 'axios'
@@ -305,9 +386,15 @@ export default {
         id: 0,
         user: '',
         password: '',
+        nombre: '',
+        apellidos: '',
+        telefono: '',
+        correo: '',
         userType: [],
+        medico: 0,
         state: 1
       },
+      medicos: [],
       apiBase: apiUrl + '/user/list',
       typeOptions: [],
       options: [
@@ -350,7 +437,11 @@ export default {
       form: {
         user: { required },
         password: { required },
-        userType: { required }
+        userType: { required },
+        nombre: { required },
+        apellidos: { required },
+        telefono: { required },
+        correo: { required }
       }
     }
   },
@@ -359,11 +450,17 @@ export default {
       switch (modal) {
         case 'save': {
           this.$v.$reset()
-          this.form.id = 0
-          this.form.user = ''
-          this.form.password = ''
-          this.form.userType = []
-          this.form.state = 1
+          this.form = {
+            id: 0,
+            user: '',
+            password: '',
+            nombre: '',
+            apellidos: '',
+            telefono: '',
+            correo: '',
+            userType: [],
+            state: 1
+          }
           break
         }
       }
@@ -373,21 +470,33 @@ export default {
         case 'save': {
           this.$v.$reset()
           this.$refs['modal-1'].hide()
-          this.form.id = 0
-          this.form.user = ''
-          this.form.password = ''
-          this.form.userType = []
-          this.form.state = 1
+          this.form = {
+            id: 0,
+            user: '',
+            password: '',
+            nombre: '',
+            apellidos: '',
+            telefono: '',
+            correo: '',
+            userType: [],
+            state: 1
+          }
           break
         }
         case 'update': {
           this.$v.$reset()
           this.$refs['modal-2'].hide()
-          this.form.id = 0
-          this.form.user = ''
-          this.form.password = ''
-          this.form.userType = []
-          this.form.state = 1
+          this.form = {
+            id: 0,
+            user: '',
+            password: '',
+            nombre: '',
+            apellidos: '',
+            telefono: '',
+            correo: '',
+            userType: [],
+            state: 1
+          }
           break
         }
       }
@@ -507,6 +616,24 @@ export default {
     },
     changeTypeSearch (columna) {
       this.columna = columna
+    },
+    searchingMedicos (search, loading) {
+      axios.get(apiUrl + '/medicos/getSearch',
+        {
+          params: {
+            search: search
+          }
+        }
+      ).then((response) => {
+        this.medicos = response.data
+        loading(false)
+      })
+    },
+    onSearchMedicos (search, loading) {
+      if (search.length) {
+        loading(true)
+        this.searchingMedicos(search, loading)
+      }
     }
   }
 }
