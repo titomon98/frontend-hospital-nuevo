@@ -193,6 +193,11 @@
         "
           >Guardar cambios</b-button
         >
+        <b-button v-if="HasFact===1" variant="primary" @click="
+          deactivateFact()
+        "
+          >Cancelar factura</b-button
+        >
         <b-button variant="danger" @click="$bvModal.hide('modal-2-account')"
           >Cancelar</b-button
         >
@@ -407,7 +412,7 @@ export default {
         { text: 'Hospitalización', value: 1 },
         { text: 'Intensivos', value: 4 }
       ],
-      apiBase: apiUrl + '/cuentas/payList',
+      apiBase: apiUrl + '/cuentas/paylist',
       fields: [
         {
           name: '__slot:actions',
@@ -562,7 +567,7 @@ export default {
       this.HasFact = 0
       this.base64Images = []
       this.emptyImage = 1
-      if (this.factsList.find(e => e.id_cuenta_hospital === data.id)) {
+      if (this.factsList.find(e => e.id_cuenta_hospital === data.id && e.estado === 1)) {
         const elementFound = this.factsList.find(e => e.id_cuenta_hospital === data.id)
         this.HasFact = 1
         this.nitFact = elementFound.nit
@@ -574,11 +579,10 @@ export default {
           this.emptyImage = 0
         }
         console.log(this.emptyImage)
-        console.log('HASFACCCCCTS :)')
       } else {
         this.HasFact = 0
-        console.log('NOOOOOOOOOOOOTHASFACCCCCTS :(')
       }
+      console.log(data)
       this.form.name = data.nombres
       this.form.apellidos = data.apellidos
       this.form.state = data.estado
@@ -748,6 +752,37 @@ export default {
       me.alertVariant = 'info'
       me.showAlert()
       me.alertText = 'Se ha guardado la factura exitosamente'
+      me.$refs.vuetable.refresh()
+      this.getFacts()
+      me.$refs['modal-2-account'].hide()
+    },
+    deactivateFact () {
+      let me = this
+      axios.post(apiUrl + '/facturas/deactivate',
+        {
+          id_cuenta_laboratoio: 0,
+          id_cuenta_hospital: this.form.id
+        })
+        .then(
+          this.selectedAccount = null,
+          this.paymentType.Efectivo = 0,
+          this.paymentType.Tarjeta = 0,
+          this.paymentType.Deposito = 0,
+          this.paymentType.Cheque = 0,
+          this.paymentType.Seguro = 0,
+          this.paymentType.transferencia = 0,
+          this.paymentSum = 0,
+          this.selectAssurance = null
+        )
+        .catch((error) => {
+          me.alertVariant = 'danger'
+          me.showAlertError()
+          me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+          console.error('There was an error!', error)
+        })
+      me.alertVariant = 'info'
+      me.showAlert()
+      me.alertText = 'Se ha cancelado la factura exitosamente'
       me.$refs.vuetable.refresh()
       this.getFacts()
       me.$refs['modal-2-account'].hide()
