@@ -334,7 +334,7 @@
     "class_name": "",
     "is_icon_class": true,
     "icon": "ri-store-fill",
-    "rol": [1, 3, 5, 7, 11],
+    "rol": [1, 3, 5, 11],
     "children": [
       {
         "title": "Pedidos pendientes",
