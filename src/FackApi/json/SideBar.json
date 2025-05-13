@@ -165,7 +165,7 @@
     "is_icon_class": true,
     "icon": "ri-home-heart-line",
     "link": {},
-    "rol": [1, 3, 5, 7, 9, 10, 11],
+    "rol": [1, 3, 5, 9, 10, 11],
     "children": [
       {
         "title": "Pedidos a farmacia",
@@ -177,7 +177,7 @@
         "class_name": "",
         "is_icon_class": true,
         "icon": "ri-arrow-left-circle-line",
-        "rol": [1, 3, 5, 7, 9, 10, 11]
+        "rol": [1, 3, 5, 9, 10, 11]
       },
       {
         "title": "Quirófano",
@@ -189,7 +189,7 @@
         "class_name": "",
         "is_icon_class": true,
         "icon": "ri-heart-2-fill",
-        "rol": [1, 3, 5, 7, 9, 10]
+        "rol": [1, 3, 5, 9, 10]
       },
       {
         "title": "Hospitalización",
@@ -201,7 +201,7 @@
         "class_name": "",
         "is_icon_class": true,
         "icon": "ri-heart-fill",
-        "rol": [1, 3, 5, 7, 9, 10, 11]
+        "rol": [1, 3, 5, 9, 10, 11]
       },
       {
         "title": "Intensivo",
@@ -213,7 +213,7 @@
         "class_name": "",
         "is_icon_class": true,
         "icon": "ri-spam-fill",
-        "rol": [1, 3, 5, 7, 9, 10, 11]
+        "rol": [1, 3, 5, 9, 10, 11]
       },
       {
         "title": "Emergencia",
@@ -225,7 +225,7 @@
         "class_name": "",
         "is_icon_class": true,
         "icon": "ri-spam-line",
-        "rol": [1, 3, 5, 7, 9, 11]
+        "rol": [1, 3, 5, 9, 11]
       },
       {
         "title": "Consumos",
@@ -237,7 +237,7 @@
         "class_name": "",
         "is_icon_class": true,
         "icon": "ri-play-list-add-line",
-        "rol": [1, 3, 5, 7, 9, 10]
+        "rol": [1, 3, 5, 9, 10]
       },
       {
         "title": "Habitaciones",
@@ -249,7 +249,7 @@
         "class_name": "",
         "is_icon_class": true,
         "icon": "ri-hotel-bed-line",
-        "rol": [1, 3, 5, 7, 9]
+        "rol": [1, 3, 5, 9]
       },
       {
         "title": "Servicios",
@@ -261,7 +261,7 @@
         "class_name": "",
         "is_icon_class": true,
         "icon": "ri-customer-service-line",
-        "rol": [1, 3, 5, 7, 9]
+        "rol": [1, 3, 5, 9]
       },
       {
         "title": "Sala Operaciones",
@@ -273,7 +273,7 @@
         "class_name": "",
         "is_icon_class": true,
         "icon": "ri-home-heart-line",
-        "rol": [1, 5, 3, 7, 9]
+        "rol": [1, 5, 3, 9]
       },
       {
         "title": "Nuevo Ingreso",
@@ -285,7 +285,7 @@
         "class_name": "",
         "is_icon_class": true,
         "icon": "ri-user-add-fill",
-        "rol": [1, 3, 7, 9, 10, 11]
+        "rol": [1, 3, 9, 10, 11]
       },
       {
         "title": "Reingreso",
@@ -297,7 +297,7 @@
         "class_name": "",
         "is_icon_class": true,
         "icon": "ri-user-add-fill",
-        "rol": [1, 3, 7, 9, 10, 11]
+        "rol": [1, 3, 9, 10, 11]
       },
       {
         "title": "Egresos",
@@ -309,7 +309,7 @@
         "class_name": "",
         "is_icon_class": true,
         "icon": "ri-file-transfer-line",
-        "rol": [1, 3, 7, 9, 10, 11]
+        "rol": [1, 3, 9, 10, 11]
       },
       {
         "title": "Asignar Habitaciones",
@@ -321,7 +321,7 @@
         "class_name": "",
         "is_icon_class": true,
         "icon": "ri-hotel-bed-line",
-        "rol": [1, 3, 7, 9, 10, 11]
+        "rol": [1, 3, 9, 10, 11]
       }
     ]
   },  
