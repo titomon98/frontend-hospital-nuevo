@@ -193,6 +193,11 @@
         "
           >Guardar cambios</b-button
         >
+        <b-button v-if="HasFact===1" variant="primary" @click="
+          deactivateFact()
+        "
+          >Cancelar factura</b-button
+        >
         <b-button variant="danger" @click="$bvModal.hide('modal-2-account')"
           >Cancelar</b-button
         >
@@ -748,6 +753,37 @@ export default {
       me.alertVariant = 'info'
       me.showAlert()
       me.alertText = 'Se ha guardado la factura exitosamente'
+      me.$refs.vuetable.refresh()
+      this.getFacts()
+      me.$refs['modal-2-account'].hide()
+    },
+    deactivateFact () {
+      let me = this
+      axios.post(apiUrl + '/facturas/deactivate',
+        {
+          id_cuenta_hospital: 0,
+          id_cuenta_laboratoio: this.form.id
+        })
+        .then(
+          this.selectedAccount = null,
+          this.paymentType.Efectivo = 0,
+          this.paymentType.Tarjeta = 0,
+          this.paymentType.Deposito = 0,
+          this.paymentType.Cheque = 0,
+          this.paymentType.Seguro = 0,
+          this.paymentType.transferencia = 0,
+          this.paymentSum = 0,
+          this.selectAssurance = null
+        )
+        .catch((error) => {
+          me.alertVariant = 'danger'
+          me.showAlertError()
+          me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+          console.error('There was an error!', error)
+        })
+      me.alertVariant = 'info'
+      me.showAlert()
+      me.alertText = 'Se ha cancelado la factura exitosamente'
       me.$refs.vuetable.refresh()
       this.getFacts()
       me.$refs['modal-2-account'].hide()
