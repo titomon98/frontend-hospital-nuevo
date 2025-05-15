@@ -631,7 +631,7 @@ export default {
         apellido: '',
         edad: null,
         cui: 'NO DISPONIBLE',
-        comision: '',
+        comision: 'NO APLICA',
         total: 0,
         correo: '',
         whatsapp: '',
@@ -897,7 +897,6 @@ export default {
     return {
       form: {
         edad: { required },
-        comision: { required },
         total: { required },
         whatsapp: { required },
         numero_muestra: { required },
