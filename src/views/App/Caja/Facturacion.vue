@@ -102,7 +102,12 @@
                 <b-col cols="12" class="text-center">
                   <div v-if="base64Images.length">
                     <h5>Imagen:</h5>
-                    <img :src="base64Images" alt="Preview" class="img-preview"/>
+                    <iframe :src="base64Images" width="100%" height="600px"></iframe>
+                    <b-button variant="primary" @click="
+                      downloadBase64Pdf(base64Images[0])
+                    "
+                      >Descargar factura</b-button
+                    >
                   </div>
                 </b-col>
               </b-row>
@@ -152,7 +157,12 @@
                 <b-col cols="12" class="text-center">
                   <div v-if="emptyImage===0">
                     <h6>Imagen:</h6>
-                    <img :src="base64Images" alt="Preview" class="img-preview"/>
+                    <iframe :src="base64Images" width="100%" height="600px"></iframe>
+                    <b-button variant="primary" @click="
+                      downloadBase64Pdf(base64Images[0])
+                    "
+                      >Descargar factura</b-button
+                    >
                   </div>
                   <div v-else>
                     <b-form-group label="File">
@@ -168,7 +178,12 @@
                       <b-col cols="12" class="text-center">
                         <div v-if="base64Images.length">
                           <h5>Imagen:</h5>
-                          <img :src="base64Images" alt="Preview" class="img-preview"/>
+                          <iframe :src="base64Images" width="100%" height="600px"></iframe>
+                          <b-button variant="primary" @click="
+                            downloadBase64Pdf(base64Images[0])
+                          "
+                            >Descargar factura</b-button
+                          >
                         </div>
                       </b-col>
                     </b-row>
@@ -793,6 +808,14 @@ export default {
           this.factsList = res.data
           console.log(res)
         })
+    },
+    downloadBase64Pdf (base64WithHeader, filename = 'archivo.pdf') {
+      const a = document.createElement('a')
+      a.href = base64WithHeader
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
     },
     makeQueryParams (sortOrder, currentPage, perPage) {
       return sortOrder[0]
