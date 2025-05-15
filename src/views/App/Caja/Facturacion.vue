@@ -92,7 +92,7 @@
               <b-form-group label="File">
                 <b-form-file
                   v-model="images"
-                  accept="image/*"
+                  accept="*"
                   multiple
                   placeholder="Subir una imagen..."
                   drop-placeholder="Suelta una imagen aquí..."></b-form-file>
@@ -500,8 +500,8 @@ export default {
         this.base64Images = []
         // this.errorImage = null
         Array.from(FileList).forEach(file => {
-          if (file.size > 2 * 1024 * 1024) {
-            this.errorImage = 'El tamaño máximo por imagen es de 2MB'
+          if (file.size > 5 * 1024 * 1024) {
+            this.errorImage = 'El tamaño máximo por imagen es de 5MB'
             this.images = []
             return
           }
