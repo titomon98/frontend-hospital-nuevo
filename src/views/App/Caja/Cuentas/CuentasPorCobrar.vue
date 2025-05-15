@@ -295,15 +295,6 @@
                       size="sm"
                       variant="dark"
                     >Cobrar</b-button>
-                    <b-button
-                      @click="
-                        setData(props.rowData)
-                        $bvModal.show('modal-3-discount')
-                      "
-                      class="mb-2 button-spacing"
-                      size="sm"
-                      variant="success"
-                    >Solicitar descuento</b-button>
 
                     <b-button
                     @click="generarReporteCuentaParcial(props.rowData.id, props.rowData.expediente.nombres, props.rowData.expediente.apellidos)"
