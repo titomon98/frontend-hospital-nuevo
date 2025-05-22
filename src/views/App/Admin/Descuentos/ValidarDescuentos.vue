@@ -265,7 +265,7 @@
                 </h5>
               </div>
               <!-- Estado descuento -->
-               <div slot="solicitud_descuento" slot-scope="props">
+               <div slot="solicitud_descuento"  slot-scope="props">
                 <h5 v-if="props.rowData.solicitud_descuento == 3">
                   <b-badge variant="light"
                     ><h6 class="danger"><strong>SIN DESCUENTO</strong></h6></b-badge
