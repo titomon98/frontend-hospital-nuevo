@@ -97,14 +97,22 @@
                   <div v-for="(tipo, index) in tiposHabitaciones" :key="tipo">
                     <b-row>
                       <b-col cols="4">
-                        <h6 class="mt-2">{{ NombreHabitaciones[index] }}</h6>
+                        <h6 v-if="(form.estudioDeSueño != 1 && form.estudioDeSueño != 2) || index == 2" class="mt-2">{{ NombreHabitaciones[index] }}</h6>
                         <b-form-checkbox
-                          v-if="index === 0"
+                          v-if="this.selectedOption == 'hospi'"
                           v-model="form.estudioDeSueño"
                           value="1"
                           class="mt-2 mb-4"
                         >
                           Estudio de sueño
+                        </b-form-checkbox>
+                        <b-form-checkbox
+                          v-if="this.selectedOption == 'hospi'"
+                          v-model="form.estudioDeSueño"
+                          value="2"
+                          class="mt-2 mb-4"
+                        >
+                          Quimioterapia
                         </b-form-checkbox>
                       </b-col>
                       <b-col
