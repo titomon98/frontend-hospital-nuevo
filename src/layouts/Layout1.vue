@@ -166,6 +166,7 @@ export default {
 
     // Método para filtrar los elementos del menú según los roles del usuario
     filterMenuByRole (menu, userRole) {
+      console.log('Rol recibido:', userRole)
       const filteredMenu = menu
         .map(item => {
           if (item.children && Array.isArray(item.children)) {
