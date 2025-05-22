@@ -7,7 +7,7 @@
     "class_name": "",
     "is_icon_class": true,
     "icon": "",
-    "rol": [2, 4, 6, 8, 12, 13]
+    "rol": [2]
   },
   {
     "title": "Hospital Dashboard 1",
@@ -20,7 +20,7 @@
     "class_name": "",
     "is_icon_class": true,
     "icon": "ri-home-8-fill",
-    "rol": [2, 4, 6, 8, 12, 13]
+    "rol": [2]
   },
   {
     "title": "Caja",
@@ -31,6 +31,7 @@
     "class_name": "",
     "is_icon_class": true,
     "icon": "ri-briefcase-4-fill",
+    "rol": [2, 4, 6, 8],
     "children": [
       {
         "title": "Cortes",
