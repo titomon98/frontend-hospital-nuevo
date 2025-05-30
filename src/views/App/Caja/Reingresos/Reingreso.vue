@@ -381,6 +381,16 @@ export default {
       selectedTrasOption: 1,
       varMotivo: '',
       varMotivoError: 0,
+      varCuiEncargado: '',
+      varCuiEncargadoError: null,
+      varEdadEncargado: '',
+      varEdadEncargadoError: null,
+      varParentescoEncargado: '',
+      varParentescoEncargadoError: null,
+      varContactoEncargado: '',
+      varContactoEncargadoError: null,
+      varNombreEncargado: '',
+      varNombreEncargadoError: null,
       form: {
         id: 0,
         nombres: '',
@@ -605,7 +615,6 @@ export default {
               })
               .then((res) => {
                 this.selectedHab = null
-                console.log(this.selectedHab)
                 this.getHabitaciones(0).then(me.$refs.selectHab.refresh())
               })
           }
@@ -693,7 +702,6 @@ export default {
         }
       }).then((response) => {
         this.habitaciones = response.data
-        console.log(response.data)
       })
     }
   }

@@ -394,7 +394,7 @@
                               <b-col cols="4">
                                 <h6 v-if="(form.estudioDeSueño != 1 && form.estudioDeSueño != 2) || index == 2" class="mt-2">{{ NombreHabitaciones[index] }}</h6>
                                   <b-form-checkbox
-                                    v-if="this.selectedOption == 'hospi'"
+                                    v-if="form.selectedOption == 'hospi'"
                                     v-model="form.estudioDeSueño"
                                     value="1"
                                     class="mt-2 mb-4"
@@ -402,7 +402,7 @@
                                     Estudio de sueño
                                   </b-form-checkbox>
                                   <b-form-checkbox
-                                    v-if="this.selectedOption == 'hospi'"
+                                    v-if="form.selectedOption == 'hospi'"
                                     v-model="form.estudioDeSueño"
                                     value="2"
                                     class="mt-2 mb-4"
@@ -1044,7 +1044,6 @@ export default {
           value: medico.id,
           text: medico.nombre
         }))
-        console.log(this.doctors)
         loading(false)
       })
     },
@@ -1103,7 +1102,6 @@ export default {
     },
     onDoctorAssignment () {
       this.form.assignedDoctor = this.selectedDoctor
-      console.log(this.form.id)
       axios.put(apiUrl + '/expedientes/assignDoctor', {
         form: this.form })
         .then((response) => {
@@ -1122,7 +1120,6 @@ export default {
     },
     onRoomAssignment () {
       this.form.assignedDoctor = this.selectedDoctor
-      console.log(this.form.id)
       axios.put(apiUrl + '/expedientes/assignRoom', {
         form: this.form })
         .then((response) => {
@@ -1148,7 +1145,6 @@ export default {
         }
       }).then((response) => {
         this.habitaciones = response.data
-        console.log(this.habitaciones)
       })
     }
   }
