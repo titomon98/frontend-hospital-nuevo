@@ -181,7 +181,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-ver-servicio" size="lg" ref="modal-ver-servicio" title="Ver consumos">
+    <b-modal id="modal-ver-servicio" size="lg" ref="modal-ver-servicio" title="Ver servicios">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -224,6 +224,53 @@
           >Guardar</b-button
         >
         <b-button variant="danger" @click="closeModal('ver-servicio')"
+          >Cancelar</b-button
+        >
+      </template>
+    </b-modal>
+    <b-modal id="modal-ver-servicio2" size="lg" ref="modal-ver-servicio2" title="Ver servicios">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <vuetable
+          ref="vuetableConsumos"
+          class="table-divided table-responsive order-with-arrow"
+          :api-url="apiBaseConsumo"
+          :query-params="makeQueryParamsConsumo"
+          :per-page="perPage"
+          :reactive-api-url="true"
+          :fields="fieldsConsumo2"
+          pagination-path
+          @vuetable:pagination-data="onPaginationDataConsumo"
+        >
+          <template slot="actions" slot-scope="props">
+            <b-button-group>
+              <b-button
+                v-b-tooltip.top="'Generar voucher de pago'"
+                @click="voucherData(props.rowData)"
+                class="mb-2"
+                size="sm"
+                variant="outline-info"
+                ><i :class="'fas fa-money-bill'"
+              /></b-button>
+            </b-button-group>
+          </template>
+        </vuetable>
+        <vuetable-pagination-bootstrap
+          ref="paginationConsumo"
+          @vuetable-pagination:change-page="onChangePageConsumo"
+        />
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click="onValidate('ver-servicio2')"
+          >Guardar</b-button
+        >
+        <b-button variant="danger" @click="closeModal('ver-servicio2')"
           >Cancelar</b-button
         >
       </template>
@@ -291,8 +338,8 @@
       </b-alert>
       <b-table striped hover :items="honorarios" :fields="fieldsHonorarios">
         <!-- Nombre del Médico -->
-        <template #cell(nombreMedico)="row">
-          {{ row.item.medico.nombre }}
+        <template #cell(medico)="row">
+          {{ row.item.medico}}
         </template>
 
         <!-- Campo editable para Total -->
@@ -317,7 +364,8 @@
         <b-button variant="danger" @click="closeModal('ver-honorarios')">Cerrar</b-button>
       </template>
     </b-modal>
-    <b-modal id="modal-1-movimiento" size="lg" ref="modal-1-movimiento" title="Agregar Consumo de Insumos">
+    <b-modal id="modal-1-movimiento" size="lg" ref="modal-1-movimiento" title="Agregar Consumo" @shown="openModal2">
+      <!-- Alerta -->
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -327,63 +375,82 @@
       >
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
-      <b-form @submit="$event.preventDefault()">
+
+      <b-form @submit.prevent>
+        <!-- Selección de tipo de insumo -->
         <b-form-group label="Agregar Insumo:">
-            <b-row md="3" class="ml-5 mt-negativo-r1">
-              <input type="radio" id="medicamento" value="0" v-model="$v.form.selected_insumo.$model" @change="this.onSelectChange"/>
-              <label for="medicamento" class="mt-2 ml-1">Medicamento</label>
-            </b-row>
-            <b-row md="3" class="ml-5 mt-negativo">
-              <input type="radio" id="quirurgico" value="1" v-model="$v.form.selected_insumo.$model" @change="this.onSelectChange"/>
-              <label for="quirurgico" class="mt-2 ml-1">Quirúrgico</label>
-            </b-row>
-            <b-row md="3" class="ml-5 mt-negativo">
-              <input type="radio" id="uso_comun" value="2" v-model="$v.form.selected_insumo.$model" @change="this.onSelectChange" />
-              <label for="uso_comun" class="mt-2 ml-1">Uso común</label>
-            </b-row>
-            <v-select
-              name="medicamentos"
-              v-model.trim="$v.formMe.id_medicine.$model"
-              :options="medicamentos"
-              :filterable="true"
-              :reduce="med => med.value"
-              :state="!$v.formMe.id_medicine.$error"
-              placeholder="Seleccione el insumo"
-              label='text'
-              @input="onChangeMedicamento"
-            ></v-select>
-            <label>{{this.existencias_selected_med}}</label>
-          </b-form-group>
-          <b-form-group label="Cantidad:">
+          <b-row md="3" class="ml-5 mt-negativo-r1">
+            <input type="radio" id="medicamento" value="0" v-model="$v.form.selected_insumo.$model" @change="onSelectChange"/>
+            <label for="medicamento" class="mt-2 ml-1">Medicamento</label>
+          </b-row>
+          <b-row md="3" class="ml-5 mt-negativo">
+            <input type="radio" id="quirurgico" value="1" v-model="$v.form.selected_insumo.$model" @change="onSelectChange"/>
+            <label for="quirurgico" class="mt-2 ml-1">Quirúrgico</label>
+          </b-row>
+          <b-row md="3" class="ml-5 mt-negativo">
+            <input type="radio" id="uso_comun" value="2" v-model="$v.form.selected_insumo.$model" @change="onSelectChange" />
+            <label for="uso_comun" class="mt-2 ml-1">Uso común</label>
+          </b-row>
+
+          <!-- Selector de insumo -->
+          <v-select
+            name="medicamentos"
+            v-model.trim="$v.formMe.id_medicine.$model"
+            :options="insumosActuales"
+            :filterable="true"
+            :reduce="med => med.value"
+            :state="!$v.formMe.id_medicine.$error"
+            placeholder="Seleccione el insumo"
+            label="text"
+            @input="onSeleccionarInsumo"
+          ></v-select>
+        </b-form-group>
+
+        <!-- Tabla de insumos seleccionados -->
+        <h5 class="mt-3">INSUMOS SELECCIONADOS</h5>
+        <b-table
+          striped
+          hover
+          :items="consumosTemporales"
+          :fields="['nombre', 'cantidad', 'existencias', 'acciones']"
+          small
+        >
+          <template #cell(cantidad)="row">
             <b-form-input
               type="number"
-              v-model.trim="$v.formMe.cantidad.$model"
-              :state="!$v.formMe.cantidad.$error"
-              :min=1
-              :max="max_cant"
-              placeholder="Ingresar Cantidad"
+              v-model="row.item.cantidad"
+              :min="1"
+              :max="row.item.existencias"
+              placeholder="Cantidad"
             ></b-form-input>
-          </b-form-group>
-          <br>
-          <h5>CONSUMOS REALIZADOS</h5>
-          <b-tabs content-class="mt-3">
+          </template>
+
+          <template #cell(acciones)="row">
+            <b-button variant="danger" size="sm" @click="eliminarDeLista(row.item.id)">Eliminar</b-button>
+          </template>
+        </b-table>
+
+        <!-- Tabla de consumos ya registrados -->
+        <h5 class="mt-4">CONSUMOS REALIZADOS</h5>
+        <b-tabs content-class="mt-3">
           <b-tab title="Medicamento" active>
             <vuetable
               ref="vuetableConsumoInsumos"
               class="table-divided table-responsive order-with-arrow"
               :api-url="apiBaseConsumoMedicamento"
               :query-params="makeQueryParamsConsumoInsumo"
+               data-path="data"
+               pagination-path=""
               :per-page="perPage"
               :reactive-api-url="true"
               :fields="fieldsConsumoInsumoMedicamento"
-
-            >
-            </vuetable>
+            ></vuetable>
             <vuetable-pagination-bootstrap
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
             />
           </b-tab>
+
           <b-tab title="Quirúrgico">
             <vuetable
               ref="vuetableConsumoQuirurgicos"
@@ -393,15 +460,13 @@
               :per-page="perPage"
               :reactive-api-url="true"
               :fields="fieldsConsumoInsumoQuirurgico"
-              pagination-path
-              @vuetable:pagination-data="onPaginationDataConsumo"
-            >
-            </vuetable>
+            ></vuetable>
             <vuetable-pagination-bootstrap
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
             />
           </b-tab>
+
           <b-tab title="Común">
             <vuetable
               ref="vuetableConsumoComunes"
@@ -411,24 +476,146 @@
               :per-page="perPage"
               :reactive-api-url="true"
               :fields="fieldsConsumoInsumo"
-              pagination-path
-              @vuetable:pagination-data="onPaginationDataConsumoInsumo"
-            >
-            </vuetable>
+            ></vuetable>
             <vuetable-pagination-bootstrap
               ref="paginationConsumo"
-              @vuetable-pagination:change-page="onPaginationDataConsumoInsumo"
+              @vuetable-pagination:change-page="onChangePageConsumo"
             />
           </b-tab>
         </b-tabs>
       </b-form>
-      <template #modal-footer="{}">
-        <b-button variant="primary" @click=" onSave()"
-          >Guardar</b-button
+
+      <!-- Footer -->
+      <template #modal-footer>
+        <b-button variant="primary" @click="onSave">Guardar</b-button>
+        <b-button variant="danger" @click="closeModal('save')">Cancelar</b-button>
+      </template>
+    </b-modal>
+    <b-modal id="modal-1-movimiento2" size="lg" ref="modal-1-movimiento2" title="Agregar Consumo" @shown="openModal2">
+      <!-- Alerta -->
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+
+      <b-form @submit.prevent>
+        <!-- Selección de tipo de insumo -->
+        <b-form-group label="Agregar Insumo:">
+          <b-row md="3" class="ml-5 mt-negativo-r1">
+            <input type="radio" id="medicamento" value="0" v-model="$v.form.selected_insumo.$model" @change="onSelectChange"/>
+            <label for="medicamento" class="mt-2 ml-1">Medicamento</label>
+          </b-row>
+          <b-row md="3" class="ml-5 mt-negativo">
+            <input type="radio" id="quirurgico" value="1" v-model="$v.form.selected_insumo.$model" @change="onSelectChange"/>
+            <label for="quirurgico" class="mt-2 ml-1">Quirúrgico</label>
+          </b-row>
+          <b-row md="3" class="ml-5 mt-negativo">
+            <input type="radio" id="uso_comun" value="2" v-model="$v.form.selected_insumo.$model" @change="onSelectChange" />
+            <label for="uso_comun" class="mt-2 ml-1">Uso común</label>
+          </b-row>
+
+          <!-- Selector de insumo -->
+          <v-select
+            name="medicamentos"
+            v-model.trim="$v.formMe.id_medicine.$model"
+            :options="insumosActuales"
+            :filterable="true"
+            :reduce="med => med.value"
+            :state="!$v.formMe.id_medicine.$error"
+            placeholder="Seleccione el insumo"
+            label="text"
+            @input="onSeleccionarInsumo"
+          ></v-select>
+        </b-form-group>
+
+        <!-- Tabla de insumos seleccionados -->
+        <h5 class="mt-3">INSUMOS SELECCIONADOS</h5>
+        <b-table
+          striped
+          hover
+          :items="consumosTemporales"
+          :fields="['nombre', 'cantidad', 'existencias', 'acciones']"
+          small
         >
-        <b-button variant="danger" @click="closeModal('save')"
-          >Cancelar</b-button
-        >
+          <template #cell(cantidad)="row">
+            <b-form-input
+              type="number"
+              v-model="row.item.cantidad"
+              :min="1"
+              :max="row.item.existencias"
+              placeholder="Cantidad"
+            ></b-form-input>
+          </template>
+
+          <template #cell(acciones)="row">
+            <b-button variant="danger" size="sm" @click="eliminarDeLista(row.item.id)">Eliminar</b-button>
+          </template>
+        </b-table>
+
+        <!-- Tabla de consumos ya registrados -->
+        <h5 class="mt-4">CONSUMOS REALIZADOS</h5>
+        <b-tabs content-class="mt-3">
+          <b-tab title="Medicamento" active>
+            <vuetable
+              ref="vuetableConsumoInsumos"
+              class="table-divided table-responsive order-with-arrow"
+              :api-url="apiBaseConsumoMedicamento"
+              :query-params="makeQueryParamsConsumoInsumo"
+               data-path="data"
+               pagination-path=""
+              :per-page="perPage"
+              :reactive-api-url="true"
+              :fields="fieldsConsumoInsumoMedicamento2"
+            ></vuetable>
+            <vuetable-pagination-bootstrap
+              ref="paginationConsumo"
+              @vuetable-pagination:change-page="onChangePageConsumo"
+            />
+          </b-tab>
+
+          <b-tab title="Quirúrgico">
+            <vuetable
+              ref="vuetableConsumoQuirurgicos"
+              class="table-divided table-responsive order-with-arrow"
+              :api-url="apiBaseConsumoQuirurgico"
+              :query-params="makeQueryParamsConsumoInsumo"
+              :per-page="perPage"
+              :reactive-api-url="true"
+              :fields="fieldsConsumoInsumoQuirurgico2"
+            ></vuetable>
+            <vuetable-pagination-bootstrap
+              ref="paginationConsumo"
+              @vuetable-pagination:change-page="onChangePageConsumo"
+            />
+          </b-tab>
+
+          <b-tab title="Común">
+            <vuetable
+              ref="vuetableConsumoComunes"
+              class="table-divided table-responsive order-with-arrow"
+              :api-url="apiBaseConsumoComun"
+              :query-params="makeQueryParamsConsumoInsumo"
+              :per-page="perPage"
+              :reactive-api-url="true"
+              :fields="fieldsConsumoInsumo2"
+            ></vuetable>
+            <vuetable-pagination-bootstrap
+              ref="paginationConsumo"
+              @vuetable-pagination:change-page="onChangePageConsumo"
+            />
+          </b-tab>
+        </b-tabs>
+      </b-form>
+
+      <!-- Footer -->
+      <template #modal-footer>
+        <b-button variant="primary" @click="onSave">Guardar</b-button>
+        <b-button variant="danger" @click="closeModal('save2')">Cancelar</b-button>
       </template>
     </b-modal>
     <b-modal id="reporteModal" title="Reporte de Cuenta Parcial" size="lg">
@@ -534,7 +721,7 @@
 
                   <b-button
                   v-if="props.rowData.nombres !== 'PENDIENTE' "
-                    @click="verServicio(props.rowData.id)"
+                    @click="mostrarVerServicio(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="dark"
@@ -554,12 +741,12 @@
                     size="sm"
                     variant="dark"
                   >Ver honorarios</b-button>
-                  <b-button
+                   <b-button
                     v-b-tooltip.top="'Agregar consumo'"
-                    @click="showModal('modal-1-movimiento'); getConsumoMedicamentos(props.rowData.id); obtenerIdCuenta(props.rowData.id)"
+                    @click="mostrarModalConsumos(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
-                    variant="success"
+                    variant="dark"
                    >Consumos</b-button>
 
                    <b-button
@@ -620,7 +807,6 @@ import moment from 'moment'
 import { mapGetters } from 'vuex'
 import JsPDF from 'jspdf'
 import 'jspdf-autotable'
-// import ExcelJS from 'exceljs'
 
 export default {
   name: 'Hospitalizacion',
@@ -647,6 +833,9 @@ export default {
   },
   data () {
     return {
+      consumosTemporales: [],
+      insumosActuales: [],
+      tipoInsumoActual: '0',
       from: 0,
       motivoTrasladoHospi: '',
       habitaciones: [],
@@ -794,6 +983,32 @@ export default {
           dataClass: 'list-item-heading'
         }
       ],
+      fieldsConsumo2: [
+        {
+          name: 'servicio.descripcion',
+          sortField: 'servicio.descripcion',
+          title: 'Nombre del servicio',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'cantidad',
+          sortField: 'cantidad',
+          title: 'Cantidad',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'descripcion',
+          sortField: 'descripcion',
+          title: 'Lugar de consumo',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'createdAt',
+          sortField: 'createdAt',
+          title: 'Creación',
+          dataClass: 'list-item-heading'
+        }
+      ],
       fieldsConsumoInsumo: [
         {
           name: 'comune.nombre',
@@ -869,6 +1084,48 @@ export default {
           name: 'total',
           sortField: 'total',
           title: 'Subtotal',
+          dataClass: 'list-item-heading'
+        }
+      ],
+      fieldsConsumoInsumo2: [
+        {
+          name: 'comune.nombre',
+          sortField: 'comune.nombre',
+          title: 'Nombre del insumo',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'cantidad',
+          sortField: 'cantidad',
+          title: 'Cantidad',
+          dataClass: 'list-item-heading'
+        }
+      ],
+      fieldsConsumoInsumoQuirurgico2: [
+        {
+          name: 'quirurgico.nombre',
+          sortField: 'quirurgico.nombre',
+          title: 'Nombre del insumo',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'cantidad',
+          sortField: 'cantidad',
+          title: 'Cantidad',
+          dataClass: 'list-item-heading'
+        }
+      ],
+      fieldsConsumoInsumoMedicamento2: [
+        {
+          name: 'medicamento.nombre',
+          sortField: 'medicamento.nombre',
+          title: 'Nombre del insumo',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'cantidad',
+          sortField: 'cantidad',
+          title: 'Cantidad',
           dataClass: 'list-item-heading'
         }
       ],
@@ -948,6 +1205,127 @@ export default {
     }
   },
   methods: {
+    async cargarInsumos (tipo) {
+      let endpoint = ''
+      switch (tipo) {
+        case '0': endpoint = '/medicamentos/list2'; break
+        case '1': endpoint = '/quirurgico/list'; break
+        case '2': endpoint = '/comun/list2'; break
+      }
+
+      try {
+        const response = await axios.get(apiUrl + endpoint)
+        this.insumosActuales = response.data.map(insumo => ({
+          value: insumo.id,
+          text: insumo.nombre,
+          existencias_actuales: insumo.existencia_actual,
+          precio_venta: insumo.precio_venta
+        }))
+      } catch (error) {
+        console.error('Error cargando insumos:', error)
+      }
+    },
+    onSelectChange () {
+      this.tipoInsumoActual = this.form.selected_insumo
+      this.cargarInsumos(this.form.selected_insumo)
+      this.formMe.id_medicine = null // Resetear selección
+    },
+    onSeleccionarInsumo (id) {
+      if (!id) return
+
+      const insumo = this.insumosActuales.find(i => i.value === id)
+      if (!insumo) return
+
+      // Verificar si ya existe (incluyendo tipo)
+      const yaExiste = this.consumosTemporales.some(item =>
+        item.id === id && item.tipo === this.tipoInsumoActual
+      )
+
+      if (yaExiste) {
+        this.alertErrorText = 'Este insumo ya fue agregado.'
+        this.alertCountDownError = 5
+        return
+      }
+
+      // Agregar con tipo incluido
+      this.consumosTemporales.push({
+        id,
+        tipo: this.tipoInsumoActual,
+        nombre: insumo.text,
+        cantidad: 1,
+        existencias: insumo.existencias_actuales,
+        precio_venta: insumo.precio_venta
+      })
+
+      // Limpiar selección
+      this.$nextTick(() => {
+        this.formMe.id_medicine = null
+      })
+    },
+    async onSave () {
+      if (this.consumosTemporales.length === 0) {
+        this.alertErrorText = 'Debe agregar al menos un insumo.'
+        this.alertCountDownError = 5
+        return
+      }
+
+      try {
+        for (const consumo of this.consumosTemporales) {
+          // Agregar validación de cantidad
+          if (consumo.cantidad <= 0 || consumo.cantidad > consumo.existencias) {
+            throw new Error(`Cantidad inválida para ${consumo.nombre}`)
+          }
+
+          if (consumo.tipo === '0') {
+            await this.onSaveMedicamento(consumo)
+          } else if (consumo.tipo === '1') {
+            await this.onSaveQuirurgico(consumo)
+          } else {
+            await this.onSaveComunes(consumo)
+          }
+        }
+        // Éxito
+        this.alertVariant = 'success'
+        this.alertText = 'Consumos registrados exitosamente!'
+        this.showAlert()
+        // Resetear y cerrar
+        this.consumosTemporales = []
+        this.$refs.vuetableConsumoInsumos.refresh()
+        this.$refs.vuetableConsumoQuirurgicos.refresh()
+        this.$refs.vuetableConsumoComunes.refresh()
+        this.$refs['modal-1-movimiento'].hide()
+      } catch (error) {
+        this.alertVariant = 'danger'
+        this.alertText = 'Error al guardar consumos'
+        this.showAlert()
+        console.error('Error:', error)
+      }
+    },
+    openModal2 () {
+      this.tipoInsumoActual = '0'
+      this.cargarInsumos('0')
+    },
+    eliminarDeLista (id) {
+      this.consumosTemporales = this.consumosTemporales.filter(item => item.id !== id)
+    },
+    mostrarModalConsumos (idCuenta) {
+      if ([9, 10].includes(this.currentUser.user_type)) {
+        this.showModal('modal-1-movimiento2')
+      } else {
+        this.showModal('modal-1-movimiento')
+      }
+      this.getConsumoMedicamentos(idCuenta)
+      this.obtenerIdCuenta(idCuenta)
+    },
+    mostrarVerServicio (id) {
+      if ([9, 10].includes(this.currentUser.user_type)) {
+        this.$refs['modal-ver-servicio2'].show()
+      } else {
+        this.$refs['modal-ver-servicio'].show()
+      }
+      this.getDataConsumos(id)
+      this.form.id_consumo = id
+    },
     hasPermission (blockedRoles = []) {
       return !blockedRoles.includes(this.currentUser.user_type)
     },
@@ -1012,6 +1390,22 @@ export default {
           this.form.state = 1
           break
         }
+        case 'ver-servicio2': {
+          this.$v.$reset()
+          this.$refs['modal-ver-servicio2'].hide()
+          this.form.id = 0
+          this.form.name = ''
+          this.form.state = 1
+          this.honorarios = []
+          this.pagination.currentPage = 1
+          this.pagination.total = 0
+          this.honorario = {
+            medico: null,
+            descripcion: '',
+            total: null
+          }
+          break
+        }
         case 'ver-honorarios': {
           this.$v.$reset()
           this.$refs['modal-ver-honorarios'].hide()
@@ -1043,6 +1437,17 @@ export default {
           this.formMe.cantidad = 0
           this.formMe.medicamento = null
           this.formMe.movimiento = 'SALIDAH'
+          this.form.selected_insumo = '0'
+          this.existencias_selected_med = null
+          break
+        }
+        case 'save2': {
+          this.$v.$reset()
+          this.$refs['modal-1-movimiento2'].hide()
+          this.formMe.id_cuenta = 0
+          this.formMe.cantidad = 0
+          this.formMe.medicamento = null
+          this.formMe.movimiento = 'SALIDAQ'
           this.form.selected_insumo = '0'
           this.existencias_selected_med = null
           break
@@ -1096,87 +1501,68 @@ export default {
       }
       return edad
     },
-    onSave () {
-      if (this.formMe.cantidad > 0) {
-        if (this.formMe.cantidad <= this.max_cant) {
-          if (this.form.selected_insumo === '0') {
-            this.onSaveMedicamento()
-          } else if (this.form.selected_insumo === '1') {
-            this.onSaveQuirurgico()
-          } else {
-            this.onSaveComunes()
-          }
-        } else {
-          this.alertErrorText = 'La cantidad de producto debe ser menor a la existencia actual del producto (' + this.max_cant + ').'
-          this.showAlertError()
+    async onSaveMedicamento  (consumo) {
+      try {
+        const payload = {
+          id_cuenta: this.idCuentaSeleccionada,
+          id_medicamento: consumo.id,
+          cantidad: consumo.cantidad,
+          precio_venta: consumo.precio_venta,
+          movimiento: 'SALIDAQ',
+          state: 1,
+          existencias_actuales: consumo.existencias
         }
-      } else {
-        this.alertErrorText = 'La cantidad de producto debe ser mayor a 0.'
-        this.showAlertError()
+        const currentUser = this.currentUser
+        await axios.post(apiUrl + '/detalle_consumo_medicamentos/create', {
+          form: payload,
+          currentUser
+        })
+      } catch (error) {
+        console.error('Error en onSaveMedicamento:', error)
+        throw error
       }
     },
-    onSaveMedicamento () {
-      const me = this
-      me.formMe.id_cuenta = me.idCuentaSeleccionada
-      const currentUser = this.currentUser
-      axios.post(apiUrl + '/detalle_consumo_medicamentos/create', {
-        form: me.formMe,
-        currentUser: currentUser
-      })
-        .then((response) => {
-          me.alertVariant = 'success'
-          me.showAlert()
-          me.alertText = 'Se ha creado el movimiento exitosamente'
-          me.$refs.vuetable.refresh()
-          me.closeModal('save')
+    async onSaveQuirurgico (consumo) {
+      try {
+        const payload = {
+          id_cuenta: this.idCuentaSeleccionada,
+          id_medicamento: consumo.id,
+          cantidad: consumo.cantidad,
+          precio_venta: consumo.precio_venta,
+          movimiento: 'SALIDAQ',
+          state: 1,
+          existencias_actuales: consumo.existencias
+        }
+        const currentUser = this.currentUser
+        await axios.post(apiUrl + '/detalle_consumo_quirugicos/create', {
+          form: payload,
+          currentUser
         })
-        .catch((error) => {
-          me.alertVariant = 'danger'
-          me.showAlertError()
-          console.error('Error!', error)
-        })
+      } catch (error) {
+        console.error('Error en onSaveQuirurgico:', error)
+        throw error
+      }
     },
-    onSaveQuirurgico () {
-      const me = this
-      me.formMe.id_cuenta = me.idCuentaSeleccionada
-      const currentUser = this.currentUser
-      axios.post(apiUrl + '/detalle_consumo_quirugicos/create', {
-        form: me.formMe,
-        currentUser: currentUser
-      })
-        .then((response) => {
-          me.alertVariant = 'success'
-          me.showAlert()
-          me.alertText = 'Se ha creado el movimiento exitosamente'
-          me.$refs.vuetable.refresh()
-          me.closeModal('save')
+    async onSaveComunes (consumo) {
+      try {
+        const payload = {
+          id_cuenta: this.idCuentaSeleccionada,
+          id_medicamento: consumo.id,
+          cantidad: consumo.cantidad,
+          precio_venta: consumo.precio_venta,
+          movimiento: 'SALIDAQ',
+          state: 1,
+          existencias_actuales: consumo.existencias
+        }
+        const currentUser = this.currentUser
+        await axios.post(apiUrl + '/detalle_consumo_comun/create', {
+          form: payload,
+          currentUser
         })
-        .catch((error) => {
-          me.alertVariant = 'danger'
-          me.showAlertError()
-          console.error('Error!', error)
-        })
-    },
-    onSaveComunes () {
-      const me = this
-      me.formMe.id_cuenta = me.idCuentaSeleccionada
-      const currentUser = this.currentUser
-      axios.post(apiUrl + '/detalle_consumo_comun/create', {
-        form: me.formMe,
-        currentUser: currentUser
-      })
-        .then((response) => {
-          me.alertVariant = 'success'
-          me.showAlert()
-          me.alertText = 'Se ha creado el movimiento exitosamente'
-          me.$refs.vuetable.refresh()
-          me.closeModal('save')
-        })
-        .catch((error) => {
-          me.alertVariant = 'danger'
-          me.showAlertError()
-          console.error('Error!', error)
-        })
+      } catch (error) {
+        console.error('Error en onSaveComunes:', error)
+        throw error
+      }
     },
     traslado (id) {
       this.$refs['modal-traslado'].show()
@@ -1262,11 +1648,6 @@ export default {
         me.showAlertError()
         me.alertErrorText = 'Por favor llene los campos solicitados'
       }
-    },
-    verServicio (id) {
-      this.$refs['modal-ver-servicio'].show()
-      this.getDataConsumos(id)
-      this.form.id_consumo = id
     },
     addhonorarios (id) {
       this.obtenerIdCuenta(id)// Obtener id_cuenta ANTES de mostrar el modal
@@ -1448,6 +1829,9 @@ export default {
     },
     onChangePageConsumo (page) {
       this.$refs.vuetableConsumos.changePage(page)
+      this.$refs.vuetableConsumoInsumos.changePage(page)
+      this.$refs.vuetableConsumoQuirurgicos.changePage(page)
+      this.$refs.vuetableConsumoComunes.changePage(page)
     },
     getDataConsumos (id) {
       this.form.id = id
@@ -1485,7 +1869,18 @@ export default {
         }
     },
     onPaginationDataHonorarios (paginationData) {
-      this.honorarios = paginationData.data
+      this.honorarios = paginationData.data.map(item => {
+        item.total = parseFloat(item.total).toFixed(2)
+        item.createdAt = moment(item.createdAt).format(`DD/MM/YYYY h:mm A`)
+        return {
+          id: item.id,
+          medico: item.medico.nombre,
+          descripcion: item.descripcion,
+          total: item.total,
+          createdAt: item.createdAt,
+          updated_by: item.updated_by
+        }
+      })
       this.pagination.total = paginationData.total
       this.pagination.currentPage = Math.floor((paginationData.from - 1) / this.pagination.perPage) + 1
     },
@@ -1541,11 +1936,6 @@ export default {
         console.error('Error al obtener los honorarios:', error)
       }
     },
-    onSearchMedicamentos (search, loading) {
-      if (search.length) {
-        this.searchingMedicamentos(search, loading)
-      }
-    },
     searchingMedicamentos (search, loading) {
       axios.get(apiUrl + '/medicamentos/list2')
         .then((response) => {
@@ -1556,11 +1946,6 @@ export default {
             precio_venta: medicamento.precio_venta
           }))
         })
-    },
-    onSearchQuirugicos (search, loading) {
-      if (search.length) {
-        this.searchingQuirurgico(search, loading)
-      }
     },
     searchingQuirurgico (search, loading) {
       axios.get(apiUrl + '/quirurgico/list'
@@ -1574,11 +1959,6 @@ export default {
         console.dir(response)
       })
     },
-    onSearchMaterialComun (search, loading) {
-      if (search.length) {
-        this.searchingComunes(search, loading)
-      }
-    },
     searchingComunes (search, loading) {
       axios.get(apiUrl + '/comun/list2'
       ).then((response) => {
@@ -1589,16 +1969,6 @@ export default {
           precio_venta: medicamento.precio_venta
         }))
       })
-    },
-    onSelectChange () {
-      if (this.form.selected_insumo === '0') {
-        this.searchingMedicamentos()
-      } else if (this.form.selected_insumo === '1') {
-        this.searchingQuirurgico()
-      } else {
-        this.searchingComunes()
-      }
-      this.formMe.id_medicine = null
     },
     onChangeMedicamento () {
       let medicine_ = this.medicamentos.find(med => med.value === this.formMe.id_medicine)
@@ -1615,7 +1985,6 @@ export default {
           this.apiBaseConsumoMedicamento = apiUrl + `/detalle_consumo_medicamentos/list/${response.data.id}`
           this.apiBaseConsumoQuirurgico = apiUrl + `/detalle_consumo_quirugicos/list/${response.data.id}`
           this.apiBaseConsumoComun = apiUrl + `/detalle_consumo_comun/list/${response.data.id}`
-        // this.$refs['modal-ver-consumos'].show()
         } else {
           console.error('No se encontró ninguna cuenta para el expediente:', id)
           this.alertErrorText = 'No se encontró ninguna cuenta para este paciente'
@@ -1930,208 +2299,12 @@ export default {
         doc.text('_______________________________________', 110, nextTableStartY3, { align: 'center' })
         doc.text('Nombre y Firma del Cajero', 110, nextTableStartY3 + 5, { align: 'center' })
 
-        doc.save(`cuenta_Parcial.PDF`)
+        doc.save(`cuenta_Parcial_${this.nombrePaciente}.PDF`)
       } catch (error) {
         console.error('Error al generar el reporte:', error)
         this.$alert('Ocurrió un error al generar el reporte. Por favor, intente de nuevo.', 'Error')
       }
     },
-    /* async generarPDF_CuentaParcial () {
-      const data = this.dataPDFsumario
-      const FechaIngreso = this.fechaIngreso
-      const fechaActual = new Date()
-      const fechaFormateada = fechaActual.toLocaleDateString('es-ES')
-      const opcionesHora = { hour: '2-digit', minute: '2-digit', hour12: true }
-      const horaFormateada = fechaActual.toLocaleTimeString('es-ES', opcionesHora)
-
-      let mensajeDias
-
-      if (!FechaIngreso) {
-        mensajeDias = 'NO ASIGNADA'
-      } else {
-        const fechaIngreso = new Date(FechaIngreso)
-        const diferenciaMs = fechaActual - fechaIngreso
-        const diasDiferencia = Math.floor(diferenciaMs / (1000 * 60 * 60 * 24))
-        mensajeDias = diasDiferencia
-      }
-
-      let hospitalizacion
-
-      if (mensajeDias >= 2) {
-        hospitalizacion = data.costo2 * mensajeDias
-      } else {
-        hospitalizacion = data.costo1
-      }
-
-      try {
-        const ConsumoTotal = data.consumos.reduce((acc, item) => acc + parseFloat(item.subtotal), 0)
-        const ConsumoComunTotal = data.consumosComunes.reduce((acc, item) => acc + parseFloat(item.total), 0)
-        const ConsumoMedicamentosTotal = data.consumosMedicamentos.reduce((acc, item) => acc + parseFloat(item.total), 0)
-        const ConsumoQuirurgicosTotal = data.consumosQuirurgicos.reduce((acc, item) => acc + parseFloat(item.total), 0)
-        const ExamenesTotal = data.examenes.reduce((acc, item) => acc + item.total, 0)
-        const ServicioSalaOperacionesTotal = data.salaOperaciones.reduce((acc, item) => acc + parseFloat(item.total), 0)
-        const TotalHonorarios = data.honorarios.reduce((acc, item) => acc + parseFloat(item.total), 0)
-        const medicosOrdenados = data.honorarios.sort((a, b) => b.total - a.total)
-
-        const TotalGeneral =
-          ConsumoTotal +
-          ConsumoComunTotal +
-          ConsumoMedicamentosTotal +
-          ConsumoQuirurgicosTotal +
-          ExamenesTotal +
-          ServicioSalaOperacionesTotal +
-          hospitalizacion
-
-        const TotalGeneral2 =
-          ConsumoTotal +
-          ConsumoComunTotal +
-          ConsumoMedicamentosTotal +
-          ConsumoQuirurgicosTotal +
-          ServicioSalaOperacionesTotal +
-          hospitalizacion
-
-        const TotalApagar = TotalGeneral2 + TotalHonorarios + ExamenesTotal
-
-        const workbook = new ExcelJS.Workbook()
-        const sheet = workbook.addWorksheet('Resumen')
-
-        // Título
-        sheet.mergeCells('A1:F1')
-        sheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'
-        sheet.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' }
-
-        sheet.mergeCells('A2:F2')
-        sheet.getCell('A2').value = 'CUENTA PARCIAL'
-        sheet.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle' }
-
-        // Información de paciente
-        sheet.getCell('A3').value = 'NOMBRE DEL PACIENTE:'
-        sheet.getCell('B3').value = `${this.nombrePaciente}`
-        sheet.getCell('A4').value = 'CUARTO NO.:'
-        sheet.getCell('B4').value = `${data.numerohabitacion}`
-        sheet.getCell('A5').value = 'TIPO DE SERVICIO:'
-        sheet.getCell('B5').value = ''
-        sheet.getCell('A6').value = 'D/ESTANCIA:'
-        sheet.getCell('B6').value = `${mensajeDias}`
-        sheet.getCell('A7').value = 'MD TRATANTE:'
-        sheet.getCell('B7').value = `${data.nombremedico}`
-
-        // Tabla de consumos
-        sheet.getCell('A9').value = 'CONSUMOS'
-        sheet.getCell('A10').value = 'HOSPITALIZACION'
-        sheet.getCell('B10').value = `${hospitalizacion.toFixed(2)}`
-        sheet.getCell('A11').value = 'SALA DE OPERACIONES'
-        sheet.getCell('B11').value = `Q${ServicioSalaOperacionesTotal.toFixed(2)}`
-        sheet.getCell('A12').value = 'CONSUMO MEDICAMENTOS'
-        sheet.getCell('B12').value = `Q${ConsumoMedicamentosTotal.toFixed(2)}`
-        sheet.getCell('A13').value = 'MATERIAL MEDICO QUIRÚRGICO'
-        sheet.getCell('B13').value = `Q${ConsumoQuirurgicosTotal.toFixed(2)}`
-        sheet.getCell('A14').value = 'ANESTESICOS'
-        sheet.getCell('B14').value = ''
-        sheet.getCell('A15').value = 'MATERIAL COMÚN'
-        sheet.getCell('B15').value = `Q${ConsumoComunTotal.toFixed(2)}`
-        sheet.getCell('A16').value = 'SERVICIOS'
-        sheet.getCell('B16').value = `Q${ConsumoTotal.toFixed(2)}`
-        sheet.getCell('A17').value = 'RECUPERACION'
-        sheet.getCell('B17').value = ''
-        sheet.getCell('A18').value = 'INTENSIVO'
-        sheet.getCell('B18').value = 'Q 0.00'
-        sheet.getCell('A19').value = 'EMERGENCIAS Medico Interno'
-        sheet.getCell('B19').value = ''
-        sheet.getCell('A20').value = 'OTROS'
-        sheet.getCell('B20').value = ''
-        sheet.getCell('A21').value = 'TOTAL HOSPITALIZACION ='
-        sheet.getCell('A21').alignment = { horizontal: 'right', vertical: 'middle' }
-        sheet.getCell('B21').value = `Q${TotalGeneral2.toFixed(2)}`
-        sheet.getCell('A22').value = 'TOTAL LAB. BIOMEDICO E.O. S.A. ='
-        sheet.getCell('A22').alignment = { horizontal: 'right', vertical: 'middle' }
-        sheet.getCell('B22').value = `Q${ExamenesTotal.toFixed(2)}`
-        sheet.getCell('A23').value = 'TOTAL MENOS DESCUENTO ='
-        sheet.getCell('A23').alignment = { horizontal: 'right', vertical: 'middle' }
-        sheet.getCell('B23').value = `Q${TotalGeneral.toFixed(2)}`
-
-        // Fecha y hora debajo de la tabla
-        sheet.getCell('A25').value = `FECHA: ${fechaFormateada} ${horaFormateada}`
-
-        // Honorarios médicos
-        sheet.mergeCells('A27:D27')
-        sheet.getCell('A27').value = 'HONORARIOS MEDICOS Y OTROS SERVICIOS'
-        sheet.getCell('A27').alignment = { horizontal: 'center', vertical: 'middle' }
-        sheet.getCell('A27').font = { bold: true }
-
-        let row = 28
-        sheet.getCell(`A${row}`).value = '#'
-        sheet.getCell(`B${row}`).value = 'MEDICO'
-        sheet.getCell(`C${row}`).value = 'DESCRIPCION'
-        sheet.getCell(`D${row}`).value = 'VALOR'
-
-        medicosOrdenados.forEach((medico, index) => {
-          row++
-          sheet.getCell(`A${row}`).value = index + 1
-          sheet.getCell(`B${row}`).value = medico.medico.nombre
-          sheet.getCell(`C${row}`).value = medico.descripcion
-          sheet.getCell(`D${row}`).value = `Q${(Number(medico.total) || 0).toFixed(2)}`
-        })
-
-        // Liquidación
-        row += 2
-        sheet.mergeCells(`A${row}:D${row}`)
-        sheet.getCell(`A${row}`).value = 'LIQUIDACION'
-        sheet.getCell(`A${row}`).alignment = { horizontal: 'center', vertical: 'middle' }
-        sheet.getCell(`A${row}`).font = { bold: true }
-
-        row++
-        sheet.getCell(`A${row}`).value = 'TOTAL HOSPITALIZACION ='
-        sheet.getCell(`B${row}`).value = `Q${(Number(TotalGeneral2) || 0).toFixed(2)}`
-        sheet.getCell(`A${row}`).alignment = { horizontal: 'right' }
-        sheet.getCell(`B${row}`).alignment = { horizontal: 'left' }
-
-        row++
-        sheet.getCell(`A${row}`).value = 'TOTAL LAB. BIOMEDICO E.O. S.A. ='
-        sheet.getCell(`B${row}`).value = `Q${(Number(ExamenesTotal) || 0).toFixed(2)}`
-        sheet.getCell(`A${row}`).alignment = { horizontal: 'right' }
-        sheet.getCell(`B${row}`).alignment = { horizontal: 'left' }
-
-        row++
-        sheet.getCell(`A${row}`).value = 'TOTAL HONORARIOS MEDICOS Y OTROS SERVICIOS ='
-        sheet.getCell(`B${row}`).value = `Q${(Number(TotalHonorarios) || 0).toFixed(2)}`
-        sheet.getCell(`A${row}`).alignment = { horizontal: 'right' }
-        sheet.getCell(`B${row}`).alignment = { horizontal: 'left' }
-
-        row++
-        sheet.getCell(`A${row}`).value = 'TOTAL A PAGAR ='
-        sheet.getCell(`B${row}`).value = `Q${(Number(TotalApagar) || 0).toFixed(2)}`
-        sheet.getCell(`A${row}`).alignment = { horizontal: 'right' }
-        sheet.getCell(`B${row}`).alignment = { horizontal: 'left' }
-        sheet.getCell(`A${row}`).font = { bold: true }
-        sheet.getCell(`B${row}`).font = { bold: true }
-
-        // Firma
-        row++
-        sheet.mergeCells(`A${row}:D${row}`)
-        sheet.getCell(`A${row}`).value = '_______________________________________'
-        sheet.getCell(`A${row}`).alignment = { horizontal: 'center', vertical: 'middle' }
-
-        row++
-        sheet.mergeCells(`A${row}:D${row}`)
-        sheet.getCell(`A${row}`).value = 'Nombre y Firma del Cajero'
-        sheet.getCell(`A${row}`).alignment = { horizontal: 'center', vertical: 'middle' }
-
-        // Guardar el archivo Excel
-        const buffer = await workbook.xlsx.writeBuffer()
-        const blob = new Blob([buffer], { type: 'application/octet-stream' })
-        const url = window.URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = 'SUMARIO.xlsx'
-        a.click()
-        window.URL.revokeObjectURL(url)
-      } catch (error) {
-        console.error('Error al generar el reporte:', error)
-        this.$alert('Ocurrió un error al generar el reporte. Por favor, intente de nuevo.', 'Error')
-      }
-    }, */
-
     formatearMonto (monto) {
       const montoNumerico = parseFloat(monto)
       if (isNaN(montoNumerico)) {

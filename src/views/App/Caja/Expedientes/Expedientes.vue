@@ -554,6 +554,7 @@
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="success"
+                    :disabled="!hasPermission([5, 7])"
                   >Generar Cuenta Total de paciente</b-button>
                 </div>
               </template>
@@ -1461,12 +1462,12 @@ ANTE MI
       // -----------------------------------------------
       escribirTexto('En caso de emergencia notificar a:', 12, posY -= 6, 10, 'bold')
       escribirTexto(paciente.nombre_encargado, 12, posY += 8)
-      escribirTexto('Parentesco:', 70, posY, 10, 'bold')
-      escribirTexto(paciente.parentesco_encargado, 92, posY)
-      escribirTexto('Direccion:', 118, posY, 10, 'bold')
-      escribirTexto(paciente.direccion_encargado, 137, posY)
-      escribirTexto('Tel:', 175, posY, 10, 'bold')
-      escribirTexto(paciente.contacto_encargado, 185, posY)
+      escribirTexto('Parentesco:', 87, posY -= 8, 10, 'bold')
+      escribirTexto(paciente.parentesco_encargado, 87, posY += 8)
+      escribirTexto('Direccion:', 115, posY -= 8, 10, 'bold')
+      escribirTexto(paciente.direccion_encargado, 115, posY += 8)
+      escribirTexto('Tel:', 190, posY -= 8, 10, 'bold')
+      escribirTexto(paciente.contacto_encargado, 190, posY += 8)
 
       posY += 5
       dibujarLinea(10, posY, 210, posY)
@@ -1659,7 +1660,7 @@ ANTE MI
         sheet.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' }
 
         sheet.mergeCells('A2:F2')
-        sheet.getCell('A2').value = 'CUENTA PARCIAL'
+        sheet.getCell('A2').value = 'CUENTA TOTAL DETALLADA'
         sheet.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle' }
 
         // Información de paciente
@@ -1811,7 +1812,7 @@ ANTE MI
         const url = window.URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
-        a.download = 'CuentaTotal.xlsx'
+        a.download = `Cuenta_Total_Detalla_${this.nombrePaciente}.xlsx`
         a.click()
         window.URL.revokeObjectURL(url)
       } catch (error) {
