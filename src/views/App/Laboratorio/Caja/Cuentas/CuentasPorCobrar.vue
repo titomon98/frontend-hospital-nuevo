@@ -364,6 +364,7 @@ export default {
       totPagado: 0,
       assurances: [],
       selectAssurance: null,
+      discountAmount: 0,
       form: {
         id: 0,
         nombres: '',
@@ -556,7 +557,6 @@ export default {
       this.selectedAccount = data.id
       this.totalPayment = data.pendiente_de_pago
       this.totPagado = data.total_pagado
-      console.log(this.cuentas)
       this.onLoadAssurances(data.id_expediente)
       this.getDetail(data.id)
       // this.getCuentas(data.id)
@@ -631,7 +631,6 @@ export default {
               })
               .then((res) => {
                 this.selectedHab = null
-                console.log(this.selectedHab)
                 this.getHabitaciones(0).then(me.$refs.selectHab.refresh())
               })
           }
@@ -644,13 +643,11 @@ export default {
         })
     },
     onLoadAssurances (data) {
-      console.log(data)
       axios.get(apiUrl + '/seguros/getByExp', {
         params: { id_expediente: data }
       })
         .then((resp) => {
           this.assurances = resp.data
-          console.log(resp)
         })
     },
     requestDiscount () {
@@ -775,7 +772,6 @@ export default {
         }
       }).then((response) => {
         this.habitaciones = response.data
-        console.log(response.data)
       })
     },
     getCuentas (num) {
@@ -785,7 +781,6 @@ export default {
         }
       }).then((response) => {
         this.cuentas = response.data
-        console.log(response.data)
       })
     },
     inputPaymentType (inptPay) {

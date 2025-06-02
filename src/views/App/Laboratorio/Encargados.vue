@@ -638,12 +638,10 @@ export default {
           value: tipo.id,
           text: tipo.tipo
         }))
-        loading(false)
       })
     },
     onSearchType (search, loading) {
       if (search.length) {
-        loading(true)
         this.fetchTypes(search, loading)
       }
     }
