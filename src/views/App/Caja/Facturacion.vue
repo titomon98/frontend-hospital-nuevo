@@ -367,6 +367,11 @@ export default {
   data () {
     return {
       emptyImage: 1,
+      errorImage: null,
+      referenciaFact: null,
+      serieFact: null,
+      numeroFact: null,
+      nitFact: null,
       base64Images: [],
       images: [],
       HasFact: 0,
@@ -593,11 +598,9 @@ export default {
         if (elementFound.imagen !== ' ') {
           this.emptyImage = 0
         }
-        console.log(this.emptyImage)
       } else {
         this.HasFact = 0
       }
-      console.log(data)
       this.form.name = data.nombres
       this.form.apellidos = data.apellidos
       this.form.state = data.estado
@@ -675,7 +678,6 @@ export default {
               })
               .then((res) => {
                 this.selectedHab = null
-                console.log(this.selectedHab)
                 this.getHabitaciones(0).then(me.$refs.selectHab.refresh())
               })
           }
@@ -688,13 +690,11 @@ export default {
         })
     },
     onLoadAssurances (data) {
-      console.log(data)
       axios.get(apiUrl + '/seguros/getByExp', {
         params: { id_expediente: data }
       })
         .then((resp) => {
           this.assurances = resp.data
-          console.log(resp)
         })
     },
     createFact () {
@@ -806,7 +806,6 @@ export default {
       axios.get(apiUrl + '/facturas/getList')
         .then(res => {
           this.factsList = res.data
-          console.log(res)
         })
     },
     downloadBase64Pdf (base64WithHeader, filename = 'archivo.pdf') {
@@ -866,7 +865,6 @@ export default {
         }
       }).then((response) => {
         this.habitaciones = response.data
-        console.log(response.data)
       })
     },
     getCuentas (num) {
@@ -876,7 +874,6 @@ export default {
         }
       }).then((response) => {
         this.cuentas = response.data
-        console.log(response.data)
       })
     },
     inputPaymentType (inptPay) {

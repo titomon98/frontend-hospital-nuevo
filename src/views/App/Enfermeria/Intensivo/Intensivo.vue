@@ -1775,7 +1775,6 @@ export default {
     },
     onSearchServicios (search, loading) {
       if (search.length) {
-        loading(true)
         this.searchingServicios(search, loading)
       }
     },
@@ -1788,7 +1787,6 @@ export default {
         }
       ).then((response) => {
         this.servicios = response.data
-        loading(false)
       })
     },
     makeQueryParamsConsumo (sortOrder, currentPage, perPage) {
@@ -1833,12 +1831,10 @@ export default {
         }
       ).then((response) => {
         this.medicos = response.data
-        loading(false)
       })
     },
     onSearchMedicos (search, loading) {
       if (search.length) {
-        loading(true)
         this.searchingMedicos(search, loading)
       }
     },
@@ -1878,7 +1874,6 @@ export default {
       this.getDataHonorarios(this.currentExpedienteId)
     },
     updateTotal (item) {
-      console.log('Total actualizado:', item)
       const id = item.id
       const me = item
       axios.put(apiUrl + `/detalle_honorarios/${id}`, {
@@ -1935,7 +1930,6 @@ export default {
             existencias_actuales: medicamento.existencia_actual,
             precio_venta: medicamento.precio_venta
           }))
-          loading(false)
         })
     },
     searchingQuirurgico (search, loading) {
@@ -1958,7 +1952,6 @@ export default {
           existencias_actuales: medicamento.existencia_actual,
           precio_venta: medicamento.precio_venta
         }))
-        loading(false)
       })
     },
     onChangeMedicamento () {

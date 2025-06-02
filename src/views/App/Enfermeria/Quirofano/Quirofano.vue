@@ -1593,8 +1593,6 @@ export default {
         this.formExamen.por_pagar = newValue.precio_normal
         this.formExamen.id_examenes_almacenados = newValue.id
         this.formExamen.total = newValue.precio_normal
-      } else {
-        console.log('ERROR AL CARGAR EL TOTAL A PAGAR EN LA FUNCION WATCH')
       }
     }
   },
@@ -2306,7 +2304,6 @@ export default {
     },
     onSearchServicios (search, loading) {
       if (search.length) {
-        loading(true)
         this.searchingServicios(search, loading)
       }
     },
@@ -2319,7 +2316,6 @@ export default {
         }
       ).then((response) => {
         this.servicios = response.data
-        loading(false)
       })
     },
     searchingMedicos (search, loading) {
@@ -2331,12 +2327,10 @@ export default {
         }
       ).then((response) => {
         this.medicos = response.data
-        loading(false)
       })
     },
     onSearchMedicos (search, loading) {
       if (search.length) {
-        loading(true)
         this.searchingMedicos(search, loading)
       }
     },
@@ -2409,7 +2403,6 @@ export default {
       this.getDataHonorarios(this.currentExpedienteId)
     },
     updateTotal (item) {
-      console.log('Total actualizado:', item)
       const id = item.id
       const me = item
       axios.put(apiUrl + `/detalle_honorarios/${id}`, {
@@ -2457,6 +2450,7 @@ export default {
         console.error('Error al obtener los honorarios:', error)
       }
     },
+
     searchingMedicamentos (search, loading) {
       axios.get(apiUrl + '/medicamentos/list2')
         .then((response) => {
@@ -2466,7 +2460,6 @@ export default {
             existencias_actuales: medicamento.existencia_actual,
             precio_venta: medicamento.precio_venta
           }))
-          loading(false)
         })
     },
     searchingQuirurgico (search, loading) {
@@ -2697,7 +2690,6 @@ export default {
     },
     onSearch_id_examenes_almacenados (search, loading) {
       if (search.length) {
-        loading(true)
         this.searching_id_examenes_almacenados(search, loading)
       }
     },
@@ -2710,12 +2702,10 @@ export default {
         }
       ).then((response) => {
         this.examenes_almacenados = response.data
-        loading(false)
       })
     },
     onSearchEncargado (search, loading) {
       if (search.length) {
-        loading(true)
         this.searchingEncargado(search, loading)
       }
     },
@@ -2728,7 +2718,6 @@ export default {
         }
       ).then((response) => {
         this.encargados = response.data
-        loading(false)
       })
     },
 

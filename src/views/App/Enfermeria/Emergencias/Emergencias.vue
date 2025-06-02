@@ -1303,7 +1303,6 @@ export default {
       this.form.id_consumo = id
     },
     hasPermission (blockedRoles = []) {
-      console.log(this.currentUser)
       return !blockedRoles.includes(this.currentUser.user_type)
     },
     openModal (modal, action) {
@@ -1771,7 +1770,6 @@ export default {
     },
     onSearchServicios (search, loading) {
       if (search.length) {
-        loading(true)
         this.searchingServicios(search, loading)
       }
     },
@@ -1784,7 +1782,6 @@ export default {
         }
       ).then((response) => {
         this.servicios = response.data
-        loading(false)
       })
     },
     makeQueryParamsConsumo (sortOrder, currentPage, perPage) {
@@ -1865,12 +1862,10 @@ export default {
         }
       ).then((response) => {
         this.medicos = response.data
-        loading(false)
       })
     },
     onSearchMedicos (search, loading) {
       if (search.length) {
-        loading(true)
         this.searchingMedicos(search, loading)
       }
     },
@@ -1910,7 +1905,6 @@ export default {
       this.getDataHonorarios(this.currentExpedienteId)
     },
     updateTotal (item) {
-      console.log('Total actualizado:', item)
       const id = item.id
       const me = item
       axios.put(apiUrl + `/detalle_honorarios/${id}`, {
@@ -1967,7 +1961,6 @@ export default {
             existencias_actuales: medicamento.existencia_actual,
             precio_venta: medicamento.precio_venta
           }))
-          loading(false)
         })
     },
     searchingQuirurgico (search, loading) {
@@ -1990,7 +1983,6 @@ export default {
           existencias_actuales: medicamento.existencia_actual,
           precio_venta: medicamento.precio_venta
         }))
-        loading(false)
       })
     },
     onChangeMedicamento () {
@@ -2031,7 +2023,6 @@ export default {
         }
       }).then((response) => {
         this.habitaciones = response.data
-        console.log(response.data)
       })
     },
     onState () {
@@ -2058,7 +2049,6 @@ export default {
               })
               .then((res) => {
                 this.selectedHab = null
-                console.log(this.selectedHab)
                 this.getHabitaciones(0).then(me.$refs.selectHab.refresh())
               })
           }

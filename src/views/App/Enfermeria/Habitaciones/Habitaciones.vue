@@ -10,6 +10,93 @@
     >
       <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
+    <b-modal id="modal-2-habitaciones" ref="modal-2-habitaciones" title="Editar habitación">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <b-form @submit="$event.preventDefault()">
+        <b-form-group label="Número:">
+          <b-form-input
+            v-model.trim="$v.form.numero.$model"
+            :state="!$v.form.numero.$error"
+            placeholder="Ingresar número de la habitación"
+          ></b-form-input>
+          <div v-if="$v.form.numero.required.$invalid" class="invalid-feedback">
+            Debe ingresar el número de la habitación
+          </div>
+        </b-form-group>
+        <b-form-group label="Costo ambulatorio de habitación:">
+          <b-form-input
+            v-model.trim="$v.form.costo_ambulatorio.$model"
+            :state="!$v.form.costo_ambulatorio.$error"
+            placeholder="Ingresar costo ambulatorio de la habitación"
+            type="number"
+          ></b-form-input>
+          <div v-if="$v.form.costo_ambulatorio.required.$invalid" class="invalid-feedback">
+            Debe ingresar el costo ambulatorio de la habitación
+          </div>
+        </b-form-group>
+        <b-form-group label="Costo diario de habitación:">
+          <b-form-input
+            v-model.trim="$v.form.costo_diario.$model"
+            :state="!$v.form.costo_diario.$error"
+            placeholder="Ingresar costo diario de la habitación"
+            type="number"
+          ></b-form-input>
+          <div v-if="$v.form.costo_diario.required.$invalid" class="invalid-feedback">
+            Debe ingresar el costo diario de la habitación
+          </div>
+        </b-form-group>
+        <b-form-group label="Costo diario de habitación:">
+          <b-form-input
+            v-model.trim="$v.form.costo_diario.$model"
+            :state="!$v.form.costo_diario.$error"
+            placeholder="Ingresar costo diario de la habitación"
+            type="number"
+          ></b-form-input>
+          <div v-if="$v.form.costo_diario.required.$invalid" class="invalid-feedback">
+            Debe ingresar el costo diario de la habitación
+          </div>
+        </b-form-group>
+        <b-form-group label="Costo para estudio de sueño de habitación:">
+          <b-form-input
+            v-model.trim="$v.form.costo_estudio_de_sueno.$model"
+            :state="!$v.form.costo_estudio_de_sueno.$error"
+            placeholder="Ingresar costo para estudio de sueño de la habitación"
+            type="number"
+          ></b-form-input>
+          <div v-if="$v.form.costo_estudio_de_sueno.required.$invalid" class="invalid-feedback">
+            Debe ingresar el costo para estudio de sueño de la habitación
+          </div>
+        </b-form-group>
+        <b-form-group label="Costo para quimioterapia de habitación:">
+          <b-form-input
+            v-model.trim="$v.form.costo_quimioterapia.$model"
+            :state="!$v.form.costo_quimioterapia.$error"
+            placeholder="Ingresar costo para quimioterapia de la habitación"
+            type="number"
+          ></b-form-input>
+          <div v-if="$v.form.costo_quimioterapia.required.$invalid" class="invalid-feedback">
+            Debe ingresar el costo para quimioterapia de la habitación
+          </div>
+        </b-form-group>
+
+      </b-form>
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click="onValidate('update')"
+          >Guardar</b-button
+        >
+        <b-button variant="danger" @click="closeModal('update')"
+          >Cancelar</b-button
+        >
+      </template>
+    </b-modal>
     <b-modal id="modal-3-habitaciones" ref="modal-3-habitaciones" title="Desactivar habitaciones">
       <b-alert
         :show="alertCountDownError"
@@ -80,7 +167,6 @@
               </div>
             </template>
             <template v-slot:headerAction>
-            <b-button variant="primary"  v-b-modal.modal-1-habitaciones>AGREGAR NUEVO</b-button>
           </template>
           <template v-slot:body>
             <datatable-heading
@@ -208,6 +294,11 @@ export default {
       form: {
         id: 0,
         name: '',
+        numero: 0,
+        costo_ambulatorio: 0,
+        costo_diario: 0,
+        costo_estudio_de_sueno: 0,
+        costo_quimioterapia: 0,
         state: 1
       },
       alertSecs: 5,
@@ -249,8 +340,8 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
-          name: 'costo_estudio_de_sueño',
-          sortField: 'costo_estudio_de_sueño',
+          name: 'costo_estudio_de_sueno',
+          sortField: 'costo_estudio_de_sueno',
           title: 'Precio estudio de sueño',
           dataClass: 'list-item-heading'
         },
@@ -268,7 +359,11 @@ export default {
   validations () {
     return {
       form: {
-        name: { required }
+        numero: { required },
+        costo_ambulatorio: { required },
+        costo_diario: { required },
+        costo_estudio_de_sueno: { required },
+        costo_quimioterapia: { required }
       }
     }
   },
@@ -321,7 +416,11 @@ export default {
       }
     },
     setData (data) {
-      this.form.name = data.nombre
+      this.form.numero = data.numero
+      this.form.costo_ambulatorio = data.costo_ambulatorio
+      this.form.costo_diario = data.costo_diario
+      this.form.costo_estudio_de_sueno = data.costo_estudio_de_sueno
+      this.form.costo_quimioterapia = data.costo_quimioterapia
       this.form.state = data.estado
       this.form.id = data.id
     },

@@ -1773,6 +1773,14 @@ export default {
       this.items = paginationData.data
       this.$refs.paginationReceta.setPaginationData(paginationData)
     },
+    onPaginationDataConsumoInsumo (paginationData) {
+      this.fromCI = paginationData.from
+      this.toCI = paginationData.to
+      this.totalCI = paginationData.total
+      this.lastPageCI = paginationData.last_page
+      this.items = paginationData.data
+      this.$refs.paginationReceta.setPaginationData(paginationData)
+    },
     onChangePageReceta (page) {
       this.$refs.vuetableRecetas.changePage(page)
     },
@@ -1881,7 +1889,6 @@ export default {
       this.getDataHonorarios(this.currentExpedienteId)
     },
     updateTotal (item) {
-      console.log('Total actualizado:', item)
       const id = item.id
       const me = item
       axios.put(apiUrl + `/detalle_honorarios/${id}`, {

@@ -448,6 +448,11 @@ export default {
   },
   data () {
     return {
+      varTipo: '',
+      varPrecioSobrecargo: 0,
+      varPrecioNormal: 0,
+      varNombreExamen: '',
+
       varNombreCampo: '',
       varValorMaximo: 0,
       varValorMinimo: 0,
