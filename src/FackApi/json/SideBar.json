@@ -297,7 +297,7 @@
         "class_name": "",
         "is_icon_class": true,
         "icon": "ri-user-add-fill",
-        "rol": [1, 3, 9, 10, 11]
+        "rol": [1]
       },
       {
         "title": "Egresos",
