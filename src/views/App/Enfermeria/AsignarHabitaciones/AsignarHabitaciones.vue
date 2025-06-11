@@ -545,7 +545,7 @@
                         class="mb-2 mt-2 button-spacing"
                         size="sm"
                         variant="dark"
-                        :disabled="!hasPermission([9, 5])"
+                        :disabled="!hasPermission([9, 5, 10])"
                     >
                         Editar
                     </b-button>
@@ -557,7 +557,7 @@
                         class="mb-2 mt-2 button-spacing"
                         size="sm"
                         variant="success"
-                        :disabled="!hasPermission([9, 5])"
+                        :disabled="!hasPermission([5])"
                     >
                         Asignar habitación
                     </b-button>
@@ -569,7 +569,7 @@
                         class="mb-2 mt-2 button-spacing"
                         size="sm"
                         variant="dark"
-                        :disabled="!hasPermission([9, 5])"
+                        :disabled="!hasPermission([5])"
                     >
                         Asignar médico
                     </b-button>
