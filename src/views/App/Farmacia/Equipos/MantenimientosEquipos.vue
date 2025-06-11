@@ -353,7 +353,7 @@ export default {
         this.equipos = response.data
         loading(false)
       })
-    },
+    }
   }
 }
 </script>
