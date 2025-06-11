@@ -10,7 +10,7 @@
     >
       <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
-    <b-modal id="modal-1-bank" ref="modal-1-bank" title="Agregar banco">
+    <b-modal id="modal-1-mantenimiento" ref="modal-1-mantenimiento" title="Agregar mantenimiento">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -21,14 +21,60 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <b-form @submit="$event.preventDefault()">
-        <b-form-group label="Nombre:">
+        <b-form-group label="Fecha de mantenimiento:">
           <b-form-input
-            v-model.trim="$v.form.name.$model"
-            :state="!$v.form.name.$error"
-            placeholder="Ingresar nombre del banco"
+            v-model.trim="$v.form.fecha.$model"
+            :state="!$v.form.fecha.$error"
+            placeholder="Ingresar fecha de mantenimiento"
+            type="date"
           ></b-form-input>
-          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
-            Debe ingresar el nombre
+          <div v-if="$v.form.fecha.required.$invalid" class="invalid-feedback">
+            Debe ingresar la fecha
+          </div>
+        </b-form-group>
+        <b-form-group label="Costo de mantenimiento:">
+          <b-form-input
+            v-model.trim="$v.form.costo.$model"
+            :state="!$v.form.costo.$error"
+            placeholder="Ingresar costo de mantenimiento"
+          ></b-form-input>
+          <div v-if="$v.form.costo.required.$invalid" class="invalid-feedback">
+            Debe ingresar el costo
+          </div>
+        </b-form-group>
+        <b-form-group label="Siguiente mantenimiento:">
+          <b-form-input
+            v-model.trim="$v.form.siguiente.$model"
+            :state="!$v.form.siguiente.$error"
+            placeholder="Ingresar siguiente mantenimiento"
+            type="date"
+          ></b-form-input>
+          <div v-if="$v.form.siguiente.required.$invalid" class="invalid-feedback">
+            Debe ingresar el siguiente mantenimiento sugerido
+          </div>
+        </b-form-group>
+        <b-form-group label="Equipo al que se aplicará mantenimiento:">
+          <v-select
+            name="equipo"
+            v-model="$v.form.equipo.$model"
+            :state="!$v.form.equipo.$error"
+            :options="equipos"
+            :filterable="false"
+            placeholder="Seleccione el equipo"
+            @search="onSearchEquipo"
+          >
+            <template v-slot:spinner="{ loading }">
+              <div v-show="loading">Cargando...</div>
+            </template>
+            <template v-slot:option="option">
+              {{ 'Nombre: '+ option.nombre }}
+            </template>
+            <template slot="selected-option" slot-scope="option">
+              {{ 'Nombre: '+ option.nombre }}
+            </template>
+          </v-select>
+          <div v-if="$v.form.equipo.$error" class="invalid-feedback-vselect">
+            Debe seleccionar el equipo
           </div>
         </b-form-group>
       </b-form>
@@ -37,89 +83,6 @@
           >Guardar</b-button
         >
         <b-button variant="danger" @click="closeModal('save')"
-          >Cancelar</b-button
-        >
-      </template>
-    </b-modal>
-    <b-modal id="modal-2-bank" ref="modal-2-bank" title="Editar banco">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
-      >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
-      </b-alert>
-      <b-form @submit="$event.preventDefault()">
-        <b-form-group label="Nombre:">
-          <b-form-input
-            v-model.trim="$v.form.name.$model"
-            :state="!$v.form.name.$error"
-            placeholder="Ingresar nombre de banco"
-          ></b-form-input>
-          <div v-if="$v.form.name.required.$invalid" class="invalid-feedback">
-            Debe ingresar el nombre
-          </div>
-        </b-form-group>
-      </b-form>
-      <template #modal-footer="{}">
-        <b-button variant="primary" @click="onValidate('update')"
-          >Guardar</b-button
-        >
-        <b-button variant="danger" @click="closeModal('update')"
-          >Cancelar</b-button
-        >
-      </template>
-    </b-modal>
-    <b-modal id="modal-3-bank" ref="modal-3-bank" title="Desactivar banco">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
-      >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
-      </b-alert>
-      <h6 class="my-4">
-        ¿Desea desactivar el banco: {{ form.name }} ?
-      </h6>
-      <template #modal-footer="{}">
-        <b-button
-          type="submit"
-          variant="primary"
-          @click="onState()
-                  $bvModal.hide('modal-3-bank')"
-          >Desactivar</b-button
-        >
-        <b-button variant="danger" @click="$bvModal.hide('modal-3-bank')"
-          >Cancelar</b-button
-        >
-      </template>
-    </b-modal>
-    <b-modal id="modal-4-bank" ref="modal-4-bank" title="Activar banco">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
-      >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
-      </b-alert>
-      <h6 class="my-4">
-        ¿Desea activar al banco: {{ form.name }} ?
-      </h6>
-      <template #modal-footer="{}">
-        <b-button
-          type="submit"
-          variant="primary"
-          @click="onState()
-                  $bvModal.hide('modal-4-bank')"
-          >Activar</b-button
-        >
-        <b-button variant="danger" @click="$bvModal.hide('modal-4-bank')"
           >Cancelar</b-button
         >
       </template>
@@ -137,7 +100,7 @@
               </div>
             </template>
             <template v-slot:headerAction>
-            <b-button variant="primary"  v-b-modal.modal-1-bank>AGREGAR NUEVO</b-button>
+            <b-button variant="primary"  v-b-modal.modal-1-mantenimiento>AGREGAR NUEVO</b-button>
           </template>
           <template v-slot:body>
             <datatable-heading
@@ -173,39 +136,6 @@
                   >
                 </h5>
               </div>
-              <!-- Botones -->
-              <template slot="actions" slot-scope="props">
-                <b-button-group>
-                  <b-button
-                    v-b-tooltip.top="'Editar'"
-                    @click="setData(props.rowData)"
-                    v-b-modal.modal-2-bank
-                    class="mb-2"
-                    size="sm"
-                    variant="outline-warning"
-                    ><i :class="'fas fa-pencil-alt'"
-                  /></b-button>
-                  <b-button
-                    v-b-tooltip.top="
-                      props.rowData.estado == 1 ? 'Desactivar' : 'Activar'"
-                    @click="
-                      setData(props.rowData);
-                      props.rowData.estado == 1
-                        ? $bvModal.show('modal-3-bank')
-                        : $bvModal.show('modal-4-bank');
-                    "
-                    class="mb-2"
-                    size="sm"
-                    :variant="
-                      props.rowData.estado == 1 ? 'outline-danger' : 'outline-info'">
-                    <i
-                      :class="
-                        props.rowData.estado == 1
-                          ? 'fas fa-trash-alt'
-                          : 'fas fa-check'"
-                  /></b-button>
-                </b-button-group>
-              </template>
               <!-- Paginacion -->
             </vuetable>
             <vuetable-pagination-bootstrap
@@ -229,7 +159,7 @@ import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
 
 export default {
-  name: 'Bank',
+  name: 'Mantenimientos',
   components: {
     vuetable: Vuetable,
     'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
@@ -250,27 +180,37 @@ export default {
       search: '',
       form: {
         id: 0,
-        name: '',
+        fecha: null,
+        costo: 0,
+        siguiente: null,
+        equipo: null,
         state: 1
       },
+      equipos: [],
       alertSecs: 5,
       alertCountDown: 0,
       alertCountDownError: 0,
       alertText: '',
       alertErrorText: '',
       alertVariant: '',
-      apiBase: apiUrl + '/banco/list',
+      apiBase: apiUrl + '/mantenimientos/list',
       fields: [
         {
-          name: '__slot:actions',
-          title: 'Acciones',
-          titleClass: '',
-          dataClass: 'text-muted'
+          name: 'fecha',
+          sortField: 'fecha',
+          title: 'Fecha',
+          dataClass: 'list-item-heading'
         },
         {
-          name: 'nombre',
-          sortField: 'name',
-          title: 'Nombre',
+          name: 'costo',
+          sortField: 'costo',
+          title: 'Costo',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'equipo.nombre',
+          sortField: 'equipo.nombre',
+          title: 'Equipo',
           dataClass: 'list-item-heading'
         },
         {
@@ -286,7 +226,10 @@ export default {
   validations () {
     return {
       form: {
-        name: { required }
+        fecha: { required },
+        costo: { required },
+        siguiente: { required },
+        equipo: { required }
       }
     }
   },
@@ -306,15 +249,7 @@ export default {
       switch (action) {
         case 'save': {
           this.$v.$reset()
-          this.$refs['modal-1-bank'].hide()
-          this.form.id = 0
-          this.form.name = ''
-          this.form.state = 1
-          break
-        }
-        case 'update': {
-          this.$v.$reset()
-          this.$refs['modal-2-bank'].hide()
+          this.$refs['modal-1-mantenimiento'].hide()
           this.form.id = 0
           this.form.name = ''
           this.form.state = 1
@@ -343,12 +278,12 @@ export default {
     /* Guardar */
     onSave () {
       const me = this
-      axios.post(apiUrl + '/banco/create', {
+      axios.post(apiUrl + '/mantenimientos/create', {
         form: me.form })
         .then((response) => {
           me.alertVariant = 'success'
           me.showAlert()
-          me.alertText = 'Se ha creado el banco ' + me.form.name + ' exitosamente'
+          me.alertText = 'Se ha creado el mantenimiento exitosamente'
           me.$refs.vuetable.refresh()
           me.closeModal('save')
         })
@@ -358,66 +293,6 @@ export default {
           me.alertErrorText = error.response.data.msg
           console.error('Error!', error)
         })
-    },
-    /* Guardar */
-    onUpdate () {
-      const me = this
-      // this.$refs["modalSave"].hide();
-      axios.put(apiUrl + '/banco/update', {
-        form: me.form })
-        .then((response) => {
-          me.alertVariant = 'primary'
-          me.showAlert()
-          me.alertText = 'Se ha actualizado el banco ' + me.form.name + ' exitosamente'
-          me.$refs.vuetable.refresh()
-          me.closeModal('update')
-        })
-        .catch((error) => {
-          me.alertVariant = 'danger'
-          me.showAlertError()
-          me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-          console.error('Error!', error)
-        })
-    },
-    onState () {
-      let me = this
-      if (this.form.state === 1) {
-        axios
-          .put(apiUrl + '/banco/deactivate', {
-            id: this.form.id
-          })
-          .then((response) => {
-            me.alertVariant = 'warning'
-            me.showAlert()
-            me.alertText = 'Se ha desactivado el banco ' + me.form.name + ' exitosamente'
-            me.$refs.vuetable.refresh()
-            me.$refs['modal-3-bank'].hide()
-          })
-          .catch((error) => {
-            me.alertVariant = 'danger'
-            me.showAlertError()
-            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-            console.error('There was an error!', error)
-          })
-      } else {
-        axios
-          .put(apiUrl + '/banco/activate', {
-            id: this.form.id
-          })
-          .then((response) => {
-            me.alertVariant = 'info'
-            me.showAlert()
-            me.alertText = 'Se ha activado el banco ' + me.form.name + ' exitosamente'
-            me.$refs.vuetable.refresh()
-            me.$refs['modal-4-bank'].hide()
-          })
-          .catch((error) => {
-            me.alertVariant = 'danger'
-            me.showAlertError()
-            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-            console.error('There was an error!', error)
-          })
-      }
     },
     makeQueryParams (sortOrder, currentPage, perPage) {
       return sortOrder[0]
@@ -460,7 +335,25 @@ export default {
     },
     showAlertError () {
       this.alertCountDownError = this.alertSecs
-    }
+    },
+    onSearchEquipo (search, loading) {
+      if (search.length) {
+        loading(true)
+        this.searchingEquipos(search, loading)
+      }
+    },
+    searchingEquipos (search, loading) {
+      axios.get(apiUrl + '/equipos/getSearch',
+        {
+          params: {
+            search: search
+          }
+        }
+      ).then((response) => {
+        this.equipos = response.data
+        loading(false)
+      })
+    },
   }
 }
 </script>

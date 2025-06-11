@@ -234,6 +234,61 @@
         >
       </template>
     </b-modal>
+    <b-modal id="modal-10-equipo" ref="modal-10-equipo" title="Agregar uso de equipo">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <b-form @submit="$event.preventDefault()">
+        <b-form-group label="Nombre:">
+          <b-form-input
+            v-model.trim="$v.form.nombre.$model"
+            :state="!$v.form.nombre.$error"
+            placeholder="Ingresar nombre del equipo"
+            :disabled="true"
+          ></b-form-input>
+          <div v-if="$v.form.nombre.required.$invalid" class="invalid-feedback">
+            Debe ingresar el nombre
+          </div>
+        </b-form-group>
+        <b-form-group label="Cantidad de usos actual:">
+          <b-form-input
+            type="number"
+            v-model.trim="$v.form.cantidad_usos.$model"
+            :state="!$v.form.cantidad_usos.$error"
+            placeholder="Ingresar cantidad de usos actual del equipo"
+            :disabled="true"
+          ></b-form-input>
+          <div v-if="$v.form.cantidad_usos.required.$invalid" class="invalid-feedback">
+            Debe ingresar la cantidad de usos
+          </div>
+        </b-form-group>
+        <b-form-group label="Cantidad de usos a agregar:">
+          <b-form-input
+            type="number"
+            v-model.trim="form.usos_nuevos"
+            placeholder="Ingresar cantidad de usos que se le dió al equipo"
+            :disabled="false"
+          ></b-form-input>
+          <div v-if="$v.form.cantidad_usos.required.$invalid" class="invalid-feedback">
+            Debe ingresar la cantidad de usos
+          </div>
+        </b-form-group>
+      </b-form>
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click="onValidate('update')"
+          >Guardar</b-button
+        >
+        <b-button variant="danger" @click="closeModal('update')"
+          >Cancelar</b-button
+        >
+      </template>
+    </b-modal>
     <b-row>
       <b-col md="12">
         <iq-card>
@@ -287,17 +342,20 @@
               <template slot="actions" slot-scope="props">
                 <b-button-group>
                   <b-button
-                    v-b-tooltip.top="'Editar'"
                     @click="setData(props.rowData)"
                     v-b-modal.modal-2-equipo
                     class="mb-2"
                     size="sm"
                     variant="outline-warning"
-                    ><i :class="'fas fa-pencil-alt'"
-                  /></b-button>
+                    >Editar equipo</b-button>
                   <b-button
-                    v-b-tooltip.top="
-                      props.rowData.estado == 1 ? 'Desactivar' : 'Activar'"
+                    @click="setData(props.rowData)"
+                    v-b-modal.modal-10-equipo
+                    class="mb-2"
+                    size="sm"
+                    variant="outline-dark"
+                  >Agregar uso de equipo</b-button>
+                  <b-button
                     @click="
                       setData(props.rowData);
                       props.rowData.estado == 1
@@ -308,12 +366,9 @@
                     size="sm"
                     :variant="
                       props.rowData.estado == 1 ? 'outline-danger' : 'outline-info'">
-                    <i
-                      :class="
-                        props.rowData.estado == 1
-                          ? 'fas fa-trash-alt'
-                          : 'fas fa-check'"
-                  /></b-button>
+                    <span>
+                      {{ props.rowData.estado == 1 ? 'Desactivar' : 'Activar' }}
+                    </span></b-button>
                 </b-button-group>
               </template>
               <!-- Paginacion -->
@@ -362,6 +417,7 @@ export default {
         id: 0,
         nombre: '',
         cantidad_usos: 0,
+        usos_nuevos: 0,
         precio_publico: 0.0,
         gasto_unico: 0.0,
         fecha_adquisicion: '',
@@ -442,6 +498,7 @@ export default {
           this.form.id = 0
           this.form.nombre = ''
           this.form.cantidad_usos = 0
+          this.form.usos_nuevos = 0
           this.form.precio_publico = 0
           this.form.gasto_unico = 0
           this.form.fecha_adquisicion = ''
@@ -459,6 +516,7 @@ export default {
           this.form.id = 0
           this.form.nombre = ''
           this.form.cantidad_usos = 0
+          this.form.usos_nuevos = 0
           this.form.precio_publico = 0
           this.form.gasto_unico = 0
           this.form.fecha_adquisicion = ''
@@ -469,9 +527,11 @@ export default {
         case 'update': {
           this.$v.$reset()
           this.$refs['modal-2-equipo'].hide()
+          this.$refs['modal-10-equipo'].hide()
           this.form.id = 0
           this.form.nombre = ''
           this.form.cantidad_usos = 0
+          this.form.usos_nuevos = 0
           this.form.precio_publico = 0
           this.form.gasto_unico = 0
           this.form.fecha_adquisicion = ''
@@ -527,6 +587,7 @@ export default {
     onUpdate () {
       const me = this
       // this.$refs["modalSave"].hide();
+      me.form.cantidad_usos = parseInt(me.form.cantidad_usos) + parseInt(me.form.usos_nuevos)
       axios.put(apiUrl + '/equipos/update', {
         form: me.form })
         .then((response) => {
