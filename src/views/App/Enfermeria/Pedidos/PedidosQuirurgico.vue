@@ -271,7 +271,7 @@ export default {
     fetchQuirurgicos () {
       axios.get(apiUrl + '/quirurgico/list')
         .then((response) => {
-          this.quirurgicos = response.data.map(quirurgico => ({
+          this.quirurgicos = response.data.data.map(quirurgico => ({
             value: quirurgico.id,
             text: quirurgico.nombre,
             existencias_actuales: quirurgico.existencia_actual
