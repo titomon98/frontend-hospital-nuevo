@@ -11,9 +11,6 @@
 
           <template slot="right">
             <ul class="navbar-list">
-              <li class="nav-item iq-full-screen">
-                <a href="#" class="iq-waves-effect" id="btnFullscreen"><i class="ri-fullscreen-line"></i></a>
-              </li>
               <li>
                 <a href="#" class="search-toggle iq-waves-effect d-flex align-items-center">
                   <img :src="userProfile" class="img-fluid rounded mr-3" alt="user">
@@ -65,7 +62,6 @@ import HorizontalItems from '../FackApi/json/HorizontalMenu'
 import profile from '../assets/images/user/1.jpg'
 import loader from '../assets/images/logo.png'
 import { xray } from '../config/pluginInit'
-import { Users } from '../FackApi/api/chat'
 import { mapGetters, mapActions } from 'vuex'
 
 export default {
@@ -104,7 +100,6 @@ export default {
       filteredVerticalMenu: [],
       userProfile: profile,
       logo: loader,
-      usersList: Users,
       rtl: false
     }
   },

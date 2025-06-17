@@ -202,16 +202,5 @@
     "unfollow": "Dejar de seguir",
     "follow": "Siga",
     "block": "Bloque"
-  },
-  "customizer": {
-    "colorCustomizer": "Color Personalizador",
-    "themeColor": "Color Del Tema",
-    "colorMode": "Modo De Color",
-    "sidebar": "La barra lateral",
-    "sidebarMini": "Barra Lateral Mini",
-    "routeAnimation": "Ruta De Animación",
-    "rtlMode": "RTL Modo",
-    "rtl": "RTL",
-    "reset": "Reset"
   }
 }

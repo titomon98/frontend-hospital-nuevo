@@ -8,23 +8,17 @@
 </template>
 <script>
 import lightLogo from '../../../assets/images/loader.gif'
-import darkLogo from '../../../assets/images/darkMode/dark-loader.gif'
 export default {
   name: 'Loader',
   props: {
     dark: { type: Boolean, default: false }
   },
   mounted () {
-    if (this.$route.meta.dark) {
-      this.style = `background: #1d203f url(${this.darkLogo}) no-repeat scroll center center;`
-    } else {
-      this.style = `background: #fff url(${this.logo}) no-repeat scroll center center;`
-    }
+    this.style = `background: #fff url(${this.logo}) no-repeat scroll center center;`
   },
   data () {
     return {
       logo: lightLogo,
-      darkLogo: darkLogo,
       style: `background: #fff url(${lightLogo}) no-repeat scroll center center;`
     }
   }

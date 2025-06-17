@@ -771,6 +771,12 @@ export default {
           sortField: 'fecha_hora',
           title: 'Fecha y Hora',
           dataClass: 'list-item-heading'
+        },
+        {
+          name: 'referido',
+          sortField: 'referido',
+          title: 'Quién solicitó',
+          dataClass: 'list-item-heading'
         }
       ],
       fields2: [
@@ -845,6 +851,12 @@ export default {
           sortField: 'fecha_hora',
           title: 'Fecha y Hora',
           dataClass: 'list-item-heading'
+        },
+        {
+          name: 'referido',
+          sortField: 'referido',
+          title: 'Quién solicitó',
+          dataClass: 'list-item-heading'
         }
       ],
       fields3: [
@@ -888,6 +900,12 @@ export default {
           name: 'fecha_hora',
           sortField: 'fecha_hora',
           title: 'Fecha y Hora',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'referido',
+          sortField: 'referido',
+          title: 'Quién solicitó',
           dataClass: 'list-item-heading'
         }
       ]

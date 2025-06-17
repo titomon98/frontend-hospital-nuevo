@@ -10,7 +10,7 @@
               <Slick :option="slickOptions">
                 <div class="item">
                   <img :src="require('../../assets/images/login/1.png')" class="img-fluid mb-4" alt="logo">
-                  <p>Panel de administración</p>
+                  <img :src="require('../../assets/images/login/logoLab.jpg')" class="img-fluid mb-4" alt="logo">
                 </div>
               </Slick>
             </div>
@@ -27,9 +27,7 @@
 </template>
 <script>
 import Loader from '../../components/xray/loader/Loader'
-import logo from '../../assets/images/logo-white.png'
 import { xray } from '../../config/pluginInit'
-import bgImage from '../../assets/images/login/2.png'
 export default {
   name: 'AuthLayout1',
   components: {
@@ -44,9 +42,7 @@ export default {
         slidesToShow: 1,
         arrows: false,
         dots: true
-      },
-      logo: logo,
-      bgImageURL: bgImage
+      }
     }
   }
 }

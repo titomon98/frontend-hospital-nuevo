@@ -176,14 +176,6 @@ export default {
         nextArrow: '<a href="#" class="ri-arrow-left-s-line left"></a>',
         prevArrow: '<a href="#" class="ri-arrow-right-s-line right"></a>'
       },
-      doctorList: [
-        { name: 'Datos de prueba', img: require('../../assets/images/user/05.jpg'), position: 'Para limpieza', worksAt: 'Hospital de especialidades' },
-        { name: 'Datos de prueba', img: require('../../assets/images/user/06.jpg'), position: 'Para limpieza', worksAt: 'Hospital de especialidades' },
-        { name: 'Datos de prueba', img: require('../../assets/images/user/07.jpg'), position: 'Para limpieza', worksAt: 'Hospital de especialidades' },
-        { name: 'Datos de prueba', img: require('../../assets/images/user/08.jpg'), position: 'Para limpieza', worksAt: 'Hospital de especialidades' },
-        { name: 'Datos de prueba', img: require('../../assets/images/user/09.jpg'), position: 'Para limpieza', worksAt: 'Hospital de especialidades' },
-        { name: 'Datos de prueba', img: require('../../assets/images/user/10.jpg'), position: 'Para limpieza', worksAt: 'Hospital de especialidades' }
-      ],
       fields: [
         {
           name: 'expediente.expediente',
