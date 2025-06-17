@@ -794,7 +794,6 @@ export default {
   validations () {
     return {
       form: {
-        name: { required },
         nombre: {
           required, ValidateName: helpers.regex(/^[A-ZÁÉÍÓÚÜÑ\s]+$/)
         },
