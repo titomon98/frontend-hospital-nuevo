@@ -456,16 +456,6 @@
     "icon": "ri-refund-line"
   },
   {
-    "title": "Morris Chart",
-    "is_active": false,
-    "link": {
-      "name": "chart.morris"
-    },
-    "class_name": "",
-    "is_icon_class": true,
-    "icon": "ri-file-chart-line"
-  },
-  {
     "title": "High Chart",
     "is_active": false,
     "link": {

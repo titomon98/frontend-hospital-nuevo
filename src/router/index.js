@@ -19,16 +19,6 @@ import IconFontawesome5 from '../views/Icons/IconFontawesome5'
 import IconLineAwesome from '../views/Icons/IconLineAwesome'
 import IconRemixicon from '../views/Icons/IconRemixicon'
 import IconUnicons from '../views/Icons/IconUnicons'
-/* Tables Views */
-import TablesBasic from '../views/Tables/TablesBasic'
-import DataTable from '../views/Tables/DataTable'
-import EditableTable from '../views/Tables/EditableTable'
-import ApexCharts from '../views/Charts/ApexCharts'
-import AmCharts from '../views/Charts/AmCharts'
-import MorrisCharts from '../views/Charts/MorrisCharts'
-import HighCharts from '../views/Charts/HighCharts'
-import GoogleMaps from '../views/Maps/GoogleMaps'
-import VectorMaps from '../views/Maps/VectorMaps'
 /* Form View */
 import FormLayout from '../views/Forms/FormLayout'
 import FormValidates from '../views/Forms/FormValidates'
@@ -546,27 +536,6 @@ const formChildRoute = (prop, mode = false) => [
   }
 ]
 
-const tableChildRoute = (prop, mode = false) => [
-  {
-    path: 'tables-basic',
-    name: prop + '.basic',
-    meta: { dark: mode, auth: true, name: 'Basic' },
-    component: TablesBasic
-  },
-  {
-    path: 'data-table',
-    name: prop + '.dataTable',
-    meta: { dark: mode, auth: true, name: 'Datatable' },
-    component: DataTable
-  },
-  {
-    path: 'editable',
-    name: prop + '.editable',
-    meta: { dark: mode, auth: true, name: 'Editable' },
-    component: EditableTable
-  }
-]
-
 const iconChildRoute = (prop, mode = false) => [
   {
     path: 'dripicons',
@@ -600,33 +569,6 @@ const iconChildRoute = (prop, mode = false) => [
   }
 ]
 
-const chartChildRoutes = (prop, mode = false) => [
-  {
-    path: 'apex-charts',
-    name: prop + '.apex',
-    meta: { dark: mode, auth: true, name: 'Apex Chat' },
-    component: ApexCharts
-  },
-  {
-    path: 'am-charts',
-    name: prop + '.am',
-    meta: { dark: mode, auth: true, name: 'Am Chart' },
-    component: AmCharts
-  },
-  {
-    path: 'high-charts',
-    name: prop + '.high',
-    meta: { dark: mode, auth: true, name: 'High Chart' },
-    component: HighCharts
-  },
-  {
-    path: 'morris-charts',
-    name: prop + '.morris',
-    meta: { dark: mode, auth: true, name: 'Mirris Chart' },
-    component: MorrisCharts
-  }
-]
-
 const authChildRoutes = (prop, mode = false) => [
   {
     path: 'sign-in1',
@@ -647,21 +589,6 @@ const authChildRoutes2 = (prop, mode = false) => [
     name: prop + '.login',
     meta: { dark: mode, auth: true },
     component: SignIn1
-  }
-]
-
-const mapChildRoute = (prop, mode = false) => [
-  {
-    path: 'google-maps',
-    name: prop + '.google',
-    meta: { dark: mode, auth: true, name: 'Google map' },
-    component: GoogleMaps
-  },
-  {
-    path: 'vector-maps',
-    name: prop + '.vector',
-    meta: { dark: mode, auth: true, name: 'Vector Detail' },
-    component: VectorMaps
   }
 ]
 
@@ -752,20 +679,6 @@ const routes = [
     children: childRoutes('dashboard')
   },
   {
-    path: '/table',
-    name: 'table',
-    component: Layout1,
-    meta: { auth: true },
-    children: tableChildRoute('table')
-  },
-  {
-    path: '/chart',
-    name: 'chart',
-    component: Layout1,
-    meta: { auth: true },
-    children: chartChildRoutes('chart')
-  },
-  {
     path: '/icon',
     name: 'icon',
     component: Layout1,
@@ -785,13 +698,6 @@ const routes = [
     component: Layout1,
     meta: { auth: true },
     children: defaultlayout('extra-pages')
-  },
-  {
-    path: '/map',
-    name: 'map',
-    component: Layout1,
-    meta: { auth: true },
-    children: mapChildRoute('map')
   },
   {
     path: '/form',
