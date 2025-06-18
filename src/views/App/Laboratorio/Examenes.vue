@@ -217,8 +217,7 @@
                   <div class="custom-option">
                     <strong>{{ option.nombre }}</strong> --
                     <small>Tipo de Examen: {{ option.tipo_examen }}</small> |
-                    <small>Precio normal: Q{{ option.precio_normal }}</small> |
-                    <small>Extraordinario: Q{{ option.precio_sobrecargo }}</small>
+                    <small>Precio: Q{{ option.precio_normal }}</small> |
                   </div>
                 </template>
 
@@ -229,12 +228,11 @@
                   </span>
                 </template>
               </Multiselect>
-
               <!-- Mostrar la lista de exámenes seleccionados -->
               <div>
                 <ul class="selected-options-list" v-if="selectedExamenes.length > 0">
                   <li v-for="(examen, index) in selectedExamenes" :key="examen.id">
-                    {{ index + 1 }}. {{ examen.nombre }} - Precio normal: {{ examen.precio_normal }} - Precio extraordinario: {{ examen.precio_sobrecargo }}
+                    {{ index + 1 }}. {{ examen.nombre }} - Precio: Q{{ examen.precio_normal }}
                   </li>
                 </ul>
               </div>

@@ -416,12 +416,12 @@
                                 cols="2"
                               >
                                 <b-button
-                                  :variant="form.habitacion === habitacion.id ? 'secondary' : 'success'"
+                                  :variant="getButtonVariant(habitacion)"
                                   @click="form.habitacion = habitacion.id"
-                                  class="mb-4"
-                                  :disabled="habitacion.estado !== 1"
+                                  class="mb-4 room-button"
+                                  :class="{ 'disabled-room': habitacion.estado !== 1 }"
                                   v-b-tooltip.hover="{
-                                    title: `${habitacion.estado === 1 ? 'Disponible' : 'Ocupado/Desactivada'}`
+                                    title: getRoomTooltip(habitacion.estado)
                                   }"
                                   block
                                 >
@@ -849,6 +849,18 @@ export default {
     })
   },
   methods: {
+    getButtonVariant (habitacion) {
+      if (this.form.habitacion === habitacion.id) return 'primary'
+      return habitacion.estado === 1 ? 'success' : 'outline-secondary'
+    },
+    getRoomTooltip (estado) {
+      const status = {
+        0: 'Deshabilitada',
+        1: 'Disponible',
+        2: 'Ocupada'
+      }
+      return status[estado] || 'No disponible'
+    },
     hasPermission (blockedRoles = []) {
       return !blockedRoles.includes(this.currentUser.user_type)
     },
@@ -1150,3 +1162,16 @@ export default {
   }
 }
 </script>
+<style>
+  .disabled-room {
+    background-color: #9e9e9e !important;
+    border-color: #7d7d7d !important;
+    color: white !important;
+    cursor: not-allowed;
+    opacity: 1 !important
+  }
+
+  .room-button:disabled {
+    opacity: 1 !important
+  }
+</style>
