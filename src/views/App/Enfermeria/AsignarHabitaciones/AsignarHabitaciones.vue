@@ -539,17 +539,6 @@
               <template slot="actions" slot-scope="props">
                 <b-button-group>
                     <b-button
-                        v-b-tooltip.top="'Editar'"
-                        @click="setData(props.rowData)"
-                        v-b-modal.modal-2-expediente
-                        class="mb-2 mt-2 button-spacing"
-                        size="sm"
-                        variant="dark"
-                        :disabled="!hasPermission([9, 5, 10])"
-                    >
-                        Editar
-                    </b-button>
-                    <b-button
                         v-b-tooltip.top="'Asignar habitación'"
                         @click="setData(props.rowData)
                         $bvModal.show('modal-1-habitacion')
