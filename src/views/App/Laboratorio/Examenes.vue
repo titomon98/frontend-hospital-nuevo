@@ -274,6 +274,11 @@
             ></b-form-input>
           </template>
         </b-table>
+        <b-form-input
+          v-model.trim="formResultado.nota"
+          placeholder="Ingresar nota del resultado (si es necesaria)"
+        ></b-form-input>
+
       </b-form>
       <template #modal-footer="{}">
         <b-button variant="primary" @click="onValidateResultado('save')"
@@ -584,7 +589,8 @@ export default {
         id_campo: '',
         id_tipo: '',
         resultado: null,
-        alarma: ''
+        alarma: '',
+        nota: null
       },
       camposResulado: [],
       campos: [],
@@ -1001,6 +1007,7 @@ export default {
           this.formResultado.id = null
           this.formResultado.tipo = ''
           this.formResultado.resultado = null
+          this.formResultado.nota = null
           break
         }
         case 'verresultado': {
@@ -1057,7 +1064,7 @@ export default {
     onSave () {
       const me = this
       axios.post(apiUrl + '/Examenes_realizados/create', {
-        form: me.form })
+        form: me.form, user: me.currentUser.user })
         .then((response) => {
           me.alertVariant = 'success'
           me.showAlert()
@@ -1319,7 +1326,8 @@ export default {
         id: me.formResultado.id,
         id_campo: campo.id,
         id_tipo: campo.id_tipo,
-        resultado: campo.resultado
+        resultado: campo.resultado,
+        nota: me.formResultado.nota
       }))
 
       axios.post(apiUrl + '/detalleExamenRealizado/create', { resultados })

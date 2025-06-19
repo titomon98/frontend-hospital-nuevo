@@ -2394,7 +2394,7 @@ export default {
     onUpdate () {
       const me = this
       axios.put(apiUrl + '/expedientes/update', {
-        form: me.form })
+        form: me.form, user: me.currentUser.user })
         .then((response) => {
           me.alertVariant = 'primary'
           me.showAlert()
@@ -2852,7 +2852,7 @@ export default {
     guardarExamenRealizado () {
       if (this.formExamen.total !== 0 && this.formExamen.numero_muestra !== 0 && this.formExamen.id_examenes_almacenados !== null) {
         axios.post(apiUrl + '/Examenes_realizados/create', {
-          form: this.formExamen })
+          form: this.formExamen, user: me.currentUser.user })
           .then((response) => {
             this.alertVariant = 'success'
             this.showAlert()

@@ -488,7 +488,7 @@ export default {
     onSave () {
       const me = this
       axios.post(apiUrl + '/expedientes/create', {
-        form: me.form })
+        form: me.form, user: me.currentUser.user })
         .then(() => {
           me.alertVariant = 'success'
           me.showAlert()
