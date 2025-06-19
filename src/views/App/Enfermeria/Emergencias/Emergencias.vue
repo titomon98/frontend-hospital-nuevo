@@ -909,7 +909,7 @@
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="dark"
-                    :disabled="!hasPermission([9, 10])"
+                    :disabled="!hasPermission([9, 10, 11])"
                    >Historial Cuenta</b-button>
 
                    <b-button

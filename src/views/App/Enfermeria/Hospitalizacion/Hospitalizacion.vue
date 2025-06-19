@@ -928,7 +928,7 @@
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="success"
-                    :disabled="!hasPermission([9, 10, 11])"
+                    :disabled="!hasPermission([9, 10])"
                    >Cuenta parcial</b-button>
 
                    <b-button
