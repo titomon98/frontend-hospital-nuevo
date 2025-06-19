@@ -265,7 +265,7 @@ export default {
     onSave () {
       const me = this
       axios.post(apiUrl + '/expedientes/createEnfermeria', {
-        form: me.form
+        form: me.form, user: me.currentUser.user
       })
         .then(() => {
           me.alertVariant = 'success'

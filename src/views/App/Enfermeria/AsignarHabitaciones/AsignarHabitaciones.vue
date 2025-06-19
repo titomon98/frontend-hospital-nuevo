@@ -955,7 +955,7 @@ export default {
       const me = this
       // this.$refs["modalSave"].hide();
       axios.put(apiUrl + '/expedientes/update', {
-        form: me.form })
+        form: me.form, user: me.currentUser.user })
         .then((response) => {
           me.alertVariant = 'primary'
           me.showAlert()
