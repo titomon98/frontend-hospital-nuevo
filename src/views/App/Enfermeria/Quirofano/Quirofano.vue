@@ -88,7 +88,55 @@
         >
       </template>
     </b-modal>
-    <b-modal size="lg" id="modal-ver-receta" ref="modal-ver-receta" title="Ver recetas">
+    <b-modal size="lg" id="modal-add-evolucion" ref="modal-add-evolucion" title="Evolución de paciente">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <b-form @submit="$event.preventDefault()">
+        <b-form-group label="Contenido:">
+          <quill-editor v-model="form.evolucion" :options="editorOptions2" class="custom-editor"></quill-editor>
+        </b-form-group>
+      </b-form>
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click="saveEvolucion()"
+          >Guardar</b-button
+        >
+        <b-button variant="danger" @click="closeModal('add-evolucion')"
+          >Cancelar</b-button
+        >
+      </template>
+    </b-modal>
+    <b-modal size="lg" id="modal-add-orden" ref="modal-add-orden" title="Orden médica">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <b-form @submit="$event.preventDefault()">
+        <b-form-group label="Contenido:">
+          <quill-editor v-model="form.orden" :options="editorOptions3" class="custom-editor"></quill-editor>
+        </b-form-group>
+      </b-form>
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click="saveOrden()"
+          >Guardar</b-button
+        >
+        <b-button variant="danger" @click="closeModal('add-orden')"
+          >Cancelar</b-button
+        >
+      </template>
+    </b-modal>
+    <b-modal size="lg" id="modal-ver-receta" ref="modal-ver-receta" :title="tituloVer">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -1005,17 +1053,37 @@
                     :disabled="!hasPermission([9, 10])"
                    >Historial Cuenta</b-button>
 
-                  <!--
-                  <b-button
-                    @click="showModal('modal-1-movimiento'); obtenerIdCuenta(props.rowData.id)"
+                   <b-button
+                    @click="addEvolucion(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
-                    variant="primary"
-                  >Agregar medicamentos</b-button>
-                </div>
-                    variant="outline-warning"
-                    ><i :class="'fas fa-pencil-alt'" style="color: #FFC107;"
-                  /></b-button> -->
+                    variant="dark"
+                    :disabled="!hasPermission([10])"
+                  >Agregar evolución</b-button>
+
+                  <b-button
+                  v-if="props.rowData.nombres !== 'PENDIENTE' "
+                    @click="verEvolucion(props.rowData.id)"
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="success"
+                  >Ver evolución</b-button>
+
+                  <b-button
+                    @click="addOrdenes(props.rowData.id)"
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="dark"
+                    :disabled="!hasPermission([10])"
+                  >Agregar orden médica</b-button>
+
+                  <b-button
+                  v-if="props.rowData.nombres !== 'PENDIENTE' "
+                    @click="verOrden(props.rowData.id)"
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="success"
+                  >Ver órdenes médicas</b-button>
                 </div>
               </template>
               <!-- Paginacion -->
@@ -1068,6 +1136,7 @@ export default {
   },
   data () {
     return {
+      tituloVer: '',
       consumosTemporales: [],
       insumosActuales: [],
       tipoInsumoActual: '0',
@@ -1085,6 +1154,32 @@ export default {
           ]
         },
         placeholder: 'Escribir contenido de la receta',
+        theme: 'snow'
+      },
+      editorOptions2: {
+        modules: {
+          toolbar: [
+            [{ 'header': '1' }, { 'header': '2' }, { 'font': [] }],
+            [{ size: [] }],
+            ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+            ['clean']
+          ]
+        },
+        placeholder: 'Escribir la evolución',
+        theme: 'snow'
+      },
+      editorOptions3: {
+        modules: {
+          toolbar: [
+            [{ 'header': '1' }, { 'header': '2' }, { 'font': [] }],
+            [{ size: [] }],
+            ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+            ['clean']
+          ]
+        },
+        placeholder: 'Escribir la orden médica',
         theme: 'snow'
       },
       perPage: 5,
@@ -1106,6 +1201,8 @@ export default {
         state: 1,
         selectedOption: 'hospi',
         receta: null,
+        evolucion: null,
+        orden: null,
         nombres: '',
         id_receta: null,
         cantidad: null,
@@ -1181,9 +1278,15 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
+          name: 'created_by',
+          sortField: 'created_by',
+          title: 'Creado por',
+          dataClass: 'list-item-heading'
+        },
+        {
           name: 'createdAt',
           sortField: 'createdAt',
-          title: 'Creación',
+          title: 'Fecha de creación',
           dataClass: 'list-item-heading'
         }
       ],
@@ -1797,6 +1900,27 @@ export default {
           this.$v.$reset()
           this.$refs['modal-add-receta'].hide()
           this.form.id = 0
+          this.form.receta = null
+          this.form.name = ''
+          this.form.state = 1
+          this.form.selected_insumo = '0'
+          break
+        }
+        case 'add-evolucion': {
+          this.$v.$reset()
+          this.$refs['modal-add-evolucion'].hide()
+          this.form.id = 0
+          this.form.evolucion = null
+          this.form.name = ''
+          this.form.state = 1
+          this.form.selected_insumo = '0'
+          break
+        }
+        case 'add-orden': {
+          this.$v.$reset()
+          this.$refs['modal-add-orden'].hide()
+          this.form.id = 0
+          this.form.orden = null
           this.form.name = ''
           this.form.state = 1
           this.form.selected_insumo = '0'
@@ -2127,6 +2251,14 @@ export default {
       this.$refs['modal-add-receta'].show()
       this.form.id = id
     },
+    addEvolucion (id) {
+      this.$refs['modal-add-evolucion'].show()
+      this.form.id = id
+    },
+    addOrdenes (id) {
+      this.$refs['modal-add-orden'].show()
+      this.form.id = id
+    },
     saveReceta () {
       const me = this
       if (me.form.receta !== null) {
@@ -2148,10 +2280,65 @@ export default {
           })
       }
     },
+    saveEvolucion () {
+      const me = this
+      if (me.form.evolucion !== null) {
+        axios.post(apiUrl + '/evoluciones/create', {
+          form: me.form })
+          .then((response) => {
+            me.alertVariant = 'primary'
+            me.showAlert()
+            me.alertText = 'Se ha creado la nota de evolución exitosamente'
+            me.$refs.vuetable.refresh()
+            me.closeModal('add-evolucion')
+            me.form.id = 0
+          })
+          .catch((error) => {
+            me.alertVariant = 'danger'
+            me.showAlertError()
+            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+            console.error('Error!', error)
+          })
+      }
+    },
+    saveOrden () {
+      const me = this
+      if (me.form.orden !== null) {
+        axios.post(apiUrl + '/ordenes/create', {
+          form: me.form })
+          .then((response) => {
+            me.alertVariant = 'primary'
+            me.showAlert()
+            me.alertText = 'Se ha creado la orden médica exitosamente'
+            me.$refs.vuetable.refresh()
+            me.closeModal('add-orden')
+            me.form.id = 0
+          })
+          .catch((error) => {
+            me.alertVariant = 'danger'
+            me.showAlertError()
+            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+            console.error('Error!', error)
+          })
+      }
+    },
     verReceta (id) {
       this.$refs['modal-ver-receta'].show()
       this.getDataRecetas(id)
       this.form.id_receta = id
+      this.tituloVer = 'Ver receta'
+    },
+    verEvolucion (id) {
+      this.$refs['modal-ver-receta'].show()
+      this.getDataEvoluciones(id)
+      this.form.id_receta = id
+      this.tituloVer = 'Ver evolución del paciente'
+    },
+    verOrden (id) {
+      this.$refs['modal-ver-receta'].show()
+      this.getDataOrdenes(id)
+      this.form.id_receta = id
+      this.tituloVer = 'Ver órdenes del paciente'
     },
     addServicio (id) {
       this.$refs['modal-add-servicio'].show()
@@ -2345,6 +2532,14 @@ export default {
     getDataRecetas (id) {
       this.form.id = id
       this.apiBaseReceta = apiUrl + `/recetas/getId?id=${id}`
+    },
+    getDataEvoluciones (id) {
+      this.form.id = id
+      this.apiBaseReceta = apiUrl + `/evoluciones/getId?id=${id}`
+    },
+    getDataOrdenes (id) {
+      this.form.id = id
+      this.apiBaseReceta = apiUrl + `/ordenes/getId?id=${id}`
     },
     onSearchServicios (search, loading) {
       if (search.length) {
@@ -2796,8 +2991,6 @@ export default {
       const ConsumoQuirurgicosTotal = data.consumosQuirurgicos.reduce((acc, item) => acc + parseFloat(item.total), 0)
       const ExamenesTotal = data.examenes.reduce((acc, item) => acc + item.total, 0)
       const ServicioSalaOperacionesTotal = data.salaOperaciones.reduce((acc, item) => acc + parseFloat(item.total), 0)
-      // const TotalHonorarios = data.honorarios.reduce((acc, item) => acc + parseFloat(item.total), 0)
-      // const medicosOrdenados = data.honorarios.sort((a, b) => b.total - a.total)
 
       totalDeuda = parseFloat(ConsumoTotal) +
                   parseFloat(ConsumoComunTotal) +

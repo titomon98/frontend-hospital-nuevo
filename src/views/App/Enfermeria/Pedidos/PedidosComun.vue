@@ -271,7 +271,7 @@ export default {
     fetchComunes () {
       axios.get(apiUrl + '/comun/list')
         .then((response) => {
-          this.comunes = response.data.map(comun => ({
+          this.comunes = response.data.data.map(comun => ({
             value: comun.id,
             text: comun.nombre,
             existencias_actuales: comun.existencia_actual

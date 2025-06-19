@@ -91,48 +91,6 @@ export default {
           buttonClass: '',
           bgImage: false
         }
-      ],
-      bgCards: [
-        {
-          plan: 'Basic',
-          amount: '26',
-          duration: '$/ Month',
-          active: false,
-          description: 'Lorem ipsum dolor sit amet Consectetur adipiscing elit Integer molestie lorem at massa Facilisis in pretium nisl aliquet Nulla volutpat aliquam velit',
-          button: 'Get Started',
-          buttonClass: '',
-          bgImage: require('../../assets/images/page-img/25.jpg')
-        },
-        {
-          plan: 'Basic',
-          amount: '99',
-          duration: '$/ Month',
-          active: false,
-          description: 'Lorem ipsum dolor sit amet Consectetur adipiscing elit Integer molestie lorem at massa Facilisis in pretium nisl aliquet Nulla volutpat aliquam velit',
-          button: 'Get Started',
-          buttonClass: '',
-          bgImage: require('../../assets/images/page-img/26.jpg')
-        },
-        {
-          plan: 'Basic',
-          amount: '39',
-          duration: '$/ Month',
-          active: false,
-          description: 'Lorem ipsum dolor sit amet Consectetur adipiscing elit Integer molestie lorem at massa Facilisis in pretium nisl aliquet Nulla volutpat aliquam velit',
-          button: 'Get Started',
-          buttonClass: '',
-          bgImage: require('../../assets/images/page-img/27.jpg')
-        },
-        {
-          plan: 'Basic',
-          amount: '25',
-          duration: '$/ Month',
-          active: false,
-          description: 'Lorem ipsum dolor sit amet Consectetur adipiscing elit Integer molestie lorem at massa Facilisis in pretium nisl aliquet Nulla volutpat aliquam velit',
-          button: 'Get Started',
-          buttonClass: '',
-          bgImage: require('../../assets/images/page-img/28.jpg')
-        }
       ]
     }
   }

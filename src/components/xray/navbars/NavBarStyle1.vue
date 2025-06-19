@@ -6,7 +6,8 @@
         <div class="top-logo">
           <router-link :to="homeURL">
             <img :src="logo" class="img-fluid" alt="logo">
-            <span>XRay</span>
+            <img :src="logo2" class="img-fluid" alt="logo">
+            <span>HEO/LAB</span>
           </router-link>
         </div>
       </div>
@@ -40,6 +41,7 @@ export default {
     homeURL: { type: Object, default: () => ({ name: 'layout1.dashboard' }) },
     title: { type: String, default: 'Dashboard' },
     logo: { type: String, default: require('../../../assets/images/logo.png') },
+    logo2: { type: String, default: require('../../../assets/images/logoLab.jpg') },
     horizontal: { type: Boolean, default: false },
     items: { type: Array }
   },
