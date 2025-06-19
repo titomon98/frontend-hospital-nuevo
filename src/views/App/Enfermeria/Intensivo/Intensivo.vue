@@ -697,6 +697,125 @@
         <b-button variant="secondary" @click="$bvModal.hide('HistorialCuenta')">Cerrar</b-button>
       </template>
     </b-modal>
+    <b-modal id="modal_agregar" size="xl" ref="modal_agregar" title="Ingresar nuevo examen">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <b-form @submit="$event.preventDefault()">
+        <b-row class="ml-2">
+          <b-col md="3">
+            <b-form-group label="Nombre del medico:">
+              <v-select
+                name="medico"
+                v-model="formExamen.comision"
+                :options="medicos"
+                :filterable="false"
+                placeholder="Seleccione el médico"
+                @search="onSearchMedicos"
+              >
+                <template v-slot:option="option">
+                  {{ option.nombre}}
+                </template>
+                <template slot="selected-option" slot-scope="option">
+                  {{option.nombre}}
+                </template>
+              </v-select>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Total:">
+              <b-form-input
+                disabled
+                v-model="formExamen.total"
+                placeholder="Ingresar el total"
+              ></b-form-input>
+            </b-form-group>
+          </b-col>
+        </b-row>
+        <b-row class="ml-2">
+          <b-col md="3">
+            <b-form-group label="Numero Muestra:">
+              <b-form-input
+                v-model="formExamen.numero_muestra"
+                placeholder="Ingresar el numero de muestra"
+              ></b-form-input>
+            </b-form-group>
+          </b-col>
+          <b-form-group label="Edad:">
+              <b-form-input
+              type="number"
+              v-model.trim="formExamen.edad"
+              placeholder="Ingresar la edad del paciente"
+              ></b-form-input>
+            </b-form-group>
+        </b-row>
+        <b-row class="ml-2">
+          <b-col md="4">
+            <b-form-group label="Tipo de Examen:">
+              <v-select
+                name="type"
+                v-model="selectedExamenAlmacenado"
+                :options="examenes_almacenados"
+                :filterable="false"
+                placeholder="Seleccione el Examen"
+                @search="onSearch_id_examenes_almacenados"
+              >
+                <template v-slot:spinner="{ loading }">
+                  <div v-show="loading">Cargando...</div>
+                </template>
+                <template v-slot:option="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+                <template slot="selected-option" slot-scope="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+              </v-select>
+            </b-form-group>
+          </b-col>
+        </b-row>
+      </b-form>
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click="guardarExamenRealizado"
+          >Guardar</b-button
+        >
+        <b-button variant="danger" @click="closeModal('modal_agregar')"
+          >Cancelar</b-button
+        >
+      </template>
+      <b-row>
+      <b-col sm="12">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Acciones</th>
+              <th>Nombre</th>
+              <th>CUI</th>
+              <th>Examen Realizado</th>
+              <th>Fecha y Hora</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="row in item_examenes" :key="row.id">
+              <td>
+                <b-button @click="addResultado(row.id, row.nombre_examen, row)" variant="success">Agregar resultado</b-button>
+                <b-button @click="anular(row.id)" variant="danger">Anular Examen</b-button>
+              </td>
+              <td>{{ row.nombre }}</td>
+              <td>{{ row.cui }}</td>
+              <td>{{ row.nombre_examen }}</td>
+              <td>{{ row.fecha_hora }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </b-col>
+      </b-row>
+    </b-modal>
     <b-row>
       <b-col md="12">
         <iq-card>
@@ -789,19 +908,27 @@
                     size="sm"
                     variant="dark"
                   >Ver honorarios</b-button>
+
+                  <b-button
+                    @click="showModal('modal_agregar'); ver_examen_realizado(props.rowData.id); realizar_examen(props.rowData.id, props.rowData.nombres, props.rowData.apellidos, props.rowData.cui, props.rowData.telefono )"
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="success"
+                  >Agregar Examen</b-button>
+
                   <b-button
                     v-b-tooltip.top="'Agregar consumo'"
                     @click="mostrarModalConsumos(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
-                    variant="success"
+                    variant="dark"
                    >Consumos</b-button>
 
                    <b-button
                     @click="generarReporteCuentaParcial(props.rowData.id, props.rowData.nombres, props.rowData.apellidos)"
                     class="mb-2 button-spacing"
                     size="sm"
-                    variant="dark"
+                    variant="success"
                     :disabled="!hasPermission([9, 10])"
                    >Cuenta parcial</b-button>
 
@@ -809,7 +936,7 @@
                     @click="generarHistorialCuentas(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
-                    variant="success"
+                    variant="dark"
                     :disabled="!hasPermission([9, 10, 11])"
                    >Historial Cuenta</b-button>
                    <b-button
@@ -1264,6 +1391,53 @@ export default {
         existencias_actuales: null,
         movimiento: 'SALIDAI'
       },
+      /* AREA DE EXAMENES */
+      camposResulado: [],
+      item_examenes: [],
+      examenes_almacenados: [],
+      encargados: [],
+      formExamen: {
+        id: 0,
+        nombre: '',
+        apellido: '',
+        cui: 0,
+        edad: 0,
+        comision: '',
+        total: 0,
+        correo: '',
+        whatsapp: '',
+        numero_muestra: 0,
+        existencia_actual: 0,
+        referido: 'INTENSIVO',
+        id_encargado: null,
+        pagado: 0,
+        por_pagar: 0,
+        id_examenes_almacenados: null,
+        NewExpediente: false,
+        id_expediente: 0,
+        examenExterior: false
+      },
+      selectedExamenAlmacenado: null,
+      fromExamenes: 0,
+      toExamenes: 0,
+      totalExamenes: 0,
+      perPageExamenes: 5,
+      searchExamenes: '',
+      fechaDesdeExamenes: null,
+      fechaHastaExamenes: null,
+      apiBaseExamenes: null,
+      formResultado: {
+        id: null,
+        id_campo: '',
+        id_tipo: '',
+        resultado: null,
+        alarma: ''
+      },
+      fieldsCampos: [
+        { key: 'nombre', label: 'Nombre' },
+        { key: 'unidades', label: 'Unidades' },
+        { key: 'resultado', label: 'Resultado' }
+      ],
       /* AREA DE REPORTES */
       reporte: {
         ConsumoTotal: '0.00',
@@ -2654,6 +2828,157 @@ export default {
 
       // Guardar el PDF
       doc.save('reporte_historial.pdf')
+    },
+
+    /* AREA DE EXAMENES DE LABORATORIO */
+    anular (id) {
+      const me = this
+      const ruta = apiUrl + `/Examenes_realizados/update?id=${id}`
+      axios.put(ruta, {
+        form: me.anularExamen
+      })
+        .then((response) => {
+          me.alertVariant = 'success'
+          me.showAlert()
+          me.alertText = 'Se ha ANULADO el examen'
+          me.ver_examen_realizado(id)
+        })
+        .catch((error) => {
+          me.alertVariant = 'danger'
+          me.showAlertError()
+          me.alertErrorText = error.response.data.msg
+          console.error('Error!', error)
+        })
+    },
+    addResultado (id, nombreexamen, row) {
+      this.$refs['modal-add-resultados'].show()
+      this.formResultado.id = id
+      this.getFieldsByExamenId(nombreexamen)
+    },
+
+    onValidateResultado (action) {
+      const camposConErrores = this.camposResulado.filter(campo => campo.resultado === '' || campo.resultado == null)
+      if (camposConErrores.length > 0) {
+        this.alertErrorText = 'Revisa que todos los campos de resultado estén llenos.'
+        this.showAlertError()
+        return
+      }
+      this.onSaveResultados()
+    },
+
+    onSaveResultados () {
+      const me = this
+      const resultados = this.camposResulado.map(campo => ({
+        id: me.formResultado.id,
+        id_campo: campo.id,
+        id_tipo: campo.id_tipo,
+        resultado: campo.resultado
+      }))
+
+      axios.post(apiUrl + '/detalleExamenRealizado/create', { resultados })
+        .then((response) => {
+          me.alertVariant = 'success'
+          me.showAlert()
+          me.alertText = 'Se han ingresado los resultados de los exámenes exitosamente'
+          me.$refs.vuetable2.refresh()
+          me.$refs.vuetable3.refresh()
+          me.closeModal('resultado')
+        })
+        .catch((error) => {
+          me.alertVariant = 'danger'
+          me.showAlertError()
+          me.alertErrorText = error.response.data.msg
+          console.error('Error al guardar los resultados!', error)
+        })
+    },
+
+    getFieldsByExamenId (examenId) {
+      axios.get(apiUrl + '/campoLaboratorio/getByExamenId', {
+        params: {
+          id: examenId
+        }
+      })
+        .then((response) => {
+          this.camposResulado = response.data.map(item => ({
+            id: item.id,
+            nombre: item.nombre,
+            unidades: item.unidades,
+            resultado: '',
+            id_tipo: item.id_examenes_almacenados
+          }))
+          const campos = response.data
+          this.campos = campos
+        })
+        .catch((error) => {
+          console.error('Error al obtener los campos del examen:', error)
+        })
+    },
+
+    guardarExamenRealizado () {
+      if (this.formExamen.total !== 0 && this.formExamen.numero_muestra !== 0 && this.formExamen.id_examenes_almacenados !== null) {
+        axios.post(apiUrl + '/Examenes_realizados/create', {
+          form: this.formExamen })
+          .then((response) => {
+            this.alertVariant = 'success'
+            this.showAlert()
+            this.alertText = 'Se ingresado al pasciente ' + this.formExamen.nombre + ' exitosamente'
+            this.closeModal('modal_agregar')
+          })
+          .catch((error) => {
+            this.alertVariant = 'danger'
+            this.showAlertError()
+            this.alertErrorText = error.response.data.msg
+            console.error('Error!', error)
+          })
+      } else {
+        this.alertVariant = 'danger'
+        this.showAlertError()
+        this.alertErrorText = 'Por favor llene los campos solicitados'
+      }
+    },
+    realizar_examen (id, nombre, apellido, cui, telefono) {
+      this.formExamen.nombre = nombre + ' ' + apellido
+      this.formExamen.cui = cui
+      this.formExamen.whatsapp = telefono
+      this.formExamen.id_expediente = id
+    },
+    ver_examen_realizado (id) {
+      axios.get(apiUrl + `/Examenes_realizados/listId/${id}`
+      ).then((response) => {
+        this.item_examenes = response.data
+      })
+    },
+    onSearch_id_examenes_almacenados (search, loading) {
+      if (search.length) {
+        this.searching_id_examenes_almacenados(search, loading)
+      }
+    },
+    searching_id_examenes_almacenados (search, loading) {
+      axios.get(apiUrl + '/examenesAlmacenados/getSearch',
+        {
+          params: {
+            search: search
+          }
+        }
+      ).then((response) => {
+        this.examenes_almacenados = response.data
+      })
+    },
+    onSearchEncargado (search, loading) {
+      if (search.length) {
+        this.searchingEncargado(search, loading)
+      }
+    },
+    searchingEncargado (search, loading) {
+      axios.get(apiUrl + '/encargadoExamen/getSearch',
+        {
+          params: {
+            search: search
+          }
+        }
+      ).then((response) => {
+        this.encargados = response.data
+      })
     }
   }
 }
