@@ -436,10 +436,12 @@
               <b-form-group v-if="isCirugiaMayorOMedia" label="Cobro Oximetro / Cauterio">
                 <b-form-checkbox v-model="salaOperaciones.oximetro" :disabled="isCirugiaMayorOMedia">Oxímetro </b-form-checkbox>
                 <b-form-checkbox v-model="salaOperaciones.cauterio" :disabled="isCirugiaMayorOMedia">Cauterio </b-form-checkbox>
+                <b-form-checkbox v-model="salaOperaciones.monitor" :disabled="isCirugiaMayorOMedia">Monitor </b-form-checkbox>
               </b-form-group>
               <b-form-group v-if="!isCirugiaMayorOMedia" label="Oxímetro / Cauterio">
                 <b-form-checkbox v-model="salaOperaciones.oximetro" >Oxímetro</b-form-checkbox>
                 <b-form-checkbox v-model="salaOperaciones.cauterio" >Cauterio</b-form-checkbox>
+                <b-form-checkbox v-model="salaOperaciones.monitor" >Monitor</b-form-checkbox>
               </b-form-group>
               <b-form-group label="Duración Horas : Minutos">
                 <b-row>
@@ -774,29 +776,56 @@
         <b-row class="ml-2">
           <b-col md="4">
             <b-form-group label="Tipo de Examen:">
-              <v-select
-                name="type"
-                v-model="selectedExamenAlmacenado"
-                :options="examenes_almacenados"
-                :filterable="false"
-                placeholder="Seleccione el Examen"
-                @search="onSearch_id_examenes_almacenados"
+              <div v-if="isLoading">
+                <p>Cargando...</p>
+              </div>
+              <Multiselect
+                v-model="selectedExamenes"
+                :options="examenes_almacenadosBuscar"
+                :multiple="true"
+                :close-on-select="false"
+                :clear-on-select="false"
+                :preserve-search="true"
+                placeholder="Seleccionar exámenes"
+                label="nombre"
+                track-by="id"
+                @search-change="onSearch_id_examenes_almacenados"
+                :pagination="true"
+                :page="currentPageExa"
+                @page-change="onPageChangeExa"
               >
-                <template v-slot:spinner="{ loading }">
-                  <div v-show="loading">Cargando...</div>
+                <!-- Personalización de las opciones mientras el usuario busca -->
+                <template v-slot:option="{ option }">
+                  <div class="custom-option">
+                    <strong>{{ option.nombre }}</strong> --
+                    <small>Tipo de Examen: {{ option.tipo_examen }}</small> |
+                    <small>Precio: Q{{ option.precio_normal }}</small> |
+                  </div>
                 </template>
-                <template v-slot:option="option">
-                  {{ 'Nombre: '+ option.nombre }}
+
+                <!-- Personalización de cómo se muestran los seleccionados -->
+                <template v-slot:selection="{ values, search, isOpen }">
+                  <span class="multiselect__single" v-if="values.length && !isOpen">
+                    {{ values.length }} exámenes seleccionados
+                  </span>
                 </template>
-                <template slot="selected-option" slot-scope="option">
-                  {{ 'Nombre: '+ option.nombre }}
-                </template>
-              </v-select>
+              </Multiselect>
+              <!-- Mostrar la lista de exámenes seleccionados -->
+              <div>
+                <ul class="selected-options-list" v-if="selectedExamenes.length > 0">
+                  <li v-for="(examen, index) in selectedExamenes" :key="examen.id">
+                    {{ index + 1 }}. {{ examen.nombre }} - Precio: Q{{ examen.precio_normal }}
+                  </li>
+                </ul>
+              </div>
             </b-form-group>
           </b-col>
         </b-row>
       </b-form>
       <template #modal-footer="{}">
+
+        <div class="ml-auto"> <span class="mr-2">Total: Q{{ TotalAPagar2 }}</span></div>
+
         <b-button variant="primary" @click="guardarExamenRealizado"
           >Guardar</b-button
         >
@@ -812,12 +841,6 @@
               <th>Acciones</th>
               <th>Nombre</th>
               <th>CUI</th>
-              <th>Total a Pagar</th>
-              <th>Celular</th>
-              <th>Numero de Muestra</th>
-              <th>Nombre de Encargado</th>
-              <th>Pagado</th>
-              <th>Por Pagar</th>
               <th>Examen Realizado</th>
               <th>Fecha y Hora</th>
             </tr>
@@ -830,12 +853,6 @@
               </td>
               <td>{{ row.nombre }}</td>
               <td>{{ row.cui }}</td>
-              <td>{{ row.total }}</td>
-              <td>{{ row.whatsapp }}</td>
-              <td>{{ row.numero_muestra }}</td>
-              <td>{{ row.nombre_encargado }}</td>
-              <td>{{ row.pagado }}</td>
-              <td>{{ row.por_pagar }}</td>
               <td>{{ row.nombre_examen }}</td>
               <td>{{ row.fecha_hora }}</td>
             </tr>
@@ -1014,7 +1031,7 @@
                    >Consumos</b-button>
 
                    <b-button
-                    @click="showModal('modal_agregar'); ver_examen_realizado (props.rowData.cui); realizar_examen(props.rowData.id, props.rowData.nombres, props.rowData.apellidos, props.rowData.cui, props.rowData.telefono )"
+                    @click="showModal('modal_agregar'); ver_examen_realizado(props.rowData.id); realizar_examen(props.rowData.id, props.rowData.nombres, props.rowData.apellidos, props.rowData.cui, props.rowData.telefono )"
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="success"
@@ -1095,6 +1112,7 @@ import moment from 'moment'
 import { mapGetters } from 'vuex'
 import JsPDF from 'jspdf'
 import 'jspdf-autotable'
+import Multiselect from 'vue-multiselect'
 
 export default {
   name: 'Quirofano',
@@ -1102,7 +1120,8 @@ export default {
     vuetable: Vuetable,
     'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
     'datatable-heading': DatatableHeading,
-    quillEditor
+    quillEditor,
+    Multiselect
   },
   setup () {
     return { $v: useVuelidate() }
@@ -1476,6 +1495,7 @@ export default {
       salaOperaciones: {
         oximetro: false,
         cauterio: false,
+        monitor: false,
         horas: null,
         minutos: null,
         categoria: null
@@ -1516,7 +1536,11 @@ export default {
       camposResulado: [],
       item_examenes: [],
       examenes_almacenados: [],
+      examenes_almacenadosBuscar: [],
       encargados: [],
+      currentPageExa: 1,
+      selectedExamenes: [],
+      TotalAPagar2: 0,
       formExamen: {
         id: 0,
         nombre: '',
@@ -1529,7 +1553,7 @@ export default {
         whatsapp: '',
         numero_muestra: 0,
         existencia_actual: 0,
-        referido: 'Quirofano Enfermeria',
+        referido: 'QUIROFANO',
         id_encargado: null,
         pagado: 0,
         por_pagar: 0,
@@ -1688,6 +1712,7 @@ export default {
   watch: {
     'salaOperaciones.categoria': 'calcularTotalAPagar',
     'salaOperaciones.oximetro': 'calcularTotalAPagar',
+    'salaOperaciones.monitor': 'calcularTotalAPagar',
     'salaOperaciones.cauterio': 'calcularTotalAPagar',
     'salaOperaciones.horas': 'calcularTotalAPagar',
     'salaOperaciones.minutos': 'calcularTotalAPagar',
@@ -1696,6 +1721,16 @@ export default {
         this.formExamen.por_pagar = newValue.precio_normal
         this.formExamen.id_examenes_almacenados = newValue.id
         this.formExamen.total = newValue.precio_normal
+      }
+    },
+    selectedExamenes (newValue) {
+      if (newValue) {
+        this.TotalAPagar2 = newValue.reduce((total, examen) => parseFloat(total) + parseFloat(examen.precio_normal), 0)
+        this.formExamen.total = this.TotalAPagar2
+        this.formExamen.id_examenes_almacenados = newValue.map(examen => examen.id)
+        this.formExamen.por_pagar = this.TotalAPagar2
+      } else {
+        console.log('ERROR AL CARGAR EL TOTAL A PAGAR EN LA FUNCION WATCH')
       }
     }
   },
@@ -1828,9 +1863,11 @@ export default {
       if (!this.isCirugiaMayorOMedia) {
         this.salaOperaciones.oximetro = false
         this.salaOperaciones.cauterio = false
+        this.salaOperaciones.monitor = false
       } else if (this.isCirugiaMayorOMedia) {
         this.salaOperaciones.oximetro = true
         this.salaOperaciones.cauterio = true
+        this.salaOperaciones.monitor = true
       }
     },
     openModal (modal, action) {
@@ -1964,6 +2001,7 @@ export default {
           this.$refs['modal-sala-operaciones'].hide()
           this.salaOperaciones.oximetro = false
           this.salaOperaciones.cauterio = false
+          this.salaOperaciones.monitor = false
           this.salaOperaciones.horas = null
           this.salaOperaciones.minutos = null
           this.salaOperaciones.categoria = null
@@ -2043,6 +2081,9 @@ export default {
           this.apiBaseExamenes = null
           this.item_examenes = []
           this.examenes_almacenados = []
+          this.examenes_almacenadosBuscar = []
+          this.currentPageExa = 1
+          this.selectedExamenes = []
           break
         }
         case 'resultado': {
@@ -2079,6 +2120,7 @@ export default {
 
         if (this.salaOperaciones.oximetro) total += parseFloat(this.preciosServicios['Oximetro']) || 0
         if (this.salaOperaciones.cauterio) total += parseFloat(this.preciosServicios['Cauterio']) || 0
+        if (this.salaOperaciones.monitor) total += parseFloat(this.preciosServicios['Monitor']) || 0
 
         const horas = parseFloat(this.salaOperaciones.horas) || 0
         const minutos = parseFloat(this.salaOperaciones.minutos) || 0
@@ -2360,6 +2402,7 @@ export default {
           axios.post(apiUrl + '/salaOperaciones/created', {
             oximetro: this.salaOperaciones.oximetro,
             cauterio: this.salaOperaciones.cauterio,
+            monitor: this.salaOperaciones.monitor,
             horas: this.salaOperaciones.horas,
             minutos: this.salaOperaciones.minutos,
             categoria: this.salaOperaciones.categoria,
@@ -2369,6 +2412,7 @@ export default {
           this.salaOperaciones = {
             oximetro: false,
             cauterio: false,
+            monitor: false,
             horas: null,
             minutos: null,
             categoria: null
@@ -2877,27 +2921,34 @@ export default {
       this.formExamen.whatsapp = telefono
       this.formExamen.id_expediente = id
     },
-    ver_examen_realizado (cui) {
-      axios.get(apiUrl + `/Examenes_realizados/list/cui?cui=${cui}`
+    ver_examen_realizado (id) {
+      axios.get(apiUrl + `/Examenes_realizados/listId/${id}`
       ).then((response) => {
         this.item_examenes = response.data
       })
     },
     onSearch_id_examenes_almacenados (search, loading) {
-      if (search.length) {
-        this.searching_id_examenes_almacenados(search, loading)
+      this.isLoading = true
+      const params = {
+        search: search,
+        page: this.currentPageExa,
+        perPage: this.$refs.vuetable.perPage
       }
+
+      axios.get(apiUrl + '/examenesAlmacenadosBuscar/getSearch', { params })
+        .then((response) => {
+          this.examenes_almacenadosBuscar = response.data.data
+          this.$refs.vuetableBuscar.setData(response.data)
+          this.isLoading = false
+        })
+        .catch((error) => {
+          console.error('Error al buscar exámenes:', error)
+          this.isLoading = false
+        })
     },
-    searching_id_examenes_almacenados (search, loading) {
-      axios.get(apiUrl + '/examenesAlmacenados/getSearch',
-        {
-          params: {
-            search: search
-          }
-        }
-      ).then((response) => {
-        this.examenes_almacenados = response.data
-      })
+    onPageChangeExa (page) {
+      this.currentPageExa = page
+      this.onSearch_id_examenes_almacenados('')
     },
     onSearchEncargado (search, loading) {
       if (search.length) {

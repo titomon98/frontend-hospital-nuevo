@@ -265,12 +265,18 @@ export default {
     onSave () {
       const me = this
       axios.post(apiUrl + '/expedientes/createEnfermeria', {
-        form: me.form, user: me.currentUser.user })
+        form: me.form, user: me.currentUser.user
+      })
         .then(() => {
           me.alertVariant = 'success'
           me.showAlert()
           me.alertText = 'Se ha creado el expediente exitosamente'
-          me.$router.push({ name: 'caja.expedientes' })
+          const userRole = me.currentUser.user_type
+          if ([9, 10, 11].includes(userRole)) {
+            me.$router.push({ name: 'enfermeria.AsignarHabitacion' })
+          } else {
+            me.$router.push({ name: 'caja.expedientes' })
+          }
         })
         .catch((error) => {
           me.alertVariant = 'danger'
