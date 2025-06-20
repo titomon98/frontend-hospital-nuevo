@@ -2523,7 +2523,14 @@ export default {
       this.toP = paginationData.to
       this.totalP = paginationData.total
       this.lastPageP = paginationData.last_page
-      this.items = paginationData.data
+      this.items = paginationData.data.map(item => {
+        item.createdAt = moment(item.createdAt).format('DD/MM/YYYY')
+        item.updatedAt = moment(item.updatedAt).format('DD/MM/YYYY')
+        return {
+          createdAt: item.createdAt,
+          updatedAt: item.updatedAt
+        }
+      })
       this.$refs.paginationReceta.setPaginationData(paginationData)
     },
     onChangePageReceta (page) {
@@ -2593,7 +2600,14 @@ export default {
       this.toP = paginationData.to
       this.totalP = paginationData.total
       this.lastPageP = paginationData.last_page
-      this.items = paginationData.data
+      this.items = paginationData.data.map(item => {
+        item.createdAt = moment(item.createdAt).format('DD/MM/YYYY')
+        item.updatedAt = moment(item.updatedAt).format('DD/MM/YYYY')
+        return {
+          createdAt: item.createdAt,
+          updatedAt: item.updatedAt
+        }
+      })
       this.$refs.paginationConsumo.setPaginationData(paginationData)
     },
     onChangePageConsumo (page) {
@@ -2896,7 +2910,7 @@ export default {
     guardarExamenRealizado () {
       if (this.formExamen.total !== 0 && this.formExamen.numero_muestra !== 0 && this.formExamen.id_examenes_almacenados !== null) {
         axios.post(apiUrl + '/Examenes_realizados/create', {
-          form: this.formExamen, user: me.currentUser.user })
+          form: this.formExamen, user: this.currentUser.user })
           .then((response) => {
             this.alertVariant = 'success'
             this.showAlert()

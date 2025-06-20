@@ -2139,7 +2139,14 @@ export default {
       this.toP = paginationData.to
       this.totalP = paginationData.total
       this.lastPageP = paginationData.last_page
-      this.items = paginationData.data
+      this.items = paginationData.data.map(item => {
+        item.createdAt = moment(item.createdAt).format('DD/MM/YYYY')
+        item.updatedAt = moment(item.updatedAt).format('DD/MM/YYYY')
+        return {
+          createdAt: item.createdAt,
+          updatedAt: item.updatedAt
+        }
+      })
       this.$refs.paginationReceta.setPaginationData(paginationData)
     },
     onChangePageReceta (page) {
@@ -2193,7 +2200,14 @@ export default {
       this.toP = paginationData.to
       this.totalP = paginationData.total
       this.lastPageP = paginationData.last_page
-      this.items = paginationData.data
+      this.items = paginationData.data.map(item => {
+        item.createdAt = moment(item.createdAt).format('DD/MM/YYYY')
+        item.updatedAt = moment(item.updatedAt).format('DD/MM/YYYY')
+        return {
+          createdAt: item.createdAt,
+          updatedAt: item.updatedAt
+        }
+      })
       this.$refs.paginationConsumo.setPaginationData(paginationData)
     },
     onChangePageConsumo (page) {
