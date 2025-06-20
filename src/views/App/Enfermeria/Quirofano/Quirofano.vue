@@ -2896,7 +2896,7 @@ export default {
     guardarExamenRealizado () {
       if (this.formExamen.total !== 0 && this.formExamen.numero_muestra !== 0 && this.formExamen.id_examenes_almacenados !== null) {
         axios.post(apiUrl + '/Examenes_realizados/create', {
-          form: this.formExamen, user: me.currentUser.user })
+          form: this.formExamen, user: this.currentUser.user })
           .then((response) => {
             this.alertVariant = 'success'
             this.showAlert()
