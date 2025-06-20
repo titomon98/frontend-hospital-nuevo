@@ -935,7 +935,7 @@ export default {
       const me = this
       // this.$refs["modalSave"].hide();
       axios.put(apiUrl + '/expedientes/update', {
-        form: me.form })
+        form: me.form, user: me.currentUser.user })
         .then((response) => {
           me.alertVariant = 'primary'
           me.showAlert()
@@ -1300,7 +1300,7 @@ ______________________________________               ___________________________
 
 
 
-                       ${this.paciente.cui_encargado}                                                                          
+                       ${this.paciente.cui_encargado}
 ______________________________________               ______________________________________
 
                              No. DPI                                                                                       No. DPI
@@ -1308,7 +1308,7 @@ ______________________________________               ___________________________
 
 
 
- Direccion: ${this.paciente.direccion_encargado} - Tel: ${this.paciente.contacto_encargado} 
+ Direccion: ${this.paciente.direccion_encargado} - Tel: ${this.paciente.contacto_encargado}
 ______________________________________               ______________________________________
 
                    Dirección y Teléfono                                                               Dirección y Teléfono

@@ -88,7 +88,55 @@
         >
       </template>
     </b-modal>
-    <b-modal size="lg" id="modal-ver-receta" ref="modal-ver-receta" title="Ver recetas">
+    <b-modal size="lg" id="modal-add-evolucion" ref="modal-add-evolucion" title="Evolución de paciente">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <b-form @submit="$event.preventDefault()">
+        <b-form-group label="Contenido:">
+          <quill-editor v-model="form.evolucion" :options="editorOptions2" class="custom-editor"></quill-editor>
+        </b-form-group>
+      </b-form>
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click="saveEvolucion()"
+          >Guardar</b-button
+        >
+        <b-button variant="danger" @click="closeModal('add-evolucion')"
+          >Cancelar</b-button
+        >
+      </template>
+    </b-modal>
+    <b-modal size="lg" id="modal-add-orden" ref="modal-add-orden" title="Orden médica">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <b-form @submit="$event.preventDefault()">
+        <b-form-group label="Contenido:">
+          <quill-editor v-model="form.orden" :options="editorOptions3" class="custom-editor"></quill-editor>
+        </b-form-group>
+      </b-form>
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click="saveOrden()"
+          >Guardar</b-button
+        >
+        <b-button variant="danger" @click="closeModal('add-orden')"
+          >Cancelar</b-button
+        >
+      </template>
+    </b-modal>
+    <b-modal size="lg" id="modal-ver-receta" ref="modal-ver-receta" :title="tituloVer">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -649,6 +697,125 @@
         <b-button variant="secondary" @click="$bvModal.hide('HistorialCuenta')">Cerrar</b-button>
       </template>
     </b-modal>
+    <b-modal id="modal_agregar" size="xl" ref="modal_agregar" title="Ingresar nuevo examen">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <b-form @submit="$event.preventDefault()">
+        <b-row class="ml-2">
+          <b-col md="3">
+            <b-form-group label="Nombre del medico:">
+              <v-select
+                name="medico"
+                v-model="formExamen.comision"
+                :options="medicos"
+                :filterable="false"
+                placeholder="Seleccione el médico"
+                @search="onSearchMedicos"
+              >
+                <template v-slot:option="option">
+                  {{ option.nombre}}
+                </template>
+                <template slot="selected-option" slot-scope="option">
+                  {{option.nombre}}
+                </template>
+              </v-select>
+            </b-form-group>
+          </b-col>
+          <b-col md="3">
+            <b-form-group label="Total:">
+              <b-form-input
+                disabled
+                v-model="formExamen.total"
+                placeholder="Ingresar el total"
+              ></b-form-input>
+            </b-form-group>
+          </b-col>
+        </b-row>
+        <b-row class="ml-2">
+          <b-col md="3">
+            <b-form-group label="Numero Muestra:">
+              <b-form-input
+                v-model="formExamen.numero_muestra"
+                placeholder="Ingresar el numero de muestra"
+              ></b-form-input>
+            </b-form-group>
+          </b-col>
+          <b-form-group label="Edad:">
+              <b-form-input
+              type="number"
+              v-model.trim="formExamen.edad"
+              placeholder="Ingresar la edad del paciente"
+              ></b-form-input>
+            </b-form-group>
+        </b-row>
+        <b-row class="ml-2">
+          <b-col md="4">
+            <b-form-group label="Tipo de Examen:">
+              <v-select
+                name="type"
+                v-model="selectedExamenAlmacenado"
+                :options="examenes_almacenados"
+                :filterable="false"
+                placeholder="Seleccione el Examen"
+                @search="onSearch_id_examenes_almacenados"
+              >
+                <template v-slot:spinner="{ loading }">
+                  <div v-show="loading">Cargando...</div>
+                </template>
+                <template v-slot:option="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+                <template slot="selected-option" slot-scope="option">
+                  {{ 'Nombre: '+ option.nombre }}
+                </template>
+              </v-select>
+            </b-form-group>
+          </b-col>
+        </b-row>
+      </b-form>
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click="guardarExamenRealizado"
+          >Guardar</b-button
+        >
+        <b-button variant="danger" @click="closeModal('modal_agregar')"
+          >Cancelar</b-button
+        >
+      </template>
+      <b-row>
+      <b-col sm="12">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Acciones</th>
+              <th>Nombre</th>
+              <th>CUI</th>
+              <th>Examen Realizado</th>
+              <th>Fecha y Hora</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="row in item_examenes" :key="row.id">
+              <td>
+                <b-button @click="addResultado(row.id, row.nombre_examen, row)" variant="success">Agregar resultado</b-button>
+                <b-button @click="anular(row.id)" variant="danger">Anular Examen</b-button>
+              </td>
+              <td>{{ row.nombre }}</td>
+              <td>{{ row.cui }}</td>
+              <td>{{ row.nombre_examen }}</td>
+              <td>{{ row.fecha_hora }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </b-col>
+      </b-row>
+    </b-modal>
     <b-row>
       <b-col md="12">
         <iq-card>
@@ -713,30 +880,77 @@
                     size="sm" variant="success">Agregar honorarios</b-button>
                   <b-button v-if="props.rowData.nombres !== 'PENDIENTE' " @click="showModal('modal-ver-honorarios'); getDataHonorarios(props.rowData.id)"
                     class="mb-2 button-spacing" size="sm" variant="dark">Ver honorarios</b-button>
+
+                  <b-button
+                    @click="showModal('modal_agregar'); ver_examen_realizado(props.rowData.id); realizar_examen(props.rowData.id, props.rowData.nombres, props.rowData.apellidos, props.rowData.cui, props.rowData.telefono )"
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="success"
+                  >Agregar Examen</b-button>
+
                   <b-button
                     v-b-tooltip.top="'Agregar consumo'"
                     @click="mostrarModalConsumos(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
-                    variant="success"
+                    variant="dark"
                    >Consumos</b-button>
 
                    <b-button
                     @click="generarReporteCuentaParcial(props.rowData.id, props.rowData.nombres, props.rowData.apellidos)"
                     class="mb-2 button-spacing"
                     size="sm"
-                    variant="dark"
-                    :disabled="!hasPermission([9])"
+                    variant="success"
+                    :disabled="!hasPermission([9, 10])"
                    >Cuenta parcial</b-button>
 
                    <b-button
                     @click="generarHistorialCuentas(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
-                    variant="success"
-                    :disabled="!hasPermission([9])"
+                    variant="dark"
+                    :disabled="!hasPermission([9, 10, 11])"
                    >Historial Cuenta</b-button>
 
+                   <b-button
+                    @click="addEvolucion(props.rowData.id)"
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="dark"
+                    :disabled="!hasPermission([10])"
+                  >Agregar evolución</b-button>
+
+                  <b-button
+                  v-if="props.rowData.nombres !== 'PENDIENTE' "
+                    @click="verEvolucion(props.rowData.id)"
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="success"
+                  >Ver evolución</b-button>
+
+                  <b-button
+                    @click="addOrdenes(props.rowData.id)"
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="dark"
+                    :disabled="!hasPermission([10])"
+                  >Agregar orden médica</b-button>
+
+                  <b-button
+                  v-if="props.rowData.nombres !== 'PENDIENTE' "
+                    @click="verOrden(props.rowData.id)"
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="success"
+                  >Ver órdenes médicas</b-button>
+
+                    <b-button
+                    @click="generarHojaEmergenciaPDF()"
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="success"
+                    :disabled="!hasPermission([9, 10])"
+                   >Hoja de Emergencia</b-button>
                 </div>
               </template>
               <!-- Paginacion     -->
@@ -791,6 +1005,7 @@ export default {
   },
   data () {
     return {
+      tituloVer: '',
       consumosTemporales: [],
       insumosActuales: [],
       tipoInsumoActual: '0',
@@ -808,6 +1023,32 @@ export default {
           ]
         },
         placeholder: 'Escribir contenido de la receta',
+        theme: 'snow'
+      },
+      editorOptions2: {
+        modules: {
+          toolbar: [
+            [{ 'header': '1' }, { 'header': '2' }, { 'font': [] }],
+            [{ size: [] }],
+            ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+            ['clean']
+          ]
+        },
+        placeholder: 'Escribir la evolución',
+        theme: 'snow'
+      },
+      editorOptions3: {
+        modules: {
+          toolbar: [
+            [{ 'header': '1' }, { 'header': '2' }, { 'font': [] }],
+            [{ size: [] }],
+            ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+            ['clean']
+          ]
+        },
+        placeholder: 'Escribir la orden médica',
         theme: 'snow'
       },
       perPage: 5,
@@ -830,6 +1071,8 @@ export default {
         state: 1,
         selectedOption: 'hospi',
         receta: null,
+        evolucion: null,
+        orden: null,
         id_receta: null,
         cantidad: null,
         selected_insumo: '0'
@@ -904,9 +1147,15 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
+          name: 'created_by',
+          sortField: 'created_by',
+          title: 'Creado por',
+          dataClass: 'list-item-heading'
+        },
+        {
           name: 'createdAt',
           sortField: 'createdAt',
-          title: 'Creación',
+          title: 'Fecha de creación',
           dataClass: 'list-item-heading'
         }
       ],
@@ -1139,6 +1388,53 @@ export default {
         state: 1,
         movimiento: 'SALIDAE'
       },
+      /* AREA DE EXAMENES */
+      camposResulado: [],
+      item_examenes: [],
+      examenes_almacenados: [],
+      encargados: [],
+      formExamen: {
+        id: 0,
+        nombre: '',
+        apellido: '',
+        cui: 0,
+        edad: 0,
+        comision: '',
+        total: 0,
+        correo: '',
+        whatsapp: '',
+        numero_muestra: 0,
+        existencia_actual: 0,
+        referido: 'EMERGENCIA',
+        id_encargado: null,
+        pagado: 0,
+        por_pagar: 0,
+        id_examenes_almacenados: null,
+        NewExpediente: false,
+        id_expediente: 0,
+        examenExterior: false
+      },
+      selectedExamenAlmacenado: null,
+      fromExamenes: 0,
+      toExamenes: 0,
+      totalExamenes: 0,
+      perPageExamenes: 5,
+      searchExamenes: '',
+      fechaDesdeExamenes: null,
+      fechaHastaExamenes: null,
+      apiBaseExamenes: null,
+      formResultado: {
+        id: null,
+        id_campo: '',
+        id_tipo: '',
+        resultado: null,
+        alarma: ''
+      },
+      fieldsCampos: [
+        { key: 'nombre', label: 'Nombre' },
+        { key: 'unidades', label: 'Unidades' },
+        { key: 'resultado', label: 'Resultado' }
+      ],
       /* AREA DE REPORTES */
       reporte: {
         ConsumoTotal: '0.00',
@@ -1342,8 +1638,30 @@ export default {
           this.$v.$reset()
           this.$refs['modal-add-receta'].hide()
           this.form.id = 0
+          this.form.receta = null
           this.form.name = ''
           this.form.state = 1
+          this.form.selected_insumo = '0'
+          break
+        }
+        case 'add-evolucion': {
+          this.$v.$reset()
+          this.$refs['modal-add-evolucion'].hide()
+          this.form.id = 0
+          this.form.evolucion = null
+          this.form.name = ''
+          this.form.state = 1
+          this.form.selected_insumo = '0'
+          break
+        }
+        case 'add-orden': {
+          this.$v.$reset()
+          this.$refs['modal-add-orden'].hide()
+          this.form.id = 0
+          this.form.orden = null
+          this.form.name = ''
+          this.form.state = 1
+          this.form.selected_insumo = '0'
           break
         }
         case 'ver-receta': {
@@ -1586,6 +1904,14 @@ export default {
       this.$refs['modal-add-receta'].show()
       this.form.id = id
     },
+    addEvolucion (id) {
+      this.$refs['modal-add-evolucion'].show()
+      this.form.id = id
+    },
+    addOrdenes (id) {
+      this.$refs['modal-add-orden'].show()
+      this.form.id = id
+    },
     saveReceta () {
       const me = this
       if (me.form.receta !== null) {
@@ -1607,10 +1933,65 @@ export default {
           })
       }
     },
+    saveEvolucion () {
+      const me = this
+      if (me.form.evolucion !== null) {
+        axios.post(apiUrl + '/evoluciones/create', {
+          form: me.form })
+          .then((response) => {
+            me.alertVariant = 'primary'
+            me.showAlert()
+            me.alertText = 'Se ha creado la nota de evolución exitosamente'
+            me.$refs.vuetable.refresh()
+            me.closeModal('add-evolucion')
+            me.form.id = 0
+          })
+          .catch((error) => {
+            me.alertVariant = 'danger'
+            me.showAlertError()
+            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+            console.error('Error!', error)
+          })
+      }
+    },
+    saveOrden () {
+      const me = this
+      if (me.form.orden !== null) {
+        axios.post(apiUrl + '/ordenes/create', {
+          form: me.form })
+          .then((response) => {
+            me.alertVariant = 'primary'
+            me.showAlert()
+            me.alertText = 'Se ha creado la orden médica exitosamente'
+            me.$refs.vuetable.refresh()
+            me.closeModal('add-orden')
+            me.form.id = 0
+          })
+          .catch((error) => {
+            me.alertVariant = 'danger'
+            me.showAlertError()
+            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+            console.error('Error!', error)
+          })
+      }
+    },
     verReceta (id) {
       this.$refs['modal-ver-receta'].show()
       this.getDataRecetas(id)
       this.form.id_receta = id
+      this.tituloVer = 'Ver receta'
+    },
+    verEvolucion (id) {
+      this.$refs['modal-ver-receta'].show()
+      this.getDataEvoluciones(id)
+      this.form.id_receta = id
+      this.tituloVer = 'Ver evolución del paciente'
+    },
+    verOrden (id) {
+      this.$refs['modal-ver-receta'].show()
+      this.getDataOrdenes(id)
+      this.form.id_receta = id
+      this.tituloVer = 'Ver órdenes del paciente'
     },
     addServicio (id) {
       this.$refs['modal-add-servicio'].show()
@@ -1679,7 +2060,7 @@ export default {
     onUpdate () {
       const me = this
       axios.put(apiUrl + '/expedientes/update', {
-        form: me.form })
+        form: me.form, user: me.currentUser.user })
         .then((response) => {
           me.alertVariant = 'primary'
           me.showAlert()
@@ -1773,6 +2154,14 @@ export default {
     getDataRecetas (id) {
       this.form.id = id
       this.apiBaseReceta = apiUrl + `/recetas/getId?id=${id}`
+    },
+    getDataEvoluciones (id) {
+      this.form.id = id
+      this.apiBaseReceta = apiUrl + `/evoluciones/getId?id=${id}`
+    },
+    getDataOrdenes (id) {
+      this.form.id = id
+      this.apiBaseReceta = apiUrl + `/ordenes/getId?id=${id}`
     },
     onSearchServicios (search, loading) {
       if (search.length) {
@@ -2101,8 +2490,6 @@ export default {
       const ConsumoQuirurgicosTotal = data.consumosQuirurgicos.reduce((acc, item) => acc + parseFloat(item.total), 0)
       const ExamenesTotal = data.examenes.reduce((acc, item) => acc + item.total, 0)
       const ServicioSalaOperacionesTotal = data.salaOperaciones.reduce((acc, item) => acc + parseFloat(item.total), 0)
-      // const TotalHonorarios = data.honorarios.reduce((acc, item) => acc + parseFloat(item.total), 0)
-      // const medicosOrdenados = data.honorarios.sort((a, b) => b.total - a.total)
 
       totalDeuda = parseFloat(ConsumoTotal) +
                   parseFloat(ConsumoComunTotal) +
@@ -2472,6 +2859,260 @@ export default {
 
       // Guardar el PDF
       doc.save('reporte_historial.pdf')
+    },
+    /* HOJA DE COBRE EN EMERGENCIA */
+
+    generarHojaEmergenciaPDF () {
+      const datos = {
+        fecha: '04/06/2025',
+        hora: '14:35',
+        nombre: 'CORTIZ WINCHESTER',
+        edad: '45',
+        direccion: 'Zona 1, San Marcos',
+        telefono: '5555-1234',
+        motivo: 'Dolor abdominal',
+        diagnostico: 'Apendicitis',
+        tratamiento: 'Cirugía',
+        medico: 'Dr. Ramírez',
+        hospitalizado: true,
+        examenes: 'Hemograma, Urianálisis',
+        medicamentos: [
+          { nombre: 'Suero', precio: '25.00' },
+          { nombre: 'Jeringas', precio: '5.00' }
+        ],
+        total: '30.00',
+        emergencia: '50.00',
+        laboratorios: '100.00',
+        subtotal: '180.00',
+        rx: '40.00',
+        honorarios: '200.00',
+        totalPagar: '420.00',
+        observaciones: 'Paciente estable post cirugía.'
+      }
+      const doc = new JsPDF()
+
+      doc.setFontSize(12)
+      doc.setFont('times', 'normal')
+
+      // Encabezado
+      doc.setFont(undefined, 'bold')
+      doc.text('HOSPITAL DE ESPECIALIDADES', 20, 20)
+      doc.text('DE OCCIDENTE, S.A.', 20, 27)
+      doc.setTextColor(255, 0, 0)
+      doc.text('No. 000019', 160, 20)
+      doc.setTextColor(0, 0, 0)
+      doc.setFontSize(14)
+      doc.text('HOJA DE EMERGENCIAS', 70, 35)
+
+      doc.setFontSize(12)
+      doc.setFont(undefined, 'normal')
+
+      // Información del paciente
+      doc.text(`FECHA: ${datos.fecha || ''}`, 20, 45)
+      doc.text(`HORA: ${datos.hora || ''}`, 120, 45)
+      doc.text(`NOMBRE DEL PACIENTE: ${datos.nombre || ''}`, 20, 55)
+      doc.text(`EDAD: ${datos.edad || ''}`, 20, 65)
+      doc.text(`DIRECCIÓN: ${datos.direccion || ''}`, 50, 65)
+      doc.text(`TELÉFONO: ${datos.telefono || ''}`, 150, 65)
+      doc.text(`MOTIVO DE LA CONSULTA: ${datos.motivo || ''}`, 20, 75)
+      doc.text(`DIAGNÓSTICO: ${datos.diagnostico || ''}`, 20, 85)
+      doc.text(`TRATAMIENTO: ${datos.tratamiento || ''}`, 20, 95)
+      doc.text(`MÉDICO TRATANTE: ${datos.medico || ''}`, 20, 105)
+      doc.text(`SE HOSPITALIZA: ${datos.hospitalizado ? 'Sí' : 'No'}`, 130, 105)
+
+      doc.text('EXÁMENES DE LABORATORIO:', 20, 115)
+      doc.text(datos.examenes || '', 20, 122)
+
+      doc.text('MEDICINA Y MATERIAL MÉDICO QUIRÚRGICO:', 20, 135)
+
+      let startY = 142
+      if (Array.isArray(datos.medicamentos)) {
+        datos.medicamentos.forEach((med, index) => {
+          doc.text(`${med.nombre}`, 20, startY + (index * 7))
+          doc.text(`Q. ${med.precio}`, 100, startY + (index * 7))
+        })
+      }
+      let totalY = startY + (datos.medicamentos?.length || 0) * 7 + 10
+
+      // Totales
+      doc.text('TOTAL .................................................................', 20, totalY)
+      doc.text(`Q. ${datos.total || ''}`, 150, totalY)
+
+      doc.text('DERECHO DE EMERGENCIA ...................................', 20, totalY + 7)
+      doc.text(`Q. ${datos.emergencia || ''}`, 150, totalY + 7)
+
+      doc.text('LABORATORIOS ......................................................', 20, totalY + 14)
+      doc.text(`Q. ${datos.laboratorios || ''}`, 150, totalY + 14)
+
+      doc.text('SUBTOTAL ..............................................................', 20, totalY + 21)
+      doc.text(`Q. ${datos.subtotal || ''}`, 150, totalY + 21)
+
+      doc.text('RX ..........................................................................', 20, totalY + 28)
+      doc.text(`Q. ${datos.rx || ''}`, 150, totalY + 28)
+
+      doc.text('HONORARIOS ............................................................', 20, totalY + 35)
+      doc.text(`Q. ${datos.honorarios || ''}`, 150, totalY + 35)
+
+      doc.text('TOTAL A PAGAR: ....................................................', 20, totalY + 42)
+      doc.text(`Q. ${datos.totalPagar || ''}`, 150, totalY + 42)
+
+      doc.text('OBSERVACIONES:', 20, totalY + 55)
+      doc.text(datos.observaciones || '', 20, totalY + 62)
+
+      doc.text('NOMBRE Y FIRMA MÉDICO INTERNO:', 20, totalY + 85)
+
+      doc.save('hoja_emergencias.pdf')
+    },
+
+    /* AREA DE EXAMENES DE LABORATORIO */
+    anular (id) {
+      const me = this
+      const ruta = apiUrl + `/Examenes_realizados/update?id=${id}`
+      axios.put(ruta, {
+        form: me.anularExamen
+      })
+        .then((response) => {
+          me.alertVariant = 'success'
+          me.showAlert()
+          me.alertText = 'Se ha ANULADO el examen'
+          me.ver_examen_realizado(id)
+        })
+        .catch((error) => {
+          me.alertVariant = 'danger'
+          me.showAlertError()
+          me.alertErrorText = error.response.data.msg
+          console.error('Error!', error)
+        })
+    },
+    addResultado (id, nombreexamen, row) {
+      this.$refs['modal-add-resultados'].show()
+      this.formResultado.id = id
+      this.getFieldsByExamenId(nombreexamen)
+    },
+
+    onValidateResultado (action) {
+      const camposConErrores = this.camposResulado.filter(campo => campo.resultado === '' || campo.resultado == null)
+      if (camposConErrores.length > 0) {
+        this.alertErrorText = 'Revisa que todos los campos de resultado estén llenos.'
+        this.showAlertError()
+        return
+      }
+      this.onSaveResultados()
+    },
+
+    onSaveResultados () {
+      const me = this
+      const resultados = this.camposResulado.map(campo => ({
+        id: me.formResultado.id,
+        id_campo: campo.id,
+        id_tipo: campo.id_tipo,
+        resultado: campo.resultado
+      }))
+
+      axios.post(apiUrl + '/detalleExamenRealizado/create', { resultados })
+        .then((response) => {
+          me.alertVariant = 'success'
+          me.showAlert()
+          me.alertText = 'Se han ingresado los resultados de los exámenes exitosamente'
+          me.$refs.vuetable2.refresh()
+          me.$refs.vuetable3.refresh()
+          me.closeModal('resultado')
+        })
+        .catch((error) => {
+          me.alertVariant = 'danger'
+          me.showAlertError()
+          me.alertErrorText = error.response.data.msg
+          console.error('Error al guardar los resultados!', error)
+        })
+    },
+
+    getFieldsByExamenId (examenId) {
+      axios.get(apiUrl + '/campoLaboratorio/getByExamenId', {
+        params: {
+          id: examenId
+        }
+      })
+        .then((response) => {
+          this.camposResulado = response.data.map(item => ({
+            id: item.id,
+            nombre: item.nombre,
+            unidades: item.unidades,
+            resultado: '',
+            id_tipo: item.id_examenes_almacenados
+          }))
+          const campos = response.data
+          this.campos = campos
+        })
+        .catch((error) => {
+          console.error('Error al obtener los campos del examen:', error)
+        })
+    },
+
+    guardarExamenRealizado () {
+      if (this.formExamen.total !== 0 && this.formExamen.numero_muestra !== 0 && this.formExamen.id_examenes_almacenados !== null) {
+        axios.post(apiUrl + '/Examenes_realizados/create', {
+          form: this.formExamen })
+          .then((response) => {
+            this.alertVariant = 'success'
+            this.showAlert()
+            this.alertText = 'Se ingresado al pasciente ' + this.formExamen.nombre + ' exitosamente'
+            this.closeModal('modal_agregar')
+          })
+          .catch((error) => {
+            this.alertVariant = 'danger'
+            this.showAlertError()
+            this.alertErrorText = error.response.data.msg
+            console.error('Error!', error)
+          })
+      } else {
+        this.alertVariant = 'danger'
+        this.showAlertError()
+        this.alertErrorText = 'Por favor llene los campos solicitados'
+      }
+    },
+    realizar_examen (id, nombre, apellido, cui, telefono) {
+      this.formExamen.nombre = nombre + ' ' + apellido
+      this.formExamen.cui = cui
+      this.formExamen.whatsapp = telefono
+      this.formExamen.id_expediente = id
+    },
+    ver_examen_realizado (id) {
+      axios.get(apiUrl + `/Examenes_realizados/listId/${id}`
+      ).then((response) => {
+        this.item_examenes = response.data
+      })
+    },
+    onSearch_id_examenes_almacenados (search, loading) {
+      if (search.length) {
+        this.searching_id_examenes_almacenados(search, loading)
+      }
+    },
+    searching_id_examenes_almacenados (search, loading) {
+      axios.get(apiUrl + '/examenesAlmacenados/getSearch',
+        {
+          params: {
+            search: search
+          }
+        }
+      ).then((response) => {
+        this.examenes_almacenados = response.data
+      })
+    },
+    onSearchEncargado (search, loading) {
+      if (search.length) {
+        this.searchingEncargado(search, loading)
+      }
+    },
+    searchingEncargado (search, loading) {
+      axios.get(apiUrl + '/encargadoExamen/getSearch',
+        {
+          params: {
+            search: search
+          }
+        }
+      ).then((response) => {
+        this.encargados = response.data
+      })
     }
   }
 }

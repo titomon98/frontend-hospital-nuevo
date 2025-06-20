@@ -185,7 +185,7 @@
               :query-params="makeQueryParams"
               :per-page="perPage"
               :reactive-api-url="true"
-              :fields="fields"
+              :fields="userFields()"
               pagination-path
               @vuetable:pagination-data="onPaginationData"
             >
@@ -353,6 +353,27 @@ export default {
           width: '25%'
         }
       ],
+      fields2: [
+        {
+          name: 'numero',
+          sortField: 'numero',
+          title: 'Numero',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'tipo',
+          sortField: 'tipo',
+          title: 'Tipo de habitación',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: '__slot:estado',
+          title: 'Estado',
+          titleClass: '',
+          dataClass: 'text-muted',
+          width: '25%'
+        }
+      ],
       items: []
     }
   },
@@ -368,6 +389,10 @@ export default {
     }
   },
   methods: {
+    userFields () {
+      const type = this.currentUser?.user_type
+      return [9, 10, 11].includes(type) ? this.fields2 : this.fields
+    },
     hasPermission (blockedRoles = []) {
       return !blockedRoles.includes(this.currentUser.user_type)
     },
