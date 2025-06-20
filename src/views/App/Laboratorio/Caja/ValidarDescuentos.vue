@@ -379,6 +379,7 @@ export default {
       paymentType: {
         Efectivo: 0,
         Tarjeta: 0,
+        Recargo: 0,
         Deposito: 0,
         Cheque: 0,
         Seguro: 0,

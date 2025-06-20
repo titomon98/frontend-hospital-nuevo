@@ -61,6 +61,8 @@
               <div v-if="selectedPayment.indexOf(2) !== -1">
                 Tarjeta
                 <b-input :type="'number'" id="CardTypeInput" ref="CardTypeInput" v-model="paymentType.Tarjeta" />
+                Recargo (%)
+                <b-input :type="'number'" id="CardRechargeTypeInput" ref="CardRechargeTypeInput" v-model="paymentType.Tarjeta" />
               </div>
               <div v-if="selectedPayment.indexOf(3) !== -1">
                 Depósito
