@@ -146,7 +146,7 @@ import JsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import { mapGetters } from 'vuex'
 import moment from 'moment'
-import logoLab from '../../../../../src/assets/images/logoLab.jpg'
+import logo from '../../../../../src/assets/images/logo.png'
 
 export default {
   name: 'Bank',
@@ -181,6 +181,7 @@ export default {
       perPage: 5,
       search: '',
       detalle: [],
+      pagoCuentas: [],
       pdf: new JsPDF(),
       pdfName: '',
       previewURL: '',
@@ -349,6 +350,14 @@ export default {
         }
       }).then((response) => {
         this.detalle = response.data
+        response.data.forEach(element => {
+          if (element.detalle_pago_cuentas.length > 0) {
+            element.detalle_pago_cuentas.forEach(i => {
+              this.pagoCuentas.push(i)
+            })
+          }
+        })
+        console.log(this.pagoCuentas)
         this.printSale(data, 1)
       })
     },
@@ -502,34 +511,34 @@ export default {
 
         this.pdf = new JsPDF({
           unit: 'cm',
-          format: [14, 21.5],
-          orientation: 'landscape'
+          format: [14, 21.5]
         })
         var ingreso = moment(ahora).format('DD/MM/YYYY')
-        var imgData = logoLab
-        this.pdf.addImage(imgData, 'PNG', 1.5, 0.2, 4.37, 4)
+        var imgData = logo
+        this.pdf.addImage(imgData, 'PNG', 1.5, 0.2, 3, 3)
+        this.pdf.setFontSize(7).setFont(undefined, 'bold')
+        this.pdf.text('Hospital de Especialidades', 1.5, 3.3)
         this.pdf.setFontSize(10).setFont(undefined, 'bold')
-        this.pdf.text('Laboratorio Biomédico S.A.', 1.5, 4)
         if (type === 1) {
-          this.pdf.text('Detalle de cuenta ' + data.numero + ' - Paciente: ' + data.expediente.nombres + ' ' + data.expediente.apellidos, 7, altura)
+          this.pdf.text('Detalle de cuenta ' + data.numero + ' - Paciente: ' + data.expediente.nombres + ' ' + data.expediente.apellidos, 5, altura)
           this.pdfName = 'DetalleCuenta' + data.id + '.pdf'
           altura = altura + 0.5
-          this.pdf.text('Total: ' + data.total, 7, altura)
+          this.pdf.text('Total: ' + data.total, 5, altura)
           altura = altura + 0.5
-          this.pdf.text('Total pagado: ' + data.total_pagado, 7, altura)
+          this.pdf.text('Total pagado: ' + data.total_pagado, 5, altura)
           altura = altura + 0.5
-          this.pdf.text('Pendiente de pago: ' + data.pendiente_de_pago, 7, altura)
+          this.pdf.text('Pendiente de pago: ' + data.pendiente_de_pago, 5, altura)
         } else {
-          this.pdf.text('Corte del día ' + this.selectedDate, 7, altura)
+          this.pdf.text('Corte del día ' + this.selectedDate, 5, altura)
           this.pdfName = 'Corte del día ' + this.selectedDate + '.pdf'
         }
         // Encabezado
         altura = altura + 0.5
-        this.pdf.text('Fecha de generación: ' + ingreso, 7, altura)
+        this.pdf.text('Fecha de generación: ' + ingreso, 5, altura)
         altura = altura + 0.5
-        this.pdf.text('Informe generado por: ', 7, altura)
+        this.pdf.text('Informe generado por: ', 5, altura)
         this.pdf.setFontSize(10).setFont(undefined, 'normal')
-        this.pdf.text(this.currentUser.user, 10.75, altura)
+        this.pdf.text(this.currentUser.user, 8.75, altura)
         altura = altura + 0.5
         // Tabla
         if (type === 1) {
@@ -543,10 +552,32 @@ export default {
               fontStyle: 'bold'
             }
           })
+
+          autoTable(this.pdf, {
+            columns: [{ header: 'Efectivo', dataKey: 'efectivo' }, { header: 'Tarjeta', dataKey: 'tarjeta' }, { header: 'Recargo', dataKey: 'recargoTarjeta' }, { header: 'Depósito', dataKey: 'deposito' }, { header: 'Cheque', dataKey: 'cheque' }, { header: 'Seguro', dataKey: 'seguro' }, { header: 'Transferencia', dataKey: 'transferencia' }],
+            body: this.pagoCuentas,
+            margin: { top: 5 },
+            headStyles: {
+              fillColor: [21, 21, 21],
+              textColor: [225, 225, 225],
+              fontStyle: 'bold'
+            }
+          })
         } else {
           autoTable(this.pdf, {
             columns: [{ header: 'Expediente', dataKey: 'expediente' }, { header: 'Nombre', dataKey: 'nombres' }, { header: 'Apellido', dataKey: 'apellidos' }, { header: 'FechaDePago', dataKey: 'fecha' }, { header: 'Total', dataKey: 'total' }],
             body: this.arrayDetalles,
+            margin: { top: 5 },
+            headStyles: {
+              fillColor: [21, 21, 21],
+              textColor: [225, 225, 225],
+              fontStyle: 'bold'
+            }
+          })
+
+          autoTable(this.pdf, {
+            columns: [{ header: 'Efectivo', dataKey: 'efectivo' }, { header: 'Tarjeta', dataKey: 'tarjeta' }, { header: 'Recargo', dataKey: 'recargoTarjeta' }, { header: 'Depósito', dataKey: 'deposito' }, { header: 'Cheque', dataKey: 'cheque' }, { header: 'Seguro', dataKey: 'seguro' }, { header: 'Transferencia', dataKey: 'transferencia' }],
+            body: this.pagoCuentas,
             margin: { top: 5 },
             headStyles: {
               fillColor: [21, 21, 21],
