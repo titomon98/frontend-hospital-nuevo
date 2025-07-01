@@ -503,7 +503,7 @@
                 <button v-if="props.rowData.estado === 7" type="button" class="btn btn-dark" disabled>ALTA MÉDICA</button>
                 <button v-if="props.rowData.estado === 8" type="button" class="btn btn-dark" disabled>EGRESO CONTRAINDICADO</button>
                 <button v-if="props.rowData.estado === 9" type="button" class="btn btn-dark" disabled>REFERIDO A OTRA UBICACIÓN</button>
-                <button v-if="props.rowData.estado === 10" type="button" class="btn btn-dark" disabled>PENDIENTE DE REGISTRO</button>
+                <button v-if="props.rowData.estado === 10" type="button" class="btn btn-dark" disabled>EXPEDIENTE INCOMPLETO</button>
                 <button v-if="props.rowData.estado === 0" type="button" class="btn btn-dark" disabled>FALLECIDO</button>
               </div>
               <!-- Botones -->
