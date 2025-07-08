@@ -344,6 +344,7 @@ export default {
       this.getDetail(data.id, data)
     },
     getDetail (num, data) {
+      this.pagoCuentas = []
       axios.get(apiUrl + '/cuentas/getByAccount', {
         params: {
           id: num
@@ -500,7 +501,9 @@ export default {
           apellidos: item.expediente.apellidos,
           numero: item.numero,
           total: item.total,
-          fecha: item.createdAt
+          totalPagado: item.total_pagado,
+          fecha: item.createdAt,
+          tipo: item.tipo
         }))
       if (this.arrayDetalles.length > 0) {
         this.$refs['modal-pdf'].show()
@@ -529,8 +532,45 @@ export default {
           altura = altura + 0.5
           this.pdf.text('Pendiente de pago: ' + data.pendiente_de_pago, 5, altura)
         } else {
+          var arrayHospi = []
+          var arrayEmergencia = []
+          var ArrayQuirofano = []
+          var ArrayIntensivo = []
+          var medioDePago = []
+          this.arrayDetalles.forEach(item => {
+            if (item.tipo === 1) {
+              arrayHospi.push(item)
+            } else if (item.tipo === 2) {
+              arrayEmergencia.push(item)
+            } else if (item.tipo === 3) {
+              ArrayQuirofano.push(item)
+            } else if (item.tipo === 4) {
+              ArrayIntensivo.push(item)
+            }
+          })
+          data.forEach(item => {
+            if (item.detalle_pago_cuentas.length > 0) {
+              item.detalle_pago_cuentas.forEach(i => {
+                medioDePago.push(i)
+              })
+            }
+          })
+          var tot = 0
+          var totPagado = 0
+          var totPendiente = 0
+          data.forEach(item => {
+            tot = parseInt(tot) + parseInt(item.total)
+            totPagado = parseInt(totPagado) + parseInt(item.total_pagado)
+            totPendiente = parseInt(totPendiente) + parseInt(item.pendiente_de_pago)
+          })
           this.pdf.text('Corte del día ' + this.selectedDate, 5, altura)
           this.pdfName = 'Corte del día ' + this.selectedDate + '.pdf'
+          altura = altura + 0.5
+          this.pdf.text('Total: Q.' + tot, 5, altura)
+          altura = altura + 0.5
+          this.pdf.text('Total pagado: Q.' + totPagado, 5, altura)
+          altura = altura + 0.5
+          this.pdf.text('Pendiente de pago: Q.' + totPendiente, 5, altura)
         }
         // Encabezado
         altura = altura + 0.5
@@ -547,44 +587,142 @@ export default {
             body: this.detalle,
             margin: { top: 5 },
             headStyles: {
+              fontSize: 5,
               fillColor: [21, 21, 21],
               textColor: [225, 225, 225],
               fontStyle: 'bold'
+            },
+            bodyStyles: {
+              fontSize: 5
             }
           })
-
           autoTable(this.pdf, {
             columns: [{ header: 'Efectivo', dataKey: 'efectivo' }, { header: 'Tarjeta', dataKey: 'tarjeta' }, { header: 'Recargo', dataKey: 'recargoTarjeta' }, { header: 'Depósito', dataKey: 'deposito' }, { header: 'Cheque', dataKey: 'cheque' }, { header: 'Seguro', dataKey: 'seguro' }, { header: 'Transferencia', dataKey: 'transferencia' }],
             body: this.pagoCuentas,
             margin: { top: 5 },
             headStyles: {
+              fontSize: 5,
               fillColor: [21, 21, 21],
               textColor: [225, 225, 225],
               fontStyle: 'bold'
+            },
+            bodyStyles: {
+              fontSize: 5
             }
           })
         } else {
+          altura = altura + 0.5
+          this.pdf.text('Hospitalización', 1.5, altura)
           autoTable(this.pdf, {
-            columns: [{ header: 'Expediente', dataKey: 'expediente' }, { header: 'Nombre', dataKey: 'nombres' }, { header: 'Apellido', dataKey: 'apellidos' }, { header: 'FechaDePago', dataKey: 'fecha' }, { header: 'Total', dataKey: 'total' }],
-            body: this.arrayDetalles,
+            columns: [{ header: 'Expediente', dataKey: 'expediente' }, { header: 'Nombre', dataKey: 'nombres' }, { header: 'Apellido', dataKey: 'apellidos' }, { header: 'Fecha de Pago', dataKey: 'fecha' }, { header: 'Total', dataKey: 'total' }, { header: 'Total pagado', dataKey: 'totalPagado' }],
+            body: arrayHospi,
+            startY: altura + 0.5,
             margin: { top: 5 },
             headStyles: {
+              fontSize: 5,
               fillColor: [21, 21, 21],
               textColor: [225, 225, 225],
               fontStyle: 'bold'
+            },
+            bodyStyles: {
+              fontSize: 5
             }
           })
-
+          let finalY = this.pdf.lastAutoTable.finalY || 10
+          this.pdf.text('Emergencia', 1.5, finalY + 0.5)
+          autoTable(this.pdf, {
+            columns: [{ header: 'Expediente', dataKey: 'expediente' }, { header: 'Nombre', dataKey: 'nombres' }, { header: 'Apellido', dataKey: 'apellidos' }, { header: 'Fecha de Pago', dataKey: 'fecha' }, { header: 'Total', dataKey: 'total' }, { header: 'Total pagado', dataKey: 'totalPagado' }],
+            body: arrayEmergencia,
+            startY: finalY + 1,
+            margin: { top: 5 },
+            headStyles: {
+              fontSize: 5,
+              fillColor: [21, 21, 21],
+              textColor: [225, 225, 225],
+              fontStyle: 'bold'
+            },
+            bodyStyles: {
+              fontSize: 5
+            }
+          })
+          finalY = this.pdf.lastAutoTable.finalY || 10
+          this.pdf.text('Quirófano', 1.5, finalY + 0.5)
+          autoTable(this.pdf, {
+            columns: [{ header: 'Expediente', dataKey: 'expediente' }, { header: 'Nombre', dataKey: 'nombres' }, { header: 'Apellido', dataKey: 'apellidos' }, { header: 'Fecha de Pago', dataKey: 'fecha' }, { header: 'Total', dataKey: 'total' }, { header: 'Total pagado', dataKey: 'totalPagado' }],
+            body: ArrayQuirofano,
+            startY: finalY + 1,
+            margin: { top: 5 },
+            headStyles: {
+              fontSize: 5,
+              fillColor: [21, 21, 21],
+              textColor: [225, 225, 225],
+              fontStyle: 'bold'
+            },
+            bodyStyles: {
+              fontSize: 5
+            }
+          })
+          finalY = this.pdf.lastAutoTable.finalY || 10
+          this.pdf.text('Intensivo', 1.5, finalY + 0.5)
+          autoTable(this.pdf, {
+            columns: [{ header: 'Expediente', dataKey: 'expediente' }, { header: 'Nombre', dataKey: 'nombres' }, { header: 'Apellido', dataKey: 'apellidos' }, { header: 'Fecha de Pago', dataKey: 'fecha' }, { header: 'Total', dataKey: 'total' }, { header: 'Total pagado', dataKey: 'totalPagado' }],
+            body: ArrayIntensivo,
+            startY: finalY + 1,
+            margin: { top: 5 },
+            headStyles: {
+              fontSize: 5,
+              fillColor: [21, 21, 21],
+              textColor: [225, 225, 225],
+              fontStyle: 'bold'
+            },
+            bodyStyles: {
+              fontSize: 5
+            }
+          })
+          finalY = this.pdf.lastAutoTable.finalY || 10
+          this.pdf.text('Medios de pago', 1.5, finalY + 0.5)
           autoTable(this.pdf, {
             columns: [{ header: 'Efectivo', dataKey: 'efectivo' }, { header: 'Tarjeta', dataKey: 'tarjeta' }, { header: 'Recargo', dataKey: 'recargoTarjeta' }, { header: 'Depósito', dataKey: 'deposito' }, { header: 'Cheque', dataKey: 'cheque' }, { header: 'Seguro', dataKey: 'seguro' }, { header: 'Transferencia', dataKey: 'transferencia' }],
-            body: this.pagoCuentas,
+            startY: finalY + 1,
+            body: medioDePago,
             margin: { top: 5 },
             headStyles: {
               fillColor: [21, 21, 21],
               textColor: [225, 225, 225],
+              fontSize: 5,
               fontStyle: 'bold'
+            },
+            bodyStyles: {
+              fontSize: 5
             }
           })
+          const totalPages = this.pdf.getNumberOfPages()
+
+          for (let i = 1; i <= totalPages; i++) {
+            this.pdf.setPage(i)
+            altura = 1
+            this.pdf.addImage(imgData, 'PNG', 1.5, 0.2, 3, 3)
+            this.pdf.setFontSize(7).setFont(undefined, 'bold')
+            this.pdf.text('Hospital de Especialidades', 1.5, 3.3)
+            this.pdf.setFontSize(10).setFont(undefined, 'bold')
+            this.pdf.text('Corte del día ' + this.selectedDate, 5, altura)
+            altura = altura + 0.5
+            this.pdf.text('Total: Q.' + tot, 5, altura)
+            altura = altura + 0.5
+            this.pdf.text('Total pagado: Q.' + totPagado, 5, altura)
+            altura = altura + 0.5
+            this.pdf.text('Pendiente de pago: Q.' + totPendiente, 5, altura)
+            altura = altura + 0.5
+            this.pdf.text('Fecha de generación: ' + ingreso, 5, altura)
+            altura = altura + 0.5
+            this.pdf.text('Informe generado por: ', 5, altura)
+            this.pdf.setFontSize(10).setFont(undefined, 'normal')
+            this.pdf.text(this.currentUser.user, 8.75, altura)
+            this.pdf.setFontSize(5).setFont(undefined, 'normal')
+            this.pdf.text(i + '/' + totalPages, 12, 1)
+            altura = altura + 0.5
+            // drawHeader(doc);
+          }
         }
         var pdfData = this.pdf.output('blob')
         // Convert PDF to data URL

@@ -504,7 +504,8 @@ export default {
           estado: this.selectedTrasOption,
           estado_anterior: 5,
           motivo: this.motivoTrasladoEmergencia,
-          user: me.currentUser.user
+          user: me.currentUser.user,
+          tipo_cuenta: this.selectedTrasOption
         })
         .then((response) => {
           this.motivoTrasladoEmergencia = ''
