@@ -537,15 +537,23 @@ export default {
           var ArrayQuirofano = []
           var ArrayIntensivo = []
           var medioDePago = []
+          var totHospi = 0
+          var totEmergencia = 0
+          var totQuirofano = 0
+          var totIntensivo = 0
           this.arrayDetalles.forEach(item => {
             if (item.tipo === 1) {
               arrayHospi.push(item)
+              totHospi = parseFloat(totHospi) + parseFloat(item.totalPagado)
             } else if (item.tipo === 2) {
+              totEmergencia = parseFloat(totEmergencia) + parseFloat(item.totalPagado)
               arrayEmergencia.push(item)
             } else if (item.tipo === 3) {
               ArrayQuirofano.push(item)
+              totQuirofano = parseFloat(totQuirofano) + parseFloat(item.totalPagado)
             } else if (item.tipo === 4) {
               ArrayIntensivo.push(item)
+              totIntensivo = parseFloat(totIntensivo) + parseFloat(item.totalPagado)
             }
           })
           data.forEach(item => {
@@ -559,9 +567,9 @@ export default {
           var totPagado = 0
           var totPendiente = 0
           data.forEach(item => {
-            tot = parseInt(tot) + parseInt(item.total)
-            totPagado = parseInt(totPagado) + parseInt(item.total_pagado)
-            totPendiente = parseInt(totPendiente) + parseInt(item.pendiente_de_pago)
+            tot = parseFloat(tot) + parseFloat(item.total)
+            totPagado = parseFloat(totPagado) + parseFloat(item.total_pagado)
+            totPendiente = parseFloat(totPendiente) + parseFloat(item.pendiente_de_pago)
           })
           this.pdf.text('Corte del día ' + this.selectedDate, 5, altura)
           this.pdfName = 'Corte del día ' + this.selectedDate + '.pdf'
@@ -612,7 +620,7 @@ export default {
           })
         } else {
           altura = altura + 0.5
-          this.pdf.text('Hospitalización', 1.5, altura)
+          this.pdf.text('Hospitalización Q.' + totHospi, 1.5, altura)
           autoTable(this.pdf, {
             columns: [{ header: 'Expediente', dataKey: 'expediente' }, { header: 'Nombre', dataKey: 'nombres' }, { header: 'Apellido', dataKey: 'apellidos' }, { header: 'Fecha de Pago', dataKey: 'fecha' }, { header: 'Total', dataKey: 'total' }, { header: 'Total pagado', dataKey: 'totalPagado' }],
             body: arrayHospi,
@@ -629,7 +637,7 @@ export default {
             }
           })
           let finalY = this.pdf.lastAutoTable.finalY || 10
-          this.pdf.text('Emergencia', 1.5, finalY + 0.5)
+          this.pdf.text('Emergencia Q.' + totEmergencia, 1.5, finalY + 0.5)
           autoTable(this.pdf, {
             columns: [{ header: 'Expediente', dataKey: 'expediente' }, { header: 'Nombre', dataKey: 'nombres' }, { header: 'Apellido', dataKey: 'apellidos' }, { header: 'Fecha de Pago', dataKey: 'fecha' }, { header: 'Total', dataKey: 'total' }, { header: 'Total pagado', dataKey: 'totalPagado' }],
             body: arrayEmergencia,
@@ -646,7 +654,7 @@ export default {
             }
           })
           finalY = this.pdf.lastAutoTable.finalY || 10
-          this.pdf.text('Quirófano', 1.5, finalY + 0.5)
+          this.pdf.text('Quirófano Q.' + totQuirofano, 1.5, finalY + 0.5)
           autoTable(this.pdf, {
             columns: [{ header: 'Expediente', dataKey: 'expediente' }, { header: 'Nombre', dataKey: 'nombres' }, { header: 'Apellido', dataKey: 'apellidos' }, { header: 'Fecha de Pago', dataKey: 'fecha' }, { header: 'Total', dataKey: 'total' }, { header: 'Total pagado', dataKey: 'totalPagado' }],
             body: ArrayQuirofano,
@@ -663,7 +671,7 @@ export default {
             }
           })
           finalY = this.pdf.lastAutoTable.finalY || 10
-          this.pdf.text('Intensivo', 1.5, finalY + 0.5)
+          this.pdf.text('Intensivo Q.' + totIntensivo, 1.5, finalY + 0.5)
           autoTable(this.pdf, {
             columns: [{ header: 'Expediente', dataKey: 'expediente' }, { header: 'Nombre', dataKey: 'nombres' }, { header: 'Apellido', dataKey: 'apellidos' }, { header: 'Fecha de Pago', dataKey: 'fecha' }, { header: 'Total', dataKey: 'total' }, { header: 'Total pagado', dataKey: 'totalPagado' }],
             body: ArrayIntensivo,
