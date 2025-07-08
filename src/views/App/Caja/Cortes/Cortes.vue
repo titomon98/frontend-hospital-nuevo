@@ -239,7 +239,7 @@ export default {
         {
           name: 'total_pagado',
           sortField: 'total_pagado',
-          title: 'Total pagado',
+          title: 'Total ingresado',
           dataClass: 'list-item-heading'
         },
         {
@@ -528,7 +528,7 @@ export default {
           altura = altura + 0.5
           this.pdf.text('Total: ' + data.total, 5, altura)
           altura = altura + 0.5
-          this.pdf.text('Total pagado: ' + data.total_pagado, 5, altura)
+          this.pdf.text('Total ingresado: ' + data.total_pagado, 5, altura)
           altura = altura + 0.5
           this.pdf.text('Pendiente de pago: ' + data.pendiente_de_pago, 5, altura)
         } else {
@@ -576,7 +576,7 @@ export default {
           altura = altura + 0.5
           this.pdf.text('Total: Q.' + tot, 5, altura)
           altura = altura + 0.5
-          this.pdf.text('Total pagado: Q.' + totPagado, 5, altura)
+          this.pdf.text('Total ingresado: Q.' + totPagado, 5, altura)
           altura = altura + 0.5
           this.pdf.text('Pendiente de pago: Q.' + totPendiente, 5, altura)
         }
@@ -622,7 +622,7 @@ export default {
           altura = altura + 0.5
           this.pdf.text('Hospitalización Q.' + totHospi, 1.5, altura)
           autoTable(this.pdf, {
-            columns: [{ header: 'Expediente', dataKey: 'expediente' }, { header: 'Nombre', dataKey: 'nombres' }, { header: 'Apellido', dataKey: 'apellidos' }, { header: 'Fecha de Pago', dataKey: 'fecha' }, { header: 'Total', dataKey: 'total' }, { header: 'Total pagado', dataKey: 'totalPagado' }],
+            columns: [{ header: 'Expediente', dataKey: 'expediente' }, { header: 'Nombre', dataKey: 'nombres' }, { header: 'Apellido', dataKey: 'apellidos' }, { header: 'Fecha de Pago', dataKey: 'fecha' }, { header: 'Total', dataKey: 'total' }, { header: 'Total ingresado', dataKey: 'totalPagado' }],
             body: arrayHospi,
             startY: altura + 0.5,
             margin: { top: 5 },
@@ -639,7 +639,7 @@ export default {
           let finalY = this.pdf.lastAutoTable.finalY || 10
           this.pdf.text('Emergencia Q.' + totEmergencia, 1.5, finalY + 0.5)
           autoTable(this.pdf, {
-            columns: [{ header: 'Expediente', dataKey: 'expediente' }, { header: 'Nombre', dataKey: 'nombres' }, { header: 'Apellido', dataKey: 'apellidos' }, { header: 'Fecha de Pago', dataKey: 'fecha' }, { header: 'Total', dataKey: 'total' }, { header: 'Total pagado', dataKey: 'totalPagado' }],
+            columns: [{ header: 'Expediente', dataKey: 'expediente' }, { header: 'Nombre', dataKey: 'nombres' }, { header: 'Apellido', dataKey: 'apellidos' }, { header: 'Fecha de Pago', dataKey: 'fecha' }, { header: 'Total', dataKey: 'total' }, { header: 'Total ingresado', dataKey: 'totalPagado' }],
             body: arrayEmergencia,
             startY: finalY + 1,
             margin: { top: 5 },
@@ -656,7 +656,7 @@ export default {
           finalY = this.pdf.lastAutoTable.finalY || 10
           this.pdf.text('Quirófano Q.' + totQuirofano, 1.5, finalY + 0.5)
           autoTable(this.pdf, {
-            columns: [{ header: 'Expediente', dataKey: 'expediente' }, { header: 'Nombre', dataKey: 'nombres' }, { header: 'Apellido', dataKey: 'apellidos' }, { header: 'Fecha de Pago', dataKey: 'fecha' }, { header: 'Total', dataKey: 'total' }, { header: 'Total pagado', dataKey: 'totalPagado' }],
+            columns: [{ header: 'Expediente', dataKey: 'expediente' }, { header: 'Nombre', dataKey: 'nombres' }, { header: 'Apellido', dataKey: 'apellidos' }, { header: 'Fecha de Pago', dataKey: 'fecha' }, { header: 'Total', dataKey: 'total' }, { header: 'Total ingresado', dataKey: 'totalPagado' }],
             body: ArrayQuirofano,
             startY: finalY + 1,
             margin: { top: 5 },
@@ -673,7 +673,7 @@ export default {
           finalY = this.pdf.lastAutoTable.finalY || 10
           this.pdf.text('Intensivo Q.' + totIntensivo, 1.5, finalY + 0.5)
           autoTable(this.pdf, {
-            columns: [{ header: 'Expediente', dataKey: 'expediente' }, { header: 'Nombre', dataKey: 'nombres' }, { header: 'Apellido', dataKey: 'apellidos' }, { header: 'Fecha de Pago', dataKey: 'fecha' }, { header: 'Total', dataKey: 'total' }, { header: 'Total pagado', dataKey: 'totalPagado' }],
+            columns: [{ header: 'Expediente', dataKey: 'expediente' }, { header: 'Nombre', dataKey: 'nombres' }, { header: 'Apellido', dataKey: 'apellidos' }, { header: 'Fecha de Pago', dataKey: 'fecha' }, { header: 'Total', dataKey: 'total' }, { header: 'Total ingresado', dataKey: 'totalPagado' }],
             body: ArrayIntensivo,
             startY: finalY + 1,
             margin: { top: 5 },
@@ -717,7 +717,7 @@ export default {
             altura = altura + 0.5
             this.pdf.text('Total: Q.' + tot, 5, altura)
             altura = altura + 0.5
-            this.pdf.text('Total pagado: Q.' + totPagado, 5, altura)
+            this.pdf.text('Total ingresado: Q.' + totPagado, 5, altura)
             altura = altura + 0.5
             this.pdf.text('Pendiente de pago: Q.' + totPendiente, 5, altura)
             altura = altura + 0.5
