@@ -799,8 +799,7 @@ export default {
       })
     },
     onCreateTest () {
-      if (this.varTipo === '' || this.varNombreExamen === '' || this.varPrecioNormal === 0 || this.varPrecioNormal === null || this.varPrecioCosto === 0 || this.varPrecioCosto === null
-      || this.varPrecioSobrecargo === 0 || this.varPrecioSobrecargo === null
+      if (this.varTipo === '' || this.varNombreExamen === '' || this.varPrecioNormal === 0 || this.varPrecioNormal === null || this.varPrecioCosto === 0 || this.varPrecioCosto === null || this.varPrecioSobrecargo === 0 || this.varPrecioSobrecargo === null
       ) {
         this.alertErrorText = 'Verifique los datos ingresados'
         this.showAlertError()
