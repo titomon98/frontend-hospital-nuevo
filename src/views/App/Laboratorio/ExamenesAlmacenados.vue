@@ -40,6 +40,16 @@
             Debe ingresar el Precio ordinario
           </div>
         </b-form-group>
+        <b-form-group label="Precio costo:">
+          <b-form-input
+            type="number"
+            v-model.trim="varPrecioCosto"
+            placeholder="Ingresar Precio ordinario"
+          ></b-form-input>
+          <div v-if="varPrecioCosto === 0 || varPrecioCosto === null" class="invalid-feedback">
+            Debe ingresar el Precio costo
+          </div>
+        </b-form-group>
         <b-form-group label="Precio extraordinario:">
           <b-form-input
             type="number"
@@ -107,6 +117,16 @@
           ></b-form-input>
           <div v-if="varPrecioNormal === 0 || varPrecioNormal === null" class="invalid-feedback">
             Debe ingresar el Precio ordinario
+          </div>
+        </b-form-group>
+        <b-form-group label="Precio costo:">
+          <b-form-input
+            type="number"
+            v-model.trim="varPrecioCosto"
+            placeholder="Ingresar Precio ordinario"
+          ></b-form-input>
+          <div v-if="varPrecioCosto === 0 || varPrecioCosto === null" class="invalid-feedback">
+            Debe ingresar el Precio costo
           </div>
         </b-form-group>
         <b-form-group label="Precio extraordinario:">
@@ -451,8 +471,8 @@ export default {
       varTipo: '',
       varPrecioSobrecargo: 0,
       varPrecioNormal: 0,
+      varPrecioCosto: 0,
       varNombreExamen: '',
-
       varNombreCampo: '',
       varValorMaximo: 0,
       varValorMinimo: 0,
@@ -563,6 +583,7 @@ export default {
           this.form.nombre = ''
           this.form.cantidad_usos = 0
           this.form.precio_publico = 0
+          this.form.precio_costo = 0
           this.form.gasto_unico = 0
           this.form.fecha_adquisicion = ''
           this.form.existencia = 0
@@ -580,6 +601,7 @@ export default {
           this.form.nombre = ''
           this.form.cantidad_usos = 0
           this.form.precio_publico = 0
+          this.form.precio_costo = 0
           this.form.gasto_unico = 0
           this.form.fecha_adquisicion = ''
           this.form.existencia = 0
@@ -593,6 +615,7 @@ export default {
           this.form.nombre = ''
           this.form.cantidad_usos = 0
           this.form.precio_publico = 0
+          this.form.precio_costo = 0
           this.form.gasto_unico = 0
           this.form.fecha_adquisicion = ''
           this.form.existencia = 0
@@ -641,6 +664,7 @@ export default {
       this.form.nombreExamen = data.nombre
       this.varNombreExamen = data.nombre
       this.varPrecioNormal = data.precio_normal
+      this.varPrecioCosto = data.precio_costo
       this.varPrecioSobrecargo = data.precio_sobrecargo
       this.varTipo = data.tipo_examen
     },
@@ -775,7 +799,8 @@ export default {
       })
     },
     onCreateTest () {
-      if (this.varTipo === '' || this.varNombreExamen === '' || this.varPrecioNormal === 0 || this.varPrecioNormal === null || this.varPrecioSobrecargo === 0 || this.varPrecioSobrecargo === null
+      if (this.varTipo === '' || this.varNombreExamen === '' || this.varPrecioNormal === 0 || this.varPrecioNormal === null || this.varPrecioCosto === 0 || this.varPrecioCosto === null
+      || this.varPrecioSobrecargo === 0 || this.varPrecioSobrecargo === null
       ) {
         this.alertErrorText = 'Verifique los datos ingresados'
         this.showAlertError()
@@ -785,6 +810,7 @@ export default {
           {
             nombre: this.varNombreExamen,
             precio_normal: this.varPrecioNormal,
+            precio_costo: this.varPrecioCosto,
             precio_sobrecargo: this.varPrecioSobrecargo,
             tipo_examen: this.varTipo.nombre
           })
@@ -796,6 +822,7 @@ export default {
             me.$refs['modal-1-createExamen'].hide()
             this.varNombreExamen = ''
             this.varPrecioNormal = 0
+            this.varPrecioCosto = 0
             this.varPrecioSobrecargo = 0
             this.varTipo = ''
             this.form.nombreExamen = ''
@@ -810,7 +837,7 @@ export default {
       }
     },
     onUpdateTest () {
-      if (this.varTipo === '' || this.varNombreExamen === '' || this.varPrecioNormal === 0 || this.varPrecioNormal === null || this.varPrecioSobrecargo === 0 || this.varPrecioSobrecargo === null
+      if (this.varTipo === '' || this.varNombreExamen === '' || this.varPrecioNormal === 0 || this.varPrecioNormal === null || this.varPrecioCosto === 0 || this.varPrecioCosto === null || this.varPrecioSobrecargo === 0 || this.varPrecioSobrecargo === null
       ) {
         this.alertErrorText = 'Verifique los datos ingresados'
         this.showAlertError()
@@ -821,6 +848,7 @@ export default {
             id: this.form.id,
             nombre: this.varNombreExamen,
             precio_normal: this.varPrecioNormal,
+            precio_costo: this.varPrecioCosto,
             precio_sobrecargo: this.varPrecioSobrecargo,
             tipo_examen: this.varTipo.nombre
           })
@@ -832,6 +860,7 @@ export default {
             me.$refs['modal-2-update'].hide()
             this.varNombreExamen = ''
             this.varPrecioNormal = 0
+            this.varPrecioCosto = 0
             this.varPrecioSobrecargo = 0
             this.varTipo = ''
             this.form.nombreExamen = ''
