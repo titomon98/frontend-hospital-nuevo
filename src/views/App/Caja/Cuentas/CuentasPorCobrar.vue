@@ -878,7 +878,7 @@ export default {
         const doc = new JsPDF()
 
         doc.setFontSize(10).setFont(undefined, 'bold')
-        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 10, { align: 'center' })
+        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO', 110, 10, { align: 'center' })
 
         doc.setFontSize(10).setFont(undefined, 'normal')
         doc.text('CUENTA TOTAL DE PACIENTE', 110, 14, { align: 'center' })

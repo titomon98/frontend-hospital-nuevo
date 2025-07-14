@@ -2576,7 +2576,7 @@ export default {
         const doc = new JsPDF()
 
         doc.setFontSize(10).setFont(undefined, 'bold')
-        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 10, { align: 'center' })
+        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO', 110, 10, { align: 'center' })
 
         doc.setFontSize(10).setFont(undefined, 'normal')
         doc.text('CUENTA DE PACIENTE', 110, 14, { align: 'center' })
@@ -2905,7 +2905,7 @@ export default {
       // Encabezado
       doc.setFont(undefined, 'bold')
       doc.text('HOSPITAL DE ESPECIALIDADES', 20, 20)
-      doc.text('DE OCCIDENTE, S.A.', 20, 27)
+      doc.text('DE OCCIDENTE S.A. QUETZALTENANGO', 20, 27)
       doc.setTextColor(255, 0, 0)
       doc.text('No. 000019', 160, 20)
       doc.setTextColor(0, 0, 0)

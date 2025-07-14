@@ -1272,7 +1272,7 @@ export default {
       // Encabezado
       doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
       doc.setFontSize(14).setFont(undefined, 'bold')
-      doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+      doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO', 110, 20, { align: 'center' })
       doc.setFontSize(10).setFont(undefined, 'normal')
       doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
       doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
@@ -1378,7 +1378,7 @@ export default {
 
       // Hoja de "Material Común"
       const hojaComunes = workbook.addWorksheet('Material Común')
-      hojaComunes.addRow(['HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'])
+      hojaComunes.addRow(['HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO'])
       hojaComunes.addRow(['Reporte de Productos Más Utilizados'])
       hojaComunes.addRow([`Rango de Fechas: ${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')}`])
       hojaComunes.addRow([])
@@ -1394,7 +1394,7 @@ export default {
 
       // Hoja de "Medicamentos"
       const hojaMedicamentos = workbook.addWorksheet('Medicamentos')
-      hojaMedicamentos.addRow(['HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'])
+      hojaMedicamentos.addRow(['HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO'])
       hojaMedicamentos.addRow(['Reporte de Productos Más Utilizados'])
       hojaMedicamentos.addRow([`Rango de Fechas: ${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')}`])
       hojaMedicamentos.addRow([])
@@ -1410,7 +1410,7 @@ export default {
 
       // Hoja de "Material Quirúrgico"
       const hojaQuirurgicos = workbook.addWorksheet('Material Quirúrgico')
-      hojaQuirurgicos.addRow(['HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'])
+      hojaQuirurgicos.addRow(['HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO'])
       hojaQuirurgicos.addRow(['Reporte de Productos Más Utilizados'])
       hojaQuirurgicos.addRow([`Rango de Fechas: ${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')}`])
       hojaQuirurgicos.addRow([])
@@ -1469,7 +1469,7 @@ export default {
       // Encabezado
       doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
       doc.setFontSize(14).setFont(undefined, 'bold')
-      doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+      doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO', 110, 20, { align: 'center' })
       doc.setFontSize(10).setFont(undefined, 'normal')
       doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
       doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
@@ -1519,7 +1519,7 @@ export default {
 
       // Encabezado
       worksheet.mergeCells('A1:D1')
-      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'
+      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO'
       worksheet.getCell('A1').font = { bold: true, size: 14 }
       worksheet.getCell('A1').alignment = { horizontal: 'center' }
 
@@ -1622,7 +1622,7 @@ export default {
       // Encabezado
       doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
       doc.setFontSize(14).setFont(undefined, 'bold')
-      doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+      doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO', 110, 20, { align: 'center' })
       doc.setFontSize(10).setFont(undefined, 'normal')
       doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
       doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
@@ -1673,7 +1673,7 @@ export default {
 
       // Encabezado del documento
       worksheet.mergeCells('A1:H1')
-      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'
+      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO'
       worksheet.getCell('A1').font = { bold: true, size: 14 }
       worksheet.getCell('A1').alignment = { horizontal: 'center' }
 
@@ -1781,7 +1781,7 @@ export default {
       // Encabezado
       doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
       doc.setFontSize(14).setFont(undefined, 'bold')
-      doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+      doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO', 110, 20, { align: 'center' })
       doc.setFontSize(10).setFont(undefined, 'normal')
       doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
       doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
@@ -1857,7 +1857,7 @@ export default {
       function agregarHoja (worksheetName, data, columns) {
         const worksheet = workbook.addWorksheet(worksheetName)
         worksheet.mergeCells('A1:D1')
-        worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'
+        worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO'
         worksheet.getCell('A1').font = { bold: true, size: 14 }
         worksheet.getCell('A1').alignment = { horizontal: 'center' }
 
@@ -1956,7 +1956,7 @@ export default {
       // Encabezado
       doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
       doc.setFontSize(14).setFont(undefined, 'bold')
-      doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+      doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO', 110, 20, { align: 'center' })
       doc.setFontSize(10).setFont(undefined, 'normal')
       doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
       doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
@@ -2003,7 +2003,7 @@ export default {
 
       // Encabezado del documento
       worksheet.mergeCells('A1:H1')
-      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'
+      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO'
       worksheet.getCell('A1').font = { bold: true, size: 14 }
       worksheet.getCell('A1').alignment = { horizontal: 'center' }
 
@@ -2105,7 +2105,7 @@ export default {
       doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
 
       doc.setFontSize(14).setFont(undefined, 'bold')
-      doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+      doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO', 110, 20, { align: 'center' })
       doc.setFontSize(10).setFont(undefined, 'normal')
       doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
       doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
@@ -2167,7 +2167,7 @@ export default {
       const currentDate = new Date().toLocaleDateString('es-ES')
 
       worksheet.mergeCells('A1:E1')
-      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'
+      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO'
       worksheet.getCell('A1').font = { bold: true, size: 16 }
       worksheet.getCell('A1').alignment = { horizontal: 'center' }
 
@@ -2283,7 +2283,7 @@ export default {
 
         doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
         doc.setFontSize(14).setFont(undefined, 'bold')
-        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO', 110, 20, { align: 'center' })
         doc.setFontSize(10).setFont(undefined, 'normal')
         doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
         doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
@@ -2358,7 +2358,7 @@ export default {
       const currentDate = new Date().toLocaleDateString('es-ES')
 
       worksheet.mergeCells('A1:E1')
-      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'
+      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO'
       worksheet.getCell('A1').font = { bold: true, size: 16 }
       worksheet.getCell('A1').alignment = { horizontal: 'center' }
 
@@ -2500,7 +2500,7 @@ export default {
 
         doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
         doc.setFontSize(14).setFont(undefined, 'bold')
-        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO', 110, 20, { align: 'center' })
         doc.setFontSize(10).setFont(undefined, 'normal')
         doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
         doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
@@ -2570,7 +2570,7 @@ export default {
       const currentDate = new Date().toLocaleDateString('es-ES')
 
       worksheet.mergeCells('A1:F1')
-      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'
+      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO'
       worksheet.getCell('A1').font = { bold: true, size: 16 }
       worksheet.getCell('A1').alignment = { horizontal: 'center' }
 
@@ -2716,7 +2716,7 @@ export default {
 
         doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
         doc.setFontSize(14).setFont(undefined, 'bold')
-        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO', 110, 20, { align: 'center' })
         doc.setFontSize(10).setFont(undefined, 'normal')
         doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
         doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
@@ -2778,7 +2778,7 @@ export default {
       const currentDate = new Date().toLocaleDateString('es-ES')
 
       worksheet.mergeCells('A1:E1')
-      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'
+      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO'
       worksheet.getCell('A1').font = { bold: true, size: 16 }
       worksheet.getCell('A1').alignment = { horizontal: 'center' }
 
@@ -2890,7 +2890,7 @@ export default {
 
         doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
         doc.setFontSize(14).setFont(undefined, 'bold')
-        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO', 110, 20, { align: 'center' })
         doc.setFontSize(10).setFont(undefined, 'normal')
         doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
         doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
@@ -2960,7 +2960,7 @@ export default {
       const currentDate = new Date().toLocaleDateString('es-ES')
 
       worksheet.mergeCells('A1:E1')
-      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'
+      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO'
       worksheet.getCell('A1').font = { bold: true, size: 16 }
       worksheet.getCell('A1').alignment = { horizontal: 'center' }
 
@@ -3077,7 +3077,7 @@ export default {
 
         doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
         doc.setFontSize(14).setFont(undefined, 'bold')
-        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO', 110, 20, { align: 'center' })
         doc.setFontSize(10).setFont(undefined, 'normal')
         doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
         doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
@@ -3147,7 +3147,7 @@ export default {
       const currentDate = new Date().toLocaleDateString('es-ES')
 
       worksheet.mergeCells('A1:E1')
-      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'
+      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO'
       worksheet.getCell('A1').font = { bold: true, size: 16 }
       worksheet.getCell('A1').alignment = { horizontal: 'center' }
 
@@ -3274,7 +3274,7 @@ export default {
 
         doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
         doc.setFontSize(14).setFont(undefined, 'bold')
-        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO', 110, 20, { align: 'center' })
         doc.setFontSize(10).setFont(undefined, 'normal')
         doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
         doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
@@ -3344,7 +3344,7 @@ export default {
       const currentDate = new Date().toLocaleDateString('es-ES')
 
       worksheet.mergeCells('A1:E1')
-      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'
+      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO'
       worksheet.getCell('A1').font = { bold: true, size: 16 }
       worksheet.getCell('A1').alignment = { horizontal: 'center' }
 
@@ -3461,7 +3461,7 @@ export default {
 
         doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
         doc.setFontSize(14).setFont(undefined, 'bold')
-        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO', 110, 20, { align: 'center' })
         doc.setFontSize(10).setFont(undefined, 'normal')
         doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
         doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
@@ -3561,7 +3561,7 @@ export default {
 
       // Encabezados generales
       worksheet.mergeCells('A1:H1')
-      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'
+      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO'
       worksheet.getCell('A1').font = { bold: true, size: 16 }
       worksheet.getCell('A1').alignment = { horizontal: 'center' }
 
@@ -3682,7 +3682,7 @@ export default {
 
         doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
         doc.setFontSize(14).setFont(undefined, 'bold')
-        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 20, { align: 'center' })
+        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO', 110, 20, { align: 'center' })
         doc.setFontSize(10).setFont(undefined, 'normal')
         doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
         doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
@@ -3737,7 +3737,7 @@ export default {
       const currentDate = new Date().toLocaleDateString('es-ES')
 
       worksheet.mergeCells('A1:E1')
-      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'
+      worksheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO'
       worksheet.getCell('A1').font = { bold: true, size: 16 }
       worksheet.getCell('A1').alignment = { horizontal: 'center' }
 
@@ -3875,14 +3875,14 @@ export default {
         doc.setFontSize(16)
         doc.text(`VOUCHER DE PAGO No. ${numero}`, 65, 20)
         doc.setFontSize(12)
-        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 50, 26)
+        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO', 50, 26)
 
         doc.setFontSize(10)
         doc.text('TIPO DE PAGO:     HONORARIOS.', 15, 50)
         doc.text(`FECHA DE PAGO:     ${moment(fechaInicio).format('DD/MM/YYYY')}`, 140, 50)
 
         doc.setFontSize(10)
-        doc.text('PROVEEDOR:      HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 15, 60)
+        doc.text('PROVEEDOR:      HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO', 15, 60)
 
         let currentY = 70
 
