@@ -415,6 +415,7 @@ export default {
         selectedOption: 'hospi',
         tipo_paciente: '0',
         motivo: ' ',
+        tipo: 1,
         fecha: null,
         hora: null
       },

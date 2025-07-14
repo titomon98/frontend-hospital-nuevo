@@ -1521,6 +1521,12 @@ export default {
       }
 
       // Agregar con tipo incluido
+      if (insumo.existencias_actuales === 0) {
+        this.alertErrorText = 'El insumo no posee existencias'
+        this.alertCountDownError = 5
+        return
+      }
+
       this.consumosTemporales.push({
         id,
         tipo: this.tipoInsumoActual,

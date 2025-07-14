@@ -485,6 +485,7 @@ export default {
           estado: this.selectedTrasOption,
           estado_anterior: 1,
           motivo: this.motivoTrasladoHospi,
+          tipo_cuenta: this.selectedTrasOption,
           user: me.currentUser.user
         })
         .then((response) => {

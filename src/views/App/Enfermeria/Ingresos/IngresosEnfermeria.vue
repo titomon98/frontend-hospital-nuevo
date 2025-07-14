@@ -218,7 +218,8 @@ export default {
         selectedOption: 'hospi',
         tipo_paciente: '0',
         motivo: ' ',
-        habitacion: null
+        habitacion: null,
+        tipo_cuenta: 1
       },
       nacionalidades: ['Guatemala', 'El Salvador', 'México', 'Honduras', 'Belice', 'Otro'],
       generos: ['Masculino', 'Femenino'],
@@ -264,6 +265,20 @@ export default {
     /* Guardar */
     onSave () {
       const me = this
+      switch (this.form.selectedOption) {
+        case 'hospi':
+          this.form.tipo_cuenta = 1
+          break
+        case 'emergencia':
+          this.form.tipo_cuenta = 2
+          break
+        case 'quirofano':
+          this.form.tipo_cuenta = 3
+          break
+        case 'intensivo':
+          this.form.tipo_cuenta = 4
+          break
+      }
       axios.post(apiUrl + '/expedientes/createEnfermeria', {
         form: me.form, user: me.currentUser.user
       })

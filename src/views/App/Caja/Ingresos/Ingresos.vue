@@ -466,7 +466,8 @@ export default {
         tipo_paciente: '0',
         motivo: ' ',
         fecha: null,
-        hora: null
+        hora: null,
+        tipo_cuenta: 1
       },
       nacionalidades: ['Guatemala', 'El Salvador', 'México', 'Honduras', 'Belice', 'Otro'],
       generos: ['Masculino', 'Femenino'],

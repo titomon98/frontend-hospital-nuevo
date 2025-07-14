@@ -10,54 +10,7 @@
     >
       <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
-    <b-modal id="modal-1-create" ref="modal-1-create" title="Agregar seguro">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
-      >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
-      </b-alert>
-      <b-form @submit="$event.preventDefault()">
-        <b-form-group label="Póliza:">
-          <b-input id="poliza" ref="poliza" v-model="poliza" />
-        </b-form-group>
-        <b-form-group label="Asegurado:">
-          <b-input id="nombreAsegurado" ref="nombreAsegurado" v-model="nombreAsegurado" />
-        </b-form-group>
-        <b-form-group label="Teléfono del asegurado:">
-          <b-input id="telefonoAsegurado" ref="telefonoAsegurado" v-model="telefonoAsegurado" />
-        </b-form-group>
-        <b-form-group label="Correo del asegurado:">
-          <b-input id="correoAsegurado" ref="correoAsegurado" v-model="correoAsegurado" />
-        </b-form-group>
-        <div>Aseguradora</div>
-        <v-select
-              ref="selectAseg"
-              v-model="selectedAseg"
-              :options="aseguradoras"
-              label="nombre"
-              value="id"></v-select>
-        <div>Pacientes</div>
-        <v-select
-              ref="selectAseg"
-              v-model="selectedExp"
-              :options="expedientes"
-              label="nombres"
-              value="id"></v-select>
-      </b-form>
-      <template #modal-footer="{}">
-        <b-button variant="primary" @click="onValidate('save')"
-          >Guardar</b-button
-        >
-        <b-button variant="danger" @click="closeModal('save')"
-          >Cancelar</b-button
-        >
-      </template>
-    </b-modal>
-    <b-modal id="modal-2-contract" ref="modal-2-contract" title="Editar contrato">
+    <b-modal id="modal-2-rubro" ref="modal-2-rubro" title="Editar rubro">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -70,21 +23,13 @@
       <b-form @submit="$event.preventDefault()">
         <b-form-group label="Nombre:">
           <b-form-input
-            v-model.trim="$v.form.nombre.$model"
-            :state="!$v.form.nombre.$error"
-            placeholder="Ingresar nombre del contrato"
+            v-model.trim="$v.rubName.$model"
+            :state="!$v.rubName.$error"
+            placeholder="Ingresar nombre del rubro"
           ></b-form-input>
-          <div v-if="$v.form.nombre.required.$invalid" class="invalid-feedback">
-            Debe ingresar el nombre
+          <div v-if="$v.rubName.required.$invalid" class="invalid-feedback">
+            Debe ingresar el nombre del rubro
           </div>
-        </b-form-group>
-        <b-form-group label="Contenido:">
-          <quill-editor
-            ref="myQuillEditor"
-            v-model="form.contrato"
-            :options="editorOption"
-            theme="snow"
-          />
         </b-form-group>
       </b-form>
       <template #modal-footer="{}">
@@ -96,7 +41,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-3-contract" ref="modal-3-contract" title="Desactivar contrato">
+    <b-modal id="modal-3-rubro" ref="modal-3-rubro" title="Desactivar rubro">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -107,22 +52,22 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6 class="my-4">
-        ¿Desea desactivar el contrato: {{ form.nombre }} ?
+        ¿Desea desactivar el rubro: {{ rubName }} ?
       </h6>
       <template #modal-footer="{}">
         <b-button
           type="submit"
           variant="primary"
           @click="onState()
-                  $bvModal.hide('modal-3-contract')"
+                  $bvModal.hide('modal-3-rubro')"
           >Desactivar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-3-contract')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-3-rubro')"
           >Cancelar</b-button
         >
       </template>
     </b-modal>
-    <b-modal id="modal-4-contract" ref="modal-4-contract" title="Activar contrato">
+    <b-modal id="modal-4-rubro" ref="modal-4-rubro" title="Activar rubro">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -133,27 +78,17 @@
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
       <h6 class="my-4">
-        ¿Desea activar al contrato: {{ form.nombre }} ?
+        ¿Desea activar al rubro: {{ form.nombre }} ?
       </h6>
       <template #modal-footer="{}">
         <b-button
           type="submit"
           variant="primary"
           @click="onState()
-                  $bvModal.hide('modal-4-contract')"
+                  $bvModal.hide('modal-4-rubro')"
           >Activar</b-button
         >
-        <b-button variant="danger" @click="$bvModal.hide('modal-4-contract')"
-          >Cancelar</b-button
-        >
-      </template>
-    </b-modal>
-    <b-modal id="modal-5-create" ref="modal-5-create" title="Agregar seguro">
-      <template #modal-footer="{}">
-        <b-button variant="primary"
-          >Guardar</b-button
-        >
-        <b-button variant="danger" @click="closeModal('save')"
+        <b-button variant="danger" @click="$bvModal.hide('modal-4-rubro')"
           >Cancelar</b-button
         >
       </template>
@@ -202,31 +137,13 @@
               pagination-path
               @vuetable:pagination-data="onPaginationData"
             >
-              <!-- Estado -->
-              <div slot="estado" slot-scope="props">
-                <h5 v-if="props.rowData.solvente == 1">
-                  <b-badge variant="light"
-                    ><h6 class="success"><strong>SOLVENTE</strong></h6></b-badge
-                  >
-                </h5>
-                <h5 v-else-if="props.rowData.solvente == 0">
-                  <b-badge variant="light"
-                    ><h6 class="success"><strong>PENDIENTE DE PAGO</strong></h6></b-badge
-                  >
-                </h5>
-                <h5 v-else>
-                  <b-badge variant="light"
-                    ><h6 class="danger"><strong>DESACTIVADO</strong></h6></b-badge
-                  >
-                </h5>
-              </div>
               <!-- Botones -->
               <template slot="actions" slot-scope="props">
                 <b-button-group>
                   <b-button
                     v-b-tooltip.top="'Editar'"
                     @click="setData(props.rowData)"
-                    v-b-modal.modal-2-contract
+                    v-b-modal.modal-2-rubro
                     class="mb-2"
                     size="sm"
                     variant="outline-warning"
@@ -238,8 +155,8 @@
                     @click="
                       setData(props.rowData);
                       props.rowData.estado == 1
-                        ? $bvModal.show('modal-3-contract')
-                        : $bvModal.show('modal-4-contract');
+                        ? $bvModal.show('modal-3-rubro')
+                        : $bvModal.show('modal-4-rubro');
                     "
                     class="mb-2"
                     size="sm"
@@ -277,15 +194,13 @@ import { apiUrl } from '../../../../config/constant'
 import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
 import 'quill/dist/quill.bubble.css'
-import { quillEditor } from 'vue-quill-editor'
 
 export default {
-  name: 'Contratos',
+  name: 'Rubros',
   components: {
     vuetable: Vuetable,
     'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
-    'datatable-heading': DatatableHeading,
-    quillEditor
+    'datatable-heading': DatatableHeading
   },
   setup () {
     return { $v: useVuelidate() }
@@ -317,10 +232,10 @@ export default {
       search: '',
       form: {
         id: 0,
-        contrato: '',
         nombre: '',
         state: 1
       },
+      rubName: '',
       alertSecs: 5,
       alertCountDown: 0,
       alertCountDownError: 0,
@@ -334,6 +249,12 @@ export default {
       selectedExp: null,
       fields: [
         {
+          name: '__slot:actions',
+          title: 'Acciones',
+          titleClass: '',
+          dataClass: 'text-muted'
+        },
+        {
           name: 'nombre',
           sortField: 'nombre',
           title: 'Rubros',
@@ -344,10 +265,7 @@ export default {
   },
   validations () {
     return {
-      form: {
-        contrato: { required },
-        nombre: { required }
-      }
+      rubName: { required }
     }
   },
   methods: {
@@ -356,7 +274,6 @@ export default {
         case 'save': {
           this.$v.$reset()
           this.form.id = 0
-          this.form.contrato = ''
           this.form.nombre = ''
           this.form.state = 1
           break
@@ -365,29 +282,10 @@ export default {
     },
     closeModal (action) {
       switch (action) {
-        case 'save': {
-          this.$v.$reset()
-          this.$refs['modal-1-create'].hide()
-          this.form.id = 0
-          this.form.contrato = ''
-          this.form.nombre = ''
-          this.form.state = 1
-          break
-        }
         case 'update': {
           this.$v.$reset()
-          this.$refs['modal-2-contract'].hide()
+          this.$refs['modal-2-rubro'].hide()
           this.form.id = 0
-          this.form.contrato = ''
-          this.form.nombre = ''
-          this.form.state = 1
-          break
-        }
-        case 'place': {
-          this.$v.$reset()
-          this.$refs['modal52-create'].hide()
-          this.form.id = 0
-          this.form.contrato = ''
           this.form.nombre = ''
           this.form.state = 1
           break
@@ -396,20 +294,15 @@ export default {
     },
     onValidate (action) {
       this.$v.$touch()
-      if (this.selectedAseg !== null && this.poliza !== '' && this.nombreAsegurado !== '' && this.selectedExp !== null) {
-        if (action === 'save') {
-          this.onSave()
-        } else if (action === 'update') {
-          this.onUpdate()
-        }
+      if (this.rubName !== '') {
+        this.onUpdate()
       } else {
         this.alertErrorText = 'Revisa que todos los campos requeridos esten llenos'
         this.showAlertError()
       }
     },
     setData (data) {
-      this.form.contrato = data.contrato
-      this.form.nombre = data.nombre
+      this.rubName = data.nombre
       this.form.state = data.estado
       this.form.id = data.id
     },
@@ -423,6 +316,7 @@ export default {
           this.showAlert()
           this.alertText = 'Se ha creado el rubro'
           this.$refs.vuetable.refresh()
+          this.rubName = ''
         }).catch(() => {
           this.alertVariant = 'error'
           this.showAlert()
@@ -434,46 +328,16 @@ export default {
         this.alertText = 'No pueden haber campos vacios'
       }
     },
-    onSave () {
-      const me = this
-      axios.post(apiUrl + '/seguros/create', {
-        id_expediente: this.selectedExp,
-        id_aseguradora: this.selectedAseg,
-        no_poliza: this.poliza,
-        nombre_asegurado: this.nombreAsegurado,
-        tel_asegurado: this.telefonoAsegurado,
-        correo_asegurado: this.correoAsegurado
-      })
-        .then((response) => {
-          me.selectAseg = null
-          me.selectedExp = null
-          me.no_poliza = ''
-          me.nombre_asegurado = ''
-          me.tel_asegurado = ''
-          me.correoAsegurado = ''
-          me.alertVariant = 'success'
-          me.showAlert()
-          me.alertText = 'Se ha creado el contrato exitosamente'
-          me.$refs.vuetable.refresh()
-          me.closeModal('save')
-        })
-        .catch((error) => {
-          me.alertVariant = 'danger'
-          me.showAlertError()
-          me.alertErrorText = error.response.data.msg
-          console.error('Error!', error)
-        })
-    },
     /* Guardar */
     onUpdate () {
       const me = this
-      // this.$refs["modalSave"].hide();
-      axios.put(apiUrl + '/contrato/update', {
+      me.form.name = me.rubName
+      axios.put(apiUrl + '/rubros/update', {
         form: me.form })
         .then((response) => {
           me.alertVariant = 'primary'
           me.showAlert()
-          me.alertText = 'Se ha actualizado el contrato exitosamente'
+          me.alertText = 'Se ha actualizado el rubro exitosamente'
           me.$refs.vuetable.refresh()
           me.closeModal('update')
         })
@@ -488,15 +352,15 @@ export default {
       let me = this
       if (this.form.state === 1) {
         axios
-          .put(apiUrl + '/contrato/deactivate', {
+          .put(apiUrl + '/rubros/deactivate', {
             id: this.form.id
           })
           .then((response) => {
             me.alertVariant = 'warning'
             me.showAlert()
-            me.alertText = 'Se ha desactivado el contrato exitosamente'
+            me.alertText = 'Se ha desactivado el rubro exitosamente'
             me.$refs.vuetable.refresh()
-            me.$refs['modal-3-contract'].hide()
+            me.$refs['modal-3-rubro'].hide()
           })
           .catch((error) => {
             me.alertVariant = 'danger'
@@ -506,15 +370,15 @@ export default {
           })
       } else {
         axios
-          .put(apiUrl + '/contrato/activate', {
+          .put(apiUrl + '/rubros/activate', {
             id: this.form.id
           })
           .then((response) => {
             me.alertVariant = 'info'
             me.showAlert()
-            me.alertText = 'Se ha activado el contrato exitosamente'
+            me.alertText = 'Se ha activado el rubro exitosamente'
             me.$refs.vuetable.refresh()
-            me.$refs['modal-4-contract'].hide()
+            me.$refs['modal-4-rubro'].hide()
           })
           .catch((error) => {
             me.alertVariant = 'danger'
@@ -565,18 +429,6 @@ export default {
     },
     showAlertError () {
       this.alertCountDownError = this.alertSecs
-    },
-    getInsurancesCompanies () {
-      axios.get(apiUrl + '/aseguradoras/get').then((response) => {
-        this.aseguradoras = response.data
-        console.log(response.data)
-      })
-    },
-    getExpedients () {
-      axios.get(apiUrl + '/expedientes/getAll').then((response) => {
-        this.expedientes = response.data
-        console.log(response.data)
-      })
     }
   }
 }

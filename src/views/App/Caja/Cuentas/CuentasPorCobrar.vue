@@ -97,6 +97,8 @@
               <div v-if="selectedPayment.indexOf(2) !== -1">
                 Tarjeta
                 <b-input :type="'number'" id="CardTypeInput" ref="CardTypeInput" v-model="paymentType.Tarjeta" />
+                Recargo (%)
+                <b-input :type="'number'" id="CardRechargeTypeInput" ref="CardRechargeTypeInput" v-model="paymentType.Tarjeta" />
               </div>
               <div v-if="selectedPayment.indexOf(3) !== -1">
                 Depósito
@@ -122,7 +124,7 @@
                 <b-input :type="'number'" id="InsuranceTypeInput" ref="InsuranceTypeInput" v-model="paymentType.Transferencia" />
               </div>
               <div>
-                <strong> TOTAL INGRESADO: {{ parseFloat(this.paymentType.Efectivo) + parseFloat(this.paymentType.Tarjeta) + parseFloat(this.paymentType.Deposito) + parseFloat(this.paymentType.Cheque) + parseFloat(this.paymentType.Seguro) + parseFloat(this.paymentType.Transferencia) }}</strong>
+                <strong> TOTAL INGRESADO: {{ parseFloat(this.paymentType.Efectivo) + parseFloat(this.paymentType.Tarjeta) + parseFloat(this.paymentType.Recargo*this.paymentType.Tarjeta) + parseFloat(this.paymentType.Deposito) + parseFloat(this.paymentType.Cheque) + parseFloat(this.paymentType.Seguro) + parseFloat(this.paymentType.Transferencia) }}</strong>
               </div>
               <div>
                 <strong> TOTAL A PAGAR: {{ this.totalPayment }}</strong>
@@ -408,6 +410,7 @@ export default {
       paymentType: {
         Efectivo: 0,
         Tarjeta: 0,
+        Recargo: 0,
         Deposito: 0,
         Cheque: 0,
         Seguro: 0,
@@ -692,7 +695,7 @@ export default {
     onPatientQuit () {
       this.paymentSum = parseFloat(this.paymentType.Efectivo) + parseFloat(this.paymentType.Tarjeta) + parseFloat(this.paymentType.Deposito) + parseFloat(this.paymentType.Cheque) + parseFloat(this.paymentType.Seguro) + parseFloat(this.paymentType.Transferencia)
       if (this.paymentSum !== parseFloat(this.totalPayment)) {
-        this.alertErrorText = 'El total a pagar no concuerda con el total ingresado'
+        this.alertErrorText = 'El total a pagar neto no concuerda con el total ingresado'
         this.showAlertError()
       } else {
         let me = this
@@ -705,6 +708,7 @@ export default {
             pendiente_de_pago: parseFloat(parseFloat(this.totalPayment) - parseFloat(this.paymentSum)),
             efectivo: this.paymentType.Efectivo,
             tarjeta: this.paymentType.Tarjeta,
+            recargoTarjeta: this.paymentType.Recargo * this.paymentType.Tarjeta,
             deposito: this.paymentType.Deposito,
             cheque: this.paymentType.Cheque,
             seguro: this.paymentType.Seguro,
@@ -718,6 +722,7 @@ export default {
             this.selectedAccount = null,
             this.paymentType.Efectivo = 0,
             this.paymentType.Tarjeta = 0,
+            this.paymentType.Recargo = 0,
             this.paymentType.Deposito = 0,
             this.paymentType.Cheque = 0,
             this.paymentType.Seguro = 0,

@@ -146,7 +146,7 @@ import JsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import { mapGetters } from 'vuex'
 import moment from 'moment'
-import logoLab from '../../../../../src/assets/images/logoLab.jpg'
+import logo from '../../../../../src/assets/images/logo.png'
 
 export default {
   name: 'Bank',
@@ -181,6 +181,7 @@ export default {
       perPage: 5,
       search: '',
       detalle: [],
+      pagoCuentas: [],
       pdf: new JsPDF(),
       pdfName: '',
       previewURL: '',
@@ -238,7 +239,7 @@ export default {
         {
           name: 'total_pagado',
           sortField: 'total_pagado',
-          title: 'Total pagado',
+          title: 'Total ingresado',
           dataClass: 'list-item-heading'
         },
         {
@@ -343,12 +344,21 @@ export default {
       this.getDetail(data.id, data)
     },
     getDetail (num, data) {
+      this.pagoCuentas = []
       axios.get(apiUrl + '/cuentas/getByAccount', {
         params: {
           id: num
         }
       }).then((response) => {
         this.detalle = response.data
+        response.data.forEach(element => {
+          if (element.detalle_pago_cuentas.length > 0) {
+            element.detalle_pago_cuentas.forEach(i => {
+              this.pagoCuentas.push(i)
+            })
+          }
+        })
+        console.log(this.pagoCuentas)
         this.printSale(data, 1)
       })
     },
@@ -491,7 +501,9 @@ export default {
           apellidos: item.expediente.apellidos,
           numero: item.numero,
           total: item.total,
-          fecha: item.createdAt
+          totalPagado: item.total_pagado,
+          fecha: item.createdAt,
+          tipo: item.tipo
         }))
       if (this.arrayDetalles.length > 0) {
         this.$refs['modal-pdf'].show()
@@ -502,34 +514,72 @@ export default {
 
         this.pdf = new JsPDF({
           unit: 'cm',
-          format: [14, 21.5],
-          orientation: 'landscape'
+          format: [14, 21.5]
         })
         var ingreso = moment(ahora).format('DD/MM/YYYY')
-        var imgData = logoLab
-        this.pdf.addImage(imgData, 'PNG', 1.5, 0.2, 4.37, 4)
+        var imgData = logo
+        this.pdf.addImage(imgData, 'PNG', 1.5, 0.2, 3, 3)
+        this.pdf.setFontSize(7).setFont(undefined, 'bold')
+        this.pdf.text('Hospital de Especialidades', 1.5, 3.3)
         this.pdf.setFontSize(10).setFont(undefined, 'bold')
-        this.pdf.text('Laboratorio Biomédico S.A.', 1.5, 4)
         if (type === 1) {
-          this.pdf.text('Detalle de cuenta ' + data.numero + ' - Paciente: ' + data.expediente.nombres + ' ' + data.expediente.apellidos, 7, altura)
+          this.pdf.text('Detalle de cuenta ' + data.numero + ' - Paciente: ' + data.expediente.nombres + ' ' + data.expediente.apellidos, 5, altura)
           this.pdfName = 'DetalleCuenta' + data.id + '.pdf'
           altura = altura + 0.5
-          this.pdf.text('Total: ' + data.total, 7, altura)
+          this.pdf.text('Total ingresado: ' + data.total_pagado, 5, altura)
           altura = altura + 0.5
-          this.pdf.text('Total pagado: ' + data.total_pagado, 7, altura)
-          altura = altura + 0.5
-          this.pdf.text('Pendiente de pago: ' + data.pendiente_de_pago, 7, altura)
         } else {
-          this.pdf.text('Corte del día ' + this.selectedDate, 7, altura)
+          var arrayHospi = []
+          var arrayEmergencia = []
+          var ArrayQuirofano = []
+          var ArrayIntensivo = []
+          var medioDePago = []
+          var totHospi = 0
+          var totEmergencia = 0
+          var totQuirofano = 0
+          var totIntensivo = 0
+          this.arrayDetalles.forEach(item => {
+            if (item.tipo === 1) {
+              arrayHospi.push(item)
+              totHospi = parseFloat(totHospi) + parseFloat(item.totalPagado)
+            } else if (item.tipo === 2) {
+              totEmergencia = parseFloat(totEmergencia) + parseFloat(item.totalPagado)
+              arrayEmergencia.push(item)
+            } else if (item.tipo === 3) {
+              ArrayQuirofano.push(item)
+              totQuirofano = parseFloat(totQuirofano) + parseFloat(item.totalPagado)
+            } else if (item.tipo === 4) {
+              ArrayIntensivo.push(item)
+              totIntensivo = parseFloat(totIntensivo) + parseFloat(item.totalPagado)
+            }
+          })
+          data.forEach(item => {
+            if (item.detalle_pago_cuentas.length > 0) {
+              item.detalle_pago_cuentas.forEach(i => {
+                medioDePago.push(i)
+              })
+            }
+          })
+          var tot = 0
+          var totPagado = 0
+          var totPendiente = 0
+          data.forEach(item => {
+            tot = parseFloat(tot) + parseFloat(item.total)
+            totPagado = parseFloat(totPagado) + parseFloat(item.total_pagado)
+            totPendiente = parseFloat(totPendiente) + parseFloat(item.pendiente_de_pago)
+          })
+          this.pdf.text('Corte del día ' + this.selectedDate, 5, altura)
           this.pdfName = 'Corte del día ' + this.selectedDate + '.pdf'
+          altura = altura + 0.5
+          this.pdf.text('Total ingresado: Q.' + totPagado, 5, altura)
+          altura = altura + 0.5
         }
         // Encabezado
+        this.pdf.text('Fecha de generación: ' + ingreso, 5, altura)
         altura = altura + 0.5
-        this.pdf.text('Fecha de generación: ' + ingreso, 7, altura)
-        altura = altura + 0.5
-        this.pdf.text('Informe generado por: ', 7, altura)
+        this.pdf.text('Informe generado por: ', 5, altura)
         this.pdf.setFontSize(10).setFont(undefined, 'normal')
-        this.pdf.text(this.currentUser.user, 10.75, altura)
+        this.pdf.text(this.currentUser.user, 8.75, altura)
         altura = altura + 0.5
         // Tabla
         if (type === 1) {
@@ -538,22 +588,138 @@ export default {
             body: this.detalle,
             margin: { top: 5 },
             headStyles: {
+              fontSize: 5,
               fillColor: [21, 21, 21],
               textColor: [225, 225, 225],
               fontStyle: 'bold'
+            },
+            bodyStyles: {
+              fontSize: 5
+            }
+          })
+          autoTable(this.pdf, {
+            columns: [{ header: 'Efectivo', dataKey: 'efectivo' }, { header: 'Tarjeta', dataKey: 'tarjeta' }, { header: 'Recargo', dataKey: 'recargoTarjeta' }, { header: 'Depósito', dataKey: 'deposito' }, { header: 'Cheque', dataKey: 'cheque' }, { header: 'Seguro', dataKey: 'seguro' }, { header: 'Transferencia', dataKey: 'transferencia' }],
+            body: this.pagoCuentas,
+            margin: { top: 5 },
+            headStyles: {
+              fontSize: 5,
+              fillColor: [21, 21, 21],
+              textColor: [225, 225, 225],
+              fontStyle: 'bold'
+            },
+            bodyStyles: {
+              fontSize: 5
             }
           })
         } else {
+          altura = altura + 1
+          this.pdf.text('Hospitalización Q.' + totHospi, 1.5, altura)
           autoTable(this.pdf, {
-            columns: [{ header: 'Expediente', dataKey: 'expediente' }, { header: 'Nombre', dataKey: 'nombres' }, { header: 'Apellido', dataKey: 'apellidos' }, { header: 'FechaDePago', dataKey: 'fecha' }, { header: 'Total', dataKey: 'total' }],
-            body: this.arrayDetalles,
+            columns: [{ header: 'Expediente', dataKey: 'expediente' }, { header: 'Nombre', dataKey: 'nombres' }, { header: 'Apellido', dataKey: 'apellidos' }, { header: 'Fecha de Pago', dataKey: 'fecha' }, { header: 'Total ingresado', dataKey: 'totalPagado' }],
+            body: arrayHospi,
+            startY: altura + 0.5,
+            margin: { top: 5 },
+            headStyles: {
+              fontSize: 5,
+              fillColor: [21, 21, 21],
+              textColor: [225, 225, 225],
+              fontStyle: 'bold'
+            },
+            bodyStyles: {
+              fontSize: 5
+            }
+          })
+          let finalY = this.pdf.lastAutoTable.finalY || 10
+          this.pdf.text('Emergencia Q.' + totEmergencia, 1.5, finalY + 0.5)
+          autoTable(this.pdf, {
+            columns: [{ header: 'Expediente', dataKey: 'expediente' }, { header: 'Nombre', dataKey: 'nombres' }, { header: 'Apellido', dataKey: 'apellidos' }, { header: 'Fecha de Pago', dataKey: 'fecha' }, { header: 'Total ingresado', dataKey: 'totalPagado' }],
+            body: arrayEmergencia,
+            startY: finalY + 1,
+            margin: { top: 5 },
+            headStyles: {
+              fontSize: 5,
+              fillColor: [21, 21, 21],
+              textColor: [225, 225, 225],
+              fontStyle: 'bold'
+            },
+            bodyStyles: {
+              fontSize: 5
+            }
+          })
+          finalY = this.pdf.lastAutoTable.finalY || 10
+          this.pdf.text('Quirófano Q.' + totQuirofano, 1.5, finalY + 0.5)
+          autoTable(this.pdf, {
+            columns: [{ header: 'Expediente', dataKey: 'expediente' }, { header: 'Nombre', dataKey: 'nombres' }, { header: 'Apellido', dataKey: 'apellidos' }, { header: 'Fecha de Pago', dataKey: 'fecha' }, { header: 'Total ingresado', dataKey: 'totalPagado' }],
+            body: ArrayQuirofano,
+            startY: finalY + 1,
+            margin: { top: 5 },
+            headStyles: {
+              fontSize: 5,
+              fillColor: [21, 21, 21],
+              textColor: [225, 225, 225],
+              fontStyle: 'bold'
+            },
+            bodyStyles: {
+              fontSize: 5
+            }
+          })
+          finalY = this.pdf.lastAutoTable.finalY || 10
+          this.pdf.text('Intensivo Q.' + totIntensivo, 1.5, finalY + 0.5)
+          autoTable(this.pdf, {
+            columns: [{ header: 'Expediente', dataKey: 'expediente' }, { header: 'Nombre', dataKey: 'nombres' }, { header: 'Apellido', dataKey: 'apellidos' }, { header: 'Fecha de Pago', dataKey: 'fecha' }, { header: 'Total ingresado', dataKey: 'totalPagado' }],
+            body: ArrayIntensivo,
+            startY: finalY + 1,
+            margin: { top: 5 },
+            headStyles: {
+              fontSize: 5,
+              fillColor: [21, 21, 21],
+              textColor: [225, 225, 225],
+              fontStyle: 'bold'
+            },
+            bodyStyles: {
+              fontSize: 5
+            }
+          })
+          finalY = this.pdf.lastAutoTable.finalY || 10
+          this.pdf.text('Medios de pago', 1.5, finalY + 0.5)
+          autoTable(this.pdf, {
+            columns: [{ header: 'Efectivo', dataKey: 'efectivo' }, { header: 'Tarjeta', dataKey: 'tarjeta' }, { header: 'Recargo', dataKey: 'recargoTarjeta' }, { header: 'Depósito', dataKey: 'deposito' }, { header: 'Cheque', dataKey: 'cheque' }, { header: 'Seguro', dataKey: 'seguro' }, { header: 'Transferencia', dataKey: 'transferencia' }],
+            startY: finalY + 1,
+            body: medioDePago,
             margin: { top: 5 },
             headStyles: {
               fillColor: [21, 21, 21],
               textColor: [225, 225, 225],
+              fontSize: 5,
               fontStyle: 'bold'
+            },
+            bodyStyles: {
+              fontSize: 5
             }
           })
+          const totalPages = this.pdf.getNumberOfPages()
+
+          for (let i = 1; i <= totalPages; i++) {
+            this.pdf.setPage(i)
+            altura = 1
+            this.pdf.addImage(imgData, 'PNG', 1.5, 0.2, 3, 3)
+            this.pdf.setFontSize(7).setFont(undefined, 'bold')
+            this.pdf.text('Hospital de Especialidades', 1.5, 3.3)
+            this.pdf.setFontSize(10).setFont(undefined, 'bold')
+            this.pdf.text('Corte del día ' + this.selectedDate, 5, altura)
+            altura = altura + 0.5
+            this.pdf.text('Total ingresado: Q.' + totPagado, 5, altura)
+            altura = altura + 0.5
+            this.pdf.text('Fecha de generación: ' + ingreso, 5, altura)
+            altura = altura + 0.5
+            this.pdf.text('Informe generado por: ', 5, altura)
+            this.pdf.setFontSize(10).setFont(undefined, 'normal')
+            this.pdf.text(this.currentUser.user, 8.75, altura)
+            this.pdf.setFontSize(5).setFont(undefined, 'normal')
+            this.pdf.text(i + '/' + totalPages, 12, 1)
+            altura = altura + 0.5
+            // drawHeader(doc);
+          }
         }
         var pdfData = this.pdf.output('blob')
         // Convert PDF to data URL
