@@ -542,6 +542,12 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
+          name: 'precio_costo',
+          sortField: 'precio_costo',
+          title: 'Precio costo',
+          dataClass: 'list-item-heading'
+        },
+        {
           name: 'precio_normal',
           sortField: 'precio_normal',
           title: 'Precio ordinario',
@@ -856,7 +862,7 @@ export default {
             me.showAlert()
             me.alertText = 'Se ha modificado el examen exitosamente'
             me.$refs.vuetable.refresh()
-            me.$refs['modal-2-update'].hide()
+            me.$refs['modal-2-updateExamen'].hide()
             this.varNombreExamen = ''
             this.varPrecioNormal = 0
             this.varPrecioCosto = 0
