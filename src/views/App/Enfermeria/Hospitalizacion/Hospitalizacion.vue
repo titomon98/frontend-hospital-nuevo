@@ -1482,7 +1482,7 @@ export default {
       let endpoint = ''
       switch (tipo) {
         case '0': endpoint = '/medicamentos/list2'; break
-        case '1': endpoint = '/quirurgico/list'; break
+        case '1': endpoint = '/quirurgico/list2'; break
         case '2': endpoint = '/comun/list2'; break
       }
 
