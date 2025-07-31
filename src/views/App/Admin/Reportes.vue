@@ -4181,7 +4181,6 @@ export default {
           console.log(response.data)
           if (response.data.Total === 0) {
             alert('El medico seleccionado no posee honorarios')
-            this.closeModal('save')
           }
         })
         .catch(error => {
@@ -4270,6 +4269,8 @@ export default {
           })
 
           currentY = doc.lastAutoTable.finalY
+        } else {
+          currentY += 18
         }
 
         if (data.total !== 0) {

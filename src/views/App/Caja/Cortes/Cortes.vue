@@ -50,9 +50,104 @@
         <b-button variant="danger" @click="closeModal('pdf')">Cancelar</b-button>
       </template>
     </b-modal>
+    <b-modal id="modal-voucher" ref="modal-voucher" title="Crear Voucher" size="lg">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <b-form @submit="$event.preventDefault()">
+        <b-form-group label="Seleccionar Médico">
+          <v-select
+            name="medico"
+            v-model="selectedMedico"
+            :options="medicos"
+            :filterable="false"
+            placeholder="Seleccione el médico"
+            @search="onSearchDatosMedicos"
+          >
+            <template v-slot:option="option">
+              {{ option.nombre }}
+            </template>
+            <template slot="selected-option" slot-scope="option">
+              {{ option.nombre }}
+            </template>
+          </v-select>
+        </b-form-group>
+
+        <b-form-group label="Cantidad:">
+          <b-form-input
+            disabled
+            type="number"
+            v-model="formVoucher.cantidad"
+          ></b-form-input>
+        </b-form-group>
+
+        <b-form-group label="Cantidad en letras:">
+          <b-form-input
+            type="text"
+            v-model="formVoucher.cantidadEscrita"
+            placeholder="Ingresar la Cantidad escrita con Inicial Mayúscula"
+          ></b-form-input>
+        </b-form-group>
+
+        <b-form-group label="Observaciones:">
+          <b-form-input
+            type="text"
+            v-model="formVoucher.observaciones"
+            placeholder="Ingresar observaciones"
+          ></b-form-input>
+        </b-form-group>
+
+        <b-form-group label="Cantidad entregada al momento:">
+          <b-form-input
+            type="number"
+            v-model="formVoucher.total"
+            placeholder="Ingresar el total pagado"
+          ></b-form-input>
+        </b-form-group>
+
+        <!-- Tabla de pacientes antes de generar el PDF -->
+        <b-table
+          striped hover bordered
+          :items="pacientes"
+          :fields="[
+            { key: 'paciente', label: 'Nombre del Paciente' },
+            { key: 'expediente', label: 'No. Expediente' },
+            { key: 'tipoPago', label: 'Tipo de Pago' },
+            { key: 'fecha', label: 'Fecha' },
+            { key: 'total', label: 'Honorarios' }
+          ]"
+        >
+          <template #cell(fecha)="data">
+            {{ new Date(data.item.fecha).toLocaleDateString() }}
+          </template>
+          <template #cell(total)="data">
+            Q{{ data.item.total.toFixed(2) }}
+          </template>
+        </b-table>
+
+      </b-form>
+
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click="crearVoucher()">Crear</b-button>
+        <b-button variant="danger" @click="closeModal('save 2')">Cancelar</b-button>
+      </template>
+    </b-modal>
     <b-row>
       <b-col md="12">
         <iq-card>
+            <template v-slot:headerAction>
+              <b-button
+                @click="$bvModal.show('modal-voucher')"
+                class="col-sm"
+                variant="primary"
+              >Voucher Honorarios</b-button>
+            </template>
             <template v-slot:headerTitle>
               <h4 class="card-title mt-3">Cortes</h4>
                <div class="iq-search-bar mt-2">
@@ -73,8 +168,6 @@
                 </b-form>
               </div>
             </template>
-            <template v-slot:headerAction>
-          </template>
           <template v-slot:body>
             <datatable-heading
               :changePageSize="changePageSizes"
@@ -273,7 +366,35 @@ export default {
           label: 'Costo',
           sortable: true
         }
-      ]
+      ],
+      // MEDICOS
+      pdf_select_medicos: null,
+      fechaActual: null,
+      numero_voucher: null,
+      dataMedicos: null,
+      selectedMedico: null,
+      medicos: [],
+      pacientes: [],
+      formVoucher: {
+        id_paciente: null,
+        medico: null,
+        cantidad: null,
+        cantidadEscrita: null,
+        observaciones: null,
+        total: 0
+      }
+    }
+  },
+  watch: {
+    selectedMedico (newValue) {
+      console.log(newValue)
+      if (newValue) {
+        this.agregarPacientes(newValue)
+      } else {
+        this.pacientes = []
+        this.formVoucher.cantidad = 0
+        console.log('Ningun medico seleccionado, pacientes limpiados')
+      }
     }
   },
   validations () {
@@ -312,6 +433,30 @@ export default {
           this.form.id = 0
           this.form.name = ''
           this.form.state = 1
+          break
+        }
+        case 'save 2': {
+          this.$v.$reset()
+          this.$refs['modal-voucher'].hide()
+          this.form.id = 0
+          this.form.fecha_ingreso = ''
+          this.form.descripcion = ''
+          this.form.motivo = ''
+          this.form.otros = ''
+          this.form.total = 0
+          this.form.id_expediente = 1
+          this.form.state = 1
+          this.$refs['modal-voucher'].hide()
+          this.formVoucher.medico = null
+          this.formVoucher.total = 0
+          this.formVoucher.cantidad = null
+          this.selectedReport = null
+          this.selectedReport = null
+          this.medicos = []
+          this.pacientes = []
+          this.dataMedicos = null
+          this.selectedMedico = null
+          this.formVoucher.cantidadEscrita = null
           break
         }
       }
@@ -733,6 +878,155 @@ export default {
     },
     descargarpdf () {
       this.pdf.save(this.pdfName)
+    },
+    // VOUCHER HONORARIOS MEDICOS
+
+    onSearchDatosMedicos (search, loading) {
+      if (search.length) {
+        loading(true)
+        this.onSearchMedicos(search, loading)
+      }
+    },
+    onSearchMedicos (search, loading) {
+      axios.get(apiUrl + '/voucher/getSearch',
+        {
+          params: {
+            search: search
+          }
+        }
+      ).then((response) => {
+        this.fechaActual = response.data.fechaActual
+        this.numero_voucher = response.data.numero
+        this.medicos = response.data.Medicos
+        loading(false)
+      })
+    },
+    agregarPacientes (newValue) {
+      this.formVoucher.medico = newValue
+      const idMedico = newValue.id
+      axios.get(apiUrl + '/reporte/medicos/optenerPacientes', {
+        params: {
+          idMedico: idMedico
+        }
+      })
+        .then(response => {
+          this.pacientes = response.data.pacientes
+          this.formVoucher.cantidad = response.data.Total
+          const idsPacientes = this.pacientes.map(paciente => paciente.id)
+          this.formVoucher.id_paciente = idsPacientes
+          console.log(response.data)
+          if (response.data.Total === 0) {
+            alert('El medico seleccionado no posee honorarios')
+          }
+        })
+        .catch(error => {
+          console.error('Error al obtener los pacientes:', error)
+        })
+    },
+    crearVoucher () {
+      if (!this.formVoucher.cantidadEscrita || this.formVoucher.cantidadEscrita.trim() === '') {
+        alert('Debe agregar la cantidad por escrito.')
+        return
+      }
+
+      axios.post(apiUrl + '/voucher/create', this.formVoucher)
+        .then(response => {
+          this.generarPDFMedicos3()
+          this.closeModal('save 2')
+        })
+        .catch(error => {
+          console.error('Error al crear el voucher:', error)
+        })
+    },
+    generarPDFMedicos3 () {
+      const data = this.formVoucher
+      const Pacientes = this.pacientes
+      const numero = this.numero_voucher
+      const fechaInicio = this.fechaActual
+
+      try {
+        const doc = new JsPDF()
+
+        doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
+        doc.setFontSize(16)
+        doc.text(`VOUCHER DE PAGO No. ${numero}`, 65, 20)
+        doc.setFontSize(12)
+        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO', 50, 26)
+
+        doc.setFontSize(10)
+        doc.text('TIPO DE PAGO:     HONORARIOS.', 15, 50)
+        doc.text(`FECHA DE PAGO:     ${moment(fechaInicio).format('DD/MM/YYYY')}`, 140, 50)
+
+        doc.setFontSize(10)
+        doc.text('PROVEEDOR:      HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO', 15, 60)
+
+        let currentY = 70
+
+        const tableRows = Pacientes.map((paciente, index) => [
+          index + 1,
+          paciente.paciente,
+          paciente.expediente,
+          paciente.tipoPago,
+          new Date(paciente.fecha).toLocaleDateString(),
+          `Q${paciente.total}`
+        ])
+
+        doc.autoTable({
+          head: [['#', 'Nombre del Paciente', 'No. Expediente', 'Tipo pago', 'Fecha', 'Honorarios']],
+          body: tableRows,
+          startY: currentY + 5,
+          theme: 'grid',
+          styles: { fontSize: 10, cellPadding: 2 },
+          headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
+          alternateRowStyles: { fillColor: [240, 240, 240] }
+        })
+
+        currentY = doc.lastAutoTable.finalY + 10
+
+        doc.setFontSize(10).setFont(undefined, 'bold')
+        doc.text(`TOTAL:             Q${data.cantidad}`, 143, currentY - 5)
+        doc.text('__________________________', 143, currentY - 4)
+        doc.text('__________________________', 143, currentY - 3)
+
+        doc.setFontSize(10).setFont(undefined, 'normal')
+        doc.text('F)._________________________________________', 20, currentY + 10)
+        doc.text(`PAGUESE A: ${data.medico.nombre}.`, 20, currentY + 16)
+        doc.text(`LA SUMA DE: ${data.cantidadEscrita}.`, 20, currentY + 22)
+
+        if (data.observaciones != null) {
+          doc.autoTable({
+            body: [
+              [{ content: 'Observaciones', styles: { halign: 'center' } }],
+              [{ content: `${data.observaciones}`, styles: { halign: 'left' } }]
+            ],
+            startY: currentY + 28,
+            theme: 'grid',
+            styles: { fontSize: 10, cellPadding: 2, textColor: [0, 0, 0] }
+          })
+
+          currentY = doc.lastAutoTable.finalY
+        } else {
+          currentY += 18
+        }
+
+        if (data.total !== 0) {
+          doc.autoTable({
+            body: [
+              [{ content: 'Total entregado', styles: { halign: 'center' } }],
+              [{ content: `${data.total}`, styles: { halign: 'rigth' } }]
+            ],
+            startY: currentY + 10,
+            theme: 'grid',
+            styles: { fontSize: 10, cellPadding: 2, textColor: [0, 0, 0] }
+          })
+
+          currentY = doc.lastAutoTable.finalY
+        }
+        doc.save(`Vaoucher_Pago_Honorarios_${data.medico.nombre}_Fecha_${moment(fechaInicio).format('DD/MM/YYYY')}.pdf`)
+      } catch (error) {
+        console.error('Error al generar el reporte:', error)
+        this.$alert('Ocurrió un error al generar el reporte. Por favor, intente de nuevo.', 'Error')
+      }
     }
   }
 }
