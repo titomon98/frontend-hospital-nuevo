@@ -1114,10 +1114,25 @@ export default {
 
       const today = new Date()
       const diasTexto = [
-        '', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve', 'diez',
-        'once', 'doce', 'trece', 'catorce', 'quince', 'dieciséis', 'diecisiete', 'dieciocho', 'diecinueve',
-        'veinte', 'veintiuno', 'veintidós', 'veintitrés', 'veinticuatro', 'veinticinco', 'veintiséis',
-        'veintisiete', 'veintiocho', 'veintinueve', 'treinta', 'treinta y uno'
+        '', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve',
+        'diez', 'once', 'doce', 'trece', 'catorce', 'quince', 'dieciséis', 'diecisiete',
+        'dieciocho', 'diecinueve', 'veinte', 'veintiuno', 'veintidós', 'veintitrés',
+        'veinticuatro', 'veinticinco', 'veintiséis', 'veintisiete', 'veintiocho',
+        'veintinueve', 'treinta', 'treinta y uno', 'treinta y dos', 'treinta y tres',
+        'treinta y cuatro', 'treinta y cinco', 'treinta y seis', 'treinta y siete',
+        'treinta y ocho', 'treinta y nueve', 'cuarenta', 'cuarenta y uno', 'cuarenta y dos',
+        'cuarenta y tres', 'cuarenta y cuatro', 'cuarenta y cinco', 'cuarenta y seis',
+        'cuarenta y siete', 'cuarenta y ocho', 'cuarenta y nueve', 'cincuenta',
+        'cincuenta y uno', 'cincuenta y dos', 'cincuenta y tres', 'cincuenta y cuatro',
+        'cincuenta y cinco', 'cincuenta y seis', 'cincuenta y siete', 'cincuenta y ocho',
+        'cincuenta y nueve', 'sesenta', 'sesenta y uno', 'sesenta y dos', 'sesenta y tres',
+        'sesenta y cuatro', 'sesenta y cinco', 'sesenta y seis', 'sesenta y siete',
+        'sesenta y ocho', 'sesenta y nueve', 'setenta', 'setenta y uno', 'setenta y dos',
+        'setenta y tres', 'setenta y cuatro', 'setenta y cinco', 'setenta y seis',
+        'setenta y siete', 'setenta y ocho', 'setenta y nueve', 'ochenta',
+        'ochenta y uno', 'ochenta y dos', 'ochenta y tres', 'ochenta y cuatro',
+        'ochenta y cinco', 'ochenta y seis', 'ochenta y siete', 'ochenta y ocho',
+        'ochenta y nueve', 'noventa'
       ]
 
       const aniosTexto = {
@@ -1134,12 +1149,14 @@ export default {
       const month = today.toLocaleString('es-ES', { month: 'long' })
       const year = today.getFullYear()
       const yearText = aniosTexto[year] || 'Actualizar sistema'
+      const edad = diasTexto[this.paciente.edad_encargado]
 
       // Encabezado
       this.pdf.addImage(logo, 'JPEG', 1.5, 1, 3, 3)
 
       this.pdf.setFontSize(16).setFont(undefined, 'bold')
-      this.pdf.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 12, 2, { align: 'center' })
+      this.pdf.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A.', 12, 1.5, { align: 'center' })
+      this.pdf.text('QUETZALTENANGO', 12, 2.2, { align: 'center' })
       this.pdf.setFontSize(14)
       this.pdf.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 12, 3, { align: 'center' })
       this.pdf.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 12, 3.5, { align: 'center' })
@@ -1173,7 +1190,7 @@ export default {
       altura += 0.7
       this.pdf.setFontSize(12).setFont(undefined, 'normal')
       this.pdf.text(
-        `DE:                  ${this.paciente.edad_encargado}                                     años`,
+        `DE:                  ${edad}                          años`,
         2,
         altura,
         { maxWidth: 17 }
@@ -1264,7 +1281,7 @@ export default {
       this.pdf.setFontSize(10).setFont(undefined, 'normal')
       this.pdf.text(
         `Lugar que  señalo  para recibir  notificaciones  por  el  presente documento  hago constar:  PRIMERO: que autorizo
-expresamente al  HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A. para que le preste tratamiento  médico
+expresamente al  HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. para que le preste tratamiento  médico
 necesario a: ${this.paciente.nombres} ${this.paciente.apellidos} utilizando los servicios médicos necesarios así
 como  los  medicamentos  que  los  profesionales  de  mérito  estimen  conveniente,  aplicando los tratamientos que
 estos  prescriban. SEGUNDO: que  me  comprometo expresamente  a  cancelar  el monto  de la liquidación que me
@@ -1272,10 +1289,10 @@ presente  el  HOSPITAL  DE  ESPECIALIDADES  DE  OCCIDENTE,  S.A.  Por los concep
 anterior,  ósea  HOSPITALIZACIÓN,  MEDICINAS,  Y  HONORARIOS  por servicios  médicos prestados;  y para tal
 efecto  acepto  desde ya  como  líquidas,  exigibles,  ejecutivas y de  plazo  vencido,  las  cantidades  que  arroje  la
 liquidación relacionada. TERCERO:  la falta de pago de la cantidad a que haciende la liquidación mencionada en el
-punto anterior, dará derecho al  HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.  a cobrar ejecutivamente
+punto anterior, dará derecho al  HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. a cobrar ejecutivamente
 la misma, para cuyo efecto servirá de título ejecutivo el presente documento y la liquidación que presente la entidad
 indicada,  que formará  parte del mismo  renunciando para dicho efecto al fuero de mi domicilio y sujetándome a los
-tribunales que fija el HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A. CUARTO: en fe de lo anterior, firmo
+tribunales que fija el HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. CUARTO: en fe de lo anterior, firmo
 este documento como FIADOR SOLIDARIO DE. ${this.paciente.nombres} ${this.paciente.apellidos}
         `,
         2,
@@ -1308,7 +1325,9 @@ ______________________________________               ___________________________
 
 
 
- Direccion: ${this.paciente.direccion_encargado} - Tel: ${this.paciente.contacto_encargado}
+ Direccion: ${this.paciente.direccion_encargado} 
+
+ Tel: ${this.paciente.contacto_encargado}
 ______________________________________               ______________________________________
 
                    Dirección y Teléfono                                                               Dirección y Teléfono
@@ -1376,7 +1395,7 @@ ANTE MI
 
       doc.addImage(logo, 'JPEG', 14, 10, 25, 20)
       doc.setFontSize(14).setFont(undefined, 'bold')
-      doc.text('HOSPITAL Y CLINICA DE ESPECIALIDADES DE OCCIDENTE, S.A.', 120, 20, { align: 'center' })
+      doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A.', 120, 20, { align: 'center' })
       doc.text('QUETZALTENANGO', 120, 27, { align: 'center' })
 
       dibujarLinea(10, 30, 210, 30)
@@ -1407,7 +1426,7 @@ ANTE MI
       // 5) Fecha Nac., Edad, Nacionalidad
       // -------------------------------------
       escribirTexto('Fecha Nacimiento:', 12, posY, 10, 'bold')
-      escribirTexto(paciente.nacimiento, 50, posY)
+      escribirTexto(paciente.nacimiento, 45, posY)
       escribirTexto('Edad:', 70, posY, 10, 'bold')
       escribirTexto(String(paciente.edad), 80, posY)
       escribirTexto('Lugar de Nacimiento:', 100, posY, 10, 'bold')
@@ -1422,15 +1441,15 @@ ANTE MI
       // ----------------------------------------------
       // -----------------------------------------------
       escribirTexto('Estado Civil:', 12, posY, 10, 'bold')
-      escribirTexto(paciente.estado_civil, 35, posY)
-      escribirTexto('Ocupacion:', 60, posY, 10, 'bold')
-      escribirTexto(paciente.profesion, 70, posY)
-      escribirTexto('Nacionalidad', 110, posY, 10, 'bold')
-      escribirTexto(paciente.nacionalidad, 135, posY)
-      escribirTexto('CUI:', 170, posY, 10, 'bold')
-      escribirTexto(paciente.cui, 180, posY)
+      escribirTexto(paciente.estado_civil, 12, posY += 5)
+      escribirTexto('Ocupacion:', 40, posY -= 5, 10, 'bold')
+      escribirTexto(paciente.profesion, 40, posY += 5)
+      escribirTexto('Nacionalidad', 155, posY -= 5, 10, 'bold')
+      escribirTexto(paciente.nacionalidad, 155, posY += 5)
+      escribirTexto('CUI:', 180, posY -= 5, 10, 'bold')
+      escribirTexto(paciente.cui, 180, posY += 5)
 
-      posY += 5
+      posY += 2
       dibujarLinea(10, posY, 210, posY)
       posY += 5
 
@@ -1463,15 +1482,15 @@ ANTE MI
       // ----------------------------------------------
       // -----------------------------------------------
       escribirTexto('En caso de emergencia notificar a:', 12, posY -= 6, 10, 'bold')
-      escribirTexto(paciente.nombre_encargado, 12, posY += 8)
-      escribirTexto('Parentesco:', 87, posY -= 8, 10, 'bold')
-      escribirTexto(paciente.parentesco_encargado, 87, posY += 8)
-      escribirTexto('Direccion:', 115, posY -= 8, 10, 'bold')
-      escribirTexto(paciente.direccion_encargado, 115, posY += 8)
-      escribirTexto('Tel:', 190, posY -= 8, 10, 'bold')
-      escribirTexto(paciente.contacto_encargado, 190, posY += 8)
+      escribirTexto(paciente.nombre_encargado, 12, posY += 6)
+      escribirTexto('Parentesco:', 87, posY -= 6, 10, 'bold')
+      escribirTexto(paciente.parentesco_encargado, 87, posY += 6)
+      escribirTexto('Direccion:', 115, posY -= 6, 10, 'bold')
+      escribirTexto(paciente.direccion_encargado, 115, posY += 6)
+      escribirTexto('Tel:', 190, posY -= 6, 10, 'bold')
+      escribirTexto(paciente.contacto_encargado, 190, posY += 6)
 
-      posY += 5
+      posY += 2
       dibujarLinea(10, posY, 210, posY)
       posY += 5
 
@@ -1658,7 +1677,7 @@ ANTE MI
 
         // Título
         sheet.mergeCells('A1:F1')
-        sheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.'
+        sheet.getCell('A1').value = 'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO'
         sheet.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' }
 
         sheet.mergeCells('A2:F2')

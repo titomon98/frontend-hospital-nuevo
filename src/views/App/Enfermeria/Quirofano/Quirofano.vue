@@ -1362,6 +1362,12 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
+          name: 'comune.presentacione.nombre',
+          sortField: 'comune.presentacione.nombre',
+          title: 'Presentación',
+          dataClass: 'list-item-heading'
+        },
+        {
           name: 'precio_venta',
           sortField: 'precio_venta',
           title: 'Precio unitario',
@@ -1385,6 +1391,12 @@ export default {
           name: 'cantidad',
           sortField: 'cantidad',
           title: 'Cantidad',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'quirurgico.presentacione.nombre',
+          sortField: 'quirurgico.presentacione.nombre',
+          title: 'Presentación',
           dataClass: 'list-item-heading'
         },
         {
@@ -1414,6 +1426,12 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
+          name: 'medicamento.presentacione.nombre',
+          sortField: 'medicamento.presentacione.nombre',
+          title: 'Presentación',
+          dataClass: 'list-item-heading'
+        },
+        {
           name: 'precio_venta',
           sortField: 'precio_venta',
           title: 'Precio unitario',
@@ -1438,6 +1456,12 @@ export default {
           sortField: 'cantidad',
           title: 'Cantidad',
           dataClass: 'list-item-heading'
+        },
+        {
+          name: 'comune.presentacione.nombre',
+          sortField: 'comune.presentacione.nombre',
+          title: 'Presentación',
+          dataClass: 'list-item-heading'
         }
       ],
       fieldsConsumoInsumoQuirurgico2: [
@@ -1452,6 +1476,12 @@ export default {
           sortField: 'cantidad',
           title: 'Cantidad',
           dataClass: 'list-item-heading'
+        },
+        {
+          name: 'quirurgico.presentacione.nombre',
+          sortField: 'quirurgico.presentacione.nombre',
+          title: 'Presentación',
+          dataClass: 'list-item-heading'
         }
       ],
       fieldsConsumoInsumoMedicamento2: [
@@ -1465,6 +1495,12 @@ export default {
           name: 'cantidad',
           sortField: 'cantidad',
           title: 'Cantidad',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'medicamento.presentacione.nombre',
+          sortField: 'medicamento.presentacione.nombre',
+          title: 'Presentación',
           dataClass: 'list-item-heading'
         }
       ],
@@ -1739,7 +1775,7 @@ export default {
       let endpoint = ''
       switch (tipo) {
         case '0': endpoint = '/medicamentos/list2'; break
-        case '1': endpoint = '/quirurgico/list'; break
+        case '1': endpoint = '/quirurgico/list2'; break
         case '2': endpoint = '/comun/list2'; break
       }
 
@@ -1747,7 +1783,7 @@ export default {
         const response = await axios.get(apiUrl + endpoint)
         this.insumosActuales = response.data.map(insumo => ({
           value: insumo.id,
-          text: insumo.nombre,
+          text: insumo.nombre + ' --- ' + insumo.presentacione.nombre,
           existencias_actuales: insumo.existencia_actual,
           precio_venta: insumo.precio_venta
         }))
@@ -2529,7 +2565,14 @@ export default {
       this.toP = paginationData.to
       this.totalP = paginationData.total
       this.lastPageP = paginationData.last_page
-      this.items = paginationData.data
+      this.items = paginationData.data.map(item => {
+        item.createdAt = moment(item.createdAt).format('DD/MM/YYYY')
+        item.updatedAt = moment(item.updatedAt).format('DD/MM/YYYY')
+        return {
+          createdAt: item.createdAt,
+          updatedAt: item.updatedAt
+        }
+      })
       this.$refs.paginationReceta.setPaginationData(paginationData)
     },
     onChangePageReceta (page) {
@@ -2599,7 +2642,14 @@ export default {
       this.toP = paginationData.to
       this.totalP = paginationData.total
       this.lastPageP = paginationData.last_page
-      this.items = paginationData.data
+      this.items = paginationData.data.map(item => {
+        item.createdAt = moment(item.createdAt).format('DD/MM/YYYY')
+        item.updatedAt = moment(item.updatedAt).format('DD/MM/YYYY')
+        return {
+          createdAt: item.createdAt,
+          updatedAt: item.updatedAt
+        }
+      })
       this.$refs.paginationConsumo.setPaginationData(paginationData)
     },
     onChangePageConsumo (page) {
@@ -3076,7 +3126,7 @@ export default {
         const doc = new JsPDF()
 
         doc.setFontSize(10).setFont(undefined, 'bold')
-        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE, S.A.', 110, 10, { align: 'center' })
+        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO', 110, 10, { align: 'center' })
 
         doc.setFontSize(10).setFont(undefined, 'normal')
         doc.text('CUENTA DE PACIENTE', 110, 14, { align: 'center' })
