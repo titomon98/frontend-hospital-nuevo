@@ -1208,6 +1208,18 @@ export default {
           sortField: 'total',
           title: 'Subtotal',
           dataClass: 'list-item-heading'
+        },
+        {
+          name: 'created_by',
+          sortField: 'created_by',
+          title: 'Administrado por',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'createdAt',
+          sortField: 'createdAt',
+          title: 'Fecha y hora',
+          dataClass: 'list-item-heading'
         }
       ],
       fieldsConsumoInsumoQuirurgico: [
@@ -1239,6 +1251,18 @@ export default {
           name: 'total',
           sortField: 'total',
           title: 'Subtotal',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'created_by',
+          sortField: 'created_by',
+          title: 'Administrado por',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'createdAt',
+          sortField: 'createdAt',
+          title: 'Fecha y hora',
           dataClass: 'list-item-heading'
         }
       ],
@@ -1272,6 +1296,18 @@ export default {
           sortField: 'total',
           title: 'Subtotal',
           dataClass: 'list-item-heading'
+        },
+        {
+          name: 'created_by',
+          sortField: 'created_by',
+          title: 'Administrado por',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'createdAt',
+          sortField: 'createdAt',
+          title: 'Fecha y hora',
+          dataClass: 'list-item-heading'
         }
       ],
       fieldsConsumoInsumo2: [
@@ -1291,6 +1327,18 @@ export default {
           name: 'comune.presentacione.nombre',
           sortField: 'comune.presentacione.nombre',
           title: 'Presentación',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'created_by',
+          sortField: 'created_by',
+          title: 'Administrado por',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'createdAt',
+          sortField: 'createdAt',
+          title: 'Fecha y hora',
           dataClass: 'list-item-heading'
         }
       ],
@@ -1312,6 +1360,18 @@ export default {
           sortField: 'quirurgico.presentacione.nombre',
           title: 'Presentación',
           dataClass: 'list-item-heading'
+        },
+        {
+          name: 'created_by',
+          sortField: 'created_by',
+          title: 'Administrado por',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'createdAt',
+          sortField: 'createdAt',
+          title: 'Fecha y hora',
+          dataClass: 'list-item-heading'
         }
       ],
       fieldsConsumoInsumoMedicamento2: [
@@ -1331,6 +1391,18 @@ export default {
           name: 'medicamento.presentacione.nombre',
           sortField: 'medicamento.presentacione.nombre',
           title: 'Presentación',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'created_by',
+          sortField: 'created_by',
+          title: 'Administrado por',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'createdAt',
+          sortField: 'createdAt',
+          title: 'Fecha y hora',
           dataClass: 'list-item-heading'
         }
       ],
@@ -1781,7 +1853,8 @@ export default {
           precio_venta: consumo.precio_venta,
           movimiento: 'SALIDAQ',
           state: 1,
-          existencias_actuales: consumo.existencias
+          existencias_actuales: consumo.existencias,
+          user: this.currentUser.user
         }
         const currentUser = this.currentUser
         await axios.post(apiUrl + '/detalle_consumo_medicamentos/create', {
@@ -1802,13 +1875,15 @@ export default {
           precio_venta: consumo.precio_venta,
           movimiento: 'SALIDAQ',
           state: 1,
-          existencias_actuales: consumo.existencias
+          existencias_actuales: consumo.existencias,
+          user: this.currentUser.user
         }
         const currentUser = this.currentUser
         await axios.post(apiUrl + '/detalle_consumo_quirugicos/create', {
           form: payload,
           currentUser
         })
+        this.selected_insumo = '0'
       } catch (error) {
         console.error('Error en onSaveQuirurgico:', error)
         throw error
@@ -1823,13 +1898,15 @@ export default {
           precio_venta: consumo.precio_venta,
           movimiento: 'SALIDAQ',
           state: 1,
-          existencias_actuales: consumo.existencias
+          existencias_actuales: consumo.existencias,
+          user: this.currentUser.user
         }
         const currentUser = this.currentUser
         await axios.post(apiUrl + '/detalle_consumo_comun/create', {
           form: payload,
           currentUser
         })
+        this.selected_insumo = '0'
       } catch (error) {
         console.error('Error en onSaveComunes:', error)
         throw error
