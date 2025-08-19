@@ -220,7 +220,7 @@
       <b-col md="12">
         <iq-card>
             <template v-slot:headerTitle>
-              <h4 class="card-title mt-3">Cuentas por cobrar</h4>
+              <h4 class="card-title mt-3">Validar Descuentos</h4>
                <div class="iq-search-bar mt-2">
                 <b-form action="#" class="searchbox">
                     <b-input id="search" placeholder="Buscar..." @input="(val) => searchChange(val)" />

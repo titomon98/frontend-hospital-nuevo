@@ -27,20 +27,11 @@
         <b-col >
           <b-form-group label="Área a la que desea trasladar:">
             <b-form-radio-group
-                      id="radio-group-2"
-                      v-model="selectedTrasOption"
-                      :options="optionsTraslado"
-                      name="radio-options"
-                    ></b-form-radio-group>
-            <div v-if="selectedTrasOption==1 || selectedTrasOption==4">
-              Habitación
-              <v-select
-              ref="selectHab"
-              v-model="selectedHab"
-              :options="habitaciones"
-              label="numero"
-              value="id"></v-select>
-            </div>
+              id="radio-group-2"
+              v-model="selectedTrasOption"
+              :options="optionsTraslado"
+              name="radio-options"
+            ></b-form-radio-group>
           </b-form-group>
         </b-col>
       </b-form>
@@ -55,7 +46,6 @@
           type="submit"
           variant="primary"
           @click="onRelocation()
-                  this.selectedHab = null
           "
           >Ingresar</b-button
         >
@@ -2476,27 +2466,18 @@ export default {
         .put(apiUrl + '/expedientes/changeState', {
           id: this.form.id,
           estado: this.selectedTrasOption,
-          estado_anterior: 5,
-          motivo: this.motivoTrasladoEmergencia,
+          estado_anterior: 1,
+          motivo: this.motivoTrasladoHospi,
           user: me.currentUser.user
         })
         .then((response) => {
           me.alertVariant = 'info'
           me.showAlert()
           me.alertText = 'Se ha trasladado el paciente ' + me.form.nombres + ' exitosamente'
+
+          // refrescar tabla y cerrar modal
           me.$refs.vuetable.refresh()
           me.$refs['modal-traslado'].hide()
-          if (this.selectedTrasOption === 1 || this.selectedTrasOption === 4) {
-            axios
-              .put(apiUrl + '/habitaciones/inUse', {
-                id: this.selectedHab.id,
-                ocupante: this.form.id
-              })
-              .then((res) => {
-                this.selectedHab = null
-                this.getHabitaciones(0).then(me.$refs.selectHab.refresh())
-              })
-          }
         })
         .catch((error) => {
           me.alertVariant = 'danger'
@@ -2507,7 +2488,7 @@ export default {
     },
     onRelocation (action) {
       this.$v.$touch()
-      if (this.selectedHab === null && (this.selectedTrasOption === 1 || this.selectedTrasOption === 4)) {
+      if (this.selectedHab != null && (this.selectedTrasOption === 1 || this.selectedTrasOption === 4)) {
         this.alertErrorText = 'Revisa que todos los campos requeridos esten llenos'
         this.showAlertError()
       } else {

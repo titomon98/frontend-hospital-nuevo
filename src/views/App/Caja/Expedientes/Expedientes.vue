@@ -1391,25 +1391,25 @@ ANTE MI
         doc.text(texto, x, y)
       }
 
-      dibujarRect(10, 10, 200, 250)
+      dibujarRect(10, 5, 200, 250)
 
-      doc.addImage(logo, 'JPEG', 14, 10, 25, 20)
+      doc.addImage(logo, 'JPEG', 14, 6, 25, 20)
       doc.setFontSize(14).setFont(undefined, 'bold')
-      doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A.', 120, 20, { align: 'center' })
-      doc.text('QUETZALTENANGO', 120, 27, { align: 'center' })
+      doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A.', 120, 13, { align: 'center' })
+      doc.text('QUETZALTENANGO', 120, 20, { align: 'center' })
 
-      dibujarLinea(10, 30, 210, 30)
+      dibujarLinea(10, 25, 210, 25)
 
-      let posY = 35
+      let posY = 30
 
       escribirTexto('Apellidos:', 12, posY, 10, 'bold')
-      escribirTexto(paciente.apellidos, 30, posY)
-      escribirTexto('Nombres:', 80, posY, 10, 'bold')
-      escribirTexto(paciente.nombres, 100, posY)
-      escribirTexto('Exp:', 175, posY, 10, 'bold')
-      escribirTexto(paciente.expediente, 185, posY)
+      escribirTexto(paciente.apellidos, 12, posY += 5)
+      escribirTexto('Nombres:', 87, posY -= 5, 10, 'bold')
+      escribirTexto(paciente.nombres, 87, posY += 5)
+      escribirTexto('Exp:', 185, posY -= 5, 10, 'bold')
+      escribirTexto(paciente.expediente, 185, posY += 5)
 
-      posY += 5
+      posY += 2
       dibujarLinea(10, posY, 210, posY)
       posY += 5
 
@@ -1418,7 +1418,7 @@ ANTE MI
       escribirTexto('Tel:', 165, posY, 10, 'bold')
       escribirTexto(paciente.telefono, 175, posY)
 
-      posY += 5
+      posY += 2
       dibujarLinea(10, posY, 210, posY)
       posY += 5
 
@@ -1434,7 +1434,7 @@ ANTE MI
       escribirTexto('Sexo:', 170, posY, 10, 'bold')
       escribirTexto(paciente.genero, 180, posY)
 
-      posY += 5
+      posY += 2
       dibujarLinea(10, posY, 210, posY)
       posY += 5
 
@@ -1457,13 +1457,13 @@ ANTE MI
       // -----------------------------------------
 
       escribirTexto('Nombre  de Conyugue:', 12, posY, 10, 'bold')
-      escribirTexto(paciente.nombre_conyuge, 40, posY)
-      escribirTexto('Direccion:', 105, posY, 10, 'bold')
-      escribirTexto(paciente.direccion_conyuge, 130, posY)
-      escribirTexto('Tel:', 175, posY, 10, 'bold')
-      escribirTexto(paciente.telefono_conyuge, 185, posY)
+      escribirTexto(paciente.nombre_conyuge, 12, posY += 5)
+      escribirTexto('Direccion:', 105, posY -= 5, 10, 'bold')
+      escribirTexto(paciente.direccion_conyuge, 105, posY += 5)
+      escribirTexto('Tel:', 180, posY -= 5, 10, 'bold')
+      escribirTexto(paciente.telefono_conyuge, 180, posY += 5)
 
-      posY += 5
+      posY += 2
       dibujarLinea(10, posY, 210, posY)
       posY += 5
 
@@ -1471,11 +1471,11 @@ ANTE MI
       // 6) Padre y Madre
       // -------------------------------------
       escribirTexto('Nombre del Padre:', 12, posY, 10, 'bold')
-      escribirTexto(paciente.nombre_padre, 50, posY)
-      escribirTexto('Nombre de la Madre:', 120, posY, 10, 'bold')
-      escribirTexto(paciente.nombre_madre, 160, posY)
+      escribirTexto(paciente.nombre_padre, 44, posY)
+      escribirTexto('Nombre de la Madre:', 115, posY, 10, 'bold')
+      escribirTexto(paciente.nombre_madre, 151, posY)
 
-      posY += 5
+      posY += 2
       dibujarLinea(10, posY, 210, posY)
       posY += 10
 
@@ -1534,7 +1534,7 @@ ANTE MI
       // -------------------------------------
       escribirTexto('Diagnóstico final: Enumero en orden de importacia', 12, posY, 10, 'bold')
 
-      posY += 5
+      posY += 2
       dibujarLinea(10, posY, 210, posY)
       posY += 5
 
@@ -1559,7 +1559,7 @@ ANTE MI
       // -------------------------------------
       escribirTexto('Complicaciones:', 12, posY, 10, 'bold')
 
-      posY += 5
+      posY += 2
       dibujarLinea(10, posY, 210, posY)
       posY += 5
 
@@ -1579,7 +1579,7 @@ ANTE MI
       // -------------------------------------
       escribirTexto('Operaciones: Enumero en orden de importacia', 12, posY, 10, 'bold')
 
-      posY += 5
+      posY += 2
       dibujarLinea(10, posY, 210, posY)
       posY += 5
 
@@ -1589,17 +1589,86 @@ ANTE MI
 
       posY += 5
       dibujarLinea(10, posY, 210, posY)
-      posY += 5
-      // -------------------------------------
-      // 10) Firma del Médico
-      // -------------------------------------
-      escribirTexto('Firma Médico Responsable:', 12, posY, 10, 'bold')
-      posY += 15
-      // Línea para firmar
-      dibujarLinea(60, posY, 140, posY)
+      posY += 2
 
       // -------------------------------------
-      // 11) Guardar el PDF
+      // 10) Casillas de verificación
+      // -------------------------------------
+      escribirTexto('Egreso', 12, posY + 6, 10, 'bold')
+      const opciones = [
+        ['Vivo', 'Contraindicación', 'Transferencia a otra institución'],
+        ['Muerto', 'Antes de 48 horas', 'Después de 48 horas']
+      ]
+
+      const tamCaja = 5 // tamaño del cuadro
+      const anchoCol = 22 // ancho por columna
+      let xPos
+
+      opciones.forEach(fila => {
+        xPos = 35 // inicio de cada fila
+
+        fila.forEach(texto => {
+          // Dibuja cuadro vacío
+          doc.rect(xPos, posY, tamCaja, tamCaja)
+
+          // Texto a la derecha del cuadro
+          escribirTexto(texto, xPos + 6, posY + 3, 5, 'bold')
+
+          // Pasar a la siguiente columna
+          xPos += anchoCol
+        })
+        // Siguiente fila
+        posY += tamCaja + 2
+      })
+
+      posY -= 7
+      // -------------------------------------
+      // 10.1) Casillas de verificación de autopsia
+      // -------------------------------------
+      escribirTexto('Autopsia', 125, posY, 10, 'bold')
+      const opciones2 = [ ['Si', 'No'] ]
+      const tamCaja2 = 5 // tamaño del cuadro
+      const anchoCol2 = 15 // ancho por columna
+      let xPos2
+      posY -= 3
+
+      opciones2.forEach(fila => {
+        xPos2 = 150 // inicio de cada fila
+
+        fila.forEach(texto => {
+          // Dibuja cuadro vacío
+          doc.rect(xPos2, posY, tamCaja2, tamCaja2)
+
+          // Texto a la derecha del cuadro
+          escribirTexto(texto, xPos2 + 6, posY + 3, 5, 'bold')
+
+          // Pasar a la siguiente columna
+          xPos2 += anchoCol2
+        })
+        // Siguiente fila
+        posY += tamCaja2 + 2
+      })
+
+      posY += 5
+      escribirTexto('Causa de muerte', 12, posY + 3, 10, 'bold')
+
+      posY += 5
+      dibujarLinea(10, posY, 210, posY)
+      posY += 5
+
+      escribirTexto('Fecha', 12, posY, 10, 'bold')
+
+      posY += 2 // espacio antes de la firma
+      dibujarLinea(10, posY, 210, posY)
+      posY += 5
+
+      // -------------------------------------
+      // 11) Firma del Médico
+      // -------------------------------------
+      escribirTexto('Firma Médico Responsable:', 150, posY, 10, 'bold')
+
+      // -------------------------------------
+      // 12) Guardar el PDF
       // -------------------------------------
       doc.save(`Sumario_Paciente_${paciente.nombres}_${paciente.apellidos}.pdf`)
     },
