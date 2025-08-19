@@ -32,15 +32,6 @@
                 :options="optionsTraslado"
                 name="radio-options"
               ></b-form-radio-group>
-            <div v-if="selectedTrasOption==1 || selectedTrasOption==4">
-              Habitación
-              <v-select
-              ref="selectHab"
-              v-model="selectedHab"
-              :options="habitaciones"
-              label="numero"
-              value="id"></v-select>
-            </div>
           </b-form-group>
         </b-col>
       </b-form>
@@ -55,7 +46,6 @@
           type="submit"
           variant="primary"
           @click="onRelocation()
-                  this.selectedHab = null
           "
           >Ingresar</b-button
         >
@@ -2910,19 +2900,10 @@ export default {
           me.alertVariant = 'info'
           me.showAlert()
           me.alertText = 'Se ha trasladado el paciente ' + me.form.nombres + ' exitosamente'
+
+          // refrescar tabla y cerrar modal
           me.$refs.vuetable.refresh()
           me.$refs['modal-traslado'].hide()
-          if (this.selectedTrasOption === 1 || this.selectedTrasOption === 4) {
-            axios
-              .put(apiUrl + '/habitaciones/inUse', {
-                id: this.selectedHab.id,
-                ocupante: this.form.id
-              })
-              .then((res) => {
-                this.selectedHab = null
-                this.getHabitaciones(0).then(me.$refs.selectHab.refresh())
-              })
-          }
         })
         .catch((error) => {
           me.alertVariant = 'danger'
@@ -2933,7 +2914,7 @@ export default {
     },
     onRelocation (action) {
       this.$v.$touch()
-      if (this.selectedHab === null && (this.selectedTrasOption === 1 || this.selectedTrasOption === 4)) {
+      if (this.selectedHab != null && (this.selectedTrasOption === 1 || this.selectedTrasOption === 4)) {
         this.alertErrorText = 'Revisa que todos los campos requeridos esten llenos'
         this.showAlertError()
       } else {
