@@ -2892,8 +2892,8 @@ export default {
         .put(apiUrl + '/expedientes/changeState', {
           id: this.form.id,
           estado: this.selectedTrasOption,
-          estado_anterior: 5,
-          motivo: this.motivoTrasladoEmergencia,
+          estado_anterior: 3,
+          motivo: this.motivoTrasladoQuirofano,
           user: this.currentUser.user
         })
         .then((response) => {
