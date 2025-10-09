@@ -1906,7 +1906,7 @@ export default {
       try {
         for (const consumo of this.consumosTemporales) {
           // Agregar validación de cantidad
-          if (consumo.cantidad <= 0 || (consumo.cantidad > consumo.existencias && consumo.inventariado === "INVENTARIADO")) {
+          if (consumo.cantidad <= 0 || (consumo.cantidad > consumo.existencias && consumo.inventariado === 'INVENTARIADO')) {
             throw new Error(`Cantidad inválida para ${consumo.nombre}`)
           }
 
