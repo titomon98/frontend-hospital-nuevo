@@ -1534,7 +1534,8 @@ export default {
           value: insumo.id,
           text: insumo.nombre + ' --- ' + insumo.presentacione.nombre,
           existencias_actuales: insumo.existencia_actual,
-          precio_venta: insumo.precio_venta
+          precio_venta: insumo.precio_venta,
+          inventariado: insumo.inventariado
         }))
       } catch (error) {
         console.error('Error cargando insumos:', error)
@@ -1563,7 +1564,7 @@ export default {
       }
 
       // Agregar con tipo incluido
-      if (insumo.existencias_actuales === 0) {
+      if (insumo.existencias_actuales === 0 && insumo.inventariado === 'INVENTARIADO') {
         this.alertErrorText = 'El insumo no posee existencias'
         this.alertCountDownError = 5
         return
@@ -1575,7 +1576,8 @@ export default {
         nombre: insumo.text,
         cantidad: 1,
         existencias: insumo.existencias_actuales,
-        precio_venta: insumo.precio_venta
+        precio_venta: insumo.precio_venta,
+        inventariado: insumo.inventariado
       })
 
       // Limpiar selección
@@ -1593,7 +1595,7 @@ export default {
       try {
         for (const consumo of this.consumosTemporales) {
           // Agregar validación de cantidad
-          if (consumo.cantidad <= 0 || consumo.cantidad > consumo.existencias) {
+          if (consumo.cantidad <= 0 || (consumo.cantidad > consumo.existencias && consumo.inventariado === "INVENTARIADO")) {
             throw new Error(`Cantidad inválida para ${consumo.nombre}`)
           }
 
