@@ -457,7 +457,6 @@
               type="number"
               v-model="row.item.cantidad"
               :min="1"
-              :max="row.item.existencias"
               placeholder="Cantidad"
             ></b-form-input>
           </template>
@@ -584,7 +583,6 @@
               type="number"
               v-model="row.item.cantidad"
               :min="1"
-              :max="row.item.existencias"
               placeholder="Cantidad"
             ></b-form-input>
           </template>
@@ -1945,7 +1943,8 @@ export default {
           movimiento: 'SALIDAQ',
           state: 1,
           existencias_actuales: consumo.existencias,
-          user: this.currentUser.user
+          user: this.currentUser.user,
+          inventariado: consumo.inventariado
         }
         const currentUser = this.currentUser
         await axios.post(apiUrl + '/detalle_consumo_quirugicos/create', {
@@ -1968,7 +1967,8 @@ export default {
           movimiento: 'SALIDAQ',
           state: 1,
           existencias_actuales: consumo.existencias,
-          user: this.currentUser.user
+          user: this.currentUser.user,
+          inventariado: consumo.inventariado
         }
         const currentUser = this.currentUser
         await axios.post(apiUrl + '/detalle_consumo_comun/create', {
