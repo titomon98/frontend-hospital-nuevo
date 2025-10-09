@@ -2279,6 +2279,7 @@ export default {
           form: payload,
           currentUser
         })
+        this.form.selected_insumo = '0'
       } catch (error) {
         console.error('Error en onSaveMedicamento:', error)
         throw error
@@ -2302,7 +2303,7 @@ export default {
           form: payload,
           currentUser
         })
-        this.selected_insumo = '0'
+        this.form.selected_insumo = '0'
       } catch (error) {
         console.error('Error en onSaveQuirurgico:', error)
         throw error
@@ -2326,7 +2327,7 @@ export default {
           form: payload,
           currentUser
         })
-        this.selected_insumo = '0'
+        this.form.selected_insumo = '0'
       } catch (error) {
         console.error('Error en onSaveComunes:', error)
         throw error
