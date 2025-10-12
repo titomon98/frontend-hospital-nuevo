@@ -401,7 +401,7 @@
         <b-button variant="danger" @click="closeModal('ver-honorarios')">Cerrar</b-button>
       </template>
     </b-modal>
-    <b-modal id="modal-1-movimiento" size="lg" ref="modal-1-movimiento" title="Agregar Consumo" @shown="openModal2">
+    <b-modal id="modal-1-movimiento" size="xl" ref="modal-1-movimiento" title="Agregar Consumo" @shown="openModal2">
       <!-- Alerta -->
       <b-alert
         :show="alertCountDownError"
@@ -416,17 +416,20 @@
       <b-form @submit.prevent>
         <!-- Selección de tipo de insumo -->
         <b-form-group label="Agregar Insumo:">
-          <b-row md="3" class="ml-5 mt-negativo-r1">
-            <input type="radio" id="medicamento" value="0" v-model="$v.form.selected_insumo.$model" @change="onSelectChange"/>
-            <label for="medicamento" class="mt-2 ml-1">Medicamento</label>
-          </b-row>
-          <b-row md="3" class="ml-5 mt-negativo">
-            <input type="radio" id="quirurgico" value="1" v-model="$v.form.selected_insumo.$model" @change="onSelectChange"/>
-            <label for="quirurgico" class="mt-2 ml-1">Quirúrgico</label>
-          </b-row>
-          <b-row md="3" class="ml-5 mt-negativo">
-            <input type="radio" id="uso_comun" value="2" v-model="$v.form.selected_insumo.$model" @change="onSelectChange" />
-            <label for="uso_comun" class="mt-2 ml-1">Uso común</label>
+          <br>
+          <b-row class="ml-5 mt-negativo-r1">
+            <b-col md="3">
+              <input type="radio" id="medicamento" value="0" v-model="$v.form.selected_insumo.$model" @change="onSelectChange"/>
+              <label for="medicamento" class="ml-1">Medicamento</label>
+            </b-col>
+            <b-col md="3">
+              <input type="radio" id="quirurgico" value="1" v-model="$v.form.selected_insumo.$model" @change="onSelectChange"/>
+              <label for="quirurgico" class="ml-1">Quirúrgico</label>
+            </b-col>
+            <b-col md="3">
+              <input type="radio" id="uso_comun" value="2" v-model="$v.form.selected_insumo.$model" @change="onSelectChange"/>
+              <label for="uso_comun" class="ml-1">Uso común</label>
+            </b-col>
           </b-row>
 
           <!-- Selector de insumo -->
@@ -527,7 +530,7 @@
         <b-button variant="danger" @click="closeModal('save')">Cancelar</b-button>
       </template>
     </b-modal>
-    <b-modal id="modal-1-movimiento2" size="lg" ref="modal-1-movimiento2" title="Agregar Consumo" @shown="openModal2">
+    <b-modal id="modal-1-movimiento2" size="xl" ref="modal-1-movimiento2" title="Agregar Consumo" @shown="openModal2">
       <!-- Alerta -->
       <b-alert
         :show="alertCountDownError"
@@ -542,17 +545,20 @@
       <b-form @submit.prevent>
         <!-- Selección de tipo de insumo -->
         <b-form-group label="Agregar Insumo:">
-          <b-row md="3" class="ml-5 mt-negativo-r1">
-            <input type="radio" id="medicamento" value="0" v-model="$v.form.selected_insumo.$model" @change="onSelectChange"/>
-            <label for="medicamento" class="mt-2 ml-1">Medicamento</label>
-          </b-row>
-          <b-row md="3" class="ml-5 mt-negativo">
-            <input type="radio" id="quirurgico" value="1" v-model="$v.form.selected_insumo.$model" @change="onSelectChange"/>
-            <label for="quirurgico" class="mt-2 ml-1">Quirúrgico</label>
-          </b-row>
-          <b-row md="3" class="ml-5 mt-negativo">
-            <input type="radio" id="uso_comun" value="2" v-model="$v.form.selected_insumo.$model" @change="onSelectChange" />
-            <label for="uso_comun" class="mt-2 ml-1">Uso común</label>
+          <br>
+          <b-row class="ml-5 mt-negativo-r1">
+            <b-col md="3">
+              <input type="radio" id="medicamento" value="0" v-model="$v.form.selected_insumo.$model" @change="onSelectChange"/>
+              <label for="medicamento" class="ml-1">Medicamento</label>
+            </b-col>
+            <b-col md="3">
+              <input type="radio" id="quirurgico" value="1" v-model="$v.form.selected_insumo.$model" @change="onSelectChange"/>
+              <label for="quirurgico" class="ml-1">Quirúrgico</label>
+            </b-col>
+            <b-col md="3">
+              <input type="radio" id="uso_comun" value="2" v-model="$v.form.selected_insumo.$model" @change="onSelectChange"/>
+              <label for="uso_comun" class="ml-1">Uso común</label>
+            </b-col>
           </b-row>
 
           <!-- Selector de insumo -->
@@ -1039,7 +1045,7 @@ export default {
         placeholder: 'Escribir la orden médica',
         theme: 'snow'
       },
-      perPage: 5,
+      perPage: 25,
       search: '',
       existencias_selected_med: null,
       max_cant: 0,
@@ -1247,6 +1253,12 @@ export default {
           sortField: 'createdAt',
           title: 'Fecha y hora',
           dataClass: 'list-item-heading'
+        },
+        {
+          name: 'descripcion',
+          sortField: 'descripcion',
+          title: 'Lugar de distribución',
+          dataClass: 'list-item-heading'
         }
       ],
       fieldsConsumoInsumoQuirurgico: [
@@ -1290,6 +1302,12 @@ export default {
           name: 'createdAt',
           sortField: 'createdAt',
           title: 'Fecha y hora',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'descripcion',
+          sortField: 'descripcion',
+          title: 'Lugar de distribución',
           dataClass: 'list-item-heading'
         }
       ],
@@ -1335,6 +1353,12 @@ export default {
           sortField: 'createdAt',
           title: 'Fecha y hora',
           dataClass: 'list-item-heading'
+        },
+        {
+          name: 'descripcion',
+          sortField: 'descripcion',
+          title: 'Lugar de distribución',
+          dataClass: 'list-item-heading'
         }
       ],
       fieldsConsumoInsumo2: [
@@ -1366,6 +1390,12 @@ export default {
           name: 'createdAt',
           sortField: 'createdAt',
           title: 'Fecha y hora',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'descripcion',
+          sortField: 'descripcion',
+          title: 'Lugar de distribución',
           dataClass: 'list-item-heading'
         }
       ],
@@ -1399,6 +1429,12 @@ export default {
           sortField: 'createdAt',
           title: 'Fecha y hora',
           dataClass: 'list-item-heading'
+        },
+        {
+          name: 'descripcion',
+          sortField: 'descripcion',
+          title: 'Lugar de distribución',
+          dataClass: 'list-item-heading'
         }
       ],
       fieldsConsumoInsumoMedicamento2: [
@@ -1430,6 +1466,12 @@ export default {
           name: 'createdAt',
           sortField: 'createdAt',
           title: 'Fecha y hora',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'descripcion',
+          sortField: 'descripcion',
+          title: 'Lugar de distribución',
           dataClass: 'list-item-heading'
         }
       ],
@@ -1847,7 +1889,7 @@ export default {
           this.formMe.id_cuenta = 0
           this.formMe.cantidad = 0
           this.formMe.medicamento = null
-          this.formMe.movimiento = 'SALIDAQ'
+          this.formMe.movimiento = 'SALIDAE'
           this.form.selected_insumo = '0'
           this.existencias_selected_med = null
           break
@@ -1918,7 +1960,7 @@ export default {
           id_medicamento: consumo.id,
           cantidad: consumo.cantidad,
           precio_venta: consumo.precio_venta,
-          movimiento: 'SALIDAQ',
+          movimiento: 'SALIDAE',
           state: 1,
           existencias_actuales: consumo.existencias,
           user: this.currentUser.user
@@ -1941,7 +1983,7 @@ export default {
           id_medicamento: consumo.id,
           cantidad: consumo.cantidad,
           precio_venta: consumo.precio_venta,
-          movimiento: 'SALIDAQ',
+          movimiento: 'SALIDAE',
           state: 1,
           existencias_actuales: consumo.existencias,
           user: this.currentUser.user,
@@ -1965,7 +2007,7 @@ export default {
           id_medicamento: consumo.id,
           cantidad: consumo.cantidad,
           precio_venta: consumo.precio_venta,
-          movimiento: 'SALIDAQ',
+          movimiento: 'SALIDAE',
           state: 1,
           existencias_actuales: consumo.existencias,
           user: this.currentUser.user,
@@ -2512,9 +2554,10 @@ export default {
         const response = await axios.get(apiUrl + `/cuentas/getSearch?search=${id}`)
         if (response.data && response.data.id) {
           this.idCuentaSeleccionada = response.data.id
-          this.apiBaseConsumoMedicamento = apiUrl + `/detalle_consumo_medicamentos/list/${response.data.id}`
-          this.apiBaseConsumoQuirurgico = apiUrl + `/detalle_consumo_quirugicos/list/${response.data.id}`
-          this.apiBaseConsumoComun = apiUrl + `/detalle_consumo_comun/list/${response.data.id}`
+          //Hospitalizacion, Quirofano, Emergencia, Intensivo
+          this.apiBaseConsumoMedicamento = apiUrl + `/detalle_consumo_medicamentos/list/${response.data.id}/Emergencia`
+          this.apiBaseConsumoQuirurgico = apiUrl + `/detalle_consumo_quirugicos/list/${response.data.id}/Emergencia`
+          this.apiBaseConsumoComun = apiUrl + `/detalle_consumo_comun/list/${response.data.id}/Emergencia`
           // this.$refs['modal-ver-consumos'].show()
         } else {
           console.error('No se encontró ninguna cuenta para el expediente:', id)
