@@ -193,11 +193,17 @@
             placeholder="Seleccione un servicio a agregar"
             @search="onSearchServicios"
           >
-            <template v-slot:option="option">
+            <template v-slot:option="option" v-if="currentUser.user_type < 7">
               {{ option.descripcion + ' - Precio: ' + option.precio }}
             </template>
-            <template v-slot:selected-option="option">
+            <template v-slot:option="option" v-else>
+              {{ option.descripcion }}
+            </template>
+            <template v-slot:selected-option="option" v-if="currentUser.user_type < 7">
               {{ option.descripcion + ' - Precio: ' + option.precio }}
+            </template>
+            <template v-slot:selected-option="option" v-else>
+              {{ option.descripcion }}
             </template>
           </v-select>
         </b-form-group>
@@ -424,7 +430,7 @@
             </b-col>
             <b-col md="6">
               <b-form-group v-if="isCirugiaMayorOMedia" label="Cobro Oximetro / Cauterio">
-                <b-form-checkbox v-model="salaOperaciones.oximetro" :disabled="isCirugiaMayorOMedia">Oxímetro </b-form-checkbox>
+                <b-form-checkbox v-model="salaOperaciones.oximetro">Oxímetro </b-form-checkbox>
                 <b-form-checkbox v-model="salaOperaciones.cauterio" :disabled="isCirugiaMayorOMedia">Cauterio </b-form-checkbox>
                 <b-form-checkbox v-model="salaOperaciones.monitor" :disabled="isCirugiaMayorOMedia">Monitor </b-form-checkbox>
               </b-form-group>
@@ -446,7 +452,7 @@
             </b-col>
       </b-row>
       <template #modal-footer>
-        <div class="ml-auto"> <span class="mr-2">Total: Q{{ TotalAPagar }}</span></div>
+        <div class="ml-auto"> <span v-if="currentUser.user_type < 7" class="mr-2">Total: Q{{ TotalAPagar }}</span></div>
           <b-button variant="primary" @click="addSalaOperaciones()">Cobrar</b-button>
           <b-button variant="danger" @click="closeModal('sala-operaciones')">Cancelar</b-button>
         </template>
@@ -2554,7 +2560,7 @@ export default {
       }
     },
     addSalaOperaciones () {
-      if (this.salaOperaciones.minutos > 0) {
+      if (this.salaOperaciones.minutos > 0 || this.salaOperaciones.horas > 0) {
         try {
           axios.post(apiUrl + '/salaOperaciones/created', {
             oximetro: this.salaOperaciones.oximetro,

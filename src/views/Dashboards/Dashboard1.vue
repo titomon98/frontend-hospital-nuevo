@@ -9,7 +9,7 @@
             </div>
           </template>
           <template v-slot:body>
-            <h4 class="card-title">CUENTAS ACTIVAS</h4>
+            <h4 class="card-title">EXPEDIENTES ACTIVOS</h4>
             <datatable-heading
               :changePageSize="changePageSizes"
               :searchChange="searchChange"
@@ -32,16 +32,17 @@
             >
               <!-- Estado -->
               <div slot="estado" slot-scope="props">
-                <h5 v-if="props.rowData.estado == 1">
-                  <b-badge variant="light"
-                    ><h6 class="success"><strong>ACTIVO</strong></h6></b-badge
-                  >
-                </h5>
-                <h5 v-else>
-                  <b-badge variant="light"
-                    ><h6 class="danger"><strong>INACTIVO</strong></h6></b-badge
-                  >
-                </h5>
+                <button v-if="props.rowData.estado === 1" type="button" class="btn btn-success" disabled>INGRESADO EN HOSPITAL</button>
+                <button v-if="props.rowData.estado === 2" type="button" class="btn btn-warning" disabled>EGRESADO</button>
+                <button v-if="props.rowData.estado === 3" type="button" class="btn btn-success" disabled>INGRESADO EN QUIRÓFANO</button>
+                <button v-if="props.rowData.estado === 4" type="button" class="btn btn-success" disabled>INGRESADO EN INTENSIVO</button>
+                <button v-if="props.rowData.estado === 5" type="button" class="btn btn-success" disabled>INGRESADO EN EMERGENCIA</button>
+                <button v-if="props.rowData.estado === 6" type="button" class="btn btn-dark" disabled>DESAHUCIADO</button>
+                <button v-if="props.rowData.estado === 7" type="button" class="btn btn-dark" disabled>ALTA MÉDICA</button>
+                <button v-if="props.rowData.estado === 8" type="button" class="btn btn-dark" disabled>EGRESO CONTRAINDICADO</button>
+                <button v-if="props.rowData.estado === 9" type="button" class="btn btn-dark" disabled>REFERIDO A OTRA UBICACIÓN</button>
+                <button v-if="props.rowData.estado === 10" type="button" class="btn btn-dark" disabled>EXPEDIENTE INCOMPLETO</button>
+                <button v-if="props.rowData.estado === 0" type="button" class="btn btn-dark" disabled>FALLECIDO</button>
               </div>
               <!-- Paginacion -->
             </vuetable>
@@ -139,7 +140,7 @@ export default {
       from: 0,
       to: 0,
       total: 0,
-      perPage: 5,
+      perPage: 10,
       search: '',
       resultsList: [],
       fromHabitaciones: 0,
@@ -148,7 +149,7 @@ export default {
       perPageHabitaciones: 5,
       searchHabitaciones: '',
       resultsListHabitaciones: [],
-      apiBase: apiUrl + '/cuentas/list',
+      apiBase: apiUrl + '/expedientes/listPanel',
       apiBaseHabitaciones: apiUrl + '/habitaciones/list',
       slickOptions: {
         centerMode: false,
@@ -178,45 +179,55 @@ export default {
       },
       fields: [
         {
-          name: 'expediente.expediente',
-          sortField: 'expediente.expediente',
+          name: 'nombres',
+          sortField: 'nombres',
+          title: 'Nombre',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'apellidos',
+          sortField: 'apellidos',
+          title: 'Apellidos',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'expediente',
+          sortField: 'expediente',
           title: 'Expediente',
           dataClass: 'list-item-heading'
         },
         {
-          name: 'numero',
-          sortField: 'numero',
-          title: 'Número',
+          name: 'medico.nombre',
+          title: 'Médico asignado',
           dataClass: 'list-item-heading'
         },
         {
-          name: 'fecha_ingreso',
-          sortField: 'fecha_ingreso',
-          title: 'Fecha de ingreso',
+          name: 'nacimiento',
+          sortField: 'nacimiento',
+          title: 'Fecha de nacimiento',
           dataClass: 'list-item-heading'
         },
         {
-          name: 'motivo',
-          sortField: 'motivo',
-          title: 'Motivo',
+          name: 'edad',
+          title: 'Edad',
           dataClass: 'list-item-heading'
         },
         {
-          name: 'descripcion',
-          sortField: 'descripcion',
-          title: 'Descripción',
+          name: 'genero',
+          sortField: 'genero',
+          title: 'Género',
           dataClass: 'list-item-heading'
         },
         {
-          name: 'otros',
-          sortField: 'otros',
-          title: 'Otros...',
+          name: 'nombre_encargado',
+          sortField: 'nombre_encargado',
+          title: 'Nombre de encargado',
           dataClass: 'list-item-heading'
         },
         {
-          name: 'total',
-          sortField: 'total',
-          title: 'Total',
+          name: 'contacto_encargado',
+          sortField: 'contacto_encargado',
+          title: 'Contacto de encargado',
           dataClass: 'list-item-heading'
         },
         {
@@ -279,19 +290,33 @@ export default {
     makeQueryParams (sortOrder, currentPage, perPage) {
       return sortOrder[0]
         ? {
-          criterio: sortOrder[0] ? sortOrder[0].sortField : 'numero',
+          criterio: sortOrder[0] ? sortOrder[0].sortField : 'id',
           order: sortOrder[0] ? sortOrder[0].direction : 'desc',
           page: currentPage,
           limit: this.perPage,
           search: this.search
         }
         : {
-          criterio: sortOrder[0] ? sortOrder[0].sortField : 'numero',
+          criterio: sortOrder[0] ? sortOrder[0].sortField : 'id',
           order: sortOrder[0] ? sortOrder[0].direction : 'desc',
           page: currentPage,
           limit: this.perPage,
           search: this.search
         }
+    },
+    calcularEdad (Fecha) {
+      if (!Fecha) return ''
+      const FECHA = moment(Fecha, 'DD-MM-YYYY').format('YYYY-MM-DD')
+      const hoy = new Date()
+      const nacimiento = new Date(FECHA)
+      let edad = hoy.getFullYear() - nacimiento.getFullYear()
+      const mesCumpleanos = nacimiento.getMonth()
+      const diaCumpleanos = nacimiento.getDate()
+
+      if (hoy.getMonth() < mesCumpleanos || (hoy.getMonth() === mesCumpleanos && hoy.getDate() < diaCumpleanos)) {
+        edad--
+      }
+      return edad
     },
     makeQueryParamsHabitaciones (sortOrder, currentPage, perPage) {
       return sortOrder[0]
@@ -332,9 +357,11 @@ export default {
       this.total = paginationData.total
       this.lastPage = paginationData.last_page
       this.items = paginationData.data.map(item => {
-        item.fecha_ingreso = moment(item.fecha_ingreso).format('DD/MM/YYYY')
+        item.nacimiento = moment(item.nacimiento).format('DD/MM/YYYY')
+        item.edad = this.calcularEdad(item.nacimiento)
         return {
-          fecha_ingreso: item.fecha_ingreso
+          nacimiento: item.nacimiento,
+          edad: item.edad
         }
       })
       this.$refs.pagination.setPaginationData(paginationData)
