@@ -289,7 +289,7 @@ export default {
       from: 0,
       to: 0,
       total: 0,
-      perPage: 5,
+      perPage: 15,
       search: '',
       form: {
         id: 0,
