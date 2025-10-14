@@ -3113,13 +3113,11 @@ export default {
     async verResultado (id) {
       try {
         const response = await axios.get(apiUrl + `/detalleExamenRealizado/list?id=${id}`)
-        console.log(response.data.data)
         if (response.data.data.length < 1) {
           this.alertVariant = 'danger'
           this.showAlertError()
           this.alertErrorText = 'El examen aun no posee resultados'
-        }
-        else {
+        } else {
           this.resultados = response.data.data
           this.$refs['modal-ver-resultados'].show()
         }
