@@ -3070,6 +3070,7 @@ export default {
       axios.get(apiUrl + '/examenesAlmacenadosBuscar/getSearch', { params })
         .then((response) => {
           this.examenes_almacenadosBuscar = response.data.data
+          console.log(this.examenes_almacenadosBuscar)
           this.$refs.vuetableBuscar.setData(response.data)
         })
         .catch((error) => {

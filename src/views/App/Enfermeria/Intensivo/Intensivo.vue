@@ -753,29 +753,53 @@
         <b-row class="ml-2">
           <b-col md="4">
             <b-form-group label="Tipo de Examen:">
-              <v-select
-                name="type"
-                v-model="selectedExamenAlmacenado"
-                :options="examenes_almacenados"
-                :filterable="false"
-                placeholder="Seleccione el Examen"
-                @search="onSearch_id_examenes_almacenados"
+              <Multiselect
+                v-model="selectedExamenes"
+                :options="examenes_almacenadosBuscar"
+                :multiple="true"
+                :close-on-select="false"
+                :clear-on-select="false"
+                :preserve-search="true"
+                placeholder="Seleccionar exámenes"
+                label="nombre"
+                track-by="id"
+                @search-change="onSearch_id_examenes_almacenados"
+                :pagination="true"
+                :page="currentPageExa"
+                @page-change="onPageChangeExa"
               >
-                <template v-slot:spinner="{ loading }">
-                  <div v-show="loading">Cargando...</div>
+                <!-- Personalización de las opciones mientras el usuario busca -->
+                <template v-slot:option="{ option }">
+                  <div class="custom-option">
+                    <strong>{{ option.nombre }}</strong> --
+                    <small>Tipo de Examen: {{ option.tipo_examen }}</small> |
+                    <small>Precio: Q{{ option.precio_normal }}</small> |
+                  </div>
                 </template>
-                <template v-slot:option="option">
-                  {{ 'Nombre: '+ option.nombre }}
+
+                <!-- Personalización de cómo se muestran los seleccionados -->
+                <template v-slot:selection="{ values, search, isOpen }">
+                  <span class="multiselect__single" v-if="values.length && !isOpen">
+                    {{ values.length }} exámenes seleccionados
+                  </span>
                 </template>
-                <template slot="selected-option" slot-scope="option">
-                  {{ 'Nombre: '+ option.nombre }}
-                </template>
-              </v-select>
+              </Multiselect>
+              <!-- Mostrar la lista de exámenes seleccionados -->
+              <div>
+                <ul class="selected-options-list" v-if="selectedExamenes.length > 0">
+                  <li v-for="(examen, index) in selectedExamenes" :key="examen.id">
+                    {{ index + 1 }}. {{ examen.nombre }} - Precio: Q{{ examen.precio_normal }}
+                  </li>
+                </ul>
+              </div>
             </b-form-group>
           </b-col>
         </b-row>
       </b-form>
       <template #modal-footer="{}">
+
+        <div class="ml-auto"> <span class="mr-2">Total: Q{{ TotalAPagar2 }}</span></div>
+
         <b-button variant="primary" @click="guardarExamenRealizado"
           >Guardar</b-button
         >
@@ -904,11 +928,11 @@
                   >Ver honorarios</b-button>
 
                   <b-button
-                  @click="showModal('modal_agregar'); ver_examen_realizado(props.rowData.id); realizar_examen(props.rowData.id, props.rowData.nombres, props.rowData.apellidos, props.rowData.cui, props.rowData.telefono, props.rowData.nacimiento)"
+                    @click="showModal('modal_agregar'); ver_examen_realizado(props.rowData.id); realizar_examen(props.rowData.id, props.rowData.nombres, props.rowData.apellidos, props.rowData.cui, props.rowData.telefono, props.rowData.nacimiento)"
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="success"
-                  >Agregar Examen</b-button>
+                   >Agregar Examen</b-button>
 
                   <b-button
                     v-b-tooltip.top="'Agregar consumo'"
@@ -992,6 +1016,7 @@ import moment from 'moment'
 import { mapGetters } from 'vuex'
 import JsPDF from 'jspdf'
 import 'jspdf-autotable'
+import Multiselect from 'vue-multiselect'
 
 export default {
   name: 'Intensivo',
@@ -999,7 +1024,8 @@ export default {
     vuetable: Vuetable,
     'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
     'datatable-heading': DatatableHeading,
-    quillEditor
+    quillEditor,
+    Multiselect
   },
   setup () {
     return { $v: useVuelidate() }
@@ -1544,7 +1570,11 @@ export default {
       camposResulado: [],
       item_examenes: [],
       examenes_almacenados: [],
+      examenes_almacenadosBuscar: [],
       encargados: [],
+      currentPageExa: 1,
+      selectedExamenes: [],
+      TotalAPagar2: 0,
       formExamen: {
         id: 0,
         nombre: '',
@@ -1627,6 +1657,31 @@ export default {
         cantidad: {
           required
         }
+      }
+    }
+  },
+  watch: {
+    'salaOperaciones.categoria': 'calcularTotalAPagar',
+    'salaOperaciones.oximetro': 'calcularTotalAPagar',
+    'salaOperaciones.monitor': 'calcularTotalAPagar',
+    'salaOperaciones.cauterio': 'calcularTotalAPagar',
+    'salaOperaciones.horas': 'calcularTotalAPagar',
+    'salaOperaciones.minutos': 'calcularTotalAPagar',
+    selectedExamenAlmacenado (newValue) {
+      if (newValue) {
+        this.formExamen.por_pagar = newValue.precio_normal
+        this.formExamen.id_examenes_almacenados = newValue.id
+        this.formExamen.total = newValue.precio_normal
+      }
+    },
+    selectedExamenes (newValue) {
+      if (newValue) {
+        this.TotalAPagar2 = newValue.reduce((total, examen) => parseFloat(total) + parseFloat(examen.precio_normal), 0)
+        this.formExamen.total = this.TotalAPagar2
+        this.formExamen.id_examenes_almacenados = newValue.map(examen => examen.id)
+        this.formExamen.por_pagar = this.TotalAPagar2
+      } else {
+        console.log('ERROR AL CARGAR EL TOTAL A PAGAR EN LA FUNCION WATCH')
       }
     }
   },
@@ -3147,6 +3202,26 @@ export default {
       ).then((response) => {
         this.examenes_almacenados = response.data
       })
+    },
+    onSearch_id_examenes_almacenados (search, loading) {
+      const params = {
+        search: search,
+        page: this.currentPageExa,
+        perPage: this.$refs.vuetable.perPage
+      }
+
+      axios.get(apiUrl + '/examenesAlmacenadosBuscar/getSearch', { params })
+        .then((response) => {
+          this.examenes_almacenadosBuscar = response.data.data
+          this.$refs.vuetableBuscar.setData(response.data)
+        })
+        .catch((error) => {
+          console.error('Error al buscar exámenes:', error)
+        })
+    },
+    onPageChangeExa (page) {
+      this.currentPageExa = page
+      this.onSearch_id_examenes_almacenados('')
     },
     onSearchEncargado (search, loading) {
       if (search.length) {
