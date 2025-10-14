@@ -402,6 +402,24 @@
         <b-button variant="danger" @click="closeModal('ver-honorarios')">Cerrar</b-button>
       </template>
     </b-modal>
+    <b-modal size="lg" id="modal-ver-resultados" ref="modal-ver-resultados" title="Ver Resultados">
+      <template v-if="resultados">
+        <b-table small striped hover :items="resultados" :fields="campos">
+          <template #cell(fecha_hora)="data">
+            {{ new Date(data.item.fecha_hora).toLocaleString() }}
+          </template>
+          <template #cell(valor_minimo)="data">
+            {{ parseFloat(data.item.valor_minimo).toFixed(2) }}
+          </template>
+          <template #cell(valor_maximo)="data">
+            {{ parseFloat(data.item.valor_maximo).toFixed(2) }}
+          </template>
+        </b-table>
+      </template>
+      <template v-else>
+        <p class="text-center">No hay resultados para mostrar</p>
+      </template>
+    </b-modal>
     <b-modal id="modal-1-movimiento" size="xl" ref="modal-1-movimiento" title="Agregar Consumo" @shown="openModal2">
       <!-- Alerta -->
       <b-alert
@@ -734,23 +752,6 @@
           </b-col>
         </b-row>
         <b-row class="ml-2">
-          <b-col md="3">
-            <b-form-group label="Numero Muestra:">
-              <b-form-input
-                v-model="formExamen.numero_muestra"
-                placeholder="Ingresar el numero de muestra"
-              ></b-form-input>
-            </b-form-group>
-          </b-col>
-          <b-form-group label="Edad:">
-              <b-form-input
-              type="number"
-              v-model.trim="formExamen.edad"
-              placeholder="Ingresar la edad del paciente"
-              ></b-form-input>
-            </b-form-group>
-        </b-row>
-        <b-row class="ml-2">
           <b-col md="4">
             <b-form-group label="Tipo de Examen:">
               <v-select
@@ -798,8 +799,7 @@
           <tbody>
             <tr v-for="row in item_examenes" :key="row.id">
               <td>
-                <b-button @click="addResultado(row.id, row.nombre_examen, row)" variant="success">Agregar resultado</b-button>
-                <b-button @click="anular(row.id)" variant="danger">Anular Examen</b-button>
+                <b-button @click="verResultado(row.id)" variant="success">Ver resultado</b-button>
               </td>
               <td>{{ row.nombre }}</td>
               <td>{{ row.cui }}</td>
@@ -904,7 +904,7 @@
                   >Ver honorarios</b-button>
 
                     <b-button
-                    @click="showModal('modal_agregar'); ver_examen_realizado(props.rowData.id); realizar_examen(props.rowData.id, props.rowData.nombres, props.rowData.apellidos, props.rowData.cui, props.rowData.telefono )"
+                    @click="showModal('modal_agregar'); ver_examen_realizado(props.rowData.id); realizar_examen(props.rowData.id, props.rowData.nombres, props.rowData.apellidos, props.rowData.cui, props.rowData.telefono, props.rowData.nacimiento )"
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="success"
@@ -1018,6 +1018,17 @@ export default {
   },
   data () {
     return {
+      resultados: null,
+      campos: [
+        { key: 'campo', label: 'Campo' },
+        { key: 'tipo_examen', label: 'Tipo de Examen' },
+        { key: 'unidades', label: 'Unidades' },
+        { key: 'resultado', label: 'Resultado' },
+        { key: 'valor_minimo', label: 'Valor Mínimo' },
+        { key: 'valor_maximo', label: 'Valor Máximo' },
+        { key: 'alarma', label: 'Alarma' },
+        { key: 'fecha_hora', label: 'Fecha/Hora' }
+      ],
       tituloVer: '',
       consumosTemporales: [],
       insumosActuales: [],
@@ -1551,7 +1562,8 @@ export default {
         id_examenes_almacenados: null,
         NewExpediente: false,
         id_expediente: 0,
-        examenExterior: false
+        examenExterior: false,
+        nacimiento: null
       },
       selectedExamenAlmacenado: null,
       fromExamenes: 0,
@@ -1586,6 +1598,7 @@ export default {
       },
       dataPDFsumario: null,
       nombrePaciente: null,
+      nacimientoPaciente: null,
       fechaIngreso: null,
       dataPDF_Historial: null,
       reporteHisotiral: {
@@ -1932,6 +1945,7 @@ export default {
           this.formExamen.id_examenes_almacenados = null
           this.formExamen.id_expediente = 0
           this.formExamen.examenExterior = false
+          this.formExamen.nacimiento = null
           this.apiBaseExamenes = null
           this.item_examenes = []
           this.examenes_almacenados = []
@@ -3038,47 +3052,6 @@ export default {
           console.error('Error!', error)
         })
     },
-    addResultado (id, nombreexamen, row) {
-      this.$refs['modal-add-resultados'].show()
-      this.formResultado.id = id
-      this.getFieldsByExamenId(nombreexamen)
-    },
-
-    onValidateResultado (action) {
-      const camposConErrores = this.camposResulado.filter(campo => campo.resultado === '' || campo.resultado == null)
-      if (camposConErrores.length > 0) {
-        this.alertErrorText = 'Revisa que todos los campos de resultado estén llenos.'
-        this.showAlertError()
-        return
-      }
-      this.onSaveResultados()
-    },
-
-    onSaveResultados () {
-      const me = this
-      const resultados = this.camposResulado.map(campo => ({
-        id: me.formResultado.id,
-        id_campo: campo.id,
-        id_tipo: campo.id_tipo,
-        resultado: campo.resultado
-      }))
-
-      axios.post(apiUrl + '/detalleExamenRealizado/create', { resultados })
-        .then((response) => {
-          me.alertVariant = 'success'
-          me.showAlert()
-          me.alertText = 'Se han ingresado los resultados de los exámenes exitosamente'
-          me.$refs.vuetable2.refresh()
-          me.$refs.vuetable3.refresh()
-          me.closeModal('resultado')
-        })
-        .catch((error) => {
-          me.alertVariant = 'danger'
-          me.showAlertError()
-          me.alertErrorText = error.response.data.msg
-          console.error('Error al guardar los resultados!', error)
-        })
-    },
 
     getFieldsByExamenId (examenId) {
       axios.get(apiUrl + '/campoLaboratorio/getByExamenId', {
@@ -3103,6 +3076,19 @@ export default {
     },
 
     guardarExamenRealizado () {
+      const partes = this.formExamen.nacimiento.split('/');
+      const fechaNacimiento = new Date(`${partes[2]}-${partes[1]}-${partes[0]}`);
+      const hoy = new Date();
+      let edad = hoy.getFullYear() - fechaNacimiento.getFullYear();
+
+      const mesDiff = hoy.getMonth() - fechaNacimiento.getMonth();
+      const diaDiff = hoy.getDate() - fechaNacimiento.getDate();
+
+      if (mesDiff < 0 || (mesDiff === 0 && diaDiff < 0)) {
+        edad--;
+      }
+      this.formExamen.edad = edad
+      this.formExamen.numero_muestra = 1
       if (this.formExamen.total !== 0 && this.formExamen.numero_muestra !== 0 && this.formExamen.id_examenes_almacenados !== null) {
         axios.post(apiUrl + '/Examenes_realizados/create', {
           form: this.formExamen })
@@ -3124,11 +3110,29 @@ export default {
         this.alertErrorText = 'Por favor llene los campos solicitados'
       }
     },
-    realizar_examen (id, nombre, apellido, cui, telefono) {
+    async verResultado (id) {
+      try {
+        const response = await axios.get(apiUrl + `/detalleExamenRealizado/list?id=${id}`)
+        console.log(response.data.data)
+        if (response.data.data.length < 1) {
+          this.alertVariant = 'danger'
+          this.showAlertError()
+          this.alertErrorText = 'El examen aun no posee resultados'
+        }
+        else {
+          this.resultados = response.data.data;
+          this.$refs['modal-ver-resultados'].show();
+        }
+      } catch (error) {
+        console.error('Error cargando insumos:', error)
+      }
+    },
+    realizar_examen (id, nombre, apellido, cui, telefono, nacimiento) {
       this.formExamen.nombre = nombre + ' ' + apellido
       this.formExamen.cui = cui
       this.formExamen.whatsapp = telefono
       this.formExamen.id_expediente = id
+      this.formExamen.nacimiento = nacimiento
     },
     ver_examen_realizado (id) {
       axios.get(apiUrl + `/Examenes_realizados/listId/${id}`
