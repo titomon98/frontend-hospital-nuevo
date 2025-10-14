@@ -2998,16 +2998,16 @@ export default {
     },
 
     guardarExamenRealizado () {
-      const partes = this.formExamen.nacimiento.split('/');
-      const fechaNacimiento = new Date(`${partes[2]}-${partes[1]}-${partes[0]}`);
-      const hoy = new Date();
-      let edad = hoy.getFullYear() - fechaNacimiento.getFullYear();
+      const partes = this.formExamen.nacimiento.split('/')
+      const fechaNacimiento = new Date(`${partes[2]}-${partes[1]}-${partes[0]}`)
+      const hoy = new Date()
+      let edad = hoy.getFullYear() - fechaNacimiento.getFullYear()
 
-      const mesDiff = hoy.getMonth() - fechaNacimiento.getMonth();
-      const diaDiff = hoy.getDate() - fechaNacimiento.getDate();
+      const mesDiff = hoy.getMonth() - fechaNacimiento.getMonth()
+      const diaDiff = hoy.getDate() - fechaNacimiento.getDate()
 
       if (mesDiff < 0 || (mesDiff === 0 && diaDiff < 0)) {
-        edad--;
+        edad--
       }
       this.formExamen.edad = edad
       this.formExamen.numero_muestra = 1
@@ -3042,8 +3042,8 @@ export default {
           this.alertErrorText = 'El examen aun no posee resultados'
         }
         else {
-          this.resultados = response.data.data;
-          this.$refs['modal-ver-resultados'].show();
+          this.resultados = response.data.data
+          this.$refs['modal-ver-resultados'].show()
         }
       } catch (error) {
         console.error('Error cargando insumos:', error)
