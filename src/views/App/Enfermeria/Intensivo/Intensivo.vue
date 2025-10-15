@@ -3187,11 +3187,6 @@ export default {
         this.item_examenes = response.data
       })
     },
-    onSearch_id_examenes_almacenados (search, loading) {
-      if (search.length) {
-        this.searching_id_examenes_almacenados(search, loading)
-      }
-    },
     searching_id_examenes_almacenados (search, loading) {
       axios.get(apiUrl + '/examenesAlmacenados/getSearch',
         {
