@@ -383,13 +383,13 @@ const FarmaciaRoutes = (prop, mode) => [
   {
     path: 'pendientes',
     name: prop + '.pendientes',
-    meta: { dark: mode, auth: true, name: 'pendientes', roles: [1, 5, 11] },
+    meta: { dark: mode, auth: true, name: 'pendientes', roles: [1, 3, 5, 11] },
     component: PedidosPendientesParent
   },
   {
     path: 'comun',
     name: prop + '.comun',
-    meta: { dark: mode, auth: true, name: 'comun', roles: [1, 5, 11] },
+    meta: { dark: mode, auth: true, name: 'comun', roles: [1, 3, 5, 11] },
     component: ComunParent
   },
   {
@@ -407,49 +407,49 @@ const FarmaciaRoutes = (prop, mode) => [
   {
     path: 'medicamentos',
     name: prop + '.medicamentos',
-    meta: { dark: mode, auth: true, name: 'medicamentos', roles: [1, 5, 11] },
+    meta: { dark: mode, auth: true, name: 'medicamentos', roles: [1, 3, 5, 11] },
     component: MedicamentosParent
   },
   {
     path: 'muestras',
     name: prop + '.muestras',
-    meta: { dark: mode, auth: true, name: 'muestras', roles: [1, 5, 11] },
+    meta: { dark: mode, auth: true, name: 'muestras', roles: [1, 3, 5, 11] },
     component: MuestrasParent
   },
   {
     path: 'quirurgico',
     name: prop + '.quirurgico',
-    meta: { dark: mode, auth: true, name: 'quirurgico', roles: [1, 5, 11] },
+    meta: { dark: mode, auth: true, name: 'quirurgico', roles: [1, 3, 5, 11] },
     component: QuirurgicoParent
   },
   {
     path: 'consumos',
     name: prop + '.consumos',
-    meta: { dark: mode, auth: true, name: 'consumos', roles: [1, 5, 11] },
+    meta: { dark: mode, auth: true, name: 'consumos', roles: [1, 3, 5, 11] },
     component: Consumos
   },
   {
     path: 'datos',
     name: prop + '.datos',
-    meta: { dark: mode, auth: true, name: 'datos', roles: [1, 5] },
+    meta: { dark: mode, auth: true, name: 'datos', roles: [1, 3, 5] },
     component: DatosParent
   },
   {
     path: 'alertas',
     name: prop + '.alertas',
-    meta: { dark: mode, auth: true, name: 'alertas', roles: [1, 5] },
+    meta: { dark: mode, auth: true, name: 'alertas', roles: [1, 3, 5] },
     component: AlertasParent
   },
   {
     path: 'paquetes',
     name: prop + '.paquetes',
-    meta: { dark: mode, auth: true, name: 'paquetes', roles: [1, 5] },
+    meta: { dark: mode, auth: true, name: 'paquetes', roles: [1, 3, 5] },
     component: PaquetesParent
   },
   {
     path: 'facturas',
     name: prop + '.facturas',
-    meta: { dark: mode, auth: true, name: 'facturas', roles: [1, 5] },
+    meta: { dark: mode, auth: true, name: 'facturas', roles: [1, 3, 5] },
     component: FacturasParent
   }
 ]
