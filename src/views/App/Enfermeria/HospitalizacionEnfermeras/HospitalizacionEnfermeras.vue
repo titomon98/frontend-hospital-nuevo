@@ -1,5 +1,31 @@
 <template>
   <b-container fluid>
+    <b-alert
+      :variant="alertVariant"
+      :show="alertCountDown"
+      dismissible
+      fade
+      @dismissed="alertCountDown=0"
+      class="bg-white"
+    >
+      <div class="iq-alert-text">{{ alertText }}</div>
+    </b-alert>
+    <b-modal id="modal-desactivar" ref="modal-desactivar" title="Eliminar consumo">
+      <h6 class="my-4">
+        ¿Desea eliminar el consumo de {{ consumoToDelete.nombre_medicamento }} al paciente {{ consumoToDelete.nombre_completo }} ?
+      </h6>
+      <template #modal-footer="{}">
+        <b-button
+          type="submit"
+          variant="primary"
+          @click="onState()"
+          >Eliminar</b-button
+        >
+        <b-button variant="danger" @click="$bvModal.hide('modal-desactivar')"
+          >Cancelar</b-button
+        >
+      </template>
+    </b-modal>
     <b-row>
       <b-col sm="12">
       <iq-card class-name="iq-card-block iq-card-stretch iq-card-height">
@@ -45,6 +71,28 @@
             pagination-path
             @vuetable:pagination-data="onPaginationData"
           >
+            <template slot="actions" slot-scope="props">
+                <div class="button-container">
+                <b-button
+                  v-if="props.rowData.estado === 1"
+                  @click="
+                    setData(props.rowData, 1)
+                  "
+                  v-b-modal.modal-desactivar
+                  class="mb-2 button-spacing"
+                  size="sm"
+                  variant="danger"
+                  :disabled="hasPermission([1, 3])"
+                >Eliminar registro</b-button>
+                <b-button
+                  v-else
+                  :disabled="true"
+                  class="mb-2 button-spacing"
+                  size="sm"
+                  variant="dark"
+                >El registro fue eliminado</b-button>
+              </div>
+            </template>
           </vuetable>
           <vuetable-pagination-bootstrap
               ref="pagination"
@@ -92,6 +140,27 @@
             pagination-path
             @vuetable:pagination-data="onPaginationDataComun"
           >
+            <template slot="actions" slot-scope="props">
+                <div class="button-container">
+                <b-button
+                  v-if="props.rowData.estado === 1"
+                  @click="
+                    setData(props.rowData, 2)
+                  "
+                  v-b-modal.modal-desactivar
+                  class="mb-2 button-spacing"
+                  size="sm"
+                  variant="danger"
+                >Eliminar registro</b-button>
+                <b-button
+                  v-else
+                  :disabled="true"
+                  class="mb-2 button-spacing"
+                  size="sm"
+                  variant="dark"
+                >El registro fue eliminado</b-button>
+              </div>
+            </template>
           </vuetable>
           <vuetable-pagination-bootstrap
               ref="paginationComun"
@@ -139,6 +208,27 @@
             pagination-path
             @vuetable:pagination-data="onPaginationDataQuirurgico"
           >
+            <template slot="actions" slot-scope="props">
+                <div class="button-container">
+                <b-button
+                  v-if="props.rowData.estado === 1"
+                  @click="
+                    setData(props.rowData, 3)
+                  "
+                  v-b-modal.modal-desactivar
+                  class="mb-2 button-spacing"
+                  size="sm"
+                  variant="danger"
+                >Eliminar registro</b-button>
+                <b-button
+                  v-else
+                  :disabled="true"
+                  class="mb-2 button-spacing"
+                  size="sm"
+                  variant="dark"
+                >El registro fue eliminado</b-button>
+              </div>
+            </template>
           </vuetable>
           <vuetable-pagination-bootstrap
               ref="paginationQuirurgico"
@@ -154,12 +244,13 @@
 <script>
 import { xray } from '../../../../config/pluginInit'
 import IqCard from '../../../../components/xray/cards/iq-card'
-// import axios from 'axios'
+import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
 import moment from 'moment'
 import DatatableHeading from '../../../Tables/DatatableHeading'
 import Vuetable from 'vuetable-2/src/components/Vuetable'
 import VuetablePaginationBootstrap from '../../../../components/common/VuetablePaginationBootstrap'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'Consumos',
@@ -172,8 +263,26 @@ export default {
   mounted () {
     xray.index()
   },
+  computed: {
+    ...mapGetters({
+      currentUser: 'currentUser'
+    })
+  },
   data: () => {
     return {
+      alertText: '',
+      alertCountDown: 0,
+      alertSecs: 5,
+      alertVariant: '',
+      consumoToDelete: {
+        cantidad: 0,
+        fecha_consumo: '',
+        nombre_completo: '',
+        nombre_medicamento: '',
+        numero_cuenta: '',
+        area: 0,
+        responsable: ''
+      },
       from: 0,
       to: 0,
       total: 0,
@@ -208,9 +317,21 @@ export default {
       },
       fields: [
         {
+          name: '__slot:actions',
+          title: 'Acciones',
+          titleClass: '',
+          dataClass: 'text-muted'
+        },
+        {
           name: 'numero_cuenta',
           sortField: 'numero_cuenta',
           title: 'Número de Cuenta',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'nombre_completo',
+          sortField: 'nombre_completo',
+          title: 'Nombre completo',
           dataClass: 'list-item-heading'
         },
         {
@@ -230,6 +351,18 @@ export default {
           sortField: 'fecha_consumo',
           title: 'Fecha de Consumo',
           dataClass: 'list-item-heading'
+        },
+        {
+          name: 'created_by',
+          sortField: 'created_by',
+          title: 'Administrado por',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'updated_by',
+          sortField: 'updated_by',
+          title: 'Eliminado por',
+          dataClass: 'list-item-heading'
         }
       ],
       fromComun: 0,
@@ -242,9 +375,21 @@ export default {
       apiBaseComun: apiUrl + '/detalle_consumo_comun/list',
       fieldsComun: [
         {
+          name: '__slot:actions',
+          title: 'Acciones',
+          titleClass: '',
+          dataClass: 'text-muted'
+        },
+        {
           name: 'numero_cuenta',
           sortField: 'numero_cuenta',
           title: 'Número de Cuenta',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'nombre_completo',
+          sortField: 'nombre_completo',
+          title: 'Nombre completo',
           dataClass: 'list-item-heading'
         },
         {
@@ -263,6 +408,18 @@ export default {
           name: 'fecha_consumo',
           sortField: 'fecha_consumo',
           title: 'Fecha de Consumo',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'created_by',
+          sortField: 'created_by',
+          title: 'Administrado por',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'updated_by',
+          sortField: 'updated_by',
+          title: 'Eliminado por',
           dataClass: 'list-item-heading'
         }
       ],
@@ -276,9 +433,21 @@ export default {
       apiBaseQuirurgico: apiUrl + '/detalle_consumo_quirugicos/list',
       fieldsQuirurgico: [
         {
+          name: '__slot:actions',
+          title: 'Acciones',
+          titleClass: '',
+          dataClass: 'text-muted'
+        },
+        {
           name: 'numero_cuenta',
           sortField: 'numero_cuenta',
           title: 'Número de Cuenta',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'nombre_completo',
+          sortField: 'nombre_completo',
+          title: 'Nombre completo',
           dataClass: 'list-item-heading'
         },
         {
@@ -297,6 +466,18 @@ export default {
           name: 'fecha_consumo',
           sortField: 'fecha_consumo',
           title: 'Fecha de Consumo',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'created_by',
+          sortField: 'created_by',
+          title: 'Administrado por',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'updated_by',
+          sortField: 'updated_by',
+          title: 'Eliminado por',
           dataClass: 'list-item-heading'
         }
       ]
@@ -436,6 +617,75 @@ export default {
     },
     onChangePageQuirurgico (page) {
       this.$refs.vuetable_Quirurgico.changePage(page)
+    },
+    setData (data, area) {
+      this.consumoToDelete = data
+      this.consumoToDelete.area = area
+      this.consumoToDelete.responsable = this.currentUser.user
+    },
+    showAlert () {
+      this.alertCountDown = this.alertSecs
+    },
+    onState () {
+      let me = this
+      if (this.consumoToDelete.area === 1) { // Eliminando medicamento
+        axios
+          .put(apiUrl + '/detalle_consumo_medicamentos/deactivate', {
+            delete: this.consumoToDelete
+          })
+          .then((response) => {
+            me.alertVariant = 'danger'
+            me.showAlert()
+            me.alertText = response.data
+            me.$refs.vuetable.refresh()
+            me.$refs['modal-desactivar'].hide()
+          })
+          .catch((error) => {
+            me.alertVariant = 'danger'
+            me.showAlertError()
+            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+            console.error('There was an error!', error)
+          })
+      } else if (this.consumoToDelete.area === 2) { // Eliminando medicamento
+        axios
+          .put(apiUrl + '/detalle_consumo_comun/deactivate', {
+            delete: this.consumoToDelete
+          })
+          .then((response) => {
+            me.alertVariant = 'danger'
+            me.showAlert()
+            me.alertText = response.data
+            me.$refs.vuetable_Comun.refresh()
+            me.$refs['modal-desactivar'].hide()
+          })
+          .catch((error) => {
+            me.alertVariant = 'danger'
+            me.showAlertError()
+            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+            console.error('There was an error!', error)
+          })
+      } else if (this.consumoToDelete.area === 3) { // Eliminando medicamento
+        axios
+          .put(apiUrl + '/detalle_consumo_quirurgicos/deactivate', {
+            delete: this.consumoToDelete
+          })
+          .then((response) => {
+            me.alertVariant = 'danger'
+            me.showAlert()
+            me.alertText = response.data
+            me.$refs.vuetable_Quirurgico.refresh()
+            me.$refs['modal-desactivar'].hide()
+          })
+          .catch((error) => {
+            me.alertVariant = 'danger'
+            me.showAlertError()
+            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+            console.error('There was an error!', error)
+          })
+      }
+    },
+    hasPermission (blockedRoles = []) {
+      return !blockedRoles.includes(this.currentUser.user_type)
     }
   }
 }

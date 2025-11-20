@@ -214,6 +214,12 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
+          name: 'nombre_completo',
+          sortField: 'nombre_completo',
+          title: 'Nombre completo',
+          dataClass: 'list-item-heading'
+        },
+        {
           name: 'nombre_medicamento',
           sortField: 'nombre_medicamento',
           title: 'Medicamento Consumido',
@@ -248,6 +254,12 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
+          name: 'nombre_completo',
+          sortField: 'nombre_completo',
+          title: 'Nombre completo',
+          dataClass: 'list-item-heading'
+        },
+        {
           name: 'nombre_material',
           sortField: 'nombre_material',
           title: 'Material Consumido',
@@ -279,6 +291,12 @@ export default {
           name: 'numero_cuenta',
           sortField: 'numero_cuenta',
           title: 'Número de Cuenta',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'nombre_completo',
+          sortField: 'nombre_completo',
+          title: 'Nombre completo',
           dataClass: 'list-item-heading'
         },
         {
