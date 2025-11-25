@@ -356,11 +356,6 @@
                         >Hospitalización</b-form-radio>
                         <b-form-radio
                             v-model="form.selectedOption"
-                            value="emergencia"
-                            name="customRadio1"
-                        >Emergencia</b-form-radio>
-                        <b-form-radio
-                            v-model="form.selectedOption"
                             value="quirofano"
                             name="customRadio1"
                         >Quirófano</b-form-radio>

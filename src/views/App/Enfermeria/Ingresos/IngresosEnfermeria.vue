@@ -61,11 +61,6 @@
                   >Hospitalización</b-form-radio>
                   <b-form-radio
                     v-model="form.selectedOption"
-                    value="emergencia"
-                    name="customRadio1"
-                  >Emergencia</b-form-radio>
-                  <b-form-radio
-                    v-model="form.selectedOption"
                     value="quirofano"
                     name="customRadio1"
                   >Quirófano</b-form-radio>
@@ -268,9 +263,6 @@ export default {
       switch (this.form.selectedOption) {
         case 'hospi':
           this.form.tipo_cuenta = 1
-          break
-        case 'emergencia':
-          this.form.tipo_cuenta = 2
           break
         case 'quirofano':
           this.form.tipo_cuenta = 3
