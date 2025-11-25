@@ -169,16 +169,16 @@
     <b-row>
       <b-col md="12">
         <iq-card>
-            <template v-slot:headerTitle>
-              <h4 class="card-title mt-3">Servicios</h4>
-               <div class="iq-search-bar mt-2">
-                <b-form action="#" class="searchbox">
-                    <b-input id="search" placeholder="Buscar..." @input="(val) => searchChange(val)" />
-                    <a class="search-link" href="#"><i class="ri-search-line"></i></a>
-                </b-form>
-              </div>
-            </template>
-            <template v-slot:headerAction>
+          <template v-slot:headerTitle>
+            <h4 class="card-title mt-3">Servicios</h4>
+              <div class="iq-search-bar mt-2">
+              <b-form action="#" class="searchbox">
+                  <b-input id="search" placeholder="Buscar..." @input="(val) => searchChange(val)" />
+                  <a class="search-link" href="#"><i class="ri-search-line"></i></a>
+              </b-form>
+            </div>
+          </template>
+          <template v-slot:headerAction>
             <b-button variant="primary"  v-b-modal.modal-1-servicios>AGREGAR NUEVO</b-button>
           </template>
           <template v-slot:body>
