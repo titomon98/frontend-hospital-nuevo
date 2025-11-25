@@ -203,26 +203,6 @@
                   ></b-form-input>
                 </b-form-group>
               </b-col>
-              <!-- <b-col md="2">
-                <b-form-group label="Fecha de ingreso:">
-                  <b-form-input
-                    type="date"
-                    v-model.trim="$v.form.fecha.$model"
-                    :class="{'is-invalid': $v.form.fecha.$error}"
-                    placeholder="Ingresar fecha de ingreso"
-                  ></b-form-input>
-                </b-form-group>
-              </b-col>
-              <b-col md="2">
-                <b-form-group label="Hora de ingreso:">
-                  <b-form-input
-                    type="time"
-                    v-model.trim="$v.form.hora.$model"
-                    :class="{'is-invalid': $v.form.hora.$error}"
-                    placeholder="Ingresar hora de ingreso"
-                  ></b-form-input>
-                </b-form-group>
-              </b-col> -->
             </b-row>
             <!-- Datos de encargado -->
             <h4 class="card-title mt-3">Ingreso de encargado</h4>

@@ -1136,7 +1136,6 @@ export default {
       apiBaseConsumoComun: '',
       optionsTraslado: [
         { text: 'Quirófano', value: 3 },
-        { text: 'Emergencia', value: 5 },
         { text: 'Intensivos', value: 4 }
       ],
       fields: [
@@ -2614,7 +2613,7 @@ export default {
         const response = await axios.get(apiUrl + `/cuentas/getSearch?search=${id}`)
         if (response.data && response.data.id) {
           this.idCuentaSeleccionada = response.data.id
-          // Hospitalizacion, Quirofano, Emergencia, Intensivo
+          // Hospitalizacion, Quirofano, Intensivo
           this.apiBaseConsumoMedicamento = apiUrl + `/detalle_consumo_medicamentos/list/${response.data.id}/Hospitalizacion`
           this.apiBaseConsumoQuirurgico = apiUrl + `/detalle_consumo_quirugicos/list/${response.data.id}/Hospitalizacion`
           this.apiBaseConsumoComun = apiUrl + `/detalle_consumo_comun/list/${response.data.id}/Hospitalizacion`

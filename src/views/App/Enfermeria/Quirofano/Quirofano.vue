@@ -1177,7 +1177,6 @@ export default {
       habitaciones: [],
       motivoTrasladoEmergencia: '',
       optionsTraslado: [
-        { text: 'Emergencia', value: 5 },
         { text: 'Hospitalización', value: 1 },
         { text: 'Intensivos', value: 4 }
       ],
@@ -2888,7 +2887,7 @@ export default {
         const response = await axios.get(apiUrl + `/cuentas/getSearch?search=${id}`)
         if (response.data && response.data.id) {
           this.idCuentaSeleccionada = response.data.id
-          // Hospitalizacion, Quirofano, Emergencia, Intensivo
+          // Hospitalizacion, Quirofano, Intensivo
           this.apiBaseConsumoMedicamento = apiUrl + `/detalle_consumo_medicamentos/list/${response.data.id}/Quirofano`
           this.apiBaseConsumoQuirurgico = apiUrl + `/detalle_consumo_quirugicos/list/${response.data.id}/Quirofano`
           this.apiBaseConsumoComun = apiUrl + `/detalle_consumo_comun/list/${response.data.id}/Quirofano`

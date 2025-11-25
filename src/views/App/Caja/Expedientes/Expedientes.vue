@@ -1013,7 +1013,7 @@ export default {
         this.cuentas = response.data
       })
     },
-    getDoctors (search, loading) {
+    getDoctors (search) {
       axios.get(apiUrl + '/medicos/getSearch',
         {
           params: {
@@ -1025,13 +1025,11 @@ export default {
           value: medico.id,
           text: medico.nombre
         }))
-        loading(false)
       })
     },
-    onSearchMedicos (search, loading) {
+    onSearchMedicos (search) {
       if (search.length) {
-        loading(true)
-        this.getDoctors(search, loading)
+        this.getDoctors(search)
       }
     },
     onPatientQuit () {
@@ -1325,7 +1323,7 @@ ______________________________________               ___________________________
 
 
 
- Direccion: ${this.paciente.direccion_encargado} 
+ Direccion: ${this.paciente.direccion_encargado}
 
  Tel: ${this.paciente.contacto_encargado}
 ______________________________________               ______________________________________
@@ -1364,6 +1362,11 @@ ANTE MI
 
     /* AREA SUMARIO */
     generarSumario (data) {
+      if (data.estado === 10) {
+        this.alertVariant = 'danger'
+        this.showAlert()
+        this.alertText = 'No se puede generar el sumario de un paciente con datos incompletos'
+      }
       axios.get(apiUrl + `/consumos/sumario/${data.id}`)
         .then((response) => {
           this.dataPDFsumario = response.data

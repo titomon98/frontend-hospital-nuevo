@@ -288,6 +288,18 @@
         "rol": [1, 3, 9, 10, 11]
       },
       {
+        "title": "Ingreso emergencia",
+        "name": "Ingreso emergencia",
+        "is_active": false,
+        "link": {
+          "name": "enfermeria.ingresosemergencia"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-user-add-line",
+        "rol": [1, 3, 9, 10, 11]
+      },
+      {
         "title": "Reingreso",
         "name": "Reingreso",
         "is_active": false,
