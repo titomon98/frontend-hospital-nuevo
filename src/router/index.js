@@ -81,6 +81,7 @@ import MedicosParent from '../views/App/Medicos/MedicosParent'
 import Medicos from '../views/App/Medicos/Medicos'
 import Especialidad from '../views/App/Medicos/Especialidad'
 import Socios from '../views/App/Medicos/Socios'
+import PersonalSala from '../views/App/Medicos/PersonalSala'
 
 // liquidacion
 import LiquidacionParent from '../views/App/Liquidaciones/LiquidacionesParent'
@@ -485,6 +486,12 @@ const MedicosRoutes = (prop, mode) => [
     name: prop + '.medicosparent',
     meta: { dark: mode, auth: true, name: 'medicosparent', roles: [1, 3, 5, 7] },
     component: MedicosParent
+  },
+  {
+    path: 'PersonalSala',
+    name: prop + '.PersonalSala',
+    meta: { dark: mode, auth: true, name: 'PersonalSala', roles: [1, 3, 5, 7] },
+    component: PersonalSala
   }
 ]
 

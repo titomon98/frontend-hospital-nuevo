@@ -683,7 +683,7 @@
         <p><strong>Total consumo de servicios:</strong> Q{{ reporte.ConsumoTotal }}</p>
         <p><strong>Total consumo de materiales comunes:</strong> Q{{ reporte.ConsumoComunTotal }}</p>
         <p><strong>Total consumo de medicamentos:</strong> Q{{ reporte.ConsumoMedicamentosTotal }}</p>
-        <p><strong>Total consumo de materialesquirúrgicos:</strong> Q{{ reporte.ConsumoQuirurgicosTotal }}</p>
+        <p><strong>Total consumo de materiales quirúrgicos:</strong> Q{{ reporte.ConsumoQuirurgicosTotal }}</p>
         <p><strong>Total de exámenes realizados:</strong> Q{{ reporte.ExamenesTotal }}</p>
         <p><strong>Total de servicios en sala de operaciones:</strong> Q{{ reporte.ServicioSalaOperacionesTotal }}</p>
         <hr />
@@ -699,7 +699,7 @@
         <p><strong>Total consumo de servicios:</strong> Q{{ reporteHisotiral.ConsumoTotal }}</p>
         <p><strong>Total consumo de materiales comunes:</strong> Q{{ reporteHisotiral.ConsumoComunTotal }}</p>
         <p><strong>Total consumo de medicamentos:</strong> Q{{ reporteHisotiral.ConsumoMedicamentosTotal }}</p>
-        <p><strong>Total consumo de materialesquirúrgicos:</strong> Q{{ reporteHisotiral.ConsumoQuirurgicosTotal }}</p>
+        <p><strong>Total consumo de materiales quirúrgicos:</strong> Q{{ reporteHisotiral.ConsumoQuirurgicosTotal }}</p>
         <p><strong>Total de exámenes realizados:</strong> Q{{ reporteHisotiral.ExamenesTotal }}</p>
         <p><strong>Total de servicios en sala de operaciones:</strong> Q{{ reporteHisotiral.ServicioSalaOperacionesTotal }}</p>
         <hr />
@@ -752,7 +752,7 @@
           </b-col>
         </b-row>
         <b-row class="ml-2">
-          <b-col md="4">
+          <b-col md="6">
             <b-form-group label="Tipo de Examen:">
               <Multiselect
                 v-model="selectedExamenes"
@@ -773,7 +773,7 @@
                 <template v-slot:option="{ option }">
                   <div class="custom-option">
                     <strong>{{ option.nombre }}</strong> --
-                    <small>Tipo de Examen: {{ option.tipo_examen }}</small> |
+                    <small>{{ option.tipo_examen }}</small> |
                     <small>Precio: Q{{ option.precio_normal }}</small> |
                   </div>
                 </template>
@@ -2805,7 +2805,7 @@ export default {
         doc.text(`${this.nombrePaciente}`, 50, 20)
         doc.text('_____________________________________________________________________________________________', 50, 21)
 
-        doc.text('CUARTRO NO.:', 14, 27)
+        doc.text('CUARTO NO.:', 14, 27)
         doc.text(`${data.numerohabitacion}`, 40, 27)
         doc.text('__________', 35, 28)
 

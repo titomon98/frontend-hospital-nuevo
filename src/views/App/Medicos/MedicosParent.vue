@@ -21,6 +21,7 @@
               <b-tab title="Médicos" active><Medicos/></b-tab>
               <b-tab title="Especialidades" lazy><Especialidad/></b-tab>
               <b-tab title="Socios" lazy><Socios/></b-tab>
+              <b-tab title="Personal de Sala" lazy><PersonalSala/></b-tab>
             </b-tabs>
           </template>
         </iq-card>
@@ -35,13 +36,15 @@ import { apiUrl } from '../../../config/constant'
 import Medicos from './Medicos.vue'
 import Especialidad from './Especialidad.vue'
 import Socios from './Socios.vue'
+import PersonalSala from './PersonalSala.vue'
 
 export default {
   name: 'MedicosParent',
   components: {
     Medicos,
     Especialidad,
-    Socios
+    Socios,
+    PersonalSala
   },
   data () {
     return {

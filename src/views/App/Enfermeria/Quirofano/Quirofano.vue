@@ -469,6 +469,38 @@
               </b-form-group>
             </b-col>
       </b-row>
+      <b-row class="ml-2">
+        <b-form-group label="Personal de ayudantía">
+          <Multiselect
+            v-model="selectedPersonal"
+            :options="personalOptions"
+            :multiple="true"
+            :close-on-select="false"
+            :clear-on-select="false"
+            :preserve-search="true"
+            placeholder="Seleccionar personal"
+            label="nombre"
+            track-by="id"
+          >
+
+            <!-- Personalización del menú de opciones -->
+            <template v-slot:option="{ option }">
+              <div class="custom-option">
+                <strong>{{ option.nombre }}</strong> —
+                <small>Categoría: {{ option.categoria }}</small>
+              </div>
+            </template>
+
+            <!-- Cómo se muestran los seleccionados -->
+            <template v-slot:selection="{ values, search, isOpen }">
+              <span class="multiselect__single" v-if="values.length && !isOpen">
+                {{ values.length }} seleccionados
+              </span>
+            </template>
+
+          </Multiselect>
+        </b-form-group>
+      </b-row>
       <template #modal-footer>
         <div class="ml-auto"> <span v-if="currentUser.user_type < 7" class="mr-2">Total: Q{{ TotalAPagar }}</span></div>
           <b-button variant="primary" @click="addSalaOperaciones()">Cobrar</b-button>
@@ -783,7 +815,7 @@
           </b-col>
         </b-row>
         <b-row class="ml-2">
-          <b-col md="4">
+          <b-col md="6">
             <b-form-group label="Tipo de Examen:">
               <Multiselect
                 v-model="selectedExamenes"
@@ -804,7 +836,7 @@
                 <template v-slot:option="{ option }">
                   <div class="custom-option">
                     <strong>{{ option.nombre }}</strong> --
-                    <small>Tipo de Examen: {{ option.tipo_examen }}</small> |
+                    <small> {{ option.tipo_examen }}</small> |
                     <small>Precio: Q{{ option.precio_normal }}</small> |
                   </div>
                 </template>
@@ -871,7 +903,7 @@
         <p><strong>Total consumo de servicios:</strong> Q{{ reporte.ConsumoTotal }}</p>
         <p><strong>Total consumo de materiales comunes:</strong> Q{{ reporte.ConsumoComunTotal }}</p>
         <p><strong>Total consumo de medicamentos:</strong> Q{{ reporte.ConsumoMedicamentosTotal }}</p>
-        <p><strong>Total consumo de materialesquirúrgicos:</strong> Q{{ reporte.ConsumoQuirurgicosTotal }}</p>
+        <p><strong>Total consumo de materiales quirúrgicos:</strong> Q{{ reporte.ConsumoQuirurgicosTotal + reporte.ConsumoTotal }}</p>
         <p><strong>Total de exámenes realizados:</strong> Q{{ reporte.ExamenesTotal }}</p>
         <p><strong>Total de servicios en sala de operaciones:</strong> Q{{ reporte.ServicioSalaOperacionesTotal }}</p>
         <hr />
@@ -887,7 +919,7 @@
         <p><strong>Total consumo de servicios:</strong> Q{{ reporteHisotiral.ConsumoTotal }}</p>
         <p><strong>Total consumo de materiales comunes:</strong> Q{{ reporteHisotiral.ConsumoComunTotal }}</p>
         <p><strong>Total consumo de medicamentos:</strong> Q{{ reporteHisotiral.ConsumoMedicamentosTotal }}</p>
-        <p><strong>Total consumo de materialesquirúrgicos:</strong> Q{{ reporteHisotiral.ConsumoQuirurgicosTotal }}</p>
+        <p><strong>Total consumo de materiales quirúrgicos:</strong> Q{{ reporteHisotiral.ConsumoQuirurgicosTotal }}</p>
         <p><strong>Total de exámenes realizados:</strong> Q{{ reporteHisotiral.ExamenesTotal }}</p>
         <p><strong>Total de servicios en sala de operaciones:</strong> Q{{ reporteHisotiral.ServicioSalaOperacionesTotal }}</p>
         <hr />
@@ -1108,9 +1140,12 @@ export default {
   mounted () {
     xray.index()
     this.cargarPreciosServicios()
+    this.getPersonal()
   },
   data () {
     return {
+      personalOptions: [],
+      selectedPersonal: [],
       resultados: null,
       campos: [
         { key: 'campo', label: 'Campo' },
@@ -2544,7 +2579,8 @@ export default {
             horas: this.salaOperaciones.horas,
             minutos: this.salaOperaciones.minutos,
             categoria: this.salaOperaciones.categoria,
-            id_cuenta: this.idCuentaSeleccionada
+            id_cuenta: this.idCuentaSeleccionada,
+            personal: this.selectedPersonal
           })
           this.$refs['modal-sala-operaciones'].hide()
           this.salaOperaciones = {
@@ -2555,6 +2591,7 @@ export default {
             minutos: null,
             categoria: null
           }
+          this.selectedPersonal = []
         } catch (error) {
           console.error(error)
           this.alertErrorText = 'Error al agregar honorarios'
@@ -3210,7 +3247,7 @@ export default {
         doc.text(`${this.nombrePaciente}`, 50, 20)
         doc.text('_____________________________________________________________________________________________', 50, 21)
 
-        doc.text('CUARTRO NO.:', 14, 27)
+        doc.text('CUARTO NO.:', 14, 27)
         doc.text(`${data.numerohabitacion}`, 40, 27)
         doc.text('__________', 35, 28)
 
@@ -3490,7 +3527,17 @@ export default {
 
       // Guardar el PDF
       doc.save('reporte_historial.pdf')
-    }
+    },
+    async getPersonal() {
+      try {
+        const { data } = await axios.get(apiUrl + `/detalle_personal/getAll`);
+
+        this.personalOptions = data.data
+        console.log(this.personalOptions)
+      } catch (error) {
+        console.error(error)
+      }
+    },
   }
 }
 </script>

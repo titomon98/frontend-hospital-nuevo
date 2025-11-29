@@ -20,7 +20,7 @@
             <b-tabs>
               <b-tab title="Usuarios" active><Users/></b-tab>
               <b-tab title="Asuetos" lazy><Asuetos/></b-tab>
-              <b-tab title="Efectivo" lazy><Efectivo/></b-tab>
+              <!-- <b-tab title="Efectivo" lazy><Efectivo/></b-tab> -->
               <b-tab title="Validar descuentos" lazy><ValidarDescuentos/></b-tab>
               <b-tab title="Reportes" lazy><Reportes/></b-tab>
             </b-tabs>
@@ -37,7 +37,7 @@ import { apiUrl } from '../../../config/constant'
 import Users from './Users.vue'
 import Asuetos from './Asuetos.vue'
 import Reportes from './Reportes.vue'
-import Efectivo from './Efectivo.vue'
+/* import Efectivo from './Efectivo.vue' */
 import ValidarDescuentos from './Descuentos/ValidarDescuentos.vue'
 
 export default {
@@ -46,7 +46,7 @@ export default {
     Users,
     Asuetos,
     Reportes,
-    Efectivo,
+    /* Efectivo, */
     ValidarDescuentos
   },
   data () {
