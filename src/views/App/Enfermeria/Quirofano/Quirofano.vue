@@ -3530,7 +3530,7 @@ export default {
     },
     async getPersonal () {
       try {
-        const { data } = await axios.get(apiUrl + `/detalle_personal/getAll`);
+        const { data } = await axios.get(apiUrl + `/detalle_personal/getAll`)
 
         this.personalOptions = data.data
         console.log(this.personalOptions)
