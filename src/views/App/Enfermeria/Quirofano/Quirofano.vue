@@ -3528,7 +3528,7 @@ export default {
       // Guardar el PDF
       doc.save('reporte_historial.pdf')
     },
-    async getPersonal() {
+    async getPersonal () {
       try {
         const { data } = await axios.get(apiUrl + `/detalle_personal/getAll`);
 
@@ -3537,7 +3537,7 @@ export default {
       } catch (error) {
         console.error(error)
       }
-    },
+    }
   }
 }
 </script>
