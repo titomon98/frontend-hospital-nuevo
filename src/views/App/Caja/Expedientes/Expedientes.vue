@@ -154,10 +154,13 @@
                   <b-form-group label="Fecha de nacimiento:">
                     <b-form-input
                       type="date"
-                      v-model.trim="$v.form.nacimiento.$model"
+                      v-model="form.nacimiento"
                       :class="{'is-invalid': $v.form.nacimiento.$error}"
                       placeholder="Ingresar fecha de nacimiento"
                     ></b-form-input>
+                    <div v-if="$v.form.nacimiento.$error" class="invalid-feedback">
+                      <div v-if="!$v.form.nombre.required.$error">Debe ingresar fecha de nacimiento</div>
+                    </div>
                   </b-form-group>
                 </b-col>
                 <b-col md="2">
@@ -180,7 +183,7 @@
                   <b-form-group label="Sexo:">
                     <v-select
                       name="type"
-                      v-model="form.generos"
+                      v-model="form.genero"
                       :options="generos"
                       placeholder="Seleccione el sexo"
                     />
@@ -904,12 +907,16 @@ export default {
       this.form.nombre = data.nombres
       this.form.apellidos = data.apellidos
       this.form.casada = data.casada
-      this.form.nacimiento = data.nacimiento
+
+      const fecha = data.nacimiento
+      const [dia, mes, anio] = fecha.split('/')
+      this.form.nacimiento = `${anio}-${mes}-${dia}`
+
       this.form.cui = data.cui
       this.form.nacionalidad = data.nacionalidad
       this.form.telefono = data.telefono
       this.form.direccion = data.direccion
-      this.form.generos = data.generos
+      this.form.genero = data.genero
       this.form.nombre_encargado = data.nombre_encargado
       this.form.contacto_encargado = data.contacto_encargado
       this.form.parentesco_encargado = data.parentesco_encargado
@@ -998,6 +1005,7 @@ export default {
     },
     showAlertError () {
       this.alertCountDownError = this.alertSecs
+      this.alertCountDown = this.alertSecs
     },
     getCuentas (num) {
       this.totalSUM = 0
@@ -1432,10 +1440,15 @@ ANTE MI
       escribirTexto(paciente.nacimiento, 45, posY)
       escribirTexto('Edad:', 70, posY, 10, 'bold')
       escribirTexto(String(paciente.edad), 80, posY)
-      escribirTexto('Lugar de Nacimiento:', 100, posY, 10, 'bold')
-      escribirTexto(paciente.lugar_nacimiento, 140, posY)
-      escribirTexto('Sexo:', 170, posY, 10, 'bold')
-      escribirTexto(paciente.genero, 180, posY)
+      escribirTexto('Sexo:', 100, posY, 10, 'bold')
+      escribirTexto(paciente.genero, 115, posY)
+
+      posY += 2
+      dibujarLinea(10, posY, 210, posY)
+      posY += 5
+
+      escribirTexto('Lugar de Nacimiento:', 12, posY, 10, 'bold')
+      escribirTexto(paciente.lugar_nacimiento, 60, posY)
 
       posY += 2
       dibujarLinea(10, posY, 210, posY)
@@ -1475,8 +1488,13 @@ ANTE MI
       // -------------------------------------
       escribirTexto('Nombre del Padre:', 12, posY, 10, 'bold')
       escribirTexto(paciente.nombre_padre, 44, posY)
-      escribirTexto('Nombre de la Madre:', 115, posY, 10, 'bold')
-      escribirTexto(paciente.nombre_madre, 151, posY)
+
+      posY += 2
+      dibujarLinea(10, posY, 210, posY)
+      posY += 5
+
+      escribirTexto('Nombre de la Madre:', 12, posY, 10, 'bold')
+      escribirTexto(paciente.nombre_madre, 47, posY)
 
       posY += 2
       dibujarLinea(10, posY, 210, posY)
@@ -1503,6 +1521,7 @@ ANTE MI
       escribirTexto('Otras Hospitalizaciones:', 12, posY, 10, 'bold')
 
       escribirTexto('Referido de:', 112, posY, 10, 'bold')
+      escribirTexto(paciente.medico.nombre, 134, posY)
 
       posY += 5
       dibujarLinea(10, posY, 210, posY)
@@ -1515,7 +1534,7 @@ ANTE MI
       escribirTexto('Ingreso:', 12, posY, 10, 'bold')
       escribirTexto(paciente.fecha_ingreso_reciente, 30, posY)
       escribirTexto(String(paciente.hora_ingreso_reciente), 50, posY)
-      escribirTexto('Engreso:', 80, posY, 10, 'bold')
+      escribirTexto('Egreso:', 80, posY, 10, 'bold')
 
       escribirTexto('Dias Estancia:', 160, posY, 10, 'bold')
 
@@ -1553,20 +1572,12 @@ ANTE MI
       dibujarLinea(10, posY, 210, posY)
       posY += 5
 
-      posY += 5
-      dibujarLinea(10, posY, 210, posY)
-      posY += 5
-
       // -------------------------------------
       // 9) Diagnostico
       // -------------------------------------
       escribirTexto('Complicaciones:', 12, posY, 10, 'bold')
 
       posY += 2
-      dibujarLinea(10, posY, 210, posY)
-      posY += 5
-
-      posY += 5
       dibujarLinea(10, posY, 210, posY)
       posY += 5
 
@@ -1652,7 +1663,7 @@ ANTE MI
         posY += tamCaja2 + 2
       })
 
-      posY += 5
+      posY += 8
       escribirTexto('Causa de muerte', 12, posY + 3, 10, 'bold')
 
       posY += 5
