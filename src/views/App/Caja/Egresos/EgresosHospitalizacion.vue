@@ -88,7 +88,7 @@
           </b-form-group>
         </div>
         <div>
-          Ingrese un motivo para el egreso
+          Nota de egreso
         </div>
         <div>
           <b-input id="motivoEgreso" ref="motivoEgreso" v-model="motivoEgresoHospi" />

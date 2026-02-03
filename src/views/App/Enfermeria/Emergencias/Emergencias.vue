@@ -892,7 +892,7 @@
                     @click="verReceta(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm" variant="dark"
-                  >Ver ecetas</b-button>
+                  >Ver recetas</b-button>
                   <b-button @click="addServicio(props.rowData.id)" class="mb-2 button-spacing" size="sm" variant="success">Agregar
                     servicios</b-button>
                   <b-button v-if="props.rowData.nombres !== 'PENDIENTE' " @click="mostrarVerServicio(props.rowData.id)" class="mb-2 button-spacing" size="sm" variant="dark">Ver
@@ -972,6 +972,40 @@
                     variant="success"
                     :disabled="!hasPermission([9, 10])"
                    >Hoja de Emergencia</b-button>
+                </div>
+                <!-- Tipo de paciente-->
+                <div slot="tipo_paciente" slot-scope="props">
+                  <button
+                    v-if="props.rowData.cuentas && props.rowData.cuentas.length && props.rowData.cuentas[0].tipo === 1"
+                    class="btn btn-success"
+                    disabled
+                  >
+                    PACIENTE HOSPITALIZADO
+                  </button>
+
+                  <button
+                    v-else-if="props.rowData.cuentas && props.rowData.cuentas.length && props.rowData.cuentas[0].tipo === 2"
+                    class="btn btn-warning"
+                    disabled
+                  >
+                    PACIENTE DE EMERGENCIA
+                  </button>
+
+                  <button
+                    v-else-if="props.rowData.cuentas && props.rowData.cuentas.length && props.rowData.cuentas[0].tipo === 3"
+                    class="btn btn-dark"
+                    disabled
+                  >
+                    PACIENTE DE QUIRÓFANO
+                  </button>
+
+                  <button
+                    v-else-if="props.rowData.cuentas && props.rowData.cuentas.length && props.rowData.cuentas[0].tipo === 4"
+                    class="btn btn-light"
+                    disabled
+                  >
+                    PACIENTE AMBULATORIO
+                  </button>
                 </div>
               </template>
               <!-- Paginacion     -->
@@ -1171,6 +1205,10 @@ export default {
           sortField: 'hora_ingreso_reciente',
           title: 'Hora de ingreso',
           dataClass: 'list-item-heading'
+        },
+        {
+          name: '__slot:tipo_paciente',
+          title: 'Tipo de paciente'
         }
       ],
       fieldsReceta: [

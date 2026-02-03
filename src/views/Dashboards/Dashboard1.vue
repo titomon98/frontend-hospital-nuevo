@@ -19,33 +19,69 @@
               :perPage="perPage"
             >
             </datatable-heading>
-            <vuetable
-              ref="vuetable"
-              class="table-divided order-with-arrow"
-              :api-url="apiBase"
-              :query-params="makeQueryParams"
-              :per-page="perPage"
-              :reactive-api-url="true"
-              :fields="fields"
-              pagination-path
-              @vuetable:pagination-data="onPaginationData"
-            >
-              <!-- Estado -->
-              <div slot="estado" slot-scope="props">
-                <button v-if="props.rowData.estado === 1" type="button" class="btn btn-success" disabled>INGRESADO EN HOSPITAL</button>
-                <button v-if="props.rowData.estado === 2" type="button" class="btn btn-warning" disabled>EGRESADO</button>
-                <button v-if="props.rowData.estado === 3" type="button" class="btn btn-success" disabled>INGRESADO EN QUIRÓFANO</button>
-                <button v-if="props.rowData.estado === 4" type="button" class="btn btn-success" disabled>INGRESADO EN INTENSIVO</button>
-                <button v-if="props.rowData.estado === 5" type="button" class="btn btn-success" disabled>INGRESADO EN EMERGENCIA</button>
-                <button v-if="props.rowData.estado === 6" type="button" class="btn btn-dark" disabled>DESAHUCIADO</button>
-                <button v-if="props.rowData.estado === 7" type="button" class="btn btn-dark" disabled>ALTA MÉDICA</button>
-                <button v-if="props.rowData.estado === 8" type="button" class="btn btn-dark" disabled>EGRESO CONTRAINDICADO</button>
-                <button v-if="props.rowData.estado === 9" type="button" class="btn btn-dark" disabled>REFERIDO A OTRA UBICACIÓN</button>
-                <button v-if="props.rowData.estado === 10" type="button" class="btn btn-dark" disabled>EXPEDIENTE INCOMPLETO</button>
-                <button v-if="props.rowData.estado === 0" type="button" class="btn btn-dark" disabled>FALLECIDO</button>
-              </div>
-              <!-- Paginacion -->
-            </vuetable>
+            <div class="table-responsive">
+              <vuetable
+                ref="vuetable"
+                class="table-divided order-with-arrow"
+                :api-url="apiBase"
+                :query-params="makeQueryParams"
+                :per-page="perPage"
+                :reactive-api-url="true"
+                :fields="fields"
+                pagination-path
+                @vuetable:pagination-data="onPaginationData"
+              >
+                <!-- Tipo de paciente-->
+                <div slot="tipo_paciente" slot-scope="props">
+                  <button
+                    v-if="props.rowData.cuentas && props.rowData.cuentas.length && props.rowData.cuentas[0].tipo === 1"
+                    class="btn btn-success"
+                    disabled
+                  >
+                    PACIENTE HOSPITALIZADO
+                  </button>
+
+                  <button
+                    v-else-if="props.rowData.cuentas && props.rowData.cuentas.length && props.rowData.cuentas[0].tipo === 2"
+                    class="btn btn-warning"
+                    disabled
+                  >
+                    PACIENTE DE EMERGENCIA
+                  </button>
+
+                  <button
+                    v-else-if="props.rowData.cuentas && props.rowData.cuentas.length && props.rowData.cuentas[0].tipo === 3"
+                    class="btn btn-dark"
+                    disabled
+                  >
+                    PACIENTE DE QUIRÓFANO
+                  </button>
+
+                  <button
+                    v-else-if="props.rowData.cuentas && props.rowData.cuentas.length && props.rowData.cuentas[0].tipo === 4"
+                    class="btn btn-light"
+                    disabled
+                  >
+                    PACIENTE AMBULATORIO
+                  </button>
+                </div>
+                <!-- Estado -->
+                <div slot="estado" slot-scope="props">
+                  <button v-if="props.rowData.estado === 1" type="button" class="btn btn-success" disabled>INGRESADO EN HOSPITAL</button>
+                  <button v-if="props.rowData.estado === 2" type="button" class="btn btn-warning" disabled>EGRESADO</button>
+                  <button v-if="props.rowData.estado === 3" type="button" class="btn btn-success" disabled>INGRESADO EN QUIRÓFANO</button>
+                  <button v-if="props.rowData.estado === 4" type="button" class="btn btn-success" disabled>INGRESADO EN INTENSIVO</button>
+                  <button v-if="props.rowData.estado === 5" type="button" class="btn btn-success" disabled>INGRESADO EN EMERGENCIA</button>
+                  <button v-if="props.rowData.estado === 6" type="button" class="btn btn-dark" disabled>DESAHUCIADO</button>
+                  <button v-if="props.rowData.estado === 7" type="button" class="btn btn-dark" disabled>ALTA MÉDICA</button>
+                  <button v-if="props.rowData.estado === 8" type="button" class="btn btn-dark" disabled>EGRESO CONTRAINDICADO</button>
+                  <button v-if="props.rowData.estado === 9" type="button" class="btn btn-dark" disabled>REFERIDO A OTRA UBICACIÓN</button>
+                  <button v-if="props.rowData.estado === 10" type="button" class="btn btn-dark" disabled>EXPEDIENTE INCOMPLETO</button>
+                  <button v-if="props.rowData.estado === 0" type="button" class="btn btn-dark" disabled>FALLECIDO</button>
+                </div>
+                <!-- Paginacion -->
+              </vuetable>
+            </div>
             <vuetable-pagination-bootstrap
                 ref="pagination"
                 @vuetable-pagination:change-page="onChangePage"
@@ -195,6 +231,10 @@ export default {
           sortField: 'expediente',
           title: 'Expediente',
           dataClass: 'list-item-heading'
+        },
+        {
+          name: '__slot:tipo_paciente',
+          title: 'Tipo de paciente'
         },
         {
           name: 'medico.nombre',

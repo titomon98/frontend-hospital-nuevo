@@ -645,7 +645,8 @@ export default {
         fecha: null,
         hora: null,
         habitacion: null,
-        estudioDeSueño: 0
+        estudioDeSueño: 0,
+        tipo_cuenta: 1
       },
       selectedDoctor: [],
       habitaciones: [],
