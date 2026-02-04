@@ -1059,6 +1059,10 @@ export default {
         const sinPagarOrdenados = sinPagar.sort((a, b) => b.total_honorario - a.total_honorario)
         const pagadoOrdenados = pagado.sort((a, b) => b.total_honorario - a.total_honorario)
 
+        const totalHonorarios =
+        data.sinPagar.reduce((acc, item) => acc + Number(item.total_honorario), 0) +
+        data.pagados.reduce((acc, item) => acc + Number(item.total_honorario), 0)
+
         const doc = new JsPDF()
 
         doc.addImage(logo, 'JPEG', 14, 20, 30, 25)
@@ -1072,10 +1076,11 @@ export default {
         doc.text('Corte de Honorarios Medicos', 105, 50, { align: 'center' })
         doc.setFontSize(12)
         doc.text(`Del día: ${moment(fechaInicio).format('DD/MM/YYYY')}`, 105, 58, { align: 'center' })
-
+        doc.setFontSize(12)
+        doc.text(`Por total: ` + totalHonorarios.toFixed(2), 105, 66, { align: 'center' })
         // Sección "Sin pagar"
         doc.setFontSize(14).setFont(undefined, 'bold')
-        doc.text('Honorarios Sin Pagar', 14, 70)
+        doc.text('Honorarios Sin Pagar', 14, 72)
 
         if (sinPagarOrdenados.length > 0) {
           const sinPagarRows = sinPagarOrdenados.map((medico, index) => [
@@ -1092,7 +1097,7 @@ export default {
           doc.autoTable({
             head: [['#', 'Nombre del Medico', 'Nombre del Paciente', 'Lugar', 'Descripción', 'Total Honorarios', 'Fecha', 'Estado']],
             body: sinPagarRows,
-            startY: 75,
+            startY: 77,
             theme: 'grid',
             styles: { fontSize: 10, cellPadding: 2 },
             headStyles: { fillColor: [255, 99, 71], textColor: 255, fontStyle: 'bold' }, // Color de encabezado para "Sin pagar"

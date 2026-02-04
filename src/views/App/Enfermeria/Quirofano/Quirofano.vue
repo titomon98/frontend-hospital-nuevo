@@ -463,7 +463,7 @@
                     <b-form-input type="number" v-model="salaOperaciones.horas" min="0" placeholder="Horas"></b-form-input>
                   </b-col>
                   <b-col md="6">
-                    <b-form-input type="number"  v-model.trim="$v.salaOperaciones.minutos.$model" :min=1 :max=59 placeholder="Minutos"></b-form-input>
+                    <b-form-input type="number" v-model.trim="$v.salaOperaciones.minutos.$model" :min=1 :max=59 placeholder="Minutos"></b-form-input>
                   </b-col>
                 </b-row>
               </b-form-group>
@@ -2353,17 +2353,16 @@ export default {
           total += parseFloat(response.data[0].precio)
           this.tarifaHoraExtra = parseFloat(response.data[0].cobro_extra)
         }
-
         if (this.salaOperaciones.oximetro) total += parseFloat(this.preciosServicios['Oximetro']) || 0
         if (this.salaOperaciones.cauterio) total += parseFloat(this.preciosServicios['Cauterio']) || 0
         if (this.salaOperaciones.monitor) total += parseFloat(this.preciosServicios['Monitor']) || 0
-
         const horas = parseFloat(this.salaOperaciones.horas) || 0
         const minutos = parseFloat(this.salaOperaciones.minutos) || 0
-        const tiempoTotalMinutos = horas * 60 + minutos
-
+        const tiempoTotalMinutos = (horas * 60) + minutos
         if (tiempoTotalMinutos > this.tiempoBase) {
-          total += parseFloat(this.tarifaHoraExtra) * Math.ceil((tiempoTotalMinutos - this.tiempoBase) / 60)
+          const tiempoExtra = tiempoTotalMinutos - this.tiempoBase
+          const totalPagoExtra = parseFloat(tiempoExtra) * parseFloat(5.65)
+          total += parseFloat(totalPagoExtra)
         }
         this.TotalAPagar = parseFloat(total)
       } catch (error) {
@@ -3227,7 +3226,7 @@ export default {
       const ConsumoTotal = data.consumos.reduce((acc, item) => acc + parseFloat(item.subtotal), 0)
       const ConsumoComunTotal = data.consumosComunes.reduce((acc, item) => acc + parseFloat(item.total), 0)
       const ConsumoMedicamentosTotal = data.consumosMedicamentos.reduce((acc, item) => acc + parseFloat(item.total), 0)
-      const ConsumoQuirurgicosTotal = data.consumosQuirurgicos.reduce((acc, item) => acc + parseFloat(item.total), 0)
+      let ConsumoQuirurgicosTotal = data.consumosQuirurgicos.reduce((acc, item) => acc + parseFloat(item.total), 0)
       const ExamenesTotal = data.examenes.reduce((acc, item) => acc + item.total, 0)
       const ServicioSalaOperacionesTotal = data.salaOperaciones.reduce((acc, item) => acc + parseFloat(item.total), 0)
 
