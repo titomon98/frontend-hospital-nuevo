@@ -1256,7 +1256,7 @@ export default {
       altura += 0.7
       this.pdf.setFontSize(12).setFont(undefined, 'normal')
       this.pdf.text(
-        `Domiciliado en: ${this.paciente.direccion_encargado}`,
+        `Domiciliado en: ${this.paciente.direccion}`,
         2,
         altura,
         { maxWidth: 17 }
@@ -1271,7 +1271,7 @@ export default {
       altura += 0.7
       this.pdf.setFontSize(12).setFont(undefined, 'normal')
       this.pdf.text(
-        `Con residencia:  ${this.paciente.direccion_encargado}`,
+        `Con residencia:  ${this.paciente.direccion}`,
         2,
         altura,
         { maxWidth: 17 }

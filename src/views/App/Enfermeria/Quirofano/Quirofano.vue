@@ -596,6 +596,24 @@
             />
           </b-tab>
 
+          <b-tab title="Anestésicos">
+            <vuetable
+              ref="vuetableConsumoInsumos"
+              class="table-divided table-responsive order-with-arrow"
+              :api-url="apiBaseConsumoAnestesicos"
+              :query-params="makeQueryParamsConsumoInsumo"
+               data-path="data"
+               pagination-path=""
+              :per-page="perPage"
+              :reactive-api-url="true"
+              :fields="fieldsConsumoInsumoMedicamento"
+            ></vuetable>
+            <vuetable-pagination-bootstrap
+              ref="paginationConsumo"
+              @vuetable-pagination:change-page="onChangePageConsumo"
+            />
+          </b-tab>
+
           <b-tab title="Quirúrgico">
             <vuetable
               ref="vuetableConsumoQuirurgicos"
@@ -719,6 +737,24 @@
               :query-params="makeQueryParamsConsumoInsumo"
               data-path="data"
                pagination-path="meta"
+              :per-page="perPage"
+              :reactive-api-url="true"
+              :fields="fieldsConsumoInsumoMedicamento2"
+            ></vuetable>
+            <vuetable-pagination-bootstrap
+              ref="paginationConsumo"
+              @vuetable-pagination:change-page="onChangePageConsumo"
+            />
+          </b-tab>
+
+          <b-tab title="Anestésicos">
+            <vuetable
+              ref="vuetableConsumoInsumosAnestesicos"
+              class="table-divided table-responsive order-with-arrow"
+              :api-url="apiBaseConsumoAnestesicos"
+              :query-params="makeQueryParamsConsumoInsumo"
+               data-path="data"
+               pagination-path=""
               :per-page="perPage"
               :reactive-api-url="true"
               :fields="fieldsConsumoInsumoMedicamento2"
@@ -1273,6 +1309,7 @@ export default {
       apiBaseReceta: '',
       apiBaseConsumo: '',
       apiBaseConsumoMedicamento: '',
+      apiBaseConsumoAnestesicos: '',
       apiBaseConsumoQuirurgico: '',
       apiBaseConsumoComun: '',
       fields: [
@@ -2960,6 +2997,7 @@ export default {
           this.idCuentaSeleccionada = response.data.id
           // Hospitalizacion, Quirofano, Intensivo
           this.apiBaseConsumoMedicamento = apiUrl + `/detalle_consumo_medicamentos/list/${response.data.id}/Quirofano`
+          this.apiBaseConsumoAnestesicos = apiUrl + `/detalle_consumo_medicamentos/listAnestesicos/${response.data.id}/Quirofano`
           this.apiBaseConsumoQuirurgico = apiUrl + `/detalle_consumo_quirugicos/list/${response.data.id}/Quirofano`
           this.apiBaseConsumoComun = apiUrl + `/detalle_consumo_comun/list/${response.data.id}/Quirofano`
         } else {
@@ -3244,7 +3282,7 @@ export default {
         const ConsumoTotal = data.consumos.reduce((acc, item) => acc + parseFloat(item.subtotal), 0)
         const ConsumoComunTotal = data.consumosComunes.reduce((acc, item) => acc + parseFloat(item.total), 0)
         const ConsumoMedicamentosTotal = data.consumosMedicamentos.reduce((acc, item) => acc + parseFloat(item.total), 0)
-        const ConsumoQuirurgicosTotal = data.consumosQuirurgicos.reduce((acc, item) => acc + parseFloat(item.total), 0)
+        let ConsumoQuirurgicosTotal = data.consumosQuirurgicos.reduce((acc, item) => acc + parseFloat(item.total), 0)
         const ExamenesTotal = data.examenes.reduce((acc, item) => acc + parseFloat(item.total), 0)
         const ServicioSalaOperacionesTotal = data.salaOperaciones.reduce((acc, item) => acc + parseFloat(item.total), 0)
         const TotalHonorarios = data.honorarios.reduce((acc, item) => acc + parseFloat(item.total), 0)
@@ -3297,6 +3335,7 @@ export default {
         doc.text(`${data.nombremedico}`, 36, 34)
         doc.text('______________________________________________________________________________________________________', 36, 35)
 
+        ConsumoQuirurgicosTotal = parseFloat(ConsumoQuirurgicosTotal) + parseFloat(ConsumoTotal)
         doc.autoTable({
           body: [
             ['HOSPITALIZACION', `Q${hospitalizacion.toFixed(2)}`],
@@ -3305,7 +3344,6 @@ export default {
             ['MATERIAL MEDICO QUIRÚRGICO', `Q${ConsumoQuirurgicosTotal.toFixed(2)}`],
             ['ANESTESICOS', ''],
             ['MATERIAL COMÚN', `Q${ConsumoComunTotal.toFixed(2)}`],
-            ['SERVICIOS', `Q${ConsumoTotal.toFixed(2)}`],
             ['RECUPERACION', ''],
             ['INTENSIVO', `Q 0.00`],
             ['EMERGENCIAS  Medico Interno', ''],
@@ -3324,7 +3362,7 @@ export default {
           didParseCell: function (data) {
             const rowIndex = data.row.index
             const colIndex = data.column.index
-            if (rowIndex >= 11 && colIndex === 0) {
+            if (rowIndex >= 10 && colIndex === 0) {
               data.cell.styles.halign = 'right'
             }
           }

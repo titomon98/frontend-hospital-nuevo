@@ -1,16 +1,20 @@
-1.⁠ ⁠⁠Si hay un paciente en la noche con expediente incompleto, debe permitir agregar los consumos para el ingreso de enfermería, aunque el paciente no esté lleno en caja
-2.⁠ ⁠Ver porque el paciente siempre se ingresa en 1. Cambiar cuando se traslade. Agregar el tipo de paciente a los 4 menus de hospitalizacion
-3.⁠ ⁠⁠Cuadrar la cuenta con los cobros indicados
-4.⁠ ⁠Agregar total al final de las tablas de Hospitalizacion/Intensivo/Quirofano/Emergencia para saber cuanto va de los consumos
-5.⁠ ⁠Servicios de cuenta parcial se suma a material quirurgico
-6.⁠ ⁠La nota de ingreso de puede llenar en cualquier tipo de ingreso (ingreso, reingreso, ingreso de emergencia) pero ahorita aparece como motivo. Se debe dejar al asignar habitacion
-7.⁠ ⁠Añadir botones para que las notas de ingreso y notas de egreso puedan agregarse desde hospitalización
+Completados:
 8. La direccion no aparece en el contrato, a veces dice null, y a veces no aparece aunque ya esté
-9. Agregar calendario y hora al egreso en el modal de egreso, debajo de motivo de egreso
-10. El boton generar cuenta total de un paciente no permite generar el archivo despues de egresado
+5.⁠ ⁠Servicios de cuenta parcial se suma a material quirurgico
+13. El anestesico es una categoria extra que tiene que aparecer en la ventana de consumos en todos los lugares
 11. El reporte del día/corte del dia necesita un total de todo el dinero que hubo
 12. El reporte de honorarios medicos tiene que aparecer tambien donde ya está el de hospital (Cortes)
-13. El anestesico es una categoria extra que tiene que aparecer en la ventana de consumos en todos los lugares
+
+No completados:
+6.⁠ ⁠La nota de ingreso de puede llenar en cualquier tipo de ingreso (ingreso, reingreso, ingreso de emergencia) pero ahorita aparece como motivo. Se debe dejar al asignar habitacion
+7.⁠ ⁠Añadir botones para que las notas de ingreso y notas de egreso puedan agregarse desde hospitalización
+16. Agregar notas de enfermería. Cada nota contiempla si es de día o de noche. De dia en color azul, de noche en color rojo.
+17. Los anestesicos y medicamentos van en rubros diferentes en cuenta parcial. Por ahora no hay datos en anestesicos
+2.⁠ ⁠Ver porque el paciente siempre se ingresa en 1. Cambiar cuando se traslade. Agregar el tipo de paciente a los 4 menus de hospitalizacion
+4.⁠ ⁠Agregar total al final de las tablas de Hospitalizacion/Intensivo/Quirofano/Emergencia para saber cuanto va de los consumos
+1.⁠ ⁠⁠Si hay un paciente en la noche con expediente incompleto, debe permitir agregar los consumos para el ingreso de enfermería, aunque el paciente no esté lleno en caja
+3.⁠ ⁠⁠Cuadrar la cuenta con los cobros indicados
+9. Agregar calendario y hora al egreso en el modal de egreso, debajo de motivo de egreso
+10. El boton generar cuenta total de un paciente no permite generar el archivo despues de egresado
 14. En la cuenta parcial si aparece el rubro pero no el dinero
 15. Reingresar al paciente al pagar cuenta parcial
-16. Agregar notas de enfermería. Cada nota contiempla si es de día o de noche. De dia en color azul, de noche en color rojo.

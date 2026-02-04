@@ -3800,7 +3800,7 @@ export default {
 
         const doc = new JsPDF()
 
-        doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
+        doc.addImage(logo, 'JPEG', 14, 20, 30, 25)
         doc.setFontSize(14).setFont(undefined, 'bold')
         doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO', 110, 20, { align: 'center' })
         doc.setFontSize(10).setFont(undefined, 'normal')

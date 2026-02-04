@@ -154,12 +154,22 @@
                 <b-form action="#" class="searchbox">
                     <b-form-group label="Fecha:">
                       <b-form-input type="date" v-model="selectedDate"></b-form-input>
-                      <b-button
-                        @click="getReport()"
-                        class="mb-2 mt-2 button-spacing"
-                        size="sm"
-                        variant="dark"
-                      >Ver reporte por día</b-button>
+                      <b-row>
+                        <b-col md="12">
+                          <b-button
+                            @click="getReport()"
+                            class="mb-2 mt-2 button-spacing"
+                            size="sm"
+                            variant="dark"
+                          >Ver corte del día</b-button>
+                          <b-button
+                            @click="primerReporteMedicos()"
+                            class="mb-2 mt-2 button-spacing"
+                            size="sm"
+                            variant="dark"
+                          >Ver honorarios médicos del día</b-button>
+                        </b-col>
+                      </b-row>
                     </b-form-group>
                     <b-form action="#" class="searchbox">
                       <b-input id="search" placeholder="Buscar..." @input="(val) => searchChange(val)" />
@@ -264,7 +274,13 @@ export default {
   computed: {
     ...mapGetters([
       'currentUser'
-    ])
+    ]),
+
+    selectedDateFormatted () {
+      if (!this.selectedDate) return ''
+      const [y, m, d] = this.selectedDate.split('-')
+      return `${d}-${m}-${y}`
+    }
   },
   data () {
     return {
@@ -683,6 +699,7 @@ export default {
           var totEmergencia = 0
           var totQuirofano = 0
           var totIntensivo = 0
+          var granTotal = 0
           this.arrayDetalles.forEach(item => {
             if (item.tipo === 1) {
               arrayHospi.push(item)
@@ -713,8 +730,8 @@ export default {
             totPagado = parseFloat(totPagado) + parseFloat(item.total_pagado)
             totPendiente = parseFloat(totPendiente) + parseFloat(item.pendiente_de_pago)
           })
-          this.pdf.text('Corte del día ' + this.selectedDate, 5, altura)
-          this.pdfName = 'Corte del día ' + this.selectedDate + '.pdf'
+          this.pdf.text('Corte del día ' + this.selectedDateFormatted, 5, altura)
+          this.pdfName = 'Corte del día ' + this.selectedDateFormatted + '.pdf'
           altura = altura + 0.5
           this.pdf.text('Total ingresado: Q.' + totPagado, 5, altura)
           altura = altura + 0.5
@@ -842,6 +859,8 @@ export default {
               fontSize: 5
             }
           })
+          granTotal = parseFloat(totHospi) + parseFloat(totEmergencia) + parseFloat(totIntensivo) + parseFloat(totQuirofano)
+          this.pdf.text('Total del día: ' + granTotal.toFixed(2), 1.5, finalY + 3)
           const totalPages = this.pdf.getNumberOfPages()
 
           for (let i = 1; i <= totalPages; i++) {
@@ -851,7 +870,7 @@ export default {
             this.pdf.setFontSize(7).setFont(undefined, 'bold')
             this.pdf.text('Hospital de Especialidades', 1.5, 3.3)
             this.pdf.setFontSize(10).setFont(undefined, 'bold')
-            this.pdf.text('Corte del día ' + this.selectedDate, 5, altura)
+            this.pdf.text('Corte del día ' + this.selectedDateFormatted, 5, altura)
             altura = altura + 0.5
             this.pdf.text('Total ingresado: Q.' + totPagado, 5, altura)
             altura = altura + 0.5
@@ -1027,6 +1046,121 @@ export default {
         console.error('Error al generar el reporte:', error)
         this.$alert('Ocurrió un error al generar el reporte. Por favor, intente de nuevo.', 'Error')
       }
+    },
+    generarPDFMedicos () {
+      const data = this.dataMedicos
+      const fechaInicio = this.selectedDate
+      const fechaFin = this.selectedDate
+      console.log(data)
+      try {
+        const sinPagar = data.sinPagar
+        const pagado = data.pagados
+
+        const sinPagarOrdenados = sinPagar.sort((a, b) => b.total_honorario - a.total_honorario)
+        const pagadoOrdenados = pagado.sort((a, b) => b.total_honorario - a.total_honorario)
+
+        const doc = new JsPDF()
+
+        doc.addImage(logo, 'JPEG', 14, 20, 30, 25)
+        doc.setFontSize(14).setFont(undefined, 'bold')
+        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO', 110, 20, { align: 'center' })
+        doc.setFontSize(10).setFont(undefined, 'normal')
+        doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
+        doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
+
+        doc.setFontSize(16)
+        doc.text('Corte de Honorarios Medicos', 105, 50, { align: 'center' })
+        doc.setFontSize(12)
+        doc.text(`Del día: ${moment(fechaInicio).format('DD/MM/YYYY')}`, 105, 58, { align: 'center' })
+
+        // Sección "Sin pagar"
+        doc.setFontSize(14).setFont(undefined, 'bold')
+        doc.text('Honorarios Sin Pagar', 14, 70)
+
+        if (sinPagarOrdenados.length > 0) {
+          const sinPagarRows = sinPagarOrdenados.map((medico, index) => [
+            index + 1,
+            medico.nombre_medico,
+            medico.paciente || 'Desconocido',
+            medico.lugar,
+            medico.descripcion,
+            `Q${medico.total_honorario.toFixed(2)}`,
+            medico.fecha,
+            'Sin Pagar'
+          ])
+
+          doc.autoTable({
+            head: [['#', 'Nombre del Medico', 'Nombre del Paciente', 'Lugar', 'Descripción', 'Total Honorarios', 'Fecha', 'Estado']],
+            body: sinPagarRows,
+            startY: 75,
+            theme: 'grid',
+            styles: { fontSize: 10, cellPadding: 2 },
+            headStyles: { fillColor: [255, 99, 71], textColor: 255, fontStyle: 'bold' }, // Color de encabezado para "Sin pagar"
+            alternateRowStyles: { fillColor: [240, 240, 240] }
+          })
+        } else {
+          doc.setFontSize(10)
+          doc.text('No hay honorarios pendientes de pago.', 14, 90)
+        }
+
+        // Sección "Pagado"
+        const startYPagado = doc.lastAutoTable ? doc.lastAutoTable.finalY + 20 : 120
+        doc.setFontSize(14).setFont(undefined, 'bold')
+        doc.text('Honorarios Pagados', 14, startYPagado)
+
+        if (pagadoOrdenados.length > 0) {
+          const pagadoRows = pagadoOrdenados.map((medico, index) => [
+            index + 1,
+            medico.nombre_medico,
+            medico.paciente || 'Desconocido',
+            medico.lugar,
+            medico.descripcion,
+            `Q${medico.total_honorario.toFixed(2)}`,
+            medico.fecha,
+            'Pagado'
+          ])
+
+          doc.autoTable({
+            head: [['#', 'Nombre del Medico', 'Nombre del Paciente', 'Lugar', 'Descripción', 'Total Honorarios', 'Fecha', 'Estado']],
+            body: pagadoRows,
+            startY: startYPagado + 5,
+            theme: 'grid',
+            styles: { fontSize: 10, cellPadding: 2 },
+            headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' }, // Color de encabezado para "Pagado"
+            alternateRowStyles: { fillColor: [240, 240, 240] }
+          })
+        } else {
+          doc.setFontSize(10)
+          doc.text('No hay honorarios pagados.', 14, startYPagado + 10)
+        }
+
+        // Guardar el PDF
+        doc.save(`Corte_de_honorarios_${fechaInicio}_a_${fechaFin}.pdf`)
+      } catch (error) {
+        console.error('Error al generar el reporte:', error)
+        this.$alert('Ocurrió un error al generar el reporte. Por favor, intente de nuevo.', 'Error')
+      }
+    },
+    primerReporteMedicos () {
+      const fechaInicio = this.selectedDate
+      const fechaFin = this.selectedDate
+      axios.get(apiUrl + '/reporte/medicos/honorarios',
+        {
+          params: {
+            fechaInicio: fechaInicio,
+            fechaFin: fechaFin
+          }
+        }
+      )
+        .then((response) => {
+          this.dataMedicos = response.data
+          this.generarPDFMedicos()
+        })
+        .catch((error) => {
+          console.error('Error al generar el reporte de cuenta parcial:', error)
+          this.alertErrorText = 'Hubo un problema al generar el reporte. Por favor, intente nuevamente.'
+          this.showAlertError()
+        })
     }
   }
 }
