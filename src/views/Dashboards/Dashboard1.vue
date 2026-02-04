@@ -319,8 +319,6 @@ export default {
       var url = apiUrl + '/resultado/get/'
       axios.get(url).then(function (response) {
         me.resultsList = response.data
-      }).catch(function (error) {
-        console.log(error)
       })
     },
     getFecha (fecha) {
