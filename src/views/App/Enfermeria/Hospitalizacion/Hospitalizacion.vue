@@ -442,6 +442,10 @@
               <label for="medicamento" class="ml-1">Medicamento</label>
             </b-col>
             <b-col md="3">
+              <input type="radio" id="anestesico" value="3" v-model="$v.form.selected_insumo.$model" @change="onSelectChange"/>
+              <label for="anestesico" class="ml-1">Anestésico</label>
+            </b-col>
+            <b-col md="3">
               <input type="radio" id="quirurgico" value="1" v-model="$v.form.selected_insumo.$model" @change="onSelectChange"/>
               <label for="quirurgico" class="ml-1">Quirúrgico</label>
             </b-col>
@@ -587,6 +591,10 @@
             <b-col md="3">
               <input type="radio" id="medicamento" value="0" v-model="$v.form.selected_insumo.$model" @change="onSelectChange"/>
               <label for="medicamento" class="ml-1">Medicamento</label>
+            </b-col>
+            <b-col md="3">
+              <input type="radio" id="anestesico" value="3" v-model="$v.form.selected_insumo.$model" @change="onSelectChange"/>
+              <label for="anestesico" class="ml-1">Anestésico</label>
             </b-col>
             <b-col md="3">
               <input type="radio" id="quirurgico" value="1" v-model="$v.form.selected_insumo.$model" @change="onSelectChange"/>
@@ -1760,6 +1768,7 @@ export default {
         case '0': endpoint = '/medicamentos/list2'; break
         case '1': endpoint = '/quirurgico/list2'; break
         case '2': endpoint = '/comun/list2'; break
+        case '3': endpoint = '/medicamentos/anestesicos'; break
       }
 
       try {
@@ -2337,7 +2346,8 @@ export default {
           id_cuenta: this.idCuentaSeleccionada,
           descripcion: this.honorario.descripcion,
           total: this.honorario.total,
-          lugar: 'Hospitalización'
+          lugar: 'Hospitalización',
+          user: this.currentUser.user
         })
         this.$refs['modal-add-honorarios'].hide()
         this.honorario = {
