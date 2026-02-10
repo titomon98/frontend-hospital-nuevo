@@ -470,36 +470,38 @@
             </b-col>
       </b-row>
       <b-row class="ml-2">
-        <b-form-group label="Personal de ayudantía">
-          <Multiselect
-            v-model="selectedPersonal"
-            :options="personalOptions"
-            :multiple="true"
-            :close-on-select="false"
-            :clear-on-select="false"
-            :preserve-search="true"
-            placeholder="Seleccionar personal"
-            label="nombre"
-            track-by="id"
-          >
+        <b-col md="12">
+          <b-form-group label="Historial sala de operaciones">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Descripción</th>
+                  <th>Tiempo</th>
+                  <th>Total</th>
+                  <th>Agregado por</th>
+                </tr>
+              </thead>
 
-            <!-- Personalización del menú de opciones -->
-            <template v-slot:option="{ option }">
-              <div class="custom-option">
-                <strong>{{ option.nombre }}</strong> —
-                <small>Categoría: {{ option.categoria }}</small>
-              </div>
-            </template>
+              <tbody>
+                <tr v-if="loadingSala">
+                  <td colspan="3" class="text-center">Cargando...</td>
+                </tr>
 
-            <!-- Cómo se muestran los seleccionados -->
-            <template v-slot:selection="{ values, search, isOpen }">
-              <span class="multiselect__single" v-if="values.length && !isOpen">
-                {{ values.length }} seleccionados
-              </span>
-            </template>
+                <tr v-else-if="salas.length === 0">
+                  <td colspan="3" class="text-center">No hay registros</td>
+                </tr>
 
-          </Multiselect>
-        </b-form-group>
+                <tr v-for="item in salas" :key="item.id">
+                  <td>{{ item.descripcion }}</td>
+                  <td>{{ item.horas }}</td>
+                  <td>Q {{ item.total }}</td>
+                  <td>{{ item.created_by }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </b-form-group>
+        </b-col>
+
       </b-row>
       <template #modal-footer>
         <div class="ml-auto"> <span v-if="currentUser.user_type < 7" class="mr-2">Total: Q{{ TotalAPagar }}</span></div>
@@ -1067,10 +1069,10 @@
                   >Ver honorarios</b-button>
 
                   <b-button
-                    @click="showModal('modal-sala-operaciones'); obtenerIdCuenta(props.rowData.id)"
+                    @click="showModal('modal-sala-operaciones'); obtenerIdCuenta(props.rowData.id); getDataSala(props.rowData)"
                     class="mb-2 button-spacing"
                     size="sm"
-                    variant="success"
+                    variant="primary"
                   >Sala Operaciones</b-button>
 
                    <b-button
@@ -1222,6 +1224,8 @@ export default {
   },
   data () {
     return {
+      salas: [],
+      loadingSala: false,
       personalOptions: [],
       selectedPersonal: [],
       resultados: null,
@@ -1316,6 +1320,7 @@ export default {
       apiBase: apiUrl + '/expedientes/listQuirofano',
       apiBaseReceta: '',
       apiBaseConsumo: '',
+      apiBaseSala: '',
       apiBaseConsumoMedicamento: '',
       apiBaseConsumoAnestesicos: '',
       apiBaseConsumoQuirurgico: '',
@@ -1418,6 +1423,26 @@ export default {
           name: 'createdAt',
           sortField: 'createdAt',
           title: 'Creación',
+          dataClass: 'list-item-heading'
+        }
+      ],
+      fieldsSala: [
+        {
+          name: 'descripcion',
+          sortField: 'descripcion',
+          title: 'Descripcion',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'horas',
+          sortField: 'horas',
+          title: 'Tiempo',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'total',
+          sortField: 'total',
+          title: 'Total',
           dataClass: 'list-item-heading'
         }
       ],
@@ -2660,7 +2685,8 @@ export default {
             minutos: this.salaOperaciones.minutos,
             categoria: this.salaOperaciones.categoria,
             id_cuenta: this.idCuentaSeleccionada,
-            personal: this.selectedPersonal
+            personal: this.selectedPersonal,
+            user: this.currentUser
           })
           this.$refs['modal-sala-operaciones'].hide()
           this.salaOperaciones = {
@@ -2874,6 +2900,32 @@ export default {
     getDataConsumos (id) {
       this.form.id = id
       this.apiBaseConsumo = apiUrl + `/consumos/getId?id=${id}`
+    },
+    getDataSala (id) {
+      let idEnviar = null
+
+      id.cuentas.forEach(cuenta => {
+        if (cuenta.estado === 1) {
+          idEnviar = cuenta.id
+        }
+      })
+
+      if (!idEnviar) return
+
+      this.loadingSala = true
+
+      axios.get(`${apiUrl}/salaOperaciones/getId/${idEnviar}`)
+        .then(response => {
+          this.salas = response.data
+          console.log(this.salas)
+        })
+        .catch(error => {
+          console.error('Error cargando sala de operaciones', error)
+          this.salas = []
+        })
+        .finally(() => {
+          this.loadingSala = false
+        })
     },
     makeQueryParamsConsumoInsumo (sortOrder, currentPage, perPage) {
       return sortOrder[0]

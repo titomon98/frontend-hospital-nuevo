@@ -11,10 +11,11 @@ Pendientes de revisión:
 19. El buscador tambien debe separarse en medicamento y anestesico
 20. Consumos en las 4 areas deben ir en orden alfabético y no en orden que se ingresaron
 10. El boton generar cuenta total de un paciente no permite generar el archivo despues de egresado
-
+24. Tampoco se puede ver un registro de sala de operaciones (Ver Sala de Operaciones).
 
 No completados:
-24. Tampoco se puede ver un registro de sala de operaciones (Ver Sala de Operaciones).
+21. Validación de consumos. Cada consumo debe tener un botón específico para validar, este botón debe aparecer solo para gerencia, contabilidad y enfermera graduada
+22. Tambien tiene que ser posible eliminar honorarios asi como los consumos, y en el mismo lugar, solo Gerencia y Administración
 6.⁠ ⁠La nota de ingreso de puede llenar en cualquier tipo de ingreso (ingreso, reingreso, ingreso de emergencia) pero ahorita aparece como motivo. Se debe dejar al asignar habitacion
 7.⁠ ⁠Añadir botones para que las notas de ingreso y notas de egreso puedan agregarse desde hospitalización
 16. Agregar notas de enfermería. Cada nota contiempla si es de día o de noche. De dia en color azul, de noche en color rojo.
@@ -27,5 +28,3 @@ No completados:
 14. En la cuenta parcial si aparece el rubro pero no el dinero
 15. Reingresar al paciente al pagar cuenta parcial
 18. No se desasigna el paciente al cambiar de habitacion
-21. Validación de consumos. Cada consumo debe tener un botón específico para validar, este botón debe aparecer solo para gerencia, contabilidad y enfermera graduada
-22. Tambien tiene que ser posible eliminar honorarios asi como los consumos, y en el mismo lugar, solo Gerencia y Administración
