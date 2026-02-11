@@ -70,6 +70,7 @@
             :fields="fields"
             pagination-path
             @vuetable:pagination-data="onPaginationData"
+            :row-class="getRowClass"
           >
             <template slot="actions" slot-scope="props">
                 <div class="button-container">
@@ -139,6 +140,7 @@
             :fields="fieldsComun"
             pagination-path
             @vuetable:pagination-data="onPaginationDataComun"
+            :row-class="getRowClass"
           >
             <template slot="actions" slot-scope="props">
                 <div class="button-container">
@@ -207,6 +209,7 @@
             :fields="fieldsQuirurgico"
             pagination-path
             @vuetable:pagination-data="onPaginationDataQuirurgico"
+            :row-class="getRowClass"
           >
             <template slot="actions" slot-scope="props">
                 <div class="button-container">
@@ -484,6 +487,18 @@ export default {
     }
   },
   methods: {
+    getRowClass (rowData) {
+      if (!rowData.fecha_consumo) return ''
+
+      const partes = rowData.fecha_consumo.split(' ')
+      if (partes.length < 2) return ''
+
+      const hora = parseInt(partes[1].split(':')[0])
+
+      return (hora >= 7 && hora < 19)
+        ? 'fila-dia'
+        : 'fila-noche'
+    },
     realizarBusqueda () {
       this.$refs.vuetable.refresh()
       this.fechaDesde = null
@@ -721,5 +736,13 @@ border: 1px solid #ddd;
 /* Estilo para filas alternas */
 .table tr:nth-child(even) {
 background-color: #f9f9f9; /* Color de fondo más claro para filas alternas */
+}
+
+.fila-dia {
+  background-color: #cfe2ff !important;  /* azul claro */
+}
+
+.fila-noche {
+  background-color: #f8d7da !important;  /* rojo claro */
 }
 </style>

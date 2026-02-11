@@ -460,10 +460,13 @@
               <b-form-group label="Duración Horas : Minutos">
                 <b-row>
                   <b-col md="6">
-                    <b-form-input type="number" v-model="salaOperaciones.horas" min="0" placeholder="Horas"></b-form-input>
+                    <b-form-input type="number" v-model="salaOperaciones.horas" min="2" placeholder="Horas"></b-form-input>
                   </b-col>
-                  <b-col md="6">
-                    <b-form-input type="number" v-model.trim="$v.salaOperaciones.minutos.$model" :min=1 :max=59 placeholder="Minutos"></b-form-input>
+                  <b-col md="6" v-if="salaOperaciones.horas == 2">
+                    <b-form-input type="number" v-model.trim="$v.salaOperaciones.minutos.$model" :min=30 :max=59 placeholder="Minutos"></b-form-input>
+                  </b-col>
+                  <b-col md="6" v-else-if="salaOperaciones.horas > 2">
+                    <b-form-input type="number" v-model.trim="$v.salaOperaciones.minutos.$model" :min=0 :max=59 placeholder="Minutos"></b-form-input>
                   </b-col>
                 </b-row>
               </b-form-group>
@@ -1764,8 +1767,8 @@ export default {
         oximetro: false,
         cauterio: false,
         monitor: false,
-        horas: null,
-        minutos: null,
+        horas: 2,
+        minutos: 30,
         categoria: null
       },
       preciosCategorias: {},
@@ -2398,7 +2401,7 @@ export default {
           const totalPagoExtra = parseFloat(tiempoExtra) * parseFloat(5.65)
           total += parseFloat(totalPagoExtra)
         }
-        this.TotalAPagar = parseFloat(total)
+        this.TotalAPagar = parseFloat(total).toFixed(2)
       } catch (error) {
         console.error('Error al calcular el total a pagar:', error)
         this.TotalAPagar = 0
@@ -2675,7 +2678,14 @@ export default {
       }
     },
     addSalaOperaciones () {
-      if (this.salaOperaciones.minutos > 0 || this.salaOperaciones.horas > 0) {
+      let totalHoras = this.salaOperaciones.horas
+      let totalMinutos = this.salaOperaciones.minutos
+
+      totalHoras = totalHoras * 60
+
+      let totalTiempo = totalHoras + totalMinutos
+
+      if (totalTiempo >= 150) {
         try {
           axios.post(apiUrl + '/salaOperaciones/created', {
             oximetro: this.salaOperaciones.oximetro,

@@ -1735,7 +1735,7 @@ ANTE MI
         const ExamenesTotal = data.examenes.reduce(
           (acc, item) => acc + Number(item.total),
           0
-        );
+        )
         const ServicioSalaOperacionesTotal = data.salaOperaciones.reduce((acc, item) => acc + parseFloat(item.total), 0)
         const TotalHonorarios = data.honorarios.reduce((acc, item) => acc + parseFloat(item.total), 0)
         const medicosOrdenados = data.honorarios.sort((a, b) => b.total - a.total)
