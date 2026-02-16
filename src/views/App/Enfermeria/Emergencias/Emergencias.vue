@@ -511,6 +511,7 @@
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
             />
+            <h4>Total de medicamentos: {{ totalMedicamentos }}</h4>
           </b-tab>
 
           <b-tab title="Anestésicos">
@@ -530,6 +531,7 @@
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
             />
+            <h4>Total de anestésicos: {{ totalAnestesicos }}</h4>
           </b-tab>
 
           <b-tab title="Quirúrgico">
@@ -547,6 +549,7 @@
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
             />
+            <h4>Total de material quirúrgico: {{ totalQuirurgico }}</h4>
           </b-tab>
 
           <b-tab title="Común">
@@ -564,12 +567,14 @@
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
             />
+            <h4>Total de material común: {{ totalComun }}</h4>
           </b-tab>
         </b-tabs>
       </b-form>
 
       <!-- Footer -->
       <template #modal-footer>
+        <h4>Total de consumos: {{ granTotalConsumos }}</h4>
         <b-button variant="primary" @click="onSave">Guardar</b-button>
         <b-button variant="danger" @click="closeModal('save')">Cancelar</b-button>
       </template>
@@ -666,6 +671,7 @@
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
             />
+            <h4>Total de medicamentos: {{ totalMedicamentos }}</h4>
           </b-tab>
 
           <b-tab title="Anestésicos">
@@ -685,6 +691,7 @@
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
             />
+            <h4>Total de anestésicos: {{ totalAnestesicos }}</h4>
           </b-tab>
 
           <b-tab title="Quirúrgico">
@@ -702,6 +709,7 @@
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
             />
+            <h4>Total de material quirúrgico: {{ totalQuirurgico }}</h4>
           </b-tab>
 
           <b-tab title="Común">
@@ -719,12 +727,14 @@
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
             />
+            <h4>Total de material común: {{ totalComun }}</h4>
           </b-tab>
         </b-tabs>
       </b-form>
 
       <!-- Footer -->
       <template #modal-footer>
+        <h4>Total de consumos: {{ granTotalConsumos }}</h4>
         <b-button variant="primary" @click="onSave">Guardar</b-button>
         <b-button variant="danger" @click="closeModal('save2')">Cancelar</b-button>
       </template>
@@ -1114,6 +1124,11 @@ export default {
   },
   data () {
     return {
+      totalMedicamentos: 0.0,
+      totalAnestesicos: 0.0,
+      totalComun: 0.0,
+      totalQuirurgico: 0.0,
+      granTotalConsumos: 0.0,
       resultados: null,
       campos: [
         { key: 'campo', label: 'Campo' },
@@ -2758,6 +2773,12 @@ export default {
         const response = await axios.get(apiUrl + `/cuentas/getSearch?search=${id}`)
         if (response.data && response.data.id) {
           this.idCuentaSeleccionada = response.data.id
+          const responseTotales = await axios.get(apiUrl + `/cuentas/getTotales?id=${this.idCuentaSeleccionada}`)
+          this.totalMedicamentos = responseTotales.data.totalMedicamentos
+          this.totalComun = responseTotales.data.totalComun
+          this.totalQuirurgico = responseTotales.data.totalQuirurgico
+          this.totalAnestesicos = responseTotales.data.totalAnestesicos
+          this.granTotalConsumos = parseFloat(this.totalMedicamentos) + parseFloat(this.totalAnestesicos) + parseFloat(this.totalComun) + parseFloat(this.totalQuirurgico)
           // Hospitalizacion, Quirofano, Emergencia, Intensivo
           this.apiBaseConsumoMedicamento = apiUrl + `/detalle_consumo_medicamentos/list/${response.data.id}/Emergencia`
           this.apiBaseConsumoAnestesicos = apiUrl + `/detalle_consumo_medicamentos/listAnestesicos/${response.data.id}/Emergencia`
