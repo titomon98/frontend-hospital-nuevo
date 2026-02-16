@@ -505,6 +505,7 @@
               :per-page="perPage"
               :reactive-api-url="true"
               :fields="fieldsConsumoInsumoMedicamento"
+              :row-class="getRowClass"
             ></vuetable>
             <vuetable-pagination-bootstrap
               ref="paginationConsumo"
@@ -523,6 +524,7 @@
               :per-page="perPage"
               :reactive-api-url="true"
               :fields="fieldsConsumoInsumoMedicamento"
+              :row-class="getRowClass"
             ></vuetable>
             <vuetable-pagination-bootstrap
               ref="paginationConsumo"
@@ -539,6 +541,7 @@
               :per-page="perPage"
               :reactive-api-url="true"
               :fields="fieldsConsumoInsumoQuirurgico"
+              :row-class="getRowClass"
             ></vuetable>
             <vuetable-pagination-bootstrap
               ref="paginationConsumo"
@@ -555,6 +558,7 @@
               :per-page="perPage"
               :reactive-api-url="true"
               :fields="fieldsConsumoInsumo"
+              :row-class="getRowClass"
             ></vuetable>
             <vuetable-pagination-bootstrap
               ref="paginationConsumo"
@@ -656,6 +660,7 @@
               :per-page="perPage"
               :reactive-api-url="true"
               :fields="fieldsConsumoInsumoMedicamento2"
+              :row-class="getRowClass"
             ></vuetable>
             <vuetable-pagination-bootstrap
               ref="paginationConsumo"
@@ -674,6 +679,7 @@
               :per-page="perPage"
               :reactive-api-url="true"
               :fields="fieldsConsumoInsumoMedicamento2"
+              :row-class="getRowClass"
             ></vuetable>
             <vuetable-pagination-bootstrap
               ref="paginationConsumo"
@@ -690,6 +696,7 @@
               :per-page="perPage"
               :reactive-api-url="true"
               :fields="fieldsConsumoInsumoQuirurgico2"
+              :row-class="getRowClass"
             ></vuetable>
             <vuetable-pagination-bootstrap
               ref="paginationConsumo"
@@ -706,6 +713,7 @@
               :per-page="perPage"
               :reactive-api-url="true"
               :fields="fieldsConsumoInsumo2"
+              :row-class="getRowClass"
             ></vuetable>
             <vuetable-pagination-bootstrap
               ref="paginationConsumo"
@@ -1769,6 +1777,18 @@ export default {
     }
   },
   methods: {
+    getRowClass (rowData) {
+      if (!rowData.createdAt) return ''
+
+      const partes = rowData.createdAt.split(' ')
+      if (partes.length < 2) return ''
+
+      const hora = parseInt(partes[1].split(':')[0])
+
+      return (hora >= 7 && hora < 19)
+        ? 'fila-dia'
+        : 'fila-noche'
+    },
     async cargarInsumos (tipo) {
       let endpoint = ''
       switch (tipo) {
@@ -1849,11 +1869,11 @@ export default {
             throw new Error(`Cantidad inválida para ${consumo.nombre}`)
           }
 
-          if (consumo.tipo === '0') {
+          if (consumo.tipo === '0' || consumo.tipo === '3') {
             await this.onSaveMedicamento(consumo)
           } else if (consumo.tipo === '1') {
             await this.onSaveQuirurgico(consumo)
-          } else {
+          } else if (consumo.tipo === '2') {
             await this.onSaveComunes(consumo)
           }
         }
@@ -3553,5 +3573,12 @@ export default {
 }
 .mt-negativo-r1{
   margin-top: -2%;
+}
+.fila-dia {
+  background-color: #cfe2ff !important;  /* azul claro */
+}
+
+.fila-noche {
+  background-color: #f8d7da !important;  /* rojo claro */
 }
 </style>
