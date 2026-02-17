@@ -10,12 +10,13 @@ Completados:
 23. No está tomando el monitor en sala de operaciones, es por dos horas y media. No estaba tomando monitor porque estaba escrito en minúscula - Validado el calculo de sala
 24. Tampoco se puede ver un registro de sala de operaciones (Ver Sala de Operaciones).
 26. Las dos horas y media tienen que estar precargadas en sala de operaciones - Validado
+27. Poner color a los turnos en Consumos de hospitalizacion, quirofano, intensivos, emergencia y en la vista de consumos. Dia: azul/celeste 7am a 6:59pm. Noche: rojo 7pm a 6:59am - Replicar en Intensivo, Quirofano y Emergencia - Validado
 
 Pendientes de revisión:
 4.⁠ ⁠Agregar total al final de las tablas de Hospitalizacion/Intensivo/Quirofano/Emergencia para saber cuanto va de los consumos
-27. Poner color a los turnos en Consumos de hospitalizacion, quirofano, intensivos, emergencia y en la vista de consumos. Dia: azul/celeste 7am a 6:59pm. Noche: rojo 7pm a 6:59am - Replicar en Intensivo, Quirofano y Emergencia
 
 En desarrollo:
+30. El agregar los totales hace que no se vean bien los consumos
 16. Agregar notas de enfermería. Cada nota contiempla si es de día o de noche. De dia en color azul, de noche en color rojo.
 2.⁠ ⁠Ver porque el paciente siempre se ingresa en 1. Cambiar cuando se traslade. Agregar el tipo de paciente a los 4 menus de hospitalizacion
 9. Agregar calendario y hora al egreso en el modal de egreso, debajo de motivo de egreso
@@ -33,3 +34,5 @@ No completados:
 14. En la cuenta parcial si aparece el rubro pero no el dinero
 15. Reingresar al paciente al pagar cuenta parcial
 25. En cuenta total agregar precio unitario y luego la siguiente columna es el precio total
+28. En paquetes no se pueden agregar los medicamentos "sin inventariar".
+29. El vender paquetes es en quirofano
