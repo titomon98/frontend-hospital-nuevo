@@ -11,21 +11,22 @@ Completados:
 24. Tampoco se puede ver un registro de sala de operaciones (Ver Sala de Operaciones).
 26. Las dos horas y media tienen que estar precargadas en sala de operaciones - Validado
 27. Poner color a los turnos en Consumos de hospitalizacion, quirofano, intensivos, emergencia y en la vista de consumos. Dia: azul/celeste 7am a 6:59pm. Noche: rojo 7pm a 6:59am - Replicar en Intensivo, Quirofano y Emergencia - Validado
+31. Agregar registro de creacion en ordenes medicas y notas de enfermeria
 
 Pendientes de revisión:
 4.⁠ ⁠Agregar total al final de las tablas de Hospitalizacion/Intensivo/Quirofano/Emergencia para saber cuanto va de los consumos
+30. El agregar los totales hace que no se vean bien los consumos
 
 En desarrollo:
-30. El agregar los totales hace que no se vean bien los consumos
 16. Agregar notas de enfermería. Cada nota contiempla si es de día o de noche. De dia en color azul, de noche en color rojo.
 2.⁠ ⁠Ver porque el paciente siempre se ingresa en 1. Cambiar cuando se traslade. Agregar el tipo de paciente a los 4 menus de hospitalizacion
 9. Agregar calendario y hora al egreso en el modal de egreso, debajo de motivo de egreso
 1.⁠ ⁠⁠Si hay un paciente en la noche con expediente incompleto, debe permitir agregar los consumos para el ingreso de enfermería, aunque el paciente no esté lleno en caja
 6.⁠ ⁠La nota de ingreso de puede llenar en cualquier tipo de ingreso (ingreso, reingreso, ingreso de emergencia) pero ahorita aparece como motivo. Se debe dejar al asignar habitacion
 7.⁠ ⁠Añadir botones para que las notas de ingreso y notas de egreso puedan agregarse desde hospitalización
+20. Consumos en las 4 areas debe tener botones para ordenar por: alfabetico A-Z, alfabetico Z-A, fecha y hora de ingreso antiguo-reciente, fecha y hora de ingreso reciente-antiguo
 
 No completados:
-20. Consumos en las 4 areas debe tener botones para ordenar por: alfabetico A-Z, alfabetico Z-A, fecha y hora de ingreso antiguo-reciente, fecha y hora de ingreso reciente-antiguo
 18. No se desasigna el paciente al cambiar de habitacion
 17. Los anestesicos y medicamentos van en rubros diferentes en cuenta parcial. Por ahora no hay datos en anestesicos
 21. Validación de consumos. Cada consumo debe tener un botón específico para validar, este botón debe aparecer solo para gerencia, contabilidad y enfermera graduada

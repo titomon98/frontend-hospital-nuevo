@@ -126,6 +126,30 @@
         >
       </template>
     </b-modal>
+    <b-modal size="lg" id="modal-add-notas-enfermeria" ref="modal-add-notas-enfermeria" title="Notas de enfermería">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <b-form @submit="$event.preventDefault()">
+        <b-form-group label="Contenido:">
+          <quill-editor v-model="form.notas" :options="editorOptions3" class="custom-editor"></quill-editor>
+        </b-form-group>
+      </b-form>
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click="saveNotas()"
+          >Guardar</b-button
+        >
+        <b-button variant="danger" @click="closeModal('add-notas-enfermeria')"
+          >Cancelar</b-button
+        >
+      </template>
+    </b-modal>
     <b-modal size="lg" id="modal-ver-receta" ref="modal-ver-receta" :title="tituloVer">
       <b-alert
         :show="alertCountDownError"
@@ -146,19 +170,8 @@
           :fields="fieldsReceta"
           pagination-path
           @vuetable:pagination-data="onPaginationDataReceta"
+          :row-class="tituloVer === 'Ver notas de enfermería del paciente' ? getRowClass : () => ''"
         >
-          <template slot="actions" slot-scope="props">
-            <b-button-group>
-              <b-button
-                v-b-tooltip.top="'Generar voucher de pago'"
-                @click="voucherData(props.rowData)"
-                class="mb-2"
-                size="sm"
-                variant="outline-info"
-                ><i :class="'fas fa-money-bill'"
-              /></b-button>
-            </b-button-group>
-          </template>
         </vuetable>
         <vuetable-pagination-bootstrap
           ref="paginationReceta"
@@ -239,18 +252,6 @@
           pagination-path
           @vuetable:pagination-data="onPaginationDataConsumo"
         >
-          <template slot="actions" slot-scope="props">
-            <b-button-group>
-              <b-button
-                v-b-tooltip.top="'Generar voucher de pago'"
-                @click="voucherData(props.rowData)"
-                class="mb-2"
-                size="sm"
-                variant="outline-info"
-                ><i :class="'fas fa-money-bill'"
-              /></b-button>
-            </b-button-group>
-          </template>
         </vuetable>
         <vuetable-pagination-bootstrap
           ref="paginationConsumo"
@@ -286,18 +287,6 @@
           pagination-path
           @vuetable:pagination-data="onPaginationDataConsumo"
         >
-          <template slot="actions" slot-scope="props">
-            <b-button-group>
-              <b-button
-                v-b-tooltip.top="'Generar voucher de pago'"
-                @click="voucherData(props.rowData)"
-                class="mb-2"
-                size="sm"
-                variant="outline-info"
-                ><i :class="'fas fa-money-bill'"
-              /></b-button>
-            </b-button-group>
-          </template>
         </vuetable>
         <vuetable-pagination-bootstrap
           ref="paginationConsumo"
@@ -1210,7 +1199,8 @@ export default {
         orden: null,
         id_receta: null,
         cantidad: null,
-        selected_insumo: '0'
+        selected_insumo: '0',
+        notas: null
       },
       servicio: null,
       alertSecs: 5,
@@ -1295,7 +1285,7 @@ export default {
         {
           name: 'createdAt',
           sortField: 'createdAt',
-          title: 'Fecha de creación',
+          title: 'Fecha y hora de creación',
           dataClass: 'list-item-heading'
         }
       ],
@@ -1994,6 +1984,16 @@ export default {
           this.form.selected_insumo = '0'
           break
         }
+        case 'add-notas-enfermeria': {
+          this.$v.$reset()
+          this.$refs['modal-add-notas-enfermeria'].hide()
+          this.form.id = 0
+          this.form.notas = null
+          this.form.name = ''
+          this.form.state = 1
+          this.form.selected_insumo = '0'
+          break
+        }
         case 'ver-receta': {
           this.$v.$reset()
           this.$refs['modal-ver-receta'].hide()
@@ -2278,11 +2278,15 @@ export default {
       this.$refs['modal-add-orden'].show()
       this.form.id = id
     },
+    addNotasEnfermeria (id) {
+      this.$refs['modal-add-notas-enfermeria'].show()
+      this.form.id = id
+    },
     saveReceta () {
       const me = this
       if (me.form.receta !== null) {
         axios.post(apiUrl + '/recetas/create', {
-          form: me.form })
+          form: me.form, user: me.currentUser.user })
           .then((response) => {
             me.alertVariant = 'primary'
             me.showAlert()
@@ -2303,7 +2307,7 @@ export default {
       const me = this
       if (me.form.evolucion !== null) {
         axios.post(apiUrl + '/evoluciones/create', {
-          form: me.form })
+          form: me.form, user: me.currentUser.user })
           .then((response) => {
             me.alertVariant = 'primary'
             me.showAlert()
@@ -2324,13 +2328,34 @@ export default {
       const me = this
       if (me.form.orden !== null) {
         axios.post(apiUrl + '/ordenes/create', {
-          form: me.form })
+          form: me.form, user: me.currentUser.user })
           .then((response) => {
             me.alertVariant = 'primary'
             me.showAlert()
             me.alertText = 'Se ha creado la orden médica exitosamente'
             me.$refs.vuetable.refresh()
             me.closeModal('add-orden')
+            me.form.id = 0
+          })
+          .catch((error) => {
+            me.alertVariant = 'danger'
+            me.showAlertError()
+            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+            console.error('Error!', error)
+          })
+      }
+    },
+    saveNotas () {
+      const me = this
+      if (me.form.notas !== null) {
+        axios.post(apiUrl + '/notas/create', {
+          form: me.form, user: me.currentUser.user })
+          .then((response) => {
+            me.alertVariant = 'primary'
+            me.showAlert()
+            me.alertText = 'Se ha creado la nota de enfermería exitosamente'
+            me.$refs.vuetable.refresh()
+            me.closeModal('add-notas-enfermeria')
             me.form.id = 0
           })
           .catch((error) => {
@@ -2358,6 +2383,12 @@ export default {
       this.getDataOrdenes(id)
       this.form.id_receta = id
       this.tituloVer = 'Ver órdenes del paciente'
+    },
+    verNotasEnfermeria (id) {
+      this.$refs['modal-ver-receta'].show()
+      this.getDataNotas(id)
+      this.form.id_receta = id
+      this.tituloVer = 'Ver notas de enfermería del paciente'
     },
     addServicio (id) {
       this.$refs['modal-add-servicio'].show()
@@ -2513,8 +2544,8 @@ export default {
       this.totalP = paginationData.total
       this.lastPageP = paginationData.last_page
       this.items = paginationData.data.map(item => {
-        item.createdAt = moment(item.createdAt).format('DD/MM/YYYY')
-        item.updatedAt = moment(item.updatedAt).format('DD/MM/YYYY')
+        item.createdAt = moment(item.createdAt).format('DD/MM/YYYY HH:mm:ss')
+        item.updatedAt = moment(item.updatedAt).format('DD/MM/YYYY HH:mm:ss')
         return {
           createdAt: item.createdAt,
           updatedAt: item.updatedAt
@@ -2536,6 +2567,10 @@ export default {
     getDataOrdenes (id) {
       this.form.id = id
       this.apiBaseReceta = apiUrl + `/ordenes/getId?id=${id}`
+    },
+    getDataNotas (id) {
+      this.form.id = id
+      this.apiBaseReceta = apiUrl + `/notas/getId?id=${id}`
     },
     onSearchServicios (search, loading) {
       if (search.length) {
@@ -2574,8 +2609,8 @@ export default {
       this.totalP = paginationData.total
       this.lastPageP = paginationData.last_page
       this.items = paginationData.data.map(item => {
-        item.createdAt = moment(item.createdAt).format('DD/MM/YYYY')
-        item.updatedAt = moment(item.updatedAt).format('DD/MM/YYYY')
+        item.createdAt = moment(item.createdAt).format('DD/MM/YYYY HH:mm:ss')
+        item.updatedAt = moment(item.updatedAt).format('DD/MM/YYYY HH:mm:ss')
         return {
           createdAt: item.createdAt,
           updatedAt: item.updatedAt
@@ -2774,11 +2809,11 @@ export default {
         if (response.data && response.data.id) {
           this.idCuentaSeleccionada = response.data.id
           const responseTotales = await axios.get(apiUrl + `/cuentas/getTotales?id=${this.idCuentaSeleccionada}`)
-          this.totalMedicamentos = responseTotales.data.totalMedicamentos
-          this.totalComun = responseTotales.data.totalComun
-          this.totalQuirurgico = responseTotales.data.totalQuirurgico
-          this.totalAnestesicos = responseTotales.data.totalAnestesicos
-          this.granTotalConsumos = parseFloat(this.totalMedicamentos) + parseFloat(this.totalAnestesicos) + parseFloat(this.totalComun) + parseFloat(this.totalQuirurgico)
+          this.totalMedicamentos = responseTotales.data.totalMedicamentos.toFixed(2)
+          this.totalComun = responseTotales.data.totalComun.toFixed(2)
+          this.totalQuirurgico = responseTotales.data.totalQuirurgico.toFixed(2)
+          this.totalAnestesicos = responseTotales.data.totalAnestesicos.toFixed(2)
+          this.granTotalConsumos = (parseFloat(this.totalMedicamentos) + parseFloat(this.totalAnestesicos) + parseFloat(this.totalComun) + parseFloat(this.totalQuirurgico)).toFixed(2)
           // Hospitalizacion, Quirofano, Emergencia, Intensivo
           this.apiBaseConsumoMedicamento = apiUrl + `/detalle_consumo_medicamentos/list/${response.data.id}/Emergencia`
           this.apiBaseConsumoAnestesicos = apiUrl + `/detalle_consumo_medicamentos/listAnestesicos/${response.data.id}/Emergencia`
