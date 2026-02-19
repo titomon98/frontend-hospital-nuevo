@@ -3159,7 +3159,7 @@ export default {
         const response = await axios.get(apiUrl + `/cuentas/getSearch?search=${id}`)
         if (response.data && response.data.id) {
           this.idCuentaSeleccionada = response.data.id
-          const responseTotales = await axios.get(apiUrl + `/cuentas/getTotales?id=${this.idCuentaSeleccionada}`)
+          const responseTotales = await axios.get(apiUrl + `/cuentas/getTotales/Quirofano?id=${this.idCuentaSeleccionada}`)
           this.totalMedicamentos = responseTotales.data.totalMedicamentos.toFixed(2)
           this.totalComun = responseTotales.data.totalComun.toFixed(2)
           this.totalQuirurgico = responseTotales.data.totalQuirurgico.toFixed(2)

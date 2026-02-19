@@ -419,6 +419,7 @@
                                     title: getRoomTooltip(habitacion.estado)
                                   }"
                                   block
+                                  :disabled="habitacion.estado !== 1"
                                 >
                                  {{ habitacion.numero }}
                                 </b-button>
@@ -504,67 +505,69 @@
               :perPage="perPage"
             >
             </datatable-heading>
-            <vuetable
-              ref="vuetable"
-              class="table-divided order-with-arrow"
-              :api-url="apiBase"
-              :query-params="makeQueryParams"
-              :per-page="perPage"
-              :reactive-api-url="true"
-              :fields="fields"
-              pagination-path
-              @vuetable:pagination-data="onPaginationData"
-            >
-              <!-- Estado -->
-              <div slot="estado" slot-scope="props">
-                <button v-if="props.rowData.estado === 1" type="button" class="btn btn-success" disabled>INGRESADO EN HOSPITAL</button>
-                <button v-if="props.rowData.estado === 2" type="button" class="btn btn-warning" disabled>EGRESADO</button>
-                <button v-if="props.rowData.estado === 3" type="button" class="btn btn-success" disabled>INGRESADO EN QUIRÓFANO</button>
-                <button v-if="props.rowData.estado === 4" type="button" class="btn btn-success" disabled>INGRESADO EN INTENSIVO</button>
-                <button v-if="props.rowData.estado === 5" type="button" class="btn btn-success" disabled>INGRESADO EN EMERGENCIA</button>
-                <button v-if="props.rowData.estado === 6" type="button" class="btn btn-dark" disabled>DESAHUCIADO</button>
-                <button v-if="props.rowData.estado === 7" type="button" class="btn btn-dark" disabled>ALTA MÉDICA</button>
-                <button v-if="props.rowData.estado === 8" type="button" class="btn btn-dark" disabled>EGRESO CONTRAINDICADO</button>
-                <button v-if="props.rowData.estado === 9" type="button" class="btn btn-dark" disabled>REFERIDO A OTRA UBICACIÓN</button>
-                <button v-if="props.rowData.estado === 10" type="button" class="btn btn-dark" disabled>EXPEDIENTE Y ASIGNACIÓN INCOMPLETOS</button>
-                <button v-if="props.rowData.estado === 11" type="button" class="btn btn-dark" disabled>EXPEDIENTE INCOMPLETO</button>
-                <button v-if="props.rowData.estado === 0" type="button" class="btn btn-dark" disabled>FALLECIDO</button>
-              </div>
-              <!-- Botones -->
-              <template slot="actions" slot-scope="props">
-                <b-button-group>
-                    <b-button
-                        v-b-tooltip.top="'Asignar habitación'"
-                        @click="setData(props.rowData)
-                        $bvModal.show('modal-1-habitacion')
-                        getDoctors()"
-                        class="mb-2 mt-2 button-spacing"
-                        size="sm"
-                        variant="success"
-                        :disabled="!hasPermission([5])"
-                    >
-                        Asignar habitación
-                    </b-button>
-                    <b-button
-                        v-b-tooltip.top="'Asignar médico'"
-                        @click="setData(props.rowData)
-                        $bvModal.show('modal-3-medico')
-                        getDoctors()"
-                        class="mb-2 mt-2 button-spacing"
-                        size="sm"
-                        variant="dark"
-                        :disabled="!hasPermission([5])"
-                    >
-                        Asignar médico
-                    </b-button>
-                </b-button-group>
-              </template>
-              <!-- Paginacion -->
-            </vuetable>
-            <vuetable-pagination-bootstrap
+            <div class="table-responsive">
+              <vuetable
+                ref="vuetable"
+                class="table-divided order-with-arrow"
+                :api-url="apiBase"
+                :query-params="makeQueryParams"
+                :per-page="perPage"
+                :reactive-api-url="true"
+                :fields="fields"
+                pagination-path
+                @vuetable:pagination-data="onPaginationData"
+              >
+                <!-- Estado -->
+                <div slot="estado" slot-scope="props">
+                  <button v-if="props.rowData.estado === 1" type="button" class="btn btn-success" disabled>INGRESADO EN HOSPITAL</button>
+                  <button v-if="props.rowData.estado === 2" type="button" class="btn btn-warning" disabled>EGRESADO</button>
+                  <button v-if="props.rowData.estado === 3" type="button" class="btn btn-success" disabled>INGRESADO EN QUIRÓFANO</button>
+                  <button v-if="props.rowData.estado === 4" type="button" class="btn btn-success" disabled>INGRESADO EN INTENSIVO</button>
+                  <button v-if="props.rowData.estado === 5" type="button" class="btn btn-success" disabled>INGRESADO EN EMERGENCIA</button>
+                  <button v-if="props.rowData.estado === 6" type="button" class="btn btn-dark" disabled>DESAHUCIADO</button>
+                  <button v-if="props.rowData.estado === 7" type="button" class="btn btn-dark" disabled>ALTA MÉDICA</button>
+                  <button v-if="props.rowData.estado === 8" type="button" class="btn btn-dark" disabled>EGRESO CONTRAINDICADO</button>
+                  <button v-if="props.rowData.estado === 9" type="button" class="btn btn-dark" disabled>REFERIDO A OTRA UBICACIÓN</button>
+                  <button v-if="props.rowData.estado === 10" type="button" class="btn btn-dark" disabled>EXPEDIENTE Y ASIGNACIÓN INCOMPLETOS</button>
+                  <button v-if="props.rowData.estado === 11" type="button" class="btn btn-dark" disabled>EXPEDIENTE INCOMPLETO</button>
+                  <button v-if="props.rowData.estado === 0" type="button" class="btn btn-dark" disabled>FALLECIDO</button>
+                </div>
+                <!-- Botones -->
+                <template slot="actions" slot-scope="props">
+                  <b-button-group>
+                      <b-button
+                          v-b-tooltip.top="'Asignar habitación'"
+                          @click="setData(props.rowData)
+                          $bvModal.show('modal-1-habitacion')
+                          getDoctors()"
+                          class="mb-2 mt-2 button-spacing"
+                          size="sm"
+                          variant="success"
+                          :disabled="!hasPermission([5])"
+                      >
+                          Asignar habitación
+                      </b-button>
+                      <b-button
+                          v-b-tooltip.top="'Asignar médico'"
+                          @click="setData(props.rowData)
+                          $bvModal.show('modal-3-medico')
+                          getDoctors()"
+                          class="mb-2 mt-2 button-spacing"
+                          size="sm"
+                          variant="dark"
+                          :disabled="!hasPermission([5])"
+                      >
+                          Asignar médico
+                      </b-button>
+                  </b-button-group>
+                </template>
+                <!-- Paginacion -->
+              </vuetable>
+              <vuetable-pagination-bootstrap
                 ref="pagination"
                 @vuetable-pagination:change-page="onChangePage"
               />
+            </div>
           </template>
         </iq-card>
       </b-col>

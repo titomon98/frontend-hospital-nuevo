@@ -483,6 +483,7 @@
 
         <!-- Tabla de consumos ya registrados -->
         <h5 class="mt-4">CONSUMOS REALIZADOS</h5>
+
         <b-tabs content-class="mt-3">
           <b-tab title="Medicamento" active>
             <vuetable
@@ -643,6 +644,7 @@
 
         <!-- Tabla de consumos ya registrados -->
         <h5 class="mt-4">CONSUMOS REALIZADOS</h5>
+
         <b-tabs content-class="mt-3">
           <b-tab title="Medicamento" active>
             <vuetable
@@ -2779,7 +2781,7 @@ export default {
         const response = await axios.get(apiUrl + `/cuentas/getSearch?search=${id}`)
         if (response.data && response.data.id) {
           this.idCuentaSeleccionada = response.data.id
-          const responseTotales = await axios.get(apiUrl + `/cuentas/getTotales?id=${this.idCuentaSeleccionada}`)
+          const responseTotales = await axios.get(apiUrl + `/cuentas/getTotales/Hospitalizacion?id=${this.idCuentaSeleccionada}`)
           this.totalMedicamentos = responseTotales.data.totalMedicamentos.toFixed(2)
           this.totalComun = responseTotales.data.totalComun.toFixed(2)
           this.totalQuirurgico = responseTotales.data.totalQuirurgico.toFixed(2)
