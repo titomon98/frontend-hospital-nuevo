@@ -733,6 +733,7 @@
         <p><strong>Total consumo de servicios:</strong> Q{{ reporte.ConsumoTotal }}</p>
         <p><strong>Total consumo de materiales comunes:</strong> Q{{ reporte.ConsumoComunTotal }}</p>
         <p><strong>Total consumo de medicamentos:</strong> Q{{ reporte.ConsumoMedicamentosTotal }}</p>
+        <p><strong>Total consumo de anestésicos:</strong> Q{{ reporte.ConsumoAnestesicosTotal }}</p>
         <p><strong>Total consumo de materiales quirúrgicos:</strong> Q{{ reporte.ConsumoQuirurgicosTotal }}</p>
         <p><strong>Total de exámenes realizados:</strong> Q{{ reporte.ExamenesTotal }}</p>
         <p><strong>Total de servicios en sala de operaciones:</strong> Q{{ reporte.ServicioSalaOperacionesTotal }}</p>
@@ -2902,6 +2903,7 @@ export default {
       const ConsumoTotal = data.consumos.reduce((acc, item) => acc + parseFloat(item.subtotal), 0)
       const ConsumoComunTotal = data.consumosComunes.reduce((acc, item) => acc + parseFloat(item.total), 0)
       const ConsumoMedicamentosTotal = data.consumosMedicamentos.reduce((acc, item) => acc + parseFloat(item.total), 0)
+      const ConsumoAnestesicosTotal = data.consumosAnestesicos.reduce((acc, item) => acc + parseFloat(item.total), 0)
       let ConsumoQuirurgicosTotal = data.consumosQuirurgicos.reduce((acc, item) => acc + parseFloat(item.total), 0)
       const ExamenesTotal = data.examenes.reduce((acc, item) => acc + item.total, 0)
       const ServicioSalaOperacionesTotal = data.salaOperaciones.reduce((acc, item) => acc + parseFloat(item.total), 0)
@@ -2909,6 +2911,7 @@ export default {
       totalDeuda = parseFloat(ConsumoTotal) +
                   parseFloat(ConsumoComunTotal) +
                   parseFloat(ConsumoMedicamentosTotal) +
+                  parseFloat(ConsumoAnestesicosTotal) +
                   parseFloat(ConsumoQuirurgicosTotal) +
                   parseFloat(ExamenesTotal) +
                   parseFloat(ServicioSalaOperacionesTotal)
@@ -2917,6 +2920,7 @@ export default {
         ConsumoTotal: this.formatearMonto(ConsumoTotal),
         ConsumoComunTotal: this.formatearMonto(ConsumoComunTotal),
         ConsumoMedicamentosTotal: this.formatearMonto(ConsumoMedicamentosTotal),
+        ConsumoAnestesicosTotal: this.formatearMonto(ConsumoAnestesicosTotal),
         ConsumoQuirurgicosTotal: this.formatearMonto(ConsumoQuirurgicosTotal),
         ExamenesTotal: this.formatearMonto(ExamenesTotal),
         ServicioSalaOperacionesTotal: this.formatearMonto(ServicioSalaOperacionesTotal),
@@ -2956,6 +2960,7 @@ export default {
         const ConsumoTotal = data.consumos.reduce((acc, item) => acc + parseFloat(item.subtotal), 0)
         const ConsumoComunTotal = data.consumosComunes.reduce((acc, item) => acc + parseFloat(item.total), 0)
         const ConsumoMedicamentosTotal = data.consumosMedicamentos.reduce((acc, item) => acc + parseFloat(item.total), 0)
+        const ConsumoAnestesicosTotal = data.consumosAnestesicos.reduce((acc, item) => acc + parseFloat(item.total), 0)
         let ConsumoQuirurgicosTotal = data.consumosQuirurgicos.reduce((acc, item) => acc + parseFloat(item.total), 0)
         const ExamenesTotal = data.examenes.reduce((acc, item) => acc + parseFloat(item.total), 0)
         const ServicioSalaOperacionesTotal = data.salaOperaciones.reduce((acc, item) => acc + parseFloat(item.total), 0)
@@ -2966,6 +2971,7 @@ export default {
           ConsumoTotal +
           ConsumoComunTotal +
           ConsumoMedicamentosTotal +
+          ConsumoAnestesicosTotal +
           ConsumoQuirurgicosTotal +
           ExamenesTotal +
           ServicioSalaOperacionesTotal +
@@ -2975,6 +2981,7 @@ export default {
           ConsumoTotal +
           ConsumoComunTotal +
           ConsumoMedicamentosTotal +
+          ConsumoAnestesicosTotal +
           ConsumoQuirurgicosTotal +
           ServicioSalaOperacionesTotal +
           hospitalizacion
@@ -3016,7 +3023,7 @@ export default {
             ['SALA DE OPERACIONES', `Q${ServicioSalaOperacionesTotal.toFixed(2)}`],
             ['CONSUMO MEDICAMENTOS', `Q${ConsumoMedicamentosTotal.toFixed(2)}`],
             ['MATERIAL MEDICO QUIRÚRGICO', `Q${ConsumoQuirurgicosTotal.toFixed(2)}`],
-            ['ANESTESICOS', ''],
+            ['ANESTESICOS', `Q${ConsumoAnestesicosTotal.toFixed(2)}`],
             ['MATERIAL COMÚN', `Q${ConsumoComunTotal.toFixed(2)}`],
             ['RECUPERACION', ''],
             ['INTENSIVO', `Q 0.00`],
