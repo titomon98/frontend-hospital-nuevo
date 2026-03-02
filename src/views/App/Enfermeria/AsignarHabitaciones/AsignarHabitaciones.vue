@@ -372,62 +372,56 @@
                             v-model="form.tipo_paciente"
                             value="0"
                             name="customRadio"
-                            @change="getHabitaciones(form.tipo_paciente)"
+                            @change="getHabitaciones()"
                         >Normal</b-form-radio>
                         <b-form-radio
                             v-model="form.tipo_paciente"
                             value="1"
                             name="customRadio"
-                            @change="getHabitaciones(form.tipo_paciente)"
+                            @change="getHabitaciones()"
                         >Ambulatorio</b-form-radio>
                         </b-form-group>
                     </b-col>
                     <b-col md="7">
-                        <b-form-group label="Cuartos">
-                          <div v-for="(tipo, index) in tiposHabitaciones" :key="tipo">
-                            <b-row>
-                              <b-col cols="4">
-                                <h6 v-if="(form.estudioDeSueno != 1 && form.estudioDeSueno != 2) || index == 2" class="mt-2">{{ NombreHabitaciones[index] }}</h6>
-                                  <b-form-checkbox
-                                    v-if="form.selectedOption == 'hospi'"
-                                    v-model="form.estudioDeSueno"
-                                    value="1"
-                                    class="mt-2 mb-4"
-                                  >
-                                    Estudio de sueño
-                                  </b-form-checkbox>
-                                  <b-form-checkbox
-                                    v-if="form.selectedOption == 'hospi'"
-                                    v-model="form.estudioDeSueno"
-                                    value="2"
-                                    class="mt-2 mb-4"
-                                  >
-                                    Quimioterapia
-                                  </b-form-checkbox>
-                              </b-col>
-                              <b-col
-                                v-for="habitacion in habitacionesPorTipo(tipo)"
-                                :key="habitacion.id"
-                                cols="2"
-                              >
-                                <b-button
-                                  :variant="getButtonVariant(habitacion)"
-                                  @click="form.habitacion = habitacion.id"
-                                  class="mb-4 room-button"
-                                  :class="{ 'disabled-room': habitacion.estado !== 1 }"
-                                  v-b-tooltip.hover="{
-                                    title: getRoomTooltip(habitacion.estado)
-                                  }"
-                                  block
-                                  :disabled="habitacion.estado !== 1"
-                                >
-                                 {{ habitacion.numero }}
-                                </b-button>
-                              </b-col>
-                            </b-row>
-                          </div>
-                        </b-form-group>
-                    </b-col>
+                    <b-form-group label="Cuartos">
+                      <div v-for="item in tiposHabitacionesFiltrados" :key="item.tipo">
+                        <b-row>
+                          <b-col cols="4">
+                            <h6 class="mt-2">{{ item.nombre }}</h6>
+                            <b-form-checkbox
+                              v-if="form.selectedOption == 'hospi'"
+                              v-model="form.estudioDeSueno"
+                              value="1"
+                              class="mt-2 mb-4"
+                            >Estudio de sueño</b-form-checkbox>
+                            <b-form-checkbox
+                              v-if="form.selectedOption == 'hospi'"
+                              v-model="form.estudioDeSueno"
+                              value="2"
+                              class="mt-2 mb-4"
+                            >Quimioterapia</b-form-checkbox>
+                          </b-col>
+                          <b-col
+                            v-for="habitacion in habitacionesPorTipo(item.tipo)"
+                            :key="habitacion.id"
+                            cols="2"
+                          >
+                            <b-button
+                              :variant="getButtonVariant(habitacion)"
+                              @click="form.habitacion = habitacion.id"
+                              class="mb-4 room-button"
+                              :class="{ 'disabled-room': habitacion.estado !== 1 }"
+                              v-b-tooltip.hover="{ title: getRoomTooltip(habitacion.estado) }"
+                              block
+                              :disabled="habitacion.estado !== 1"
+                            >
+                              {{ habitacion.numero }}
+                            </b-button>
+                          </b-col>
+                        </b-row>
+                      </div>
+                    </b-form-group>
+                  </b-col>
                 </b-row>
             </b-card-body>
           </b-card>
@@ -596,8 +590,8 @@ export default {
   setup () {
     return { $v: useVuelidate() }
   },
-  beforeMount () {
-    this.getHabitaciones(0)
+  async beforeMount () {
+    this.getHabitaciones()
   },
   mounted () {
     xray.index()
@@ -774,8 +768,13 @@ export default {
           width: '25%'
         }
       ],
-      tiposHabitaciones: ['Privada', 'Especial', 'Semi-privada', 'Intensivo', 'Intermedio'],
-      NombreHabitaciones: ['Cuartos Privados', 'Cuartos Especiales', 'Cuartos Semi-privados', 'Intensivo', 'Intermedio']
+      tiposHabitaciones: [
+        { tipo: 'Privada', nombre: 'Cuartos Privados' },
+        { tipo: 'Especial', nombre: 'Cuartos Especiales' },
+        { tipo: 'Semi-privada', nombre: 'Cuartos Semi-privados' },
+        { tipo: 'Intensivo', nombre: 'Intensivo' },
+        { tipo: 'Intermedio', nombre: 'Intermedio' }
+      ]
     }
   },
   validations () {
@@ -825,9 +824,16 @@ export default {
     }
   },
   computed: {
+    tiposHabitacionesFiltrados () {
+      if (this.form.selectedOption === 'intensivo') {
+        return this.tiposHabitaciones.filter(t => t.tipo.toLowerCase() === 'intensivo')
+      }
+      return this.tiposHabitaciones
+    },
     habitacionesPorTipo () {
+      console.log(this.habitaciones)
       return (tipo) => {
-        return this.habitaciones.filter(habitacion => habitacion.tipo.toUpperCase() === tipo.toUpperCase())
+        return this.habitaciones.filter(h => h.tipo.toUpperCase() === tipo.toUpperCase())
       }
     },
     ...mapGetters({
@@ -1031,7 +1037,7 @@ export default {
         this.cuentas = response.data
       })
     },
-    getDoctors (search, loading) {
+    getDoctors (search) {
       axios.get(apiUrl + '/medicos/getSearch',
         {
           params: {
@@ -1043,13 +1049,11 @@ export default {
           value: medico.id,
           text: medico.nombre
         }))
-        loading(false)
       })
     },
-    onSearchMedicos (search, loading) {
+    onSearchMedicos (search) {
       if (search.length) {
-        loading(true)
-        this.getDoctors(search, loading)
+        this.getDoctors(search)
       }
     },
     onPatientQuit () {
@@ -1145,13 +1149,15 @@ export default {
           console.error('Error!', error)
         })
     },
-    getHabitaciones (num) {
-      axios.get(apiUrl + '/habitaciones/getAll', {
-        params: {
-          tipo: num
-        }
+    getHabitaciones () {
+      let num = 0
+      return axios.get(apiUrl + '/habitaciones/getAll', {
+        params: { tipo: num }
       }).then((response) => {
         this.habitaciones = response.data
+        console.log('Habitaciones cargadas:', this.habitaciones) // Para verificar
+      }).catch((error) => {
+        console.error('Error al cargar habitaciones:', error)
       })
     }
   }
