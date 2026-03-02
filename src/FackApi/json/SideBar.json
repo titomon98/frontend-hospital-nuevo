@@ -228,8 +228,8 @@
         "rol": [1, 3, 5, 9, 11]
       },
       {
-        "title": "Consumos",
-        "name": "Consumos",
+        "title": "Control de Consumos",
+        "name": "Control de Consumos",
         "is_active": false,
         "link": {
           "name": "enfermeria.hospitalizacionEnfermeras"
@@ -238,6 +238,30 @@
         "is_icon_class": true,
         "icon": "ri-play-list-add-line",
         "rol": [1, 3, 5, 9, 10]
+      },
+      {
+        "title": "Control de Honorarios",
+        "name": "Control de Honorarios",
+        "is_active": false,
+        "link": {
+          "name": "enfermeria.honorarios"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-wallet-3-line",
+        "rol": [1, 3]
+      },
+      {
+        "title": "Cobros de Habitación",
+        "name": "Cobros de Habitación",
+        "is_active": false,
+        "link": {
+          "name": "enfermeria.cobro_habitacion"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-hotel-line",
+        "rol": [1, 3]
       },
       {
         "title": "Habitaciones",

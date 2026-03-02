@@ -368,13 +368,9 @@
           {{ row.item.medico }}
         </template>
 
-        <!-- Campo editable para Total -->
+        <!-- Total -->
         <template #cell(total)="row">
-          <b-form-input
-            v-model="row.item.total"
-            type="number"
-            @change="updateTotal(row.item)"
-          ></b-form-input>
+          {{ row.item.total }}
         </template>
       </b-table>
 
@@ -2715,23 +2711,6 @@ export default {
     onChangePageHonorario (page) {
       this.pagination.currentPage = page
       this.getDataHonorarios(this.currentExpedienteId)
-    },
-    updateTotal (item) {
-      const id = item.id
-      const me = item
-      axios.put(apiUrl + `/detalle_honorarios/${id}`, {
-        form: me })
-        .then((response) => {
-          this.alertVariant = 'primary'
-          this.showAlert()
-          this.alertText = 'Se ha actualizado el expediente los honorarios del / la ' + me.medico + ' exitosamente'
-        })
-        .catch((error) => {
-          this.alertVariant = 'danger'
-          this.showAlertError()
-          this.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-          console.error('Error!', error)
-        })
     },
     async obtenerIdCuenta (idExpediente) {
       try {

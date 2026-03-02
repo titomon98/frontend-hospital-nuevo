@@ -20,22 +20,22 @@ Completados:
 31. Agregar registro de creacion en ordenes medicas y notas de enfermeria - Validado
 
 Pendientes de revisión:
-
-En desarrollo:
+22. Tambien tiene que ser posible eliminar honorarios asi como los consumos, y en el mismo lugar, solo Gerencia y Administración
 2.⁠ ⁠Ver porque el paciente siempre se ingresa en 1. Cambiar cuando se traslade. Agregar el tipo de paciente a los 4 menus de hospitalizacion
 32. Crear un menu "registro de habitacion", el mismo nos servirá para ajustar las habitaciones de los pacientes. si en algún momento no se desea cobrar lo que el sistema generó automáticamente, se puede modificar con un menú como el de consumos y así llegar al total deseado.
+
+En desarrollo:
 33. Crear en intensivo un botón para hacer lo mismo que "registro de habitación" pero orientado solo a intensivo, que es la habitación 9.
+7.⁠ ⁠Añadir botones para que las notas de ingreso y notas de egreso puedan agregarse desde hospitalización
 9. Agregar calendario y hora al egreso en el modal de egreso, debajo de motivo de egreso
 1.⁠ ⁠⁠Si hay un paciente en la noche con expediente incompleto, debe permitir agregar los consumos para el ingreso de enfermería, aunque el paciente no esté lleno en caja
 6.⁠ ⁠La nota de ingreso de puede llenar en cualquier tipo de ingreso (ingreso, reingreso, ingreso de emergencia) pero ahorita aparece como motivo. Se debe dejar al asignar habitacion
-7.⁠ ⁠Añadir botones para que las notas de ingreso y notas de egreso puedan agregarse desde hospitalización
+28. En paquetes no se pueden agregar los medicamentos "sin inventariar".
+29. El vender paquetes es en quirofano
 
 No completados:
 21. Validación de consumos. Cada consumo debe tener un botón específico para validar, este botón debe aparecer solo para gerencia, contabilidad y enfermera graduada
-22. Tambien tiene que ser posible eliminar honorarios asi como los consumos, y en el mismo lugar, solo Gerencia y Administración
 3.⁠ ⁠⁠Cuadrar la cuenta con los cobros indicados
 14. En la cuenta parcial si aparece el rubro pero no el dinero
 15. Reingresar al paciente al pagar cuenta parcial
 25. En cuenta total agregar precio unitario y luego la siguiente columna es el precio total
-28. En paquetes no se pueden agregar los medicamentos "sin inventariar".
-29. El vender paquetes es en quirofano

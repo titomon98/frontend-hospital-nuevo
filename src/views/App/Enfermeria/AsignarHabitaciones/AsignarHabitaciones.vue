@@ -387,10 +387,10 @@
                           <div v-for="(tipo, index) in tiposHabitaciones" :key="tipo">
                             <b-row>
                               <b-col cols="4">
-                                <h6 v-if="(form.estudioDeSueño != 1 && form.estudioDeSueño != 2) || index == 2" class="mt-2">{{ NombreHabitaciones[index] }}</h6>
+                                <h6 v-if="(form.estudioDeSueno != 1 && form.estudioDeSueno != 2) || index == 2" class="mt-2">{{ NombreHabitaciones[index] }}</h6>
                                   <b-form-checkbox
                                     v-if="form.selectedOption == 'hospi'"
-                                    v-model="form.estudioDeSueño"
+                                    v-model="form.estudioDeSueno"
                                     value="1"
                                     class="mt-2 mb-4"
                                   >
@@ -398,7 +398,7 @@
                                   </b-form-checkbox>
                                   <b-form-checkbox
                                     v-if="form.selectedOption == 'hospi'"
-                                    v-model="form.estudioDeSueño"
+                                    v-model="form.estudioDeSueno"
                                     value="2"
                                     class="mt-2 mb-4"
                                   >
@@ -598,7 +598,6 @@ export default {
   },
   beforeMount () {
     this.getHabitaciones(0)
-    this.form.id_usuario = this.currentUser.uid
   },
   mounted () {
     xray.index()
@@ -628,7 +627,6 @@ export default {
         contacto_encargado: '',
         parentesco_encargado: '',
         state: 1,
-        id_usuario: null,
         estado_civil: null,
         profesion: '',
         nombre_madre: '',
@@ -648,8 +646,9 @@ export default {
         fecha: null,
         hora: null,
         habitacion: null,
-        estudioDeSueño: 0,
-        tipo_cuenta: 1
+        estudioDeSueno: 0,
+        tipo_cuenta: 1,
+        cuenta: 0
       },
       selectedDoctor: [],
       habitaciones: [],
@@ -707,7 +706,7 @@ export default {
       },
       paymentSum: 0,
       totalPayment: 0,
-      apiBase: apiUrl + '/expedientes/list',
+      apiBase: apiUrl + '/expedientes/listAsignar',
       fields: [
         {
           name: '__slot:actions',
@@ -876,10 +875,12 @@ export default {
           break
         }
         case 'assignRoom': {
+          this.estudioDeSueno = 0
           this.$refs['modal-1-habitacion'].hide()
           break
         }
         case 'assignDoctor': {
+          this.estudioDeSueno = 0
           this.$refs['modal-3-medico'].hide()
           break
         }
@@ -940,7 +941,7 @@ export default {
       this.form.telefono_conyuge = data.telefono_conyuge
       this.form.expediente = data.expediente
       this.form.state = data.estado
-      this.form.id = data.id
+      this.form.cuenta = data.cuentas.at(-1)?.id
       const today = new Date()
       const yyyy = today.getFullYear()
       const mm = String(today.getMonth() + 1).padStart(2, '0')
@@ -952,7 +953,6 @@ export default {
     /* Guardar */
     onUpdate () {
       const me = this
-      // this.$refs["modalSave"].hide();
       axios.put(apiUrl + '/expedientes/update', {
         form: me.form, user: me.currentUser.user })
         .then((response) => {
@@ -1119,8 +1119,16 @@ export default {
     },
     onRoomAssignment () {
       this.form.assignedDoctor = this.selectedDoctor
+      if (this.form.habitacion === null) {
+        this.alertVariant = 'danger'
+        this.showAlertError()
+        this.alertErrorText = 'No ha seleccionado ninguna habitación para asignar al paciente'
+        return
+      }
       axios.put(apiUrl + '/expedientes/assignRoom', {
-        form: this.form })
+        form: this.form,
+        user: this.currentUser.user
+      })
         .then((response) => {
           this.alertVariant = 'primary'
           this.showAlert()

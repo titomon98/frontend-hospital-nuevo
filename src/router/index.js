@@ -61,6 +61,7 @@ import IngresosEnfermeria from '../views/App/Enfermeria/Ingresos/IngresosEnferme
 import IngresosEmergencia from '../views/App/Enfermeria/Ingresos/IngresosEmergencia.vue'
 import CategoriaSalaOperaciones from '../views/App/Enfermeria/CategoriaSalaOperaciones/CategoriaSalaOperaciones.vue'
 import AsignarHabitacion from '../views/App/Enfermeria/AsignarHabitaciones/AsignarHabitaciones.vue'
+import CobrosHabitacion from '../views/App/Enfermeria/Habitaciones/CobrosHabitacion.vue'
 
 // farmacia
 import PedidosPendientesParent from '../views/App/Farmacia/Pedidos/PedidosPendientesParent'
@@ -114,6 +115,7 @@ import Facturacion from '../views/App/Caja/Facturacion.vue'
 import FacturacionLab from '../views/App/Laboratorio/Caja/FacturacionLab.vue'
 import HospitalizacionEnfermeras from '../views/App/Enfermeria/HospitalizacionEnfermeras/HospitalizacionEnfermeras.vue'
 import CortesCaja from '../views/App/Caja/Cortes/Cortes.vue'
+import Honorarios from '../views/App/Enfermeria/Honorarios/Honorarios.vue'
 
 Vue.use(VueRouter)
 
@@ -326,6 +328,12 @@ const EnfermeriaRoutes = (prop, mode) => [
     component: HospitalizacionEnfermeras
   },
   {
+    path: 'honorarios',
+    name: prop + '.honorarios',
+    meta: { dark: mode, auth: true, name: 'honorarios', roles: [1, 3] },
+    component: Honorarios
+  },
+  {
     path: 'intensivo',
     name: prop + '.intensivo',
     meta: { dark: mode, auth: true, name: 'intensivo', roles: [1, 3, 5, 9, 10, 11] },
@@ -336,6 +344,12 @@ const EnfermeriaRoutes = (prop, mode) => [
     name: prop + '.quirofano',
     meta: { dark: mode, auth: true, name: 'quirofano', roles: [1, 3, 5, 9, 10] },
     component: QuirofanoParent
+  },
+  {
+    path: 'cobro_habitacion',
+    name: prop + '.cobro_habitacion',
+    meta: { dark: mode, auth: true, name: 'cobro_habitacion', roles: [1, 3] },
+    component: CobrosHabitacion
   },
   {
     path: 'habitaciones',
