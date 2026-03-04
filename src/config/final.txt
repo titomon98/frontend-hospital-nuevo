@@ -1,4 +1,5 @@
 Completados:
+1.⁠ ⁠⁠Si hay un paciente en la noche con expediente incompleto, debe permitir agregar los consumos para el ingreso de enfermería, aunque el paciente no esté lleno en caja. Si se ingresó de emergencia no queda como "expediente incompleto" si no que ya está completo. - Validado agregando médico antes de ingreso
 2.⁠ ⁠Ver porque el paciente siempre se ingresa en 1. Cambiar cuando se traslade. Agregar el tipo de paciente a los 4 menus de hospitalizacion - Validado
 4.⁠ ⁠Agregar total al final de las tablas de Hospitalizacion/Intensivo/Quirofano/Emergencia para saber cuanto va de los consumos - Validado
 5.⁠ ⁠Servicios de cuenta parcial se suma a material quirurgico - Validado
@@ -22,13 +23,13 @@ Completados:
 32. Crear un menu "registro de habitacion", el mismo nos servirá para ajustar las habitaciones de los pacientes. si en algún momento no se desea cobrar lo que el sistema generó automáticamente, se puede modificar con un menú como el de consumos y así llegar al total deseado. - Validado
 33. Crear en intensivo un botón para hacer lo mismo que "registro de habitación" pero orientado solo a intensivo, que es la habitación 9. - Validado
 34. Tambien tiene que ser posible eliminar honorarios asi como los consumos, y en el mismo lugar, solo Gerencia y Administración - Validado
+36. En emergencia se agrega en lugar de nombre de encargado el nombre de factura y el nit. - Validado
 
 Pendientes de revisión:
-1.⁠ ⁠⁠Si hay un paciente en la noche con expediente incompleto, debe permitir agregar los consumos para el ingreso de enfermería, aunque el paciente no esté lleno en caja. Si se ingresó de emergencia no queda como "expediente incompleto" si no que ya está completo. - Esto es posible si se agrega médico tratante.
-36. En emergencia se agrega en lugar de nombre de encargado el nombre de factura y el nit.
 
 
 En desarrollo:
+37. Agregar egreso y eliminación de paciente de emergencia según imagen de whatsapp.
 35. El corte de habitacion no es a las 3pm, es a las 2pm. Si se ingresa entre 7am y 1:59pm, no se cobra dia extra. Si ingresa entre las 12:00am de ese y las 6:59am, se deben cobrar dos dias, de 12am a 7am, y luego de 2pm a 2pm del siguiente dia de una vez.
 7.⁠ ⁠Añadir botones para que las notas de ingreso y notas de egreso puedan agregarse desde hospitalización
 9. Agregar calendario y hora al egreso en el modal de egreso, debajo de motivo de egreso

@@ -30,6 +30,20 @@
             <!-- fila -->
             <h4 class="card-title mt-3">Datos de ingreso</h4>
             <b-row class="ml-2">
+              <b-col md="4">
+                <b-form-group label="Asignar médico tratante:">
+                  <v-select
+                    name="type"
+                    v-model = "selectedDoctor"
+                    :options="doctors"
+                    :reduce="doc => doc.value"
+                    placeholder="Seleccione un médico"
+                    label='text'
+                    @search="onSearchMedicos"/>
+                </b-form-group>
+              </b-col>
+            </b-row>
+            <b-row class="ml-2">
               <b-col md="2">
                 <b-form-group label="Fecha de ingreso:">
                   <b-form-input
@@ -214,7 +228,8 @@ export default {
         tipo_paciente: '0',
         motivo: ' ',
         habitacion: null,
-        tipo_cuenta: 1
+        tipo_cuenta: 1,
+        assignedDoctor: 0
       },
       nacionalidades: ['Guatemala', 'El Salvador', 'México', 'Honduras', 'Belice', 'Otro'],
       generos: ['Masculino', 'Femenino'],
@@ -229,7 +244,9 @@ export default {
       alertVariant: '',
       apiBase: apiUrl + '/paciente/list',
       tiposHabitaciones: ['Privada', 'Especial', 'Semi-privada', 'Intensivo', 'Intermedio'],
-      NombreHabitaciones: ['Cuartos Privados', 'Cuartos Especiales', 'Cuartos Semi-privados', 'Intensivo', 'Intermedio']
+      NombreHabitaciones: ['Cuartos Privados', 'Cuartos Especiales', 'Cuartos Semi-privados', 'Intensivo', 'Intermedio'],
+      selectedDoctor: [],
+      doctors: []
     }
   },
   validations () {
@@ -271,6 +288,7 @@ export default {
           this.form.tipo_cuenta = 4
           break
       }
+      this.form.assignedDoctor = this.selectedDoctor
       axios.post(apiUrl + '/expedientes/createEnfermeria', {
         form: me.form, user: me.currentUser.user
       })
@@ -306,6 +324,25 @@ export default {
       }).then((response) => {
         this.habitaciones = response.data
       })
+    },
+    getDoctors (search) {
+      axios.get(apiUrl + '/medicos/getSearch',
+        {
+          params: {
+            search: search
+          }
+        }
+      ).then((response) => {
+        this.doctors = response.data.map(medico => ({
+          value: medico.id,
+          text: medico.nombre
+        }))
+      })
+    },
+    onSearchMedicos (search) {
+      if (search.length) {
+        this.getDoctors(search)
+      }
     }
   }
 }
