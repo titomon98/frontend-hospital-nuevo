@@ -100,14 +100,14 @@
             </b-row>
             <b-row  class="ml-2">
               <b-col md="4">
-                <b-form-group label="Nombre del encargado:">
+                <b-form-group label="Nombre en factura:">
                   <b-form-input
                     v-model.trim="$v.form.nombre_encargado.$model"
                     :class="{'is-invalid': $v.form.nombre_encargado.$error}"
                     placeholder="Ingresar nombre"
                   ></b-form-input>
                   <div v-if="$v.form.nombre_encargado.required.$invalid" class="invalid-feedback">
-                    Debe ingresar el nombre del encargado
+                    Debe ingresar el nombre en factura
                   </div>
                   <div v-if="!$v.form.nombre_encargado.ValidateName.$error" class="invalid-feedback">
                     El nombre solo debe contener letras mayúsculas y con tildes
@@ -368,7 +368,7 @@ export default {
           this.form.assignedDoctor = this.selectedDoctor
           break
       }
-      axios.post(apiUrl + '/expedientes/create', {
+      axios.post(apiUrl + '/expedientes/createEmergencia', {
         form: me.form, user: me.currentUser.user })
         .then(() => {
           me.alertVariant = 'success'

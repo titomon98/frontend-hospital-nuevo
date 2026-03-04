@@ -24,9 +24,11 @@ Completados:
 34. Tambien tiene que ser posible eliminar honorarios asi como los consumos, y en el mismo lugar, solo Gerencia y Administración - Validado
 
 Pendientes de revisión:
+1.⁠ ⁠⁠Si hay un paciente en la noche con expediente incompleto, debe permitir agregar los consumos para el ingreso de enfermería, aunque el paciente no esté lleno en caja. Si se ingresó de emergencia no queda como "expediente incompleto" si no que ya está completo. - Esto es posible si se agrega médico tratante.
+36. En emergencia se agrega en lugar de nombre de encargado el nombre de factura y el nit.
+
 
 En desarrollo:
-1.⁠ ⁠⁠Si hay un paciente en la noche con expediente incompleto, debe permitir agregar los consumos para el ingreso de enfermería, aunque el paciente no esté lleno en caja. Si se ingresó de emergencia no queda como "expediente incompleto" si no que ya está completo.
 35. El corte de habitacion no es a las 3pm, es a las 2pm. Si se ingresa entre 7am y 1:59pm, no se cobra dia extra. Si ingresa entre las 12:00am de ese y las 6:59am, se deben cobrar dos dias, de 12am a 7am, y luego de 2pm a 2pm del siguiente dia de una vez.
 7.⁠ ⁠Añadir botones para que las notas de ingreso y notas de egreso puedan agregarse desde hospitalización
 9. Agregar calendario y hora al egreso en el modal de egreso, debajo de motivo de egreso
@@ -40,4 +42,3 @@ No completados:
 14. En la cuenta parcial si aparece el rubro pero no el dinero
 15. Reingresar al paciente al pagar cuenta parcial
 25. En cuenta total agregar precio unitario y luego la siguiente columna es el precio total
-36. En emergencia se agrega en lugar de nombre de encargado el nombre de factura y el nit.
