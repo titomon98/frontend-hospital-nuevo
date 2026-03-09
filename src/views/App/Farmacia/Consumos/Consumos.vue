@@ -56,6 +56,53 @@
       <b-col sm="12">
         <iq-card class-name="iq-card-block iq-card-stretch iq-card-height">
           <template v-slot:body>
+            <h4 class="card-title">CONSUMO DE ANESTÉSICOS</h4>
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <b-form-group label="Fecha Desde:">
+                  <b-form-input type="date" v-model="fechaDesde"></b-form-input>
+                </b-form-group>
+              </div>
+              <div class="col-md-4">
+                <b-form-group label="Fecha Hasta:">
+                  <b-form-input type="date" v-model="fechaHasta"></b-form-input>
+                </b-form-group>
+              </div>
+              <div class="col-md-4">
+                <b-button variant="primary" @click="realizarBusqueda">Buscar</b-button>
+              </div>
+            </div>
+            <datatable-heading
+              :changePageSize="changePageSizes"
+              :searchChange="searchChange"
+              :from="from"
+              :to="to"
+              :total="total"
+              :perPage="perPage"
+            >
+            </datatable-heading>
+            <vuetable
+              ref="vuetable"
+              class="table-divided order-with-arrow"
+              :api-url="apiBaseAnestesico"
+              :query-params="makeQueryParams"
+              :per-page="perPage"
+              :reactive-api-url="true"
+              :fields="fields"
+              pagination-path
+              @vuetable:pagination-data="onPaginationData"
+            >
+            </vuetable>
+            <vuetable-pagination-bootstrap
+                ref="pagination"
+                @vuetable-pagination:change-page="onChangePage"
+              />
+          </template>
+        </iq-card>
+      </b-col>
+      <b-col sm="12">
+        <iq-card class-name="iq-card-block iq-card-stretch iq-card-height">
+          <template v-slot:body>
             <h4 class="card-title">CONSUMO DE MATERIAL COMUN</h4>
             <div class="row mb-3">
               <div class="col-md-4">
@@ -182,6 +229,7 @@ export default {
       fechaDesde: null,
       fechaHasta: null,
       apiBase: apiUrl + '/detalle_consumo_medicamentos/list',
+      apiBaseAnestesico: apiUrl + '/detalle_consumo_medicamentos/listAnestesico',
       slickOptions: {
         centerMode: false,
         centerPadding: '60px',

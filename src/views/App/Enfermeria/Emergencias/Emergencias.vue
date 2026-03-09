@@ -936,18 +936,17 @@
                     size="sm" variant="success"
                   >Agregar receta</b-button>
                   <b-button
-                    v-if="props.rowData.nombres !== 'PENDIENTE' "
                     @click="verReceta(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm" variant="dark"
                   >Ver recetas</b-button>
                   <b-button @click="addServicio(props.rowData.id)" class="mb-2 button-spacing" size="sm" variant="success">Agregar
                     servicios</b-button>
-                  <b-button v-if="props.rowData.nombres !== 'PENDIENTE' " @click="mostrarVerServicio(props.rowData.id)" class="mb-2 button-spacing" size="sm" variant="dark">Ver
+                  <b-button @click="mostrarVerServicio(props.rowData.id)" class="mb-2 button-spacing" size="sm" variant="dark">Ver
                     servicios</b-button>
                   <b-button @click="showModal('modal-add-honorarios'); obtenerIdCuenta(props.rowData.id)" class="mb-2 button-spacing"
                     size="sm" variant="success">Agregar honorarios</b-button>
-                  <b-button v-if="props.rowData.nombres !== 'PENDIENTE' " @click="showModal('modal-ver-honorarios'); getDataHonorarios(props.rowData.id)"
+                  <b-button @click="showModal('modal-ver-honorarios'); getDataHonorarios(props.rowData.id)"
                     class="mb-2 button-spacing" size="sm" variant="dark">Ver honorarios</b-button>
 
                     <b-button
@@ -990,7 +989,6 @@
                   >Agregar evolución</b-button>
 
                   <b-button
-                  v-if="props.rowData.nombres !== 'PENDIENTE' "
                     @click="verEvolucion(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
@@ -1006,7 +1004,6 @@
                   >Agregar orden médica</b-button>
 
                   <b-button
-                  v-if="props.rowData.nombres !== 'PENDIENTE' "
                     @click="verOrden(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"

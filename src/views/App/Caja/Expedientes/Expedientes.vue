@@ -1727,7 +1727,6 @@ ANTE MI
       }
 
       try {
-        console.log(data)
         const ConsumoTotal = data.consumos.reduce((acc, item) => acc + parseFloat(item.subtotal), 0)
         const ConsumoComunTotal = data.consumosComunes.reduce((acc, item) => acc + parseFloat(item.total), 0)
         const ConsumoMedicamentosTotal = data.consumosMedicamentos.reduce((acc, item) => acc + parseFloat(item.total), 0)
@@ -1792,15 +1791,16 @@ ANTE MI
         sheet.getCell('A12').value = 'CONSUMO MEDICAMENTOS'
         let row2 = 12
         data.consumosMedicamentos.forEach((consumo) => {
+          console.log(consumo)
           row2++
-          sheet.getCell(`A${row2}`).value = `${consumo.medicamento.nombre}  Cantidad: ${parseFloat(consumo.cantidad).toFixed(0)}`
+          sheet.getCell(`A${row2}`).value = `${consumo.medicamento.nombre}  Cantidad: ${parseFloat(consumo.cantidad).toFixed(0)} Precio unitario: ${parseFloat(consumo.precio_venta).toFixed(2)}`
           sheet.getCell(`B${row2}`).value = parseFloat(consumo.total).toFixed(2)
         })
         row2++
         sheet.getCell(`A${row2}`).value = 'MATERIAL MEDICO QUIRÚRGICO'
         data.consumosQuirurgicos.forEach((consumo) => {
           row2++
-          sheet.getCell(`A${row2}`).value = `${consumo.quirurgico.nombre}  Cantidad: ${parseFloat(consumo.cantidad).toFixed(0)}`
+          sheet.getCell(`A${row2}`).value = `${consumo.quirurgico.nombre}  Cantidad: ${parseFloat(consumo.cantidad).toFixed(0)} Precio unitario: ${parseFloat(consumo.precio_venta).toFixed(2)}`
           sheet.getCell(`B${row2}`).value = parseFloat(consumo.total).toFixed(2)
         })
         row2++
@@ -1810,7 +1810,7 @@ ANTE MI
         sheet.getCell(`A${row2}`).value = 'MATERIAL COMÚN'
         data.consumosComunes.forEach((consumo) => {
           row2++
-          sheet.getCell(`A${row2}`).value = `${consumo.comune.nombre}  Cantidad: ${parseFloat(consumo.cantidad).toFixed(0)}`
+          sheet.getCell(`A${row2}`).value = `${consumo.comune.nombre}  Cantidad: ${parseFloat(consumo.cantidad).toFixed(0)} Precio unitario: ${parseFloat(consumo.precio_venta).toFixed(2)}`
           sheet.getCell(`B${row2}`).value = parseFloat(consumo.total).toFixed(2)
         })
         row2++

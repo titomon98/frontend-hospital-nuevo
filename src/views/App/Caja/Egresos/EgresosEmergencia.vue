@@ -536,7 +536,7 @@ export default {
     },
     onPatientQuit () {
       if (this.motivoEgresoEmergencia === '') {
-        this.alertErrorText = 'No has ingresado un motivo'
+        this.alertErrorText = 'No se ingresó una nota de egreso'
         this.showAlertError()
       } else {
         let me = this

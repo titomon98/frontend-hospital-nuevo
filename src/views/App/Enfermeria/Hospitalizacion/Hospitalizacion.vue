@@ -940,7 +940,6 @@
                   >Agregar receta</b-button>
 
                   <b-button
-                  v-if="props.rowData.nombres !== 'PENDIENTE' "
                     @click="verReceta(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
@@ -955,7 +954,6 @@
                   >Agregar servicios</b-button>
 
                   <b-button
-                  v-if="props.rowData.nombres !== 'PENDIENTE' "
                     @click="mostrarVerServicio(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
@@ -970,7 +968,6 @@
                   >Agregar honorarios</b-button>
 
                   <b-button
-                  v-if="props.rowData.nombres !== 'PENDIENTE' "
                     @click="showModal('modal-ver-honorarios'); getDataHonorarios(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
@@ -1016,7 +1013,6 @@
                   >Agregar evolución</b-button>
 
                   <b-button
-                  v-if="props.rowData.nombres !== 'PENDIENTE' "
                     @click="verEvolucion(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
@@ -1032,7 +1028,6 @@
                   >Agregar orden médica</b-button>
 
                   <b-button
-                  v-if="props.rowData.nombres !== 'PENDIENTE' "
                     @click="verOrden(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
@@ -1047,7 +1042,6 @@
                   >Agregar notas de enfermería</b-button>
 
                   <b-button
-                  v-if="props.rowData.nombres !== 'PENDIENTE' "
                     @click="verNotasEnfermeria(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"

@@ -529,7 +529,7 @@ export default {
       this.paymentSum = 0
       this.totalPayment = 0
       if (this.motivoEgresoIntensivo === '') {
-        this.alertErrorText = 'No has ingresado un motivo'
+        this.alertErrorText = 'No se ingresó una nota de egreso'
         this.showAlertError()
       } else {
         if (this.paymentSum !== parseFloat(this.totalPayment)) {
