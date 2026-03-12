@@ -1159,7 +1159,7 @@ export default {
       axios.put(apiUrl + '/cuentas/updateMotivoIngreso', {
         motivo: motivo,
         id: this.form.id
-       })
+      })
         .then((response) => {
           this.alertVariant = 'primary'
           this.showAlert()

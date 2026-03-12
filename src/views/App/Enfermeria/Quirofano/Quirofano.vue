@@ -3451,7 +3451,7 @@ export default {
       axios.put(apiUrl + '/cuentas/updateMotivoIngreso', {
         motivo: motivo,
         id: this.form.id
-       })
+      })
         .then((response) => {
           this.alertVariant = 'primary'
           this.showAlert()
@@ -3467,11 +3467,11 @@ export default {
         })
     },
     onMotivoEgresoAssignment () {
-      const motivo_egreso = this.form.motivo_egreso
+      const motivoE = this.form.motivo_egreso
       axios.put(apiUrl + '/cuentas/updateMotivoEgreso', {
-        motivo_egreso: motivo_egreso,
+        motivo_egreso: motivoE,
         id: this.form.id
-       })
+      })
         .then((response) => {
           this.alertVariant = 'primary'
           this.showAlert()
