@@ -475,6 +475,41 @@
         >
       </template>
     </b-modal>
+    <b-modal id="modal-4-nota" ref="modal-4-nota" title="Agregar nota de ingreso" size="md">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <template>
+        <div>
+          <b-card>
+            <b-card-body>
+              <b-form-group label="Nota de ingreso:">
+                <b-form-input
+                  v-model.trim="form.motivo"
+                  placeholder="Ingresar nota de ingreso a hospital"
+                ></b-form-input>
+              </b-form-group>
+            </b-card-body>
+          </b-card>
+        </div>
+      </template>
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click="
+          onMotivoAssignment()
+        "
+          >Agregar nota de ingreso</b-button
+        >
+        <b-button variant="danger" @click="$bvModal.hide('modal-4-nota')"
+          >Cancelar</b-button
+        >
+      </template>
+    </b-modal>
     <b-row>
       <b-col md="12">
         <iq-card>
@@ -532,8 +567,7 @@
                       <b-button
                           v-b-tooltip.top="'Asignar habitación'"
                           @click="setData(props.rowData)
-                          $bvModal.show('modal-1-habitacion')
-                          getDoctors()"
+                          $bvModal.show('modal-1-habitacion')"
                           class="mb-2 mt-2 button-spacing"
                           size="sm"
                           variant="success"
@@ -552,6 +586,17 @@
                           :disabled="!hasPermission([5])"
                       >
                           Asignar médico
+                      </b-button>
+                      <b-button
+                          v-b-tooltip.top="'Agregar nota de ingreso'"
+                          @click="setData(props.rowData)
+                          $bvModal.show('modal-4-nota')"
+                          class="mb-2 mt-2 button-spacing"
+                          size="sm"
+                          variant="primary"
+                          :disabled="!hasPermission([5])"
+                      >
+                          Agregar nota de ingreso
                       </b-button>
                   </b-button-group>
                 </template>
@@ -831,7 +876,6 @@ export default {
       return this.tiposHabitaciones
     },
     habitacionesPorTipo () {
-      console.log(this.habitaciones)
       return (tipo) => {
         return this.habitaciones.filter(h => h.tipo.toUpperCase() === tipo.toUpperCase())
       }
@@ -888,6 +932,12 @@ export default {
         case 'assignDoctor': {
           this.estudioDeSueno = 0
           this.$refs['modal-3-medico'].hide()
+          break
+        }
+        case 'assignMotivo': {
+          this.estudioDeSueno = 0
+          this.form.motivo = ''
+          this.$refs['modal-4-nota'].hide()
           break
         }
       }
@@ -1035,6 +1085,7 @@ export default {
           .map(item => item.pendiente_de_pago)
           .reduce((sum, value) => sum + value, 0)
         this.cuentas = response.data
+        this.form.motivo = this.cuentas[0].motivo
       })
     },
     getDoctors (search) {
@@ -1103,6 +1154,26 @@ export default {
       this.totalPayment = items[0].pendiente_de_pago
       this.totPagado = items[0].total_pagado
     },
+    onMotivoAssignment () {
+      const motivo = this.form.motivo
+      axios.put(apiUrl + '/cuentas/updateMotivoIngreso', {
+        motivo: motivo,
+        id: this.form.id
+       })
+        .then((response) => {
+          this.alertVariant = 'primary'
+          this.showAlert()
+          this.alertText = 'Se ha actualizado el motivo de ingreso del expediente ' + this.form.expediente + ' exitosamente'
+          this.$refs.vuetable.refresh()
+          this.closeModal('assignMotivo')
+        })
+        .catch((error) => {
+          this.alertVariant = 'danger'
+          this.showAlertError()
+          this.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+          console.error('Error!', error)
+        })
+    },
     onDoctorAssignment () {
       this.form.assignedDoctor = this.selectedDoctor
       axios.put(apiUrl + '/expedientes/assignDoctor', {
@@ -1155,7 +1226,6 @@ export default {
         params: { tipo: num }
       }).then((response) => {
         this.habitaciones = response.data
-        console.log('Habitaciones cargadas:', this.habitaciones) // Para verificar
       }).catch((error) => {
         console.error('Error al cargar habitaciones:', error)
       })

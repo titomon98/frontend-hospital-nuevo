@@ -24,17 +24,17 @@ Completados:
 33. Crear en intensivo un botón para hacer lo mismo que "registro de habitación" pero orientado solo a intensivo, que es la habitación 9. - Validado
 34. Tambien tiene que ser posible eliminar honorarios asi como los consumos, y en el mismo lugar, solo Gerencia y Administración - Validado
 36. En emergencia se agrega en lugar de nombre de encargado el nombre de factura y el nit. - Validado
+38. En pestaña de control de consumos no aparecen anestésicos - Validado
 
 Pendientes de revisión:
-38. En pestaña de control de consumos no aparecen anestésicos
-
-
-En desarrollo:
-21. Agregar boton "revisado" Si esta correcto, aparece en verde y ya se puede eliminar, si no esta correcto, se manda a eliminar o a corregir del lado de enfermeria
-25. En cuenta total agregar precio unitario y luego la siguiente columna es el precio total - Agregar fecha, cantidad y precio unitario en diferentes columnas
-3.⁠ ⁠⁠Cuadrar la cuenta con los cobros indicados
 6.⁠ ⁠La nota de ingreso de puede llenar en cualquier tipo de ingreso (ingreso, reingreso, ingreso de emergencia) pero ahorita aparece como motivo. Se debe dejar al asignar habitacion
 7.⁠ ⁠Añadir botones para que las notas de ingreso y notas de egreso puedan agregarse desde hospitalización
+21. Agregar boton "revisado" Si esta correcto, aparece en verde y ya se puede eliminar, si no esta correcto, se manda a eliminar o a corregir del lado de enfermeria
+39. El consumo de medicamentos se vio afectado por la separacion con anestesico
+
+En desarrollo:
+25. En cuenta total agregar precio unitario y luego la siguiente columna es el precio total - Agregar fecha, cantidad y precio unitario en diferentes columnas
+3.⁠ ⁠⁠Cuadrar la cuenta con los cobros indicados
 9. Agregar calendario y hora al egreso en el modal de egreso, debajo de motivo de egreso
 37. Agregar egreso y eliminación de paciente de emergencia según imagen de whatsapp.
 

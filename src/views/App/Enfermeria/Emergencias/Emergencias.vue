@@ -352,6 +352,76 @@
           <b-button variant="danger" @click="closeModal('add-honorarios')">Cancelar</b-button>
         </template>
     </b-modal>
+    <b-modal id="modal-4-nota" ref="modal-4-nota" title="Agregar nota de ingreso" size="md">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <template>
+        <div>
+          <b-card>
+            <b-card-body>
+              <b-form-group label="Nota de ingreso:">
+                <b-form-input
+                  v-model.trim="form.motivo"
+                  placeholder="Ingresar nota de ingreso a hospital"
+                ></b-form-input>
+              </b-form-group>
+            </b-card-body>
+          </b-card>
+        </div>
+      </template>
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click="
+          onMotivoAssignment()
+        "
+          >Agregar nota de ingreso</b-button
+        >
+        <b-button variant="danger" @click="$bvModal.hide('modal-4-nota')"
+          >Cancelar</b-button
+        >
+      </template>
+    </b-modal>
+    <b-modal id="modal-5-nota" ref="modal-5-nota" title="Agregar nota de egreso" size="md">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <template>
+        <div>
+          <b-card>
+            <b-card-body>
+              <b-form-group label="Nota de egreso:">
+                <b-form-input
+                  v-model.trim="form.motivo_egreso"
+                  placeholder="Ingresar nota de egreso"
+                ></b-form-input>
+              </b-form-group>
+            </b-card-body>
+          </b-card>
+        </div>
+      </template>
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click="
+          onMotivoEgresoAssignment()
+        "
+          >Agregar nota de egreso</b-button
+        >
+        <b-button variant="danger" @click="$bvModal.hide('modal-5-nota')"
+          >Cancelar</b-button
+        >
+      </template>
+    </b-modal>
     <b-modal id="modal-ver-honorarios" size="lg" ref="modal-ver-honorarios" title="Ver honorarios">
       <b-alert
         :show="alertCountDownError"
@@ -1009,7 +1079,30 @@
                     size="sm"
                     variant="dark"
                   >Ver órdenes médicas</b-button>
+                  <b-button
+                    @click="addNotasEnfermeria(props.rowData.id)"
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="dark"
+                    :disabled="!hasPermission([10])"
+                  >Agregar notas de enfermería</b-button>
 
+                  <b-button
+                    @click="verNotasEnfermeria(props.rowData.id)"
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="success"
+                  >Ver notas de enfermería</b-button>
+                  <b-button
+                      v-b-tooltip.top="['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo) ? 'Agregar nota de ingreso' : 'Modificar nota de ingreso'"
+                      @click="setData(props.rowData); $bvModal.show('modal-4-nota')"
+                      class="mb-2 mt-2 button-spacing"
+                      size="sm"
+                      variant="primary"
+                      :disabled="!hasPermission([5])"
+                  >
+                      {{ ['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo) ? 'Agregar nota de ingreso' : 'Modificar nota de ingreso' }}
+                  </b-button>
                     <b-button
                     @click="generarReporteHojaEmergenciaPDF(props.rowData.id, props.rowData)"
                     class="mb-2 button-spacing"
@@ -1194,7 +1287,9 @@ export default {
         id_receta: null,
         cantidad: null,
         selected_insumo: '0',
-        notas: null
+        notas: null,
+        motivo: ' ',
+        motivo_egreso: ' '
       },
       servicio: null,
       alertSecs: 5,
@@ -1940,6 +2035,18 @@ export default {
     },
     closeModal (action) {
       switch (action) {
+        case 'assignMotivo': {
+          this.estudioDeSueno = 0
+          this.form.motivo = ''
+          this.$refs['modal-4-nota'].hide()
+          break
+        }
+        case 'assignMotivoEgreso': {
+          this.estudioDeSueno = 0
+          this.form.motivo_egreso = ''
+          this.$refs['modal-5-nota'].hide()
+          break
+        }
         case 'traslado': {
           this.$v.$reset()
           this.$refs['modal-traslado'].hide()
@@ -2811,6 +2918,8 @@ export default {
       this.form.apellidos = data.apellidos
       this.form.state = data.estado
       this.form.id = data.id
+      this.form.motivo = data.cuentas[0].motivo
+      this.form.motivo_egreso = data.cuentas[0].motivo_egreso
     },
     getHabitaciones (num) {
       axios.get(apiUrl + '/habitaciones/get', {
@@ -3596,6 +3705,46 @@ export default {
       ).then((response) => {
         this.encargados = response.data
       })
+    },
+    onMotivoAssignment () {
+      const motivo = this.form.motivo
+      axios.put(apiUrl + '/cuentas/updateMotivoIngreso', {
+        motivo: motivo,
+        id: this.form.id
+       })
+        .then((response) => {
+          this.alertVariant = 'primary'
+          this.showAlert()
+          this.alertText = 'Se ha actualizado el motivo de ingreso del expediente exitosamente'
+          this.$refs.vuetable.refresh()
+          this.closeModal('assignMotivo')
+        })
+        .catch((error) => {
+          this.alertVariant = 'danger'
+          this.showAlertError()
+          this.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+          console.error('Error!', error)
+        })
+    },
+    onMotivoEgresoAssignment () {
+      const motivo_egreso = this.form.motivo_egreso
+      axios.put(apiUrl + '/cuentas/updateMotivoEgreso', {
+        motivo_egreso: motivo_egreso,
+        id: this.form.id
+       })
+        .then((response) => {
+          this.alertVariant = 'primary'
+          this.showAlert()
+          this.alertText = 'Se ha actualizado el motivo de egreso del expediente exitosamente'
+          this.$refs.vuetable.refresh()
+          this.closeModal('assignMotivoEgreso')
+        })
+        .catch((error) => {
+          this.alertVariant = 'danger'
+          this.showAlertError()
+          this.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+          console.error('Error!', error)
+        })
     }
   }
 }

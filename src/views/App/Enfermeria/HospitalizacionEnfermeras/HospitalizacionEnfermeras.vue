@@ -26,6 +26,22 @@
         >
       </template>
     </b-modal>
+    <b-modal id="modal-revisar" ref="modal-revisar" title="Eliminar consumo">
+      <h6 class="my-4">
+        ¿Desea comprobar que el consumo de {{ consumoToDelete.nombre_medicamento }} al paciente {{ consumoToDelete.nombre_completo }} es correcto?
+      </h6>
+      <template #modal-footer="{}">
+        <b-button
+          type="submit"
+          variant="success"
+          @click="onReview()"
+          >Revisar</b-button
+        >
+        <b-button variant="danger" @click="$bvModal.hide('modal-revisar')"
+          >Cancelar</b-button
+        >
+      </template>
+    </b-modal>
     <b-row>
       <b-col sm="12">
       <iq-card class-name="iq-card-block iq-card-stretch iq-card-height">
@@ -75,7 +91,7 @@
             <template slot="actions" slot-scope="props">
                 <div class="button-container">
                 <b-button
-                  v-if="props.rowData.estado === 1"
+                  v-if="props.rowData.estado === 1 && props.rowData.reviewed_by === null"
                   @click="
                     setData(props.rowData, 1)
                   "
@@ -86,12 +102,30 @@
                   :disabled="hasPermission([1, 3])"
                 >Eliminar registro</b-button>
                 <b-button
-                  v-else
+                  v-else-if="props.rowData.estado === 0 && props.rowData.reviewed_by === null"
                   :disabled="true"
                   class="mb-2 button-spacing"
                   size="sm"
                   variant="dark"
                 >El registro fue eliminado</b-button>
+                <b-button
+                  v-if="props.rowData.estado === 1 && props.rowData.reviewed_by === null"
+                  @click="
+                    setData(props.rowData, 1)
+                  "
+                  v-b-modal.modal-revisar
+                  class="mb-2 button-spacing"
+                  size="sm"
+                  variant="success"
+                  :disabled="hasPermission([1, 3])"
+                >Revisar registro</b-button>
+                <b-button
+                  v-else-if="props.rowData.reviewed_by !== null"
+                  :disabled="true"
+                  class="mb-2 button-spacing"
+                  size="sm"
+                  variant="success"
+                >El registro fue revisado</b-button>
               </div>
             </template>
           </vuetable>
@@ -109,46 +143,44 @@
           <div class="row mb-3">
             <div class="col-md-4">
               <b-form-group label="Fecha Desde:">
-                <b-form-input type="date" v-model="fechaDesde"></b-form-input>
+                <b-form-input type="date" v-model="fechaDesdeAnestesicos"></b-form-input>
               </b-form-group>
             </div>
             <div class="col-md-4">
               <b-form-group label="Fecha Hasta:">
-                <b-form-input type="date" v-model="fechaHasta"></b-form-input>
+                <b-form-input type="date" v-model="fechaHastaAnestesicos"></b-form-input>
               </b-form-group>
             </div>
             <div class="col-md-4">
-              <b-button variant="primary" @click="realizarBusqueda">Buscar</b-button>
+              <b-button variant="primary" @click="realizarBusquedaAnestesicos">Buscar</b-button>
             </div>
           </div>
           <datatable-heading
-            :changePageSize="changePageSizes"
-            :searchChange="searchChange"
-            :from="from"
-            :to="to"
-            :total="total"
-            :perPage="perPage"
+            :changePageSize="changePageSizesAnestesicos"
+            :searchChange="searchChangeAnestesicos"
+            :from="fromAnestesicos"
+            :to="toAnestesicos"
+            :total="totalAnestesicos"
+            :perPage="perPageAnestesicos"
           >
           </datatable-heading>
           <vuetable
-            ref="vuetable"
+            ref="vuetable_Anestesicos"
             class="table-divided order-with-arrow"
             :api-url="apiBaseAnestesicos"
-            :query-params="makeQueryParams"
-            :per-page="perPage"
+            :query-params="makeQueryParamsAnestesicos"
+            :per-page="perPageAnestesicos"
             :reactive-api-url="true"
             :fields="fields"
             pagination-path
-            @vuetable:pagination-data="onPaginationData"
+            @vuetable:pagination-data="onPaginationDataAnestesicos"
             :row-class="getRowClass"
           >
             <template slot="actions" slot-scope="props">
-                <div class="button-container">
+              <div class="button-container">
                 <b-button
-                  v-if="props.rowData.estado === 1"
-                  @click="
-                    setData(props.rowData, 1)
-                  "
+                  v-if="props.rowData.estado === 1 && props.rowData.reviewed_by === null"
+                  @click="setData(props.rowData, 1)"
                   v-b-modal.modal-desactivar
                   class="mb-2 button-spacing"
                   size="sm"
@@ -156,19 +188,35 @@
                   :disabled="hasPermission([1, 3])"
                 >Eliminar registro</b-button>
                 <b-button
-                  v-else
+                  v-else-if="props.rowData.estado === 0 && props.rowData.reviewed_by === null"
                   :disabled="true"
                   class="mb-2 button-spacing"
                   size="sm"
                   variant="dark"
                 >El registro fue eliminado</b-button>
+                <b-button
+                  v-if="props.rowData.estado === 1 && props.rowData.reviewed_by === null"
+                  @click="setData(props.rowData, 1)"
+                  v-b-modal.modal-revisar
+                  class="mb-2 button-spacing"
+                  size="sm"
+                  variant="success"
+                  :disabled="hasPermission([1, 3])"
+                >Revisar registro</b-button>
+                <b-button
+                  v-else-if="props.rowData.reviewed_by !== null"
+                  :disabled="true"
+                  class="mb-2 button-spacing"
+                  size="sm"
+                  variant="success"
+                >El registro fue revisado</b-button>
               </div>
             </template>
           </vuetable>
           <vuetable-pagination-bootstrap
-              ref="pagination"
-              @vuetable-pagination:change-page="onChangePage"
-            />
+            ref="paginationAnestesicos"
+            @vuetable-pagination:change-page="onChangePageAnestesicos"
+          />
         </template>
       </iq-card>
     </b-col>
@@ -213,24 +261,39 @@
             :row-class="getRowClass"
           >
             <template slot="actions" slot-scope="props">
-                <div class="button-container">
+              <div class="button-container">
                 <b-button
-                  v-if="props.rowData.estado === 1"
-                  @click="
-                    setData(props.rowData, 2)
-                  "
+                  v-if="props.rowData.estado === 1 && props.rowData.reviewed_by === null"
+                  @click="setData(props.rowData, 2)"
                   v-b-modal.modal-desactivar
                   class="mb-2 button-spacing"
                   size="sm"
                   variant="danger"
+                  :disabled="hasPermission([1, 3])"
                 >Eliminar registro</b-button>
                 <b-button
-                  v-else
+                  v-else-if="props.rowData.estado === 0 && props.rowData.reviewed_by === null"
                   :disabled="true"
                   class="mb-2 button-spacing"
                   size="sm"
                   variant="dark"
                 >El registro fue eliminado</b-button>
+                <b-button
+                  v-if="props.rowData.estado === 1 && props.rowData.reviewed_by === null"
+                  @click="setData(props.rowData, 2)"
+                  v-b-modal.modal-revisar
+                  class="mb-2 button-spacing"
+                  size="sm"
+                  variant="success"
+                  :disabled="hasPermission([1, 3])"
+                >Revisar registro</b-button>
+                <b-button
+                  v-else-if="props.rowData.reviewed_by !== null"
+                  :disabled="true"
+                  class="mb-2 button-spacing"
+                  size="sm"
+                  variant="success"
+                >El registro fue revisado</b-button>
               </div>
             </template>
           </vuetable>
@@ -282,24 +345,39 @@
             :row-class="getRowClass"
           >
             <template slot="actions" slot-scope="props">
-                <div class="button-container">
+              <div class="button-container">
                 <b-button
-                  v-if="props.rowData.estado === 1"
-                  @click="
-                    setData(props.rowData, 3)
-                  "
+                  v-if="props.rowData.estado === 1 && props.rowData.reviewed_by === null"
+                  @click="setData(props.rowData, 3)"
                   v-b-modal.modal-desactivar
                   class="mb-2 button-spacing"
                   size="sm"
                   variant="danger"
+                  :disabled="hasPermission([1, 3])"
                 >Eliminar registro</b-button>
                 <b-button
-                  v-else
+                  v-else-if="props.rowData.estado === 0 && props.rowData.reviewed_by === null"
                   :disabled="true"
                   class="mb-2 button-spacing"
                   size="sm"
                   variant="dark"
                 >El registro fue eliminado</b-button>
+                <b-button
+                  v-if="props.rowData.estado === 1 && props.rowData.reviewed_by === null"
+                  @click="setData(props.rowData, 3)"
+                  v-b-modal.modal-revisar
+                  class="mb-2 button-spacing"
+                  size="sm"
+                  variant="success"
+                  :disabled="hasPermission([1, 3])"
+                >Revisar registro</b-button>
+                <b-button
+                  v-else-if="props.rowData.reviewed_by !== null"
+                  :disabled="true"
+                  class="mb-2 button-spacing"
+                  size="sm"
+                  variant="success"
+                >El registro fue revisado</b-button>
               </div>
             </template>
           </vuetable>
@@ -363,6 +441,15 @@ export default {
       search: '',
       fechaDesde: null,
       fechaHasta: null,
+      fromAnestesicos: 0,
+      toAnestesicos: 0,
+      totalAnestesicos: 0,
+      perPageAnestesicos: 5,
+      searchAnestesicos: '',
+      fechaDesdeAnestesicos: null,
+      fechaHastaAnestesicos: null,
+      lastPageAnestesicos: 0,
+      itemsAnestesicos: [],
       apiBase: apiUrl + '/detalle_consumo_medicamentos/list',
       apiBaseAnestesicos: apiUrl + '/detalle_consumo_medicamentos/listAnestesicos',
       slickOptions: {
@@ -437,6 +524,12 @@ export default {
           sortField: 'updated_by',
           title: 'Eliminado por',
           dataClass: 'list-item-heading'
+        },
+        {
+          name: 'reviewed_by',
+          sortField: 'reviewed_by',
+          title: 'Revisado por',
+          dataClass: 'list-item-heading'
         }
       ],
       fromComun: 0,
@@ -495,6 +588,12 @@ export default {
           sortField: 'updated_by',
           title: 'Eliminado por',
           dataClass: 'list-item-heading'
+        },
+        {
+          name: 'reviewed_by',
+          sortField: 'reviewed_by',
+          title: 'Revisado por',
+          dataClass: 'list-item-heading'
         }
       ],
       fromQuirurgico: 0,
@@ -552,6 +651,12 @@ export default {
           name: 'updated_by',
           sortField: 'updated_by',
           title: 'Eliminado por',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'reviewed_by',
+          sortField: 'reviewed_by',
+          title: 'Revisado por',
           dataClass: 'list-item-heading'
         }
       ]
@@ -613,6 +718,51 @@ export default {
     },
     onChangePage (page) {
       this.$refs.vuetable.changePage(page)
+    },
+
+    realizarBusquedaAnestesicos () {
+      this.$refs.vuetable_Anestesicos.refresh()
+      this.fechaDesdeAnestesicos = null
+      this.fechaHastaAnestesicos = null
+    },
+    makeQueryParamsAnestesicos (sortOrder, currentPage, perPage) {
+      return {
+        criterio: sortOrder[0] ? sortOrder[0].sortField : 'createdAt',
+        order: sortOrder[0] ? sortOrder[0].direction : 'desc',
+        page: currentPage,
+        limit: this.perPageAnestesicos,
+        search: this.searchAnestesicos,
+        fechaDesde: this.fechaDesdeAnestesicos ? moment(this.fechaDesdeAnestesicos).format('YYYY-MM-DD') : null,
+        fechaHasta: this.fechaHastaAnestesicos ? moment(this.fechaHastaAnestesicos).format('YYYY-MM-DD') : null
+      }
+    },
+    changePageSizesAnestesicos (perPage) {
+      this.perPageAnestesicos = perPage
+      this.$refs.vuetable_Anestesicos.refresh()
+    },
+    searchChangeAnestesicos (val) {
+      this.searchAnestesicos = val.toLowerCase()
+      this.$refs.vuetable_Anestesicos.refresh()
+    },
+    onPaginationDataAnestesicos (paginationData) {
+      this.fromAnestesicos = paginationData.from
+      this.toAnestesicos = paginationData.to
+      this.totalAnestesicos = paginationData.total
+      this.lastPageAnestesicos = paginationData.last_page
+      this.itemsAnestesicos = paginationData.data.map(item => {
+        item.fecha_consumo = moment(item.fecha_consumo).format('DD/MM/YYYY HH:mm')
+        item.cantidad = parseInt(item.cantidad)
+        return {
+          numero_cuenta: item.numero_cuenta,
+          nombre_medicamento: item.nombre_medicamento,
+          cantidad: item.cantidad,
+          fecha_consumo: item.fecha_consumo
+        }
+      })
+      this.$refs.paginationAnestesicos.setPaginationData(paginationData)
+    },
+    onChangePageAnestesicos (page) {
+      this.$refs.vuetable_Anestesicos.changePage(page)
     },
 
     realizarBusquedaComun () {
@@ -724,6 +874,7 @@ export default {
             me.showAlert()
             me.alertText = response.data
             me.$refs.vuetable.refresh()
+            me.$refs.vuetable_Anestesicos.refresh()
             me.$refs['modal-desactivar'].hide()
           })
           .catch((error) => {
@@ -761,6 +912,65 @@ export default {
             me.alertText = response.data
             me.$refs.vuetable_Quirurgico.refresh()
             me.$refs['modal-desactivar'].hide()
+          })
+          .catch((error) => {
+            me.alertVariant = 'danger'
+            me.showAlertError()
+            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+            console.error('There was an error!', error)
+          })
+      }
+    },
+    onReview () {
+      let me = this
+      if (this.consumoToDelete.area === 1) { // Revisando medicamento
+        axios
+          .put(apiUrl + '/detalle_consumo_medicamentos/review', {
+            delete: this.consumoToDelete
+          })
+          .then((response) => {
+            me.alertVariant = 'danger'
+            me.showAlert()
+            me.alertText = response.data
+            me.$refs.vuetable.refresh()
+            me.$refs.vuetable_Anestesicos.refresh()
+            me.$refs['modal-revisar'].hide()
+          })
+          .catch((error) => {
+            me.alertVariant = 'danger'
+            me.showAlertError()
+            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+            console.error('There was an error!', error)
+          })
+      } else if (this.consumoToDelete.area === 2) { // Revisando comun
+        axios
+          .put(apiUrl + '/detalle_consumo_comun/review', {
+            delete: this.consumoToDelete
+          })
+          .then((response) => {
+            me.alertVariant = 'danger'
+            me.showAlert()
+            me.alertText = response.data
+            me.$refs.vuetable_Comun.refresh()
+            me.$refs['modal-revisar'].hide()
+          })
+          .catch((error) => {
+            me.alertVariant = 'danger'
+            me.showAlertError()
+            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+            console.error('There was an error!', error)
+          })
+      } else if (this.consumoToDelete.area === 3) { // Revisando quirurgico
+        axios
+          .put(apiUrl + '/detalle_consumo_quirurgicos/review', {
+            delete: this.consumoToDelete
+          })
+          .then((response) => {
+            me.alertVariant = 'danger'
+            me.showAlert()
+            me.alertText = response.data
+            me.$refs.vuetable_Quirurgico.refresh()
+            me.$refs['modal-revisar'].hide()
           })
           .catch((error) => {
             me.alertVariant = 'danger'

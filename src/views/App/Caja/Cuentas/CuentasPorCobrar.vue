@@ -372,6 +372,7 @@ export default {
   },
   data () {
     return {
+      discountAmount: 0,
       from: 0,
       to: 0,
       total: 0,

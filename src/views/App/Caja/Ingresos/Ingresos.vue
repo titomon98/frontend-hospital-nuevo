@@ -203,6 +203,14 @@
                   ></b-form-input>
                 </b-form-group>
               </b-col>
+              <b-col md="4">
+                <b-form-group label="Nota de ingreso:">
+                  <b-form-input
+                    v-model.trim="form.motivo"
+                    placeholder="Ingresar nota de ingreso a hospital"
+                  ></b-form-input>
+                </b-form-group>
+              </b-col>
             </b-row>
             <!-- Datos de encargado -->
             <h4 class="card-title mt-3">Ingreso de encargado</h4>
@@ -444,7 +452,7 @@ export default {
         telefono_conyuge: '',
         selectedOption: 'hospi',
         tipo_paciente: '0',
-        motivo: ' ',
+        motivo: null,
         fecha: null,
         hora: null,
         tipo_cuenta: 1

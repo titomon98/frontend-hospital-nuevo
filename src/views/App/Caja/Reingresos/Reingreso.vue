@@ -314,12 +314,7 @@
                       size="sm"
                       :variant="
                         props.rowData.estado == 1 ? 'outline-danger' : 'outline-info'">
-                      <i
-                        :class="
-                          props.rowData.estado == 1
-                            ? 'fas fa-trash-alt'
-                            : 'fas fa-check'"
-                    /></b-button>
+                      REINGRESAR PACIENTE</b-button>
                   </div>
                   <div v-if="props.rowData.solvencia == 0">
                     DEBE DE ESTAR SOLVENTE PARA INGRESAR AL PACIENTE
@@ -562,7 +557,6 @@ export default {
     /* Actualizar */
     onUpdate () {
       const me = this
-      // this.$refs["modalSave"].hide()
       axios.put(apiUrl + '/servicios/update', {
         form: me.form })
         .then((response) => {
