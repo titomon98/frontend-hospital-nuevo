@@ -952,6 +952,30 @@
       </b-col>
       </b-row>
     </b-modal>
+    <b-modal id="modal-eliminar-expediente" ref="modal-eliminar-expediente" title="Eliminar expediente">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <h6 class="my-4">
+        ¿Desea eliminar el expediente ?
+      </h6>
+      <template #modal-footer="{}">
+        <b-button
+          type="submit"
+          variant="primary"
+          @click="eliminarEmergencia()"
+        >Eliminar</b-button>
+        <b-button variant="danger" @click="$bvModal.hide('modal-eliminar-expediente')">
+          Cancelar
+        </b-button>
+      </template>
+    </b-modal>
     <b-row>
       <b-col md="12">
         <iq-card>
@@ -1110,6 +1134,20 @@
                     variant="success"
                     :disabled="!hasPermission([9, 10])"
                    >Hoja de Emergencia</b-button>
+                   <b-button
+                      class="mb-2 button-spacing"
+                      size="sm"
+                      variant="primary"
+                      :disabled="hasPermission([1, 3])"
+                      @click="setEliminar(props.rowData); $bvModal.show('modal-eliminar-expediente')"
+                  >Eliminar paciente</b-button>
+                   <b-button
+                    @click="egresoEmergencia(props.rowData)"
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="primary"
+                    :disabled="hasPermission([1, 3])"
+                   >Egreso de paciente</b-button>
                 </div>
                 <!-- Tipo de paciente-->
                 <div slot="tipo_paciente" slot-scope="props">
@@ -3745,7 +3783,45 @@ export default {
           this.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
           console.error('Error!', error)
         })
-    }
+    },
+    setEliminar (data) {
+      this.form.id = data.id
+      this.form.expediente = data.expediente
+      const masDeUnaCuenta = data.cuentas.length
+
+      if (masDeUnaCuenta > 1) {
+        this.alertVariant = 'danger'
+        this.showAlert()
+        this.alertText = 'El paciente no puede ser eliminado permanentemente ya que tiene ingresos previos en hospital'
+        return
+      }
+    },
+    eliminarEmergencia () {
+      axios.delete(apiUrl + '/expedientes/delete', {
+        data: { id: this.form.id }
+      })
+      .then((response) => {
+          this.alertVariant = 'primary'
+          this.showAlert()
+          this.alertText = 'El registro ha sido eliminado exitosamente'
+          this.$refs.vuetable.refresh()
+          this.$bvModal.hide('modal-eliminar-expediente')
+      })
+      .catch((error) => {
+          this.alertVariant = 'danger'
+          this.showAlertError()
+          this.alertErrorText = error.response?.data?.msg || 'Ha ocurrido un error, por favor intente más tarde'
+          console.error('Error!', error)
+      })
+    },
+    egresoEmergencia (data) {
+      const idExpediente = data.id
+      const masDeUnaCuenta = data.cuentas.length
+
+      //Aqui mostrar motivo de consulta, diagnostico, tratamiento, observaciones, fecha y hora de salida
+      //Y un boton para cobrar derecho de emergencia
+      //El cobro a emergencia es 25, el pago a interno es 150
+    },
   }
 }
 </script>
