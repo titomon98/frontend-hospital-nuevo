@@ -3795,33 +3795,35 @@ export default {
         this.alertText = 'El paciente no puede ser eliminado permanentemente ya que tiene ingresos previos en hospital'
         return
       }
+
+      console.log('Aqui haremos algo mas')
     },
     eliminarEmergencia () {
       axios.delete(apiUrl + '/expedientes/delete', {
         data: { id: this.form.id }
       })
-      .then((response) => {
+        .then((response) => {
           this.alertVariant = 'primary'
           this.showAlert()
           this.alertText = 'El registro ha sido eliminado exitosamente'
           this.$refs.vuetable.refresh()
           this.$bvModal.hide('modal-eliminar-expediente')
-      })
-      .catch((error) => {
+        })
+        .catch((error) => {
           this.alertVariant = 'danger'
           this.showAlertError()
           this.alertErrorText = error.response?.data?.msg || 'Ha ocurrido un error, por favor intente más tarde'
           console.error('Error!', error)
-      })
+        })
     },
     egresoEmergencia (data) {
-      const idExpediente = data.id
-      const masDeUnaCuenta = data.cuentas.length
+      // const idExpediente = data.id
+      // const masDeUnaCuenta = data.cuentas.length
 
-      //Aqui mostrar motivo de consulta, diagnostico, tratamiento, observaciones, fecha y hora de salida
-      //Y un boton para cobrar derecho de emergencia
-      //El cobro a emergencia es 25, el pago a interno es 150
-    },
+      // Aqui mostrar motivo de consulta, diagnostico, tratamiento, observaciones, fecha y hora de salida
+      // Y un boton para cobrar derecho de emergencia
+      // El cobro a emergencia es 25, el pago a interno es 150
+    }
   }
 }
 </script>
