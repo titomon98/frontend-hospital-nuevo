@@ -486,6 +486,7 @@ export default {
       }
     },
     onValidate (action) {
+      console.log(this.formMedicamento)
       this.$v.$touch()
       if (this.$v.$error !== true) {
         if (action === 'medicamento') {
@@ -497,7 +498,7 @@ export default {
             this.showAlertError()
           }
         } else if (action === 'quirurgico') {
-          if (this.formMedicamento.cantidad > 0) {
+          if (this.formMedicamento.cantidad > 0 && this.formMedicamento.medicine.inventariado === 'NO INVENTARIADO') {
             this.addQuirurgico()
           } else {
             console.log(this.formMedicamento.cantidad)
@@ -505,7 +506,7 @@ export default {
             this.showAlertError()
           }
         } else if (action === 'comun') {
-          if (this.formMedicamento.cantidad > 0) {
+          if (this.formMedicamento.cantidad > 0 && this.formMedicamento.medicine.inventariado === 'NO INVENTARIADO') {
             this.addComun()
           } else {
             console.log(this.formMedicamento.cantidad)

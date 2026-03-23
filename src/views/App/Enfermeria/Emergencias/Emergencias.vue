@@ -10,6 +10,65 @@
     >
       <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
+    <b-modal id="modal-egreso" ref="modal-egreso" title="Egreso de paciente">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <b-form @submit="$event.preventDefault()">
+        <b-form-group label="Motivo de la consulta:">
+          <b-form-input
+            v-model.trim="egreso.motivo"
+            placeholder="Ingresar motivo de la consulta"
+          ></b-form-input>
+        </b-form-group>
+        <b-form-group label="Diagnóstico:">
+          <b-form-input
+            v-model.trim="egreso.diagnostico"
+            placeholder="Ingresar diagnóstico"
+          ></b-form-input>
+        </b-form-group>
+        <b-form-group label="Tratamiento sugerido:">
+          <b-form-input
+            v-model.trim="egreso.tratamiento"
+            placeholder="Ingresar tratamiento"
+          ></b-form-input>
+        </b-form-group>
+        <b-form-group label="Observaciones:">
+          <b-form-input
+            v-model.trim="egreso.observaciones"
+            placeholder="Ingresar observaciones"
+          ></b-form-input>
+        </b-form-group>
+        <b-form-group label="Fecha de ingreso:">
+          <b-form-input
+            type="date"
+            v-model.trim="form.fecha"
+            placeholder="Ingresar fecha de ingreso"
+          ></b-form-input>
+        </b-form-group>
+        <b-form-group label="Hora de ingreso:">
+          <b-form-input
+            type="time"
+            v-model.trim="form.hora"
+            placeholder="Ingresar hora de ingreso"
+          ></b-form-input>
+        </b-form-group>
+      </b-form>
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click="onValidateEgreso()"
+          >Guardar</b-button
+        >
+        <b-button variant="danger" @click="closeModal('egreso')"
+          >Cancelar</b-button
+        >
+      </template>
+    </b-modal>
     <b-modal id="modal-traslado" ref="modal-traslado" title="Trasladar paciente">
       <b-alert
         :show="alertCountDownError"
@@ -1327,7 +1386,9 @@ export default {
         selected_insumo: '0',
         notas: null,
         motivo: ' ',
-        motivo_egreso: ' '
+        motivo_egreso: ' ',
+        fecha: null,
+        hora: null
       },
       servicio: null,
       alertSecs: 5,
@@ -1864,6 +1925,12 @@ export default {
         ExamenesTotal: '0.00',
         ServicioSalaOperacionesTotal: '0.00',
         TotalDeuda: '0.00'
+      },
+      egreso: {
+        motivo: null,
+        diagnostico: null,
+        tratamiento: null,
+        observaciones: null
       }
     }
   },
@@ -2073,6 +2140,13 @@ export default {
     },
     closeModal (action) {
       switch (action) {
+        case 'egreso': {
+          this.$refs['modal-egreso'].hide()
+          egreso.motivo = null
+          egreso.diagnostico = null
+          egreso.tratamiento = null
+          egreso.observaciones = null
+        }
         case 'assignMotivo': {
           this.estudioDeSueno = 0
           this.form.motivo = ''
@@ -3817,12 +3891,22 @@ export default {
         })
     },
     egresoEmergencia (data) {
-      // const idExpediente = data.id
-      // const masDeUnaCuenta = data.cuentas.length
-
+      this.form.id = data.id
       // Aqui mostrar motivo de consulta, diagnostico, tratamiento, observaciones, fecha y hora de salida
       // Y un boton para cobrar derecho de emergencia
       // El cobro a emergencia es 25, el pago a interno es 150
+      this.$refs['modal-egreso'].show()
+    },
+    onValidateEgreso () {
+      if (form.fecha === null || form.hora === null) {
+        this.alertVariant = 'danger'
+        this.showAlertError()
+        this.alertErrorText = 'La fecha o la hora no son correctas'
+        console.error('Error!', error)
+        return
+      }
+
+      console.log('Llegamos bien hasta aqui')
     }
   }
 }
