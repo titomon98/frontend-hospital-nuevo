@@ -10,6 +10,47 @@
     >
       <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
+    <b-modal id="modal-1-paquetes" ref="modal-1-paquetes" title="Agregar paquete a paciente">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <b-form>
+        <b-form-group label="Paquete:">
+          <v-select
+            name="paquete"
+            v-model="formMedicamento.medicine"
+            :options="paquetes"
+            :filterable="false"
+            placeholder="Seleccione el paquete"
+            @search="onSearchPaquetes"
+          >
+            <template v-slot:spinner="{ loading }">
+              <div v-show="loading">Cargando...</div>
+            </template>
+            <template v-slot:option="option">
+              {{ 'Nombre: '+ option.nombre + ' Precio: '+ option.total}}
+            </template>
+            <template slot="selected-option" slot-scope="option">
+              {{ 'Nombre: '+ option.nombre + ' Precio: '+ option.total}}
+            </template>
+          </v-select>
+         </b-form-group>
+      </b-form>
+      <template #modal-footer="{}">
+        <b-button  variant="primary" @click="setPaquete(formMedicamento.medicine)"
+          >Guardar</b-button
+        >
+        <b-button variant="danger" @click="closeModal('paquete')"
+          >Cancelar</b-button
+        >
+      </template>
+    </b-modal>
     <b-modal id="modal-traslado" ref="modal-traslado" title="Trasladar paciente">
       <b-alert
         :show="alertCountDownError"
@@ -1159,7 +1200,7 @@
 
                    <b-button
                     v-b-tooltip.top="'Agregar consumo'"
-                    @click="mostrarModalConsumos(props.rowData.id)"
+                    @click="mostrarModalPaquetes(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="info"
@@ -1329,6 +1370,16 @@ export default {
   },
   data () {
     return {
+      formMedicamento: {
+        id: 0,
+        cantidad: null,
+        medicine: [],
+        total: '',
+        is_medicine: false,
+        is_quirurgico: false,
+        is_comun: false
+      },
+      paquetes: [],
       totalMedicamentos: 0.0,
       totalAnestesicos: 0.0,
       totalComun: 0.0,
@@ -2249,6 +2300,11 @@ export default {
       this.getConsumoMedicamentos(idCuenta)
       this.obtenerIdCuenta(idCuenta)
     },
+    mostrarModalPaquetes (idCuenta) {
+      this.showModal('modal-1-paquetes')
+      this.getConsumoMedicamentos(idCuenta)
+      this.obtenerIdCuenta(idCuenta)
+    },
     mostrarVerServicio (id) {
       if ([9, 10].includes(this.currentUser.user_type)) {
         this.$refs['modal-ver-servicio2'].show()
@@ -2289,6 +2345,10 @@ export default {
     },
     closeModal (action) {
       switch (action) {
+        case 'paquete': {
+          this.$refs['modal-1-paquetes'].hide()
+          break
+        }
         case 'assignMotivo': {
           this.estudioDeSueno = 0
           this.form.motivo = ''
@@ -3895,6 +3955,86 @@ export default {
         console.log(this.personalOptions)
       } catch (error) {
         console.error(error)
+      }
+    },
+    onSearchPaquetes (search) {
+      if (search.length) {
+        this.searchingPaquete(search)
+      }
+    },
+    searchingPaquete (search) {
+      axios.get(apiUrl + '/paquetes/getSearch',
+        {
+          params: {
+            search: search
+          }
+        }
+      ).then((response) => {
+        this.paquetes = response.data
+      })
+    },
+    async setPaquete(data) {
+      const detallePaquetes = data.detalle_paquetes
+
+      for (const element of detallePaquetes) {
+        console.log(element)
+        let dataConsumo = {
+          existencia_actual: 0,
+          inventariado: ""
+        }
+
+        let tipo = '0' //Quirurgico es 1, Comun es 2, 0 y 3 son medicamento
+        let id
+
+        if (element.id_comun !== null) {
+          try {
+            const response = await axios.get(apiUrl + '/comun/getOne', { params: { id: element.id_comun } })
+            dataConsumo = response.data
+            tipo = '2'
+            id = element.id_comun
+          } catch (error) {
+            console.log(error)
+          }
+        }
+
+        else if (element.id_quirurgico !== null) {
+          try {
+            const response = await axios.get(apiUrl + '/quirurgico/getOne', { params: { id: element.id_quirurgico } })
+            dataConsumo = response.data
+            tipo = '1'
+            id = element.id_quirurgico
+          } catch (error) {
+            console.log(error)
+          }
+        }
+
+        else if (element.id_medicamento !== null) {
+          try {
+            const response = await axios.get(apiUrl + '/medicamentos/getOne', { params: { id: element.id_medicamento } })
+            dataConsumo = response.data
+            tipo = '0'
+            id = element.id_medicamento
+          } catch (error) {
+            console.log(error)
+          }
+        }
+
+        this.consumosTemporales.push({
+          id: id,
+          tipo: tipo,
+          nombre: element.descripcion,
+          cantidad: parseInt(element.cantidad),
+          precio_venta: parseFloat(parseFloat(element.subtotal) / parseInt(element.cantidad)),
+          existencias: dataConsumo.existencia_actual,
+          inventariado: dataConsumo.inventariado
+        })
+      }
+
+      this.closeModal('paquete')
+      if ([9, 10].includes(this.currentUser.user_type)) {
+        this.showModal('modal-1-movimiento2')
+      } else {
+        this.showModal('modal-1-movimiento')
       }
     }
   }

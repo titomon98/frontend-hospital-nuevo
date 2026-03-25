@@ -93,6 +93,22 @@
         <div>
           <b-input id="motivoEgreso" ref="motivoEgreso" v-model="motivoEgresoHospi" />
         </div>
+        <div>
+          <b-form-group label="Fecha de egreso:">
+            <b-form-input
+              type="date"
+              v-model.trim="form.fecha"
+              placeholder="Ingresar fecha de egreso"
+            ></b-form-input>
+          </b-form-group>
+          <b-form-group label="Hora de egreso:">
+            <b-form-input
+              type="time"
+              v-model.trim="form.hora"
+              placeholder="Ingresar hora de egreso"
+            ></b-form-input>
+          </b-form-group>
+        </div>
       </template>
       <template #modal-footer="{}">
         <b-button variant="primary" @click="
@@ -284,7 +300,9 @@ export default {
         apellidos: '',
         expediente: '',
         cui: '',
-        state: 1
+        state: 1,
+        fecha: null,
+        hora: null
       },
       motivoEgresoHospi: '',
       motivoTrasladoHospi: '',
@@ -406,18 +424,22 @@ export default {
       switch (action) {
         case 'save': {
           this.$v.$reset()
-          this.$refs['modal-1-bank'].hide()
+          this.$refs['modal-1-traslado'].hide()
           this.form.id = 0
           this.form.name = ''
           this.form.state = 1
+          this.form.fecha = null
+          this.form.hora = null
           break
         }
         case 'update': {
           this.$v.$reset()
-          this.$refs['modal-2-egresarHosp'].hide()
+          this.$refs['modal-2-egreso'].hide()
           this.form.id = 0
           this.form.name = ''
           this.form.state = 1
+          this.form.fecha = null
+          this.form.hora = null
           break
         }
       }
@@ -437,45 +459,6 @@ export default {
       this.form.state = data.estado
       this.form.id = data.id
       this.getCuentas(data.id)
-    },
-    /* Guardar */
-    onSave () {
-      const me = this
-      axios.post(apiUrl + '/banco/create', {
-        form: me.form })
-        .then((response) => {
-          me.alertVariant = 'success'
-          me.showAlert()
-          me.alertText = 'Se ha creado el banco ' + me.form.name + ' exitosamente'
-          me.$refs.vuetableHosp.refresh()
-          me.closeModal('save')
-        })
-        .catch((error) => {
-          me.alertVariant = 'danger'
-          me.showAlertError()
-          me.alertErrorText = error.response.data.msg
-          console.error('Error!', error)
-        })
-    },
-    /* Guardar */
-    onUpdate () {
-      const me = this
-      // this.$refs["modalSave"].hide();
-      axios.put(apiUrl + '/banco/update', {
-        form: me.form })
-        .then((response) => {
-          me.alertVariant = 'primary'
-          me.showAlert()
-          me.alertText = 'Se ha actualizado el banco ' + me.form.name + ' exitosamente'
-          me.$refs.vuetableHosp.refresh()
-          me.closeModal('update')
-        })
-        .catch((error) => {
-          me.alertVariant = 'danger'
-          me.showAlertError()
-          me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-          console.error('Error!', error)
-        })
     },
     onState () {
       let me = this
@@ -535,7 +518,9 @@ export default {
               estado: this.selectedQuitOption,
               estado_anterior: 1,
               motivo: this.motivoEgresoHospi,
-              habitaciones: 0
+              habitaciones: 0,
+              form: this.form,
+              user: me.currentUser.user
             })
             .then((response) => {
               this.motivoEgresoHospi = ''

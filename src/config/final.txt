@@ -33,12 +33,12 @@ Completados:
 40. Se tuvo que agregar utilidad para modificar la eliminación de paciente de emergencia - Validado
 
 Pendientes de revisión:
-28. En paquetes no se pueden agregar los medicamentos "sin inventariar". Duda.
-29. El vender paquetes es en quirofano
+28. En paquetes no se pueden agregar los medicamentos "sin inventariar". - Listo
+29. El vender paquetes es en quirofano - Listo.
+9. Agregar calendario y hora al egreso en el modal de egreso, debajo de motivo de egreso - Validar que los datos que están sean para cerrar.
 
 En desarrollo:
 37. Agregar egreso y eliminación de paciente de emergencia según imagen de whatsapp. - La eliminacion se validó de esa manera. Se puede validar igual el egreso? Los campos de egreso son solo para emergencia
-9. Agregar calendario y hora al egreso en el modal de egreso, debajo de motivo de egreso - Validar que los datos que están sean para cerrar.
 3.⁠ ⁠⁠Cuadrar la cuenta con los cobros indicados
 14. En la cuenta parcial si aparece el rubro pero no el dinero - Duda. En este caso, que ya aparecen anestesicos e intensivo, se puede dar por cerrada?
 35. El corte de habitacion no es a las 3pm, es a las 2pm. Si se ingresa entre 7am y 1:59pm, no se cobra dia extra. Si ingresa entre las 12:00am de ese y las 6:59am, se deben cobrar dos dias, de 12am a 7am, y luego de 2pm a 2pm del siguiente dia de una vez.

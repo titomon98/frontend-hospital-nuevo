@@ -45,18 +45,18 @@
             placeholder="Ingresar observaciones"
           ></b-form-input>
         </b-form-group>
-        <b-form-group label="Fecha de ingreso:">
+        <b-form-group label="Fecha de egreso:">
           <b-form-input
             type="date"
             v-model.trim="form.fecha"
-            placeholder="Ingresar fecha de ingreso"
+            placeholder="Ingresar fecha de egreso"
           ></b-form-input>
         </b-form-group>
-        <b-form-group label="Hora de ingreso:">
+        <b-form-group label="Hora de egreso:">
           <b-form-input
             type="time"
             v-model.trim="form.hora"
-            placeholder="Ingresar hora de ingreso"
+            placeholder="Ingresar hora de egreso"
           ></b-form-input>
         </b-form-group>
       </b-form>

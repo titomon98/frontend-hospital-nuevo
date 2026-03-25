@@ -10,183 +10,6 @@
     >
       <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
-    <b-modal id="modal-1" ref="modal-1" title="Agregar medicamento">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
-      >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
-      </b-alert>
-      <b-form>
-        <b-form-group label="Medicamento:">
-          <v-select
-            name="medicine"
-            v-model="$v.formMedicamento.medicine.$model"
-            :state="!$v.formMedicamento.medicine.$error"
-            :options="medicines"
-            :filterable="false"
-            placeholder="Seleccione el medicamento"
-            @search="onSearch"
-          >
-            <template v-slot:spinner="{ loading }">
-              <div v-show="loading">Cargando...</div>
-            </template>
-            <template v-slot:option="option">
-              {{ 'Nombre: '+ option.nombre}}
-            </template>
-            <template slot="selected-option" slot-scope="option">
-              {{ 'Nombre: '+ option.nombre}}
-            </template>
-          </v-select>
-          <div v-if="$v.formMedicamento.medicine.$error" class="invalid-feedback-vselect">
-            Debe seleccionar el medicamento
-          </div>
-         </b-form-group>
-        <div v-if="$v.formMedicamento.medicine.$invalid" class="invalid-feedback">
-          Debe ingresar el medicamento
-        </div>
-        <b-form-group label="Cantidad:">
-          <b-form-input
-            type="number"
-            v-model.trim="$v.formMedicamento.cantidad.$model"
-            :state="!$v.formMedicamento.cantidad.$error"
-            placeholder="Ingresar Cantidad"
-          ></b-form-input>
-        </b-form-group>
-        <div v-if="$v.formMedicamento.cantidad.$invalid" class="invalid-feedback">
-          Debe ingresar la cantidad
-        </div>
-      </b-form>
-      <template #modal-footer="{}">
-        <b-button  variant="primary" @click="onValidate('medicamento')"
-          >Guardar</b-button
-        >
-        <b-button variant="danger" @click="closeModal('medicamento')"
-          >Cancelar</b-button
-        >
-      </template>
-    </b-modal>
-    <b-modal id="modal-2" ref="modal-2" title="Agregar material quirúrgico">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
-      >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
-      </b-alert>
-      <b-form>
-        <b-form-group label="Material quirúrgico:">
-          <v-select
-            name="quirurgico"
-            v-model="$v.formMedicamento.medicine.$model"
-            :state="!$v.formMedicamento.medicine.$error"
-            :options="quirurgicos"
-            :filterable="false"
-            placeholder="Seleccione el material quirúrgico"
-            @search="onSearchQuirurgicos"
-          >
-            <template v-slot:spinner="{ loading }">
-              <div v-show="loading">Cargando...</div>
-            </template>
-            <template v-slot:option="option">
-              {{ 'Nombre: '+ option.nombre}}
-            </template>
-            <template slot="selected-option" slot-scope="option">
-              {{ 'Nombre: '+ option.nombre}}
-            </template>
-          </v-select>
-          <div v-if="$v.formMedicamento.medicine.$error" class="invalid-feedback-vselect">
-            Debe seleccionar el medicamento
-          </div>
-         </b-form-group>
-        <div v-if="$v.formMedicamento.medicine.$invalid" class="invalid-feedback">
-          Debe ingresar el medicamento
-        </div>
-        <b-form-group label="Cantidad:">
-          <b-form-input
-            type="number"
-            v-model.trim="$v.formMedicamento.cantidad.$model"
-            :state="!$v.formMedicamento.cantidad.$error"
-            placeholder="Ingresar Cantidad"
-          ></b-form-input>
-        </b-form-group>
-        <div v-if="$v.formMedicamento.cantidad.$invalid" class="invalid-feedback">
-          Debe ingresar la cantidad
-        </div>
-      </b-form>
-      <template #modal-footer="{}">
-        <b-button  variant="primary" @click="onValidate('quirurgico')"
-          >Guardar</b-button
-        >
-        <b-button variant="danger" @click="closeModal('quirurgico')"
-          >Cancelar</b-button
-        >
-      </template>
-    </b-modal>
-    <b-modal id="modal-3" ref="modal-3" title="Agregar material común">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
-      >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
-      </b-alert>
-      <b-form>
-        <b-form-group label="Material común:">
-          <v-select
-            name="comun"
-            v-model="$v.formMedicamento.medicine.$model"
-            :state="!$v.formMedicamento.medicine.$error"
-            :options="comunes"
-            :filterable="false"
-            placeholder="Seleccione el material común"
-            @search="onSearchComunes"
-          >
-            <template v-slot:spinner="{ loading }">
-              <div v-show="loading">Cargando...</div>
-            </template>
-            <template v-slot:option="option">
-              {{ 'Nombre: '+ option.nombre}}
-            </template>
-            <template slot="selected-option" slot-scope="option">
-              {{ 'Nombre: '+ option.nombre}}
-            </template>
-          </v-select>
-          <div v-if="$v.formMedicamento.medicine.$error" class="invalid-feedback-vselect">
-            Debe seleccionar el medicamento
-          </div>
-         </b-form-group>
-        <div v-if="$v.formMedicamento.medicine.$invalid" class="invalid-feedback">
-          Debe ingresar el medicamento
-        </div>
-        <b-form-group label="Cantidad:">
-          <b-form-input
-            type="number"
-            v-model.trim="$v.formMedicamento.cantidad.$model"
-            :state="!$v.formMedicamento.cantidad.$error"
-            placeholder="Ingresar Cantidad"
-          ></b-form-input>
-        </b-form-group>
-        <div v-if="$v.formMedicamento.cantidad.$invalid" class="invalid-feedback">
-          Debe ingresar la cantidad
-        </div>
-      </b-form>
-      <template #modal-footer="{}">
-        <b-button  variant="primary" @click="onValidate('comun')"
-          >Guardar</b-button
-        >
-        <b-button variant="danger" @click="closeModal('comun')"
-          >Cancelar</b-button
-        >
-      </template>
-    </b-modal>
     <b-modal id="modal-4" ref="modal-4" title="Vender paquete">
       <b-alert
         :show="alertCountDownError"
@@ -459,7 +282,6 @@ export default {
       return !blockedRoles.includes(this.currentUser.user_type)
     },
     setPaquete (data) {
-      console.log(data)
       this.form.nombre = data.nombre
       this.form.total = data.total
       this.arrayDetalles = data.detalle_paquetes
@@ -468,54 +290,6 @@ export default {
         this.arrayDetalles[i].sugerida = this.arrayDetalles[i].cantidad
       }
       this.closeModal('paquete')
-    },
-    addMedicine () {
-      let me = this
-      me.total_array = me.total_array + 1
-      let nuevoTotal = (parseFloat(me.formMedicamento.medicine.precio_venta) * me.formMedicamento.cantidad)
-      let medicamento = {
-        cantidad: me.formMedicamento.cantidad,
-        descripcion: me.formMedicamento.medicine.nombre,
-        total: nuevoTotal,
-        id: me.total_array,
-        id_medicine: me.formMedicamento.medicine.id,
-        is_medicine: true
-      }
-      this.granTotal = this.granTotal + nuevoTotal
-      me.arrayDetalles.push(medicamento)
-      me.closeModal('medicamento')
-    },
-    addQuirurgico () {
-      let me = this
-      me.total_array = me.total_array + 1
-      let nuevoTotal = (parseFloat(me.formMedicamento.medicine.precio_venta) * me.formMedicamento.cantidad)
-      let medicamento = {
-        cantidad: me.formMedicamento.cantidad,
-        descripcion: me.formMedicamento.medicine.nombre,
-        total: nuevoTotal,
-        id: me.total_array,
-        id_medicine: me.formMedicamento.medicine.id,
-        is_quirurgico: true
-      }
-      this.granTotal = this.granTotal + nuevoTotal
-      me.arrayDetalles.push(medicamento)
-      me.closeModal('quirurgico')
-    },
-    addComun () {
-      let me = this
-      me.total_array = me.total_array + 1
-      let nuevoTotal = (parseFloat(me.formMedicamento.medicine.precio_venta) * me.formMedicamento.cantidad)
-      let medicamento = {
-        cantidad: me.formMedicamento.cantidad,
-        descripcion: me.formMedicamento.medicine.nombre,
-        total: nuevoTotal,
-        id: me.total_array,
-        id_medicine: me.formMedicamento.medicine.id,
-        is_comun: true
-      }
-      this.granTotal = this.granTotal + nuevoTotal
-      me.arrayDetalles.push(medicamento)
-      me.closeModal('comun')
     },
     deleteDetail (id, total) {
       let me = this
@@ -776,7 +550,6 @@ export default {
         }
       ).then((response) => {
         this.paquetes = response.data
-        loading(false)
       })
     }
   }

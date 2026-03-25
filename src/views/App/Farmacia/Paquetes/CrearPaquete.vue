@@ -498,7 +498,7 @@ export default {
             this.showAlertError()
           }
         } else if (action === 'quirurgico') {
-          if (this.formMedicamento.cantidad > 0 && this.formMedicamento.medicine.inventariado === 'NO INVENTARIADO') {
+          if (this.formMedicamento.cantidad > 0) {
             this.addQuirurgico()
           } else {
             console.log(this.formMedicamento.cantidad)
@@ -506,7 +506,7 @@ export default {
             this.showAlertError()
           }
         } else if (action === 'comun') {
-          if (this.formMedicamento.cantidad > 0 && this.formMedicamento.medicine.inventariado === 'NO INVENTARIADO') {
+          if (this.formMedicamento.cantidad > 0) {
             this.addComun()
           } else {
             console.log(this.formMedicamento.cantidad)
