@@ -22,6 +22,8 @@ Completados:
 25. En cuenta total agregar precio unitario y luego la siguiente columna es el precio total - Agregar fecha, cantidad y precio unitario en diferentes columnas - Validado
 26. Las dos horas y media tienen que estar precargadas en sala de operaciones - Validado
 27. Poner color a los turnos en Consumos de hospitalizacion, quirofano, intensivos, emergencia y en la vista de consumos. Dia: azul/celeste 7am a 6:59pm. Noche: rojo 7pm a 6:59am - Replicar en Intensivo, Quirofano y Emergencia - Validado
+28. En paquetes no se pueden agregar los medicamentos "sin inventariar" - Validado
+29. El vender paquetes es en quirofano - Validado
 30. El agregar los totales hace que no se vean bien los consumos - Validado
 31. Agregar registro de creacion en ordenes medicas y notas de enfermeria - Validado
 32. Crear un menu "registro de habitacion", el mismo nos servirá para ajustar las habitaciones de los pacientes. si en algún momento no se desea cobrar lo que el sistema generó automáticamente, se puede modificar con un menú como el de consumos y así llegar al total deseado. - Validado
@@ -33,17 +35,15 @@ Completados:
 40. Se tuvo que agregar utilidad para modificar la eliminación de paciente de emergencia - Validado
 
 Pendientes de revisión:
-28. En paquetes no se pueden agregar los medicamentos "sin inventariar". - Listo
-29. El vender paquetes es en quirofano - Listo.
 9. Agregar calendario y hora al egreso en el modal de egreso, debajo de motivo de egreso - Validar que los datos que están sean para cerrar.
+37. Agregar egreso y eliminación de paciente de emergencia según imagen de whatsapp. - La eliminacion se validó de esa manera. Se puede validar igual el egreso? Los campos de egreso son solo para emergencia
+14. En la cuenta parcial si aparece el rubro pero no el dinero - Duda. En este caso, que ya aparecen anestesicos e intensivo, se puede dar por cerrada?
 
 En desarrollo:
-37. Agregar egreso y eliminación de paciente de emergencia según imagen de whatsapp. - La eliminacion se validó de esa manera. Se puede validar igual el egreso? Los campos de egreso son solo para emergencia
-3.⁠ ⁠⁠Cuadrar la cuenta con los cobros indicados
-14. En la cuenta parcial si aparece el rubro pero no el dinero - Duda. En este caso, que ya aparecen anestesicos e intensivo, se puede dar por cerrada?
 35. El corte de habitacion no es a las 3pm, es a las 2pm. Si se ingresa entre 7am y 1:59pm, no se cobra dia extra. Si ingresa entre las 12:00am de ese y las 6:59am, se deben cobrar dos dias, de 12am a 7am, y luego de 2pm a 2pm del siguiente dia de una vez.
 
 No completados:
 15. Reingresar al paciente al pagar cuenta parcial - SOLUCION DE DUDA: SE TIENE QUE AGREGAR CALENDARIO DE HORA Y FECHA PARA QUE NO COBRE UN DIA EXTRA
-41. Hospitalizacion y laboratorio si o si se tiene que pagar en cuenta parcial. Honorarios, puede ser pagado hasta la siguiente cuenta, pero solo esto, nada mas.\
+41. Hospitalizacion y laboratorio si o si se tiene que pagar en cuenta parcial. Honorarios, puede ser pagado hasta la siguiente cuenta, pero solo esto, nada mas.
+3.⁠ ⁠⁠Cuadrar la cuenta con los cobros indicados
 42. Hoja de emergencia se movió por intentar cuadrar la cuenta parcial y total
