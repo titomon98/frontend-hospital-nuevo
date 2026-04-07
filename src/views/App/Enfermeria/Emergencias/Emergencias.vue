@@ -2142,10 +2142,11 @@ export default {
       switch (action) {
         case 'egreso': {
           this.$refs['modal-egreso'].hide()
-          egreso.motivo = null
-          egreso.diagnostico = null
-          egreso.tratamiento = null
-          egreso.observaciones = null
+          this.egreso.motivo = null
+          this.egreso.diagnostico = null
+          this.egreso.tratamiento = null
+          this.egreso.observaciones = null
+          break
         }
         case 'assignMotivo': {
           this.estudioDeSueno = 0
@@ -3898,11 +3899,10 @@ export default {
       this.$refs['modal-egreso'].show()
     },
     onValidateEgreso () {
-      if (form.fecha === null || form.hora === null) {
+      if (this.form.fecha === null || this.form.hora === null) {
         this.alertVariant = 'danger'
         this.showAlertError()
         this.alertErrorText = 'La fecha o la hora no son correctas'
-        console.error('Error!', error)
         return
       }
 

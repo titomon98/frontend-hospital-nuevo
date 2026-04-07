@@ -45,4 +45,5 @@ En desarrollo:
 
 No completados:
 15. Reingresar al paciente al pagar cuenta parcial - SOLUCION DE DUDA: SE TIENE QUE AGREGAR CALENDARIO DE HORA Y FECHA PARA QUE NO COBRE UN DIA EXTRA
-41. Hospitalizacion y laboratorio si o si se tiene que pagar en cuenta parcial. Honorarios, puede ser pagado hasta la siguiente cuenta, pero solo esto, nada mas.
+41. Hospitalizacion y laboratorio si o si se tiene que pagar en cuenta parcial. Honorarios, puede ser pagado hasta la siguiente cuenta, pero solo esto, nada mas.\
+42. Hoja de emergencia se movió por intentar cuadrar la cuenta parcial y total

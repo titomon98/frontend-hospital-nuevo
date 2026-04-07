@@ -3973,17 +3973,17 @@ export default {
         this.paquetes = response.data
       })
     },
-    async setPaquete(data) {
+    async setPaquete (data) {
       const detallePaquetes = data.detalle_paquetes
 
       for (const element of detallePaquetes) {
         console.log(element)
         let dataConsumo = {
           existencia_actual: 0,
-          inventariado: ""
+          inventariado: ''
         }
 
-        let tipo = '0' //Quirurgico es 1, Comun es 2, 0 y 3 son medicamento
+        let tipo = '0' // Quirurgico es 1, Comun es 2, 0 y 3 son medicamento
         let id
 
         if (element.id_comun !== null) {
@@ -3995,9 +3995,7 @@ export default {
           } catch (error) {
             console.log(error)
           }
-        }
-
-        else if (element.id_quirurgico !== null) {
+        } else if (element.id_quirurgico !== null) {
           try {
             const response = await axios.get(apiUrl + '/quirurgico/getOne', { params: { id: element.id_quirurgico } })
             dataConsumo = response.data
@@ -4006,9 +4004,7 @@ export default {
           } catch (error) {
             console.log(error)
           }
-        }
-
-        else if (element.id_medicamento !== null) {
+        } else if (element.id_medicamento !== null) {
           try {
             const response = await axios.get(apiUrl + '/medicamentos/getOne', { params: { id: element.id_medicamento } })
             dataConsumo = response.data
