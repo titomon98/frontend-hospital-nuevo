@@ -523,17 +523,25 @@ export default {
               user: me.currentUser.user
             })
             .then((response) => {
-              this.motivoEgresoHospi = ''
               axios.put(apiUrl + '/habitaciones/available',
                 {
                   ocupante: this.form.id
                 }
               )
+
               me.alertVariant = 'info'
               me.showAlert()
               me.alertText = 'Se ha egresado el paciente ' + me.form.nombres + ' exitosamente'
               me.$refs.vuetableHosp.refresh()
               me.$refs['modal-2-egresarHosp'].hide()
+            })
+            .then((response) => {
+              const motivoE = this.motivoEgresoHospi
+              axios.put(apiUrl + '/cuentas/updateMotivoEgreso', {
+                motivo_egreso: motivoE,
+                id: this.form.id
+              })
+              this.motivoEgresoHospi = ''
             })
             .catch((error) => {
               me.alertVariant = 'danger'

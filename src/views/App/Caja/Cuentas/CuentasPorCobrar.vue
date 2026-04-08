@@ -700,8 +700,6 @@ export default {
         this.showAlertError()
       } else {
         let me = this
-        console.log(this.selectedAccount)
-        console.log(this.id_seguro)
         axios.put(apiUrl + '/cuentas/deactivate',
           {
             id: this.selectedAccount,

@@ -593,7 +593,8 @@ export default {
           edad_encargado: this.varEdadEncargado,
           estado_anterior: 2,
           habitaciones: habitacion,
-          user: me.currentUser.user
+          user: me.currentUser.user,
+          solvencia: 0
         })
         .then((response) => {
           me.alertVariant = 'info'
