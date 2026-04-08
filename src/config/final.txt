@@ -33,11 +33,11 @@ Completados:
 38. En pestaña de control de consumos no aparecen anestésicos - Validado
 39. El consumo de medicamentos se vio afectado por la separacion con anestesico - Validado
 40. Se tuvo que agregar utilidad para modificar la eliminación de paciente de emergencia - Validado
+43. Se revisó todo el proceso de egreso y reingreso. Se corrigió un error en cuentas por cobrar - Validado.
+44. Ahora la solvencia funciona correctamente y los datos de todo el ciclo funcionan (todo con cobros 0 en este momento, pero al tener los cobros corregidos funcionará) - Validado
 
 Pendientes de revisión:
-9. Agregar calendario y hora al egreso en el modal de egreso, debajo de motivo de egreso - Validar que los datos que están sean para cerrar.
-42. Se revisó todo el proceso de egreso y reingreso. Se corrigió un error en cuentas por cobrar.
-43. Ahora la solvencia funciona correctamente y los datos de todo el ciclo funcionan (todo con cobros 0 en este momento, pero al tener los cobros corregidos funcionará)
+9. Agregar calendario y hora al egreso en el modal de egreso, debajo de motivo de egreso - Validado, replicar en Egreso intensivo y Egreso emergencia.
 
 En desarrollo:
 37. Agregar egreso y eliminación de paciente de emergencia según imagen de whatsapp. - La eliminacion se validó de esa manera. Se puede validar igual el egreso? Los campos de egreso son solo para emergencia

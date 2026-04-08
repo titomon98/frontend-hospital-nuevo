@@ -2892,7 +2892,9 @@ export default {
           estado: this.selectedTrasOption,
           estado_anterior: 4,
           motivo: this.motivoTrasladoIntensivo,
-          user: me.currentUser.user
+          user: me.currentUser.user,
+          fecha: null,
+          hora: null
         })
         .then((response) => {
           me.alertVariant = 'info'

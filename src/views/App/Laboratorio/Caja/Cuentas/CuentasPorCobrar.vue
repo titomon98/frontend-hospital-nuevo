@@ -615,7 +615,9 @@ export default {
         .put(apiUrl + '/expedientes/changeState', {
           id: this.form.id,
           estado: this.selectedTrasOption,
-          user: me.currentUser.user
+          user: me.currentUser.user,
+          fecha: null,
+          hora: null
         })
         .then((response) => {
           me.alertVariant = 'info'

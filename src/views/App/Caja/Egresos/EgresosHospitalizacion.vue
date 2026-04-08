@@ -469,7 +469,9 @@ export default {
           estado_anterior: 1,
           motivo: this.motivoTrasladoHospi,
           tipo_cuenta: this.selectedTrasOption,
-          user: me.currentUser.user
+          user: me.currentUser.user,
+          fecha: null,
+          hora: null
         })
         .then((response) => {
           this.motivoTrasladoIntensivo = ''
@@ -520,7 +522,9 @@ export default {
               motivo: this.motivoEgresoHospi,
               habitaciones: 0,
               form: this.form,
-              user: me.currentUser.user
+              user: me.currentUser.user,
+              fecha: null,
+              hora: null
             })
             .then((response) => {
               axios.put(apiUrl + '/habitaciones/available',

@@ -3334,7 +3334,9 @@ export default {
           estado: this.selectedTrasOption,
           estado_anterior: 3,
           motivo: this.motivoTrasladoQuirofano,
-          user: this.currentUser.user
+          user: this.currentUser.user,
+          fecha: null,
+          hora: null
         })
         .then((response) => {
           me.alertVariant = 'info'

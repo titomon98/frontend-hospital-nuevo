@@ -594,7 +594,9 @@ export default {
           estado_anterior: 2,
           habitaciones: habitacion,
           user: me.currentUser.user,
-          solvencia: 0
+          solvencia: 0,
+          fecha: null,
+          hora: null
         })
         .then((response) => {
           me.alertVariant = 'info'

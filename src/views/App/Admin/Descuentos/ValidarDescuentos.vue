@@ -597,7 +597,9 @@ export default {
       axios
         .put(apiUrl + '/expedientes/changeState', {
           id: this.form.id,
-          estado: this.selectedTrasOption
+          estado: this.selectedTrasOption,
+          fecha: null,
+          hora: null
         })
         .then((response) => {
           me.alertVariant = 'info'

@@ -473,7 +473,9 @@ export default {
           estado_anterior: 4,
           motivo: this.motivoTrasladoIntensivo,
           user: me.currentUser.user,
-          tipo_cuenta: this.selectedTrasOption
+          tipo_cuenta: this.selectedTrasOption,
+          fecha: null,
+          hora: null
         })
         .then((response) => {
           this.motivoTrasladoIntensivo = ''
@@ -528,7 +530,9 @@ export default {
               motivo: this.motivoEgresoIntensivo,
               form: this.form,
               habitaciones: 0,
-              user: me.currentUser.user
+              user: me.currentUser.user,
+              fecha: null,
+              hora: null
             })
             .then((response) => {
               this.motivoEgresoIntensivo = ''

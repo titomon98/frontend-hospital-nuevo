@@ -488,7 +488,9 @@ export default {
           estado_anterior: 5,
           motivo: this.motivoTrasladoEmergencia,
           user: me.currentUser.user,
-          tipo_cuenta: this.selectedTrasOption
+          tipo_cuenta: this.selectedTrasOption,
+          fecha: null,
+          hora: null
         })
         .then((response) => {
           this.motivoTrasladoEmergencia = ''
@@ -530,7 +532,9 @@ export default {
             estado_anterior: 4,
             motivo: this.motivoEgresoEmergencia,
             form: this.form,
-            user: me.currentUser.user
+            user: me.currentUser.user,
+            fecha: null,
+            hora: null
           })
           .then((response) => {
             this.motivoEgresoEmergencia = ''
