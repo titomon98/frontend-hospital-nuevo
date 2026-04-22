@@ -796,11 +796,13 @@
     </b-modal>
     <b-modal id="reporteModal" title="Reporte de Cuenta Parcial" size="lg">
       <div class="modal-body">
+        <p><strong>Total uso de habitaciones:</strong> Q{{ reporte.UsoHabitaciones }}</p>
         <p><strong>Total consumo de servicios:</strong> Q{{ reporte.ConsumoTotal }}</p>
         <p><strong>Total consumo de materiales comunes:</strong> Q{{ reporte.ConsumoComunTotal }}</p>
         <p><strong>Total consumo de medicamentos:</strong> Q{{ reporte.ConsumoMedicamentosTotal }}</p>
         <p><strong>Total consumo de anestésicos:</strong> Q{{ reporte.ConsumoAnestesicosTotal }}</p>
         <p><strong>Total consumo de materiales quirúrgicos:</strong> Q{{ reporte.ConsumoQuirurgicosTotal }}</p>
+        <p><strong>Total uso de intensivo:</strong> Q{{ reporte.UsoIntensivo }}</p>
         <p><strong>Total de exámenes realizados:</strong> Q{{ reporte.ExamenesTotal }}</p>
         <p><strong>Total de servicios en sala de operaciones:</strong> Q{{ reporte.ServicioSalaOperacionesTotal }}</p>
         <hr />
@@ -1799,6 +1801,8 @@ export default {
       ],
       /* AREA DE REPORTES */
       reporte: {
+        UsoHabitaciones: '0.00',
+        UsoIntensivo: '0.00',
         ConsumoTotal: '0.00',
         ConsumoComunTotal: '0.00',
         ConsumoMedicamentosTotal: '0.00',
@@ -2948,6 +2952,9 @@ export default {
     mostrarReporte (data) {
       let totalDeuda = 0
 
+      console.log(data)
+      const UsoHabitaciones = data.costoTotal
+      const UsoIntensivo = data.costoIntensivo
       const ConsumoTotal = data.consumos.reduce((acc, item) => acc + parseFloat(item.subtotal), 0)
       const ConsumoComunTotal = data.consumosComunes.reduce((acc, item) => acc + parseFloat(item.total), 0)
       const ConsumoMedicamentosTotal = data.consumosMedicamentos.reduce((acc, item) => acc + parseFloat(item.total), 0)
@@ -2956,8 +2963,9 @@ export default {
       const ExamenesTotal = data.examenes.reduce((acc, item) => acc + item.total, 0)
       const ServicioSalaOperacionesTotal = data.salaOperaciones.reduce((acc, item) => acc + parseFloat(item.total), 0)
 
-      totalDeuda = parseFloat(ConsumoTotal) +
-                  parseFloat(ConsumoComunTotal) +
+      totalDeuda = parseFloat(UsoHabitaciones) +
+                  parseFloat(UsoIntensivo) +
+                  parseFloat(ConsumoTotal) +
                   parseFloat(ConsumoMedicamentosTotal) +
                   parseFloat(ConsumoAnestesicosTotal) +
                   parseFloat(ConsumoQuirurgicosTotal) +
@@ -2965,6 +2973,8 @@ export default {
                   parseFloat(ServicioSalaOperacionesTotal)
 
       this.reporte = {
+        UsoHabitaciones: this.formatearMonto(UsoHabitaciones),
+        UsoIntensivo: this.formatearMonto(UsoIntensivo),
         ConsumoTotal: this.formatearMonto(ConsumoTotal),
         ConsumoComunTotal: this.formatearMonto(ConsumoComunTotal),
         ConsumoMedicamentosTotal: this.formatearMonto(ConsumoMedicamentosTotal),
@@ -2996,15 +3006,9 @@ export default {
         mensajeDias = diasDiferencia
       }
 
-      let hospitalizacion
-
-      if (mensajeDias >= 2) {
-        hospitalizacion = data.costo2 * mensajeDias
-      } else {
-        hospitalizacion = data.costo1
-      }
-
       try {
+        const UsoHabitaciones = data.costoTotal
+        const UsoIntensivo = data.costoIntensivo
         const ConsumoTotal = data.consumos.reduce((acc, item) => acc + parseFloat(item.subtotal), 0)
         const ConsumoComunTotal = data.consumosComunes.reduce((acc, item) => acc + parseFloat(item.total), 0)
         const ConsumoMedicamentosTotal = data.consumosMedicamentos.reduce((acc, item) => acc + parseFloat(item.total), 0)
@@ -3016,23 +3020,25 @@ export default {
         const medicosOrdenados = data.honorarios.sort((a, b) => b.total - a.total)
 
         const TotalGeneral =
+          UsoHabitaciones +
+          UsoIntensivo +
           ConsumoTotal +
           ConsumoComunTotal +
           ConsumoMedicamentosTotal +
           ConsumoAnestesicosTotal +
           ConsumoQuirurgicosTotal +
           ExamenesTotal +
-          ServicioSalaOperacionesTotal +
-          hospitalizacion
+          ServicioSalaOperacionesTotal
 
         const TotalGeneral2 =
+          UsoHabitaciones +
+          UsoIntensivo +
           ConsumoTotal +
           ConsumoComunTotal +
           ConsumoMedicamentosTotal +
           ConsumoAnestesicosTotal +
           ConsumoQuirurgicosTotal +
-          ServicioSalaOperacionesTotal +
-          hospitalizacion
+          ServicioSalaOperacionesTotal
 
         const TotalApagar = TotalGeneral2 + TotalHonorarios + ExamenesTotal
         const doc = new JsPDF()
@@ -3067,14 +3073,14 @@ export default {
         ConsumoQuirurgicosTotal = parseFloat(ConsumoQuirurgicosTotal) + parseFloat(ConsumoTotal)
         doc.autoTable({
           body: [
-            ['HOSPITALIZACION', `Q${hospitalizacion.toFixed(2)}`],
+            ['HOSPITALIZACION', `Q${UsoHabitaciones.toFixed(2)}`],
             ['SALA DE OPERACIONES', `Q${ServicioSalaOperacionesTotal.toFixed(2)}`],
             ['CONSUMO MEDICAMENTOS', `Q${ConsumoMedicamentosTotal.toFixed(2)}`],
             ['MATERIAL MEDICO QUIRÚRGICO', `Q${ConsumoQuirurgicosTotal.toFixed(2)}`],
             ['ANESTESICOS', `Q${ConsumoAnestesicosTotal.toFixed(2)}`],
             ['MATERIAL COMÚN', `Q${ConsumoComunTotal.toFixed(2)}`],
             ['RECUPERACION', ''],
-            ['INTENSIVO', `Q 0.00`],
+            ['INTENSIVO', `Q${UsoIntensivo.toFixed(2)}`],
             ['EMERGENCIAS  Medico Interno', ''],
             ['OTROS', ''],
             ['TOTAL HOSPITALIZACION =', `Q${TotalGeneral2.toFixed(2)}`],
