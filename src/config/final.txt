@@ -41,11 +41,11 @@ Completados:
 
 Pendientes de revisión:
 9. Agregar calendario y hora al egreso en el modal de egreso, debajo de motivo de egreso - Validado, replicar en Egreso intensivo y Egreso emergencia.
+15. Reingresar al paciente al pagar cuenta parcial - Por validar y replicar en los demás menús si es así.
+41. Hospitalizacion y laboratorio si o si se tiene que pagar en cuenta parcial. Honorarios, puede ser pagado hasta la siguiente cuenta, pero solo esto, nada mas.
 
 En desarrollo:
 37. Agregar egreso y eliminación de paciente de emergencia según imagen de whatsapp. - La eliminacion se validó de esa manera. Se puede validar igual el egreso? Los campos de egreso son solo para emergencia
-15. Reingresar al paciente al pagar cuenta parcial - SOLUCION DE DUDA: SE TIENE QUE AGREGAR CALENDARIO DE HORA Y FECHA PARA QUE NO COBRE UN DIA EXTRA
-41. Hospitalizacion y laboratorio si o si se tiene que pagar en cuenta parcial. Honorarios, puede ser pagado hasta la siguiente cuenta, pero solo esto, nada mas.
 
 No completados:
 42. Hoja de emergencia se movió por intentar cuadrar la cuenta parcial y total

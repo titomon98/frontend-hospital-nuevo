@@ -812,7 +812,7 @@
         <p><strong><u>Total deuda:</u> Q{{ reporte.TotalDeuda }}</strong></p>
       </div>
       <template #modal-footer>
-        <b-button variant="primary" @click="generarPDF_CuentaParcial">Generar PDF</b-button>
+        <b-button variant="primary" @click="generarPDF_CuentaParcial">Generar PDF y pagar cuenta parcial</b-button>
         <b-button variant="secondary" @click="$bvModal.hide('reporteModal')">Cerrar</b-button>
       </template>
     </b-modal>
@@ -994,7 +994,7 @@
             >
               <!-- Botones -->
               <template slot="actions" slot-scope="props">
-                <div class="button-container">
+                <div class="button-container" v-if="props.rowData.estado !== 91">
                   <b-button
                     @click="traslado(props.rowData.id)
                     setData(props.rowData)"
@@ -1140,6 +1140,9 @@
                       {{ ['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo_egreso) ? 'Agregar nota de egreso' : 'Modificar nota de egreso' }}
                   </b-button>
                 </div>
+                <div v-else-if="props.rowData.estado === 91">
+                  Las acciones se volverán a estar disponibles cuando el paciente pague la cuenta parcial
+                </div>
                 <!-- Tipo de paciente-->
                 <div slot="tipo_paciente" slot-scope="props">
                   <button
@@ -1229,6 +1232,7 @@ export default {
   },
   data () {
     return {
+      idCuentaParcial: 0,
       totalMedicamentos: 0.0,
       totalAnestesicos: 0.0,
       totalComun: 0.0,
@@ -2956,6 +2960,7 @@ export default {
 
     /* GENERAR CUENTA PARCIAL PARA EL PACIENTE */
     generarReporteCuentaParcial (id, nombres, apellidos) {
+      this.idCuentaParcial = id
       axios.get(apiUrl + `/consumos/sumario/${id}`)
         .then((response) => {
           this.dataPDFsumario = response.data
@@ -3008,6 +3013,8 @@ export default {
       this.$bvModal.show('reporteModal')
     },
     async generarPDF_CuentaParcial () {
+      const idCuentaParcial = this.idCuentaParcial
+
       const FechaIngreso = this.fechaIngreso
       const data = this.dataPDFsumario
       const fechaActual = new Date()
@@ -3183,6 +3190,19 @@ export default {
         doc.text('Nombre y Firma del Cajero', 110, nextTableStartY3 + 5, { align: 'center' })
 
         doc.save(`cuenta_Parcial_${this.nombrePaciente}.PDF`)
+
+        axios.patch(apiUrl + `/cuentas/${idCuentaParcial}/ingresoParcialPago`, {
+            TotalApagar: TotalApagar
+        })
+        .then((response) => {
+
+          this.$refs.vuetable.refresh()
+          this.idCuentaParcial = null
+          this.$bvModal.hide('reporteModal')
+        })
+        .catch((error) => {
+          console.error(error)
+        })
       } catch (error) {
         console.error('Error al generar el reporte:', error)
         this.$alert('Ocurrió un error al generar el reporte. Por favor, intente de nuevo.', 'Error')

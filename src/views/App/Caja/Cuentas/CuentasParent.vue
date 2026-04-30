@@ -20,6 +20,7 @@
             <b-tabs>
               <b-tab title="Cuentas por cobrar" lazy><CuentasPorCobrar/></b-tab>
               <b-tab title="Seguros por cobrar" lazy><SegurosPorCobrar/></b-tab>
+              <b-tab title="Cuentas parciales por cobrar" lazy><CuentasParcialesPorCobrar/></b-tab>
             </b-tabs>
           </template>
         </iq-card>
@@ -32,13 +33,15 @@ import { xray } from '../../../../config/pluginInit'
 import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
 import CuentasPorCobrar from './CuentasPorCobrar.vue'
+import CuentasParcialesPorCobrar from './CuentasParcialesPorCobrar.vue'
 import SegurosPorCobrar from './SegurosPorCobrar.vue'
 
 export default {
   name: 'CuentasParent',
   components: {
     CuentasPorCobrar,
-    SegurosPorCobrar
+    SegurosPorCobrar,
+    CuentasParcialesPorCobrar
   },
   data () {
     return {

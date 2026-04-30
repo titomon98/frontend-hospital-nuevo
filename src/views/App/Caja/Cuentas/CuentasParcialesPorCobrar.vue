@@ -10,54 +10,6 @@
     >
       <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
-    <b-modal id="modal-1-traslado" ref="modal-1-traslado" title="Trasladar paciente">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
-      >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
-      </b-alert>
-      <h6 class="my-4">
-        ¿Desea trasladar el paciente: {{ form.nombres }} ?
-      </h6>
-      <b-form @submit="$event.preventDefault()">
-        <b-col >
-          <b-form-group label="Área a la que desea trasladar:">
-            <b-form-radio-group
-                      id="radio-group-2"
-                      v-model="selectedTrasOption"
-                      :options="optionsTraslado"
-                      name="radio-options"
-                    ></b-form-radio-group>
-            <div v-if="selectedTrasOption==1 || selectedTrasOption==4">
-              Habitación
-              <v-select
-              ref="selectHab"
-              v-model="selectedHab"
-              :options="habitaciones"
-              label="numero"
-              value="id"></v-select>
-            </div>
-          </b-form-group>
-        </b-col>
-      </b-form>
-      <template #modal-footer="{}">
-        <b-button
-          type="submit"
-          variant="primary"
-          @click="onValidate()
-                  this.selectedHab = null
-          "
-          >Ingresar</b-button
-        >
-        <b-button variant="danger" @click="$bvModal.hide('modal-1-traslado')"
-          >Cancelar</b-button
-        >
-      </template>
-    </b-modal>
     <b-modal id="modal-2-account" ref="modal-2-account" title="Pagar cuenta" size="xl">
       <b-alert
         :show="alertCountDownError"
@@ -182,37 +134,11 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-4-bank" ref="modal-4-bank" title="Activar banco">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
-      >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
-      </b-alert>
-      <h6 class="my-4">
-        ¿Desea activar al banco: {{ form.name }} ?
-      </h6>
-      <template #modal-footer="{}">
-        <b-button
-          type="submit"
-          variant="primary"
-          @click="onState()
-                  $bvModal.hide('modal-4-bank')"
-          >Activar</b-button
-        >
-        <b-button variant="danger" @click="$bvModal.hide('modal-4-bank')"
-          >Cancelar</b-button
-        >
-      </template>
-    </b-modal>
     <b-row>
       <b-col md="12">
         <iq-card>
             <template v-slot:headerTitle>
-              <h4 class="card-title mt-3">Cuentas por cobrar</h4>
+              <h4 class="card-title mt-3">Cuentas parciales por cobrar</h4>
                <div class="iq-search-bar mt-2">
                 <b-form action="#" class="searchbox">
                     <b-input id="search" placeholder="Buscar..." @input="(val) => searchChange(val)" />
@@ -297,13 +223,6 @@
                       size="sm"
                       variant="dark"
                     >Cobrar</b-button>
-
-                    <b-button
-                    @click="generarReporteCuentaParcial(props.rowData.expediente.id, props.rowData.expediente.nombres, props.rowData.expediente.apellidos)"
-                    class="mb-2 button-spacing"
-                    size="sm"
-                    variant="dark"
-                   >Cuenta Total</b-button>
 
                   </div>
                   <div class="button-container" v-else-if="props.rowData.solicitud_descuento == 2">
@@ -430,7 +349,7 @@ export default {
         { text: 'Hospitalización', value: 1 },
         { text: 'Intensivos', value: 4 }
       ],
-      apiBase: apiUrl + '/cuentas/debtList',
+      apiBase: apiUrl + '/cuentas/debtListParcial',
       fields: [
         {
           name: '__slot:actions',
@@ -557,16 +476,6 @@ export default {
         }
       }
     },
-    onValidate (action) {
-      this.$v.$touch()
-      if (this.selectedHab === null && (this.selectedTrasOption === 1 || this.selectedTrasOption === 4)) {
-        this.alertErrorText = 'Revisa que todos los campos requeridos esten llenos'
-        this.showAlertError()
-      } else {
-        this.onState()
-        this.$bvModal.hide('modal-1-traslado')
-      }
-    },
     setData (data) {
       this.form.name = data.expediente.nombres
       this.form.apellidos = data.expediente.apellidos
@@ -583,81 +492,6 @@ export default {
       this.expediente = data.id_expediente
       this.onLoadAssurances(data.id_expediente)
       // this.getCuentas(data.id)
-    },
-    /* Guardar */
-    onSave () {
-      const me = this
-      axios.post(apiUrl + '/banco/create', {
-        form: me.form })
-        .then((response) => {
-          me.alertVariant = 'success'
-          me.showAlert()
-          me.alertText = 'Se ha creado el banco ' + me.form.name + ' exitosamente'
-          me.$refs.vuetable.refresh()
-          me.closeModal('save')
-        })
-        .catch((error) => {
-          me.alertVariant = 'danger'
-          me.showAlertError()
-          me.alertErrorText = error.response.data.msg
-          console.error('Error!', error)
-        })
-    },
-    /* Guardar */
-    onUpdate () {
-      const me = this
-      // this.$refs["modalSave"].hide();
-      axios.put(apiUrl + '/banco/update', {
-        form: me.form })
-        .then((response) => {
-          me.alertVariant = 'primary'
-          me.showAlert()
-          me.alertText = 'Se ha actualizado el banco ' + me.form.name + ' exitosamente'
-          me.$refs.vuetable.refresh()
-          me.closeModal('update')
-        })
-        .catch((error) => {
-          me.alertVariant = 'danger'
-          me.showAlertError()
-          me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-          console.error('Error!', error)
-        })
-    },
-    onState () {
-      let me = this
-      axios
-        .put(apiUrl + '/expedientes/changeState', {
-          id: this.form.id,
-          estado: this.selectedTrasOption,
-          user: me.currentUser.user,
-          fecha: null,
-          hora: null
-        })
-        .then((response) => {
-          me.alertVariant = 'info'
-          me.showAlert()
-          me.alertText = 'Se ha trasladado el paciente ' + me.form.nombres + ' exitosamente'
-          me.$refs.vuetable.refresh()
-          me.$refs['modal-1-traslado'].hide()
-          if (this.selectedTrasOption === 1 || this.selectedTrasOption === 4) {
-            axios
-              .put(apiUrl + '/habitaciones/inUse', {
-                id: this.selectedHab.id,
-                ocupante: this.form.id
-              })
-              .then((res) => {
-                this.selectedHab = null
-                console.log(this.selectedHab)
-                this.getHabitaciones(0).then(me.$refs.selectHab.refresh())
-              })
-          }
-        })
-        .catch((error) => {
-          me.alertVariant = 'danger'
-          me.showAlertError()
-          me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-          console.error('There was an error!', error)
-        })
     },
     onLoadAssurances (data) {
       console.log(data)
@@ -702,7 +536,7 @@ export default {
         this.showAlertError()
       } else {
         let me = this
-        axios.put(apiUrl + '/cuentas/deactivate',
+        axios.post(apiUrl + `/cuentas/${this.selectedAccount}/pagarCuentaParcial`,
           {
             id: this.selectedAccount,
             total_pagado: parseFloat(this.totPagado) + parseFloat(this.paymentSum),
@@ -736,7 +570,7 @@ export default {
           })
         me.alertVariant = 'info'
         me.showAlert()
-        me.alertText = 'Se ha egresado el paciente ' + me.form.nombres + ' exitosamente'
+        me.alertText = 'Se ha pagado la cuenta parcial del paciente ' + me.form.nombres + ' exitosamente'
         me.$refs.vuetable.refresh()
         me.$refs['modal-2-account'].hide()
 
@@ -815,7 +649,6 @@ export default {
     },
 
     generarReporteCuentaParcial (id, nombres, apellidos) {
-
       axios.get(apiUrl + `/consumos/sumario/${id}`)
         .then((response) => {
           const nombrePaciente = nombres + ' ' + apellidos

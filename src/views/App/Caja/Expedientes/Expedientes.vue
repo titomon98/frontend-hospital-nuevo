@@ -508,6 +508,10 @@
                 <button v-if="props.rowData.estado === 9" type="button" class="btn btn-dark" disabled>REFERIDO A OTRA UBICACIÓN</button>
                 <button v-if="props.rowData.estado === 10" type="button" class="btn btn-dark" disabled>EXPEDIENTE INCOMPLETO</button>
                 <button v-if="props.rowData.estado === 0" type="button" class="btn btn-dark" disabled>FALLECIDO</button>
+                <button v-if="props.rowData.estado === 91" type="button" class="btn btn-success" disabled>INGRESADO EN HOSPITAL, CUENTA PARCIAL PENDIENTE</button>
+                <button v-if="props.rowData.estado === 93" type="button" class="btn btn-success" disabled>INGRESADO EN QUIRÓFANO, CUENTA PARCIAL PENDIENTE</button>
+                <button v-if="props.rowData.estado === 94" type="button" class="btn btn-success" disabled>INGRESADO EN INTENSIVO, CUENTA PARCIAL PENDIENTE</button>
+                <button v-if="props.rowData.estado === 95" type="button" class="btn btn-success" disabled>INGRESADO EN EMERGENCIA, CUENTA PARCIAL PENDIENTE</button>
               </div>
               <!-- Botones -->
               <template slot="actions" slot-scope="props">
