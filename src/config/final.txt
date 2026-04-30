@@ -1,6 +1,7 @@
 Completados:
 1.⁠ ⁠⁠Si hay un paciente en la noche con expediente incompleto, debe permitir agregar los consumos para el ingreso de enfermería, aunque el paciente no esté lleno en caja. Si se ingresó de emergencia no queda como "expediente incompleto" si no que ya está completo. - Validado agregando médico antes de ingreso
 2.⁠ ⁠Ver porque el paciente siempre se ingresa en 1. Cambiar cuando se traslade. Agregar el tipo de paciente a los 4 menus de hospitalizacion - Validado
+3.⁠ ⁠⁠Cuadrar la cuenta con los cobros indicados
 4.⁠ ⁠Agregar total al final de las tablas de Hospitalizacion/Intensivo/Quirofano/Emergencia para saber cuanto va de los consumos - Validado
 5.⁠ ⁠Servicios de cuenta parcial se suma a material quirurgico - Validado
 6.⁠ ⁠La nota de ingreso de puede llenar en cualquier tipo de ingreso (ingreso, reingreso, ingreso de emergencia) pero ahorita aparece como motivo. Se debe dejar al asignar habitacion - Validado
@@ -10,6 +11,7 @@ Completados:
 11. El reporte del día/corte del dia necesita un total de todo el dinero que hubo - Validado
 12. El reporte de honorarios medicos tiene que aparecer tambien donde ya está el de hospital (Cortes) - Validado
 13. El anestesico es una categoria extra que tiene que aparecer en la ventana de consumos en todos los lugares - Validado
+14. En la cuenta parcial si aparece el rubro pero no el dinero - Duda. En este caso, que ya aparecen anestesicos e intensivo, se puede dar por cerrada?
 16. Agregar notas de enfermería. Cada nota contiempla si es de día o de noche. De dia en color azul, de noche en color rojo. - Validado
 17. Los anestesicos y medicamentos van en rubros diferentes en cuenta parcial. Por ahora no hay datos en anestesicos - Validado
 18. No se desasigna el paciente al cambiar de habitacion - Validado
@@ -29,6 +31,7 @@ Completados:
 32. Crear un menu "registro de habitacion", el mismo nos servirá para ajustar las habitaciones de los pacientes. si en algún momento no se desea cobrar lo que el sistema generó automáticamente, se puede modificar con un menú como el de consumos y así llegar al total deseado. - Validado
 33. Crear en intensivo un botón para hacer lo mismo que "registro de habitación" pero orientado solo a intensivo, que es la habitación 9. - Validado
 34. Tambien tiene que ser posible eliminar honorarios asi como los consumos, y en el mismo lugar, solo Gerencia y Administración - Validado
+35. El corte de habitacion no es a las 3pm, es a las 2pm. Si se ingresa entre 7am y 1:59pm, no se cobra dia extra. Si ingresa entre las 12:00am de ese y las 6:59am, se deben cobrar dos dias, de 12am a 7am, y luego de 2pm a 2pm del siguiente dia de una vez.
 36. En emergencia se agrega en lugar de nombre de encargado el nombre de factura y el nit. - Validado
 38. En pestaña de control de consumos no aparecen anestésicos - Validado
 39. El consumo de medicamentos se vio afectado por la separacion con anestesico - Validado
@@ -38,8 +41,6 @@ Completados:
 
 Pendientes de revisión:
 9. Agregar calendario y hora al egreso en el modal de egreso, debajo de motivo de egreso - Validado, replicar en Egreso intensivo y Egreso emergencia.
-35. El corte de habitacion no es a las 3pm, es a las 2pm. Si se ingresa entre 7am y 1:59pm, no se cobra dia extra. Si ingresa entre las 12:00am de ese y las 6:59am, se deben cobrar dos dias, de 12am a 7am, y luego de 2pm a 2pm del siguiente dia de una vez.
-14. En la cuenta parcial si aparece el rubro pero no el dinero - Duda. En este caso, que ya aparecen anestesicos e intensivo, se puede dar por cerrada?
 
 En desarrollo:
 37. Agregar egreso y eliminación de paciente de emergencia según imagen de whatsapp. - La eliminacion se validó de esa manera. Se puede validar igual el egreso? Los campos de egreso son solo para emergencia
@@ -47,5 +48,4 @@ En desarrollo:
 41. Hospitalizacion y laboratorio si o si se tiene que pagar en cuenta parcial. Honorarios, puede ser pagado hasta la siguiente cuenta, pero solo esto, nada mas.
 
 No completados:
-3.⁠ ⁠⁠Cuadrar la cuenta con los cobros indicados
 42. Hoja de emergencia se movió por intentar cuadrar la cuenta parcial y total

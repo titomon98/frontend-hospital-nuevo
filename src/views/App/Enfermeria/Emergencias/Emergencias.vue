@@ -3478,7 +3478,6 @@ export default {
         }))
         agregarTabla('Servicios en Sala de Operaciones', serviciosData)
       }
-a
       y += 10
 
       // Guardar el PDF
