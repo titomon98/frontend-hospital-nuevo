@@ -815,7 +815,6 @@ export default {
     },
 
     generarReporteCuentaParcial (id, nombres, apellidos) {
-
       axios.get(apiUrl + `/consumos/sumario/${id}`)
         .then((response) => {
           const nombrePaciente = nombres + ' ' + apellidos
@@ -909,7 +908,7 @@ export default {
         doc.text('MD TRATANTE:', 14, 34)
         doc.text(`${data.nombremedico}`, 36, 34)
         doc.text('______________________________________________________________________________________________________', 36, 35)
-
+        console.log(hospitalizacion)
         doc.autoTable({
           body: [
             ['HOSPITALIZACION', `Q${hospitalizacion.toFixed(2)}`],
@@ -1004,8 +1003,8 @@ export default {
 
         doc.save(`cuenta_Total_Paciente ${nombrePaciente}.PDF`)
       } catch (error) {
+        console.log(error)
         console.error('Error al generar el reporte:', error)
-        this.$alert('Ocurrió un error al generar el reporte. Por favor, intente de nuevo.', 'Error')
       }
     }
   }

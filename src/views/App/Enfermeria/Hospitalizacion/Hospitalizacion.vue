@@ -994,7 +994,7 @@
             >
               <!-- Botones -->
               <template slot="actions" slot-scope="props">
-                <div class="button-container" v-if="props.rowData.estado !== 91">
+                <div class="button-container">
                   <b-button
                     @click="traslado(props.rowData.id)
                     setData(props.rowData)"
@@ -1139,9 +1139,6 @@
                   >
                       {{ ['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo_egreso) ? 'Agregar nota de egreso' : 'Modificar nota de egreso' }}
                   </b-button>
-                </div>
-                <div v-else-if="props.rowData.estado === 91">
-                  Las acciones se volverán a estar disponibles cuando el paciente pague la cuenta parcial
                 </div>
                 <!-- Tipo de paciente-->
                 <div slot="tipo_paciente" slot-scope="props">
@@ -3192,17 +3189,16 @@ export default {
         doc.save(`cuenta_Parcial_${this.nombrePaciente}.PDF`)
 
         axios.patch(apiUrl + `/cuentas/${idCuentaParcial}/ingresoParcialPago`, {
-            TotalApagar: TotalApagar
+          TotalApagar: TotalApagar
         })
-        .then((response) => {
-
-          this.$refs.vuetable.refresh()
-          this.idCuentaParcial = null
-          this.$bvModal.hide('reporteModal')
-        })
-        .catch((error) => {
-          console.error(error)
-        })
+          .then((response) => {
+            this.$refs.vuetable.refresh()
+            this.idCuentaParcial = null
+            this.$bvModal.hide('reporteModal')
+          })
+          .catch((error) => {
+            console.error(error)
+          })
       } catch (error) {
         console.error('Error al generar el reporte:', error)
         this.$alert('Ocurrió un error al generar el reporte. Por favor, intente de nuevo.', 'Error')
