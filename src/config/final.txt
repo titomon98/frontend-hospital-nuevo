@@ -50,3 +50,6 @@ En desarrollo:
 No completados:
 42. Hoja de emergencia se movió por intentar cuadrar la cuenta parcial y total
 45. En un egreso normal no se toma en cuenta la función DetalleHabitaciones. El problema con eso es que no se cobra la habitación como en cuenta parcial.
+46. A la hora de dar egreso, da la opcion de imprimir la hoja de emergencia y genera un recibo. 
+47. Cuenta parcial se quita en Emergencia.
+48. El médico interno tiene la opción de egresar una cuenta con un recibo generado.
