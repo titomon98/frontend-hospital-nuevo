@@ -2262,7 +2262,7 @@ export default {
           if (consumo.cantidad <= 0 || (consumo.cantidad > consumo.existencias && consumo.inventariado === 'INVENTARIADO')) {
             throw new Error(`Cantidad inválida para ${consumo.nombre}`)
           }
-
+          this.$refs['modal-1-movimiento'].hide()
           if (consumo.tipo === '0' || consumo.tipo === '3') {
             await this.onSaveMedicamento(consumo)
           } else if (consumo.tipo === '1') {
@@ -2277,10 +2277,6 @@ export default {
         this.showAlert()
         // Resetear y cerrar
         this.consumosTemporales = []
-        this.$refs.vuetableConsumoInsumos.refresh()
-        this.$refs.vuetableConsumoQuirurgicos.refresh()
-        this.$refs.vuetableConsumoComunes.refresh()
-        this.$refs['modal-1-movimiento'].hide()
       } catch (error) {
         this.alertVariant = 'danger'
         this.alertText = 'Error al guardar consumos'
