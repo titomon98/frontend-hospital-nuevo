@@ -80,11 +80,11 @@
         <div>
           <b-form-group label="Motivo del egreso:">
             <b-form-radio-group
-                      id="radio-group-egreso"
-                      v-model="selectedQuitOption"
-                      :options="optionsQuit"
-                      name="radio-options-2"
-                    ></b-form-radio-group>
+              id="radio-group-egreso"
+              v-model="selectedQuitOption"
+              :options="optionsQuit"
+              name="radio-options-2"
+            ></b-form-radio-group>
           </b-form-group>
         </div>
         <div>
