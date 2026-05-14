@@ -42,7 +42,6 @@ Completados:
 Pendientes de revisión:
 47. Cuenta parcial se quita en Emergencia.
 50. Buscar una solución a que el internet esté lento y no agregue inmediatamente los consumos
-51. En control de consumos muestra 6 horas menos de la hora a la que fue suministrado el consumo 
 54. Separar botones de generar cuenta parcial y generar pdf.
 15. Reingresar al paciente al pagar cuenta parcial - Por validar y replicar en los demás menús si es así.
 9. Agregar calendario y hora al egreso en el modal de egreso, debajo de motivo de egreso - Validado, replicar en Egreso intensivo y Egreso emergencia.
@@ -57,5 +56,6 @@ No completados:
 46. A la hora de dar egreso, da la opcion de imprimir la hoja de emergencia y genera un recibo. 
 48. El médico interno tiene la opción de egresar una cuenta con un recibo generado.
 49. El egreso completo se afectó con la utilidad de la cuenta parcial. Separar procesos y hacer pruebas en ambos lugares.
+51. En control de consumos muestra 6 horas menos de la hora a la que fue suministrado el consumo 
 52. Agregar regreso de paciente al área en la que estuvo (hospitalización, emergencias) por si se les olvidó algún consumo o agregar algo.
 53. Revisar exámenes de laboratorio en hospitalización.

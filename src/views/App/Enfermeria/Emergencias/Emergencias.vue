@@ -1278,6 +1278,8 @@ export default {
   },
   data () {
     return {
+      TotalApagar: 0.0,
+      idCuentaParcial: 0,
       totalMedicamentos: 0.0,
       totalAnestesicos: 0.0,
       totalComun: 0.0,
@@ -3060,8 +3062,9 @@ export default {
       this.$bvModal.show('reporteModal')
     },
     async pagar_CuentaParcial () {
+      const idCuentaParcial = this.idCuentaParcial
       axios.patch(apiUrl + `/cuentas/${idCuentaParcial}/ingresoParcialPago`, {
-        TotalApagar: TotalApagar
+        TotalApagar: this.TotalApagar
       })
         .then((response) => {
           this.$refs.vuetable.refresh()
@@ -3126,6 +3129,7 @@ export default {
           ServicioSalaOperacionesTotal
 
         const TotalApagar = TotalGeneral2 + TotalHonorarios + ExamenesTotal
+        this.TotalApagar = TotalApagar
         const doc = new JsPDF()
 
         doc.setFontSize(10).setFont(undefined, 'bold')
@@ -3490,7 +3494,7 @@ export default {
         ConsumoQuirurgicosTotal
 
       const TotalApagar = TotalGeneral + TotalHonorarios + ExamenesTotal
-
+      this.TotalApagar = TotalApagar
       const doc = new JsPDF()
 
       doc.setFontSize(12)

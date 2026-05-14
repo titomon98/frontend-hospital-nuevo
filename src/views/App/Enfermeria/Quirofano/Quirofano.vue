@@ -1378,6 +1378,8 @@ export default {
   },
   data () {
     return {
+      TotalApagar: 0.0,
+      idCuentaParcial: 0,
       formMedicamento: {
         id: 0,
         cantidad: null,
@@ -3518,6 +3520,7 @@ export default {
 
     /* GENERAR CUENTA PARCIAL PARA EL PACIENTE */
     generarReporteCuentaParcial (id, nombres, apellidos) {
+      this.idCuentaParcial = id
       axios.get(apiUrl + `/consumos/sumario/${id}`)
         .then((response) => {
           this.dataPDFsumario = response.data
@@ -3571,8 +3574,9 @@ export default {
       this.$bvModal.show('reporteModal')
     },
     async pagar_CuentaParcial () {
+      const idCuentaParcial = this.idCuentaParcial
       axios.patch(apiUrl + `/cuentas/${idCuentaParcial}/ingresoParcialPago`, {
-        TotalApagar: TotalApagar
+        TotalApagar: this.TotalApagar
       })
         .then((response) => {
           this.$refs.vuetable.refresh()
@@ -3637,6 +3641,7 @@ export default {
           ServicioSalaOperacionesTotal
 
         const TotalApagar = TotalGeneral2 + TotalHonorarios + ExamenesTotal
+        this.TotalApagar = TotalApagar
         const doc = new JsPDF()
 
         doc.setFontSize(10).setFont(undefined, 'bold')
