@@ -426,10 +426,11 @@
           <b-card>
             <b-card-body>
               <b-form-group label="Nota de ingreso:">
-                <b-form-input
+                <b-form-textarea
                   v-model.trim="form.motivo"
                   placeholder="Ingresar nota de ingreso a hospital"
-                ></b-form-input>
+                  rows="3"
+                ></b-form-textarea>
               </b-form-group>
             </b-card-body>
           </b-card>
@@ -461,10 +462,11 @@
           <b-card>
             <b-card-body>
               <b-form-group label="Nota de egreso:">
-                <b-form-input
+                <b-form-textarea
                   v-model.trim="form.motivo_egreso"
                   placeholder="Ingresar nota de egreso"
-                ></b-form-input>
+                  rows="3"
+                ></b-form-textarea>
               </b-form-group>
             </b-card-body>
           </b-card>
@@ -625,7 +627,7 @@
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
             />
-            <h4>Total de medicamentos: {{ totalMedicamentos }}</h4>
+            <h4 v-if="[1, 3].includes(currentUser.user_type)">Total de medicamentos: {{ totalMedicamentos }}</h4>
           </b-tab>
 
           <b-tab title="Anestésicos">
@@ -645,7 +647,7 @@
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
             />
-            <h4>Total de anestésicos: {{ totalAnestesicos }}</h4>
+            <h4 v-if="[1, 3].includes(currentUser.user_type)">Total de anestésicos: {{ totalAnestesicos }}</h4>
           </b-tab>
 
           <b-tab title="Quirúrgico">
@@ -663,7 +665,7 @@
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
             />
-            <h4>Total de material quirúrgico: {{ totalQuirurgico }}</h4>
+            <h4 v-if="[1, 3].includes(currentUser.user_type)">Total de material quirúrgico: {{ totalQuirurgico }}</h4>
           </b-tab>
 
           <b-tab title="Común">
@@ -681,14 +683,14 @@
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
             />
-            <h4>Total de material común: {{ totalComun }}</h4>
+            <h4 v-if="[1, 3].includes(currentUser.user_type)">Total de material común: {{ totalComun }}</h4>
           </b-tab>
         </b-tabs>
       </b-form>
 
       <!-- Footer -->
       <template #modal-footer>
-        <h4>Total de consumos: {{ granTotalConsumos }}</h4>
+        <h4 v-if="[1, 3].includes(currentUser.user_type)">Total de consumos: {{ granTotalConsumos }}</h4>
         <b-button variant="primary" @click="onSave">Guardar</b-button>
         <b-button variant="danger" @click="closeModal('save')">Cancelar</b-button>
       </template>
@@ -785,7 +787,7 @@
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
             />
-            <h4>Total de medicamentos: {{ totalMedicamentos }}</h4>
+            <h4 v-if="[1, 3].includes(currentUser.user_type)">Total de medicamentos: {{ totalMedicamentos }}</h4>
           </b-tab>
 
           <b-tab title="Anestésicos">
@@ -805,7 +807,7 @@
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
             />
-            <h4>Total de anestésicos: {{ totalAnestesicos }}</h4>
+            <h4 v-if="[1, 3].includes(currentUser.user_type)">Total de anestésicos: {{ totalAnestesicos }}</h4>
           </b-tab>
 
           <b-tab title="Quirúrgico">
@@ -823,7 +825,7 @@
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
             />
-            <h4>Total de material quirúrgico: {{ totalQuirurgico }}</h4>
+            <h4 v-if="[1, 3].includes(currentUser.user_type)">Total de material quirúrgico: {{ totalQuirurgico }}</h4>
           </b-tab>
 
           <b-tab title="Común">
@@ -841,35 +843,16 @@
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
             />
-            <h4>Total de material común: {{ totalComun }}</h4>
+            <h4 v-if="[1, 3].includes(currentUser.user_type)">Total de material común: {{ totalComun }}</h4>
           </b-tab>
         </b-tabs>
       </b-form>
 
       <!-- Footer -->
       <template #modal-footer>
-        <h4>Total de consumos: {{ granTotalConsumos }}</h4>
+        <h4 v-if="[1, 3].includes(currentUser.user_type)">Total de consumos: {{ granTotalConsumos }}</h4>
         <b-button variant="primary" @click="onSave">Guardar</b-button>
         <b-button variant="danger" @click="closeModal('save2')">Cancelar</b-button>
-      </template>
-    </b-modal>
-    <b-modal id="reporteModal" title="Reporte de Cuenta Parcial" size="lg">
-      <div class="modal-body">
-        <p><strong>Total uso de habitaciones:</strong> Q{{ reporte.UsoHabitaciones }}</p>
-        <p><strong>Total consumo de servicios:</strong> Q{{ reporte.ConsumoTotal }}</p>
-        <p><strong>Total consumo de materiales comunes:</strong> Q{{ reporte.ConsumoComunTotal }}</p>
-        <p><strong>Total consumo de medicamentos:</strong> Q{{ reporte.ConsumoMedicamentosTotal }}</p>
-        <p><strong>Total consumo de anestésicos:</strong> Q{{ reporte.ConsumoAnestesicosTotal }}</p>
-        <p><strong>Total consumo de materiales quirúrgicos:</strong> Q{{ reporte.ConsumoQuirurgicosTotal }}</p>
-        <p><strong>Total uso de intensivo:</strong> Q{{ reporte.UsoIntensivo }}</p>
-        <p><strong>Total de exámenes realizados:</strong> Q{{ reporte.ExamenesTotal }}</p>
-        <p><strong>Total de servicios en sala de operaciones:</strong> Q{{ reporte.ServicioSalaOperacionesTotal }}</p>
-        <hr />
-        <p><strong><u>Total deuda:</u> Q{{ reporte.TotalDeuda }}</strong></p>
-      </div>
-      <template #modal-footer>
-        <b-button variant="primary" @click="generarPDF_CuentaParcial">Generar PDF</b-button>
-        <b-button variant="secondary" @click="$bvModal.hide('reporteModal')">Cerrar</b-button>
       </template>
     </b-modal>
     <b-modal id="HistorialCuenta" title="Historial de las Cuentas" size="lg">
@@ -1118,14 +1101,6 @@
                     size="sm"
                     variant="dark"
                    >Consumos</b-button>
-
-                   <b-button
-                    @click="generarReporteCuentaParcial(props.rowData.id, props.rowData.nombres, props.rowData.apellidos)"
-                    class="mb-2 button-spacing"
-                    size="sm"
-                    variant="success"
-                    :disabled="!hasPermission([9, 10])"
-                   >Cuenta parcial</b-button>
 
                    <b-button
                     @click="generarHistorialCuentas(props.rowData.id)"
@@ -3081,22 +3056,6 @@ export default {
         this.$bvModal.hide('modal-traslado')
       }
     },
-
-    /* GENERAR CUENTA PARCIAL PARA EL PACIENTE */
-    generarReporteCuentaParcial (id, nombres, apellidos) {
-      axios.get(apiUrl + `/consumos/sumario/${id}`)
-        .then((response) => {
-          this.dataPDFsumario = response.data
-          this.nombrePaciente = nombres + ' ' + apellidos
-          this.fechaIngreso = this.dataPDFsumario.fechaFormateada
-          this.mostrarReporte(response.data)
-        })
-        .catch((error) => {
-          console.error('Error al generar el reporte de cuenta parcial:', error)
-          this.alertErrorText = 'Hubo un problema al generar el reporte. Por favor, intente nuevamente.'
-          this.showAlertError()
-        })
-    },
     mostrarReporte (data) {
       let totalDeuda = 0
 
@@ -3134,6 +3093,19 @@ export default {
       }
 
       this.$bvModal.show('reporteModal')
+    },
+    async pagar_CuentaParcial () {
+      axios.patch(apiUrl + `/cuentas/${idCuentaParcial}/ingresoParcialPago`, {
+        TotalApagar: TotalApagar
+      })
+        .then((response) => {
+          this.$refs.vuetable.refresh()
+          this.idCuentaParcial = null
+          this.$bvModal.hide('reporteModal')
+        })
+        .catch((error) => {
+          console.error(error)
+        })
     },
     async generarPDF_CuentaParcial () {
       const FechaIngreso = this.fechaIngreso
@@ -3334,7 +3306,7 @@ export default {
           this.mostrarHistorial(historial)
         })
         .catch((error) => {
-          console.error('Error al generar el reporte de cuenta parcial:', error)
+          console.error('Error al generar el reporte de cuenta:', error)
           this.alertErrorText = 'Hubo un problema al generar el reporte. Por favor, intente nuevamente.'
           this.showAlertError()
         })
@@ -3489,7 +3461,7 @@ export default {
           this.generarHojaEmergenciaPDF(expediente)
         })
         .catch((error) => {
-          console.error('Error al generar el reporte de cuenta parcial:', error)
+          console.error('Error al generar el reporte de cuenta:', error)
           this.alertErrorText = 'Hubo un problema al generar el reporte. Por favor, intente nuevamente.'
           this.showAlertError()
         })

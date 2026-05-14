@@ -376,12 +376,6 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
-          name: 'motivo',
-          sortField: 'motivo',
-          title: 'Motivo',
-          dataClass: 'list-item-heading'
-        },
-        {
           name: 'total',
           sortField: 'total',
           title: 'Total',
@@ -412,11 +406,6 @@ export default {
         {
           key: 'numero',
           label: 'Numero',
-          sortable: true
-        },
-        {
-          key: 'motivo',
-          label: 'Motivo',
           sortable: true
         },
         {

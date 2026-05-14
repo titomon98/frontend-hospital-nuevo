@@ -1,3 +1,11 @@
+Entregados:
+
+Pendientes de validar:
+En pago de cuenta parcial no tiene que aparecer motivo - Listo para entregar
+Precios no tienen que aparecer en consumos de enfermería. - Listo para entregar
+Cambiar input por text area en nota de ingreso y egreso - Listo para entregar
+Quieren que el botón de cuenta parcial sea solo para leer y no para mandar cuenta parcial - Listo para entregar
+
 En caja:
 
 Al final si quitar la nota de ingreso de cualquier tipo de ingreso.
@@ -8,12 +16,8 @@ Botón generar sumario no funciona. Poner un mensaje “no es posible generar su
 Generar y ver factura va en expediente de caja.
 La parte legal a veces no aparece. Ver porque pasa esto.
 Resumen de todos los pacientes hospitalizados, en que habitación están y que doctor los está tratando. Que hora y fecha ingresaron.
-En pago de cuenta parcial no tiene que aparecer motivo
 En cuentas por cobrar necesita un botón que diga generar cuenta, generar factura y regresar a enfermería 
 
 En enfermería:
 
-Precios no tienen que aparecer en consumos de enfermería.
 En exámenes no tiene que aparecer precio de laboratorio. Poder agregar varios exámenes a la vez y que se vea como los demás selects. Convertirlo en consumos.
-Cambiar input por text area en nota de ingreso y egreso 
-Quieren que el botón de cuenta parcial sea solo para leer y no para mandar cuenta parcial

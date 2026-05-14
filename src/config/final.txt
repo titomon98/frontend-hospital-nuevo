@@ -40,8 +40,11 @@ Completados:
 44. Ahora la solvencia funciona correctamente y los datos de todo el ciclo funcionan (todo con cobros 0 en este momento, pero al tener los cobros corregidos funcionará) - Validado
 
 Pendientes de revisión:
-9. Agregar calendario y hora al egreso en el modal de egreso, debajo de motivo de egreso - Validado, replicar en Egreso intensivo y Egreso emergencia.
+47. Cuenta parcial se quita en Emergencia.
+51. En control de consumos muestra 6 horas menos de la hora a la que fue suministrado el consumo 
+54. Separar botones de generar cuenta parcial y generar pdf.
 15. Reingresar al paciente al pagar cuenta parcial - Por validar y replicar en los demás menús si es así.
+9. Agregar calendario y hora al egreso en el modal de egreso, debajo de motivo de egreso - Validado, replicar en Egreso intensivo y Egreso emergencia.
 41. Hospitalizacion y laboratorio si o si se tiene que pagar en cuenta parcial. Honorarios, puede ser pagado hasta la siguiente cuenta, pero solo esto, nada mas.
 
 En desarrollo:
@@ -51,11 +54,8 @@ No completados:
 42. Hoja de emergencia se movió por intentar cuadrar la cuenta parcial y total
 45. En un egreso normal no se toma en cuenta la función DetalleHabitaciones. El problema con eso es que no se cobra la habitación como en cuenta parcial.
 46. A la hora de dar egreso, da la opcion de imprimir la hoja de emergencia y genera un recibo. 
-47. Cuenta parcial se quita en Emergencia.
 48. El médico interno tiene la opción de egresar una cuenta con un recibo generado.
 49. El egreso completo se afectó con la utilidad de la cuenta parcial. Separar procesos y hacer pruebas en ambos lugares.
 50. Buscar una solución a que el internet esté lento y no agregue inmediatamente los consumos
-51. En control de consumos muestra 6 horas menos de la hora a la que fue suministrado el consumo
 52. Agregar regreso de paciente al área en la que estuvo (hospitalización, emergencias) por si se les olvidó algún consumo o agregar algo.
 53. Revisar exámenes de laboratorio en hospitalización.
-54. Separar botones de generar cuenta parcial y generar pdf.

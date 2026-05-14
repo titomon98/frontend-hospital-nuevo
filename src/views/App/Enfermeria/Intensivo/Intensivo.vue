@@ -367,10 +367,11 @@
           <b-card>
             <b-card-body>
               <b-form-group label="Nota de ingreso:">
-                <b-form-input
+                <b-form-textarea
                   v-model.trim="form.motivo"
                   placeholder="Ingresar nota de ingreso a hospital"
-                ></b-form-input>
+                  rows="3"
+                ></b-form-textarea>
               </b-form-group>
             </b-card-body>
           </b-card>
@@ -402,10 +403,11 @@
           <b-card>
             <b-card-body>
               <b-form-group label="Nota de egreso:">
-                <b-form-input
+                <b-form-textarea
                   v-model.trim="form.motivo_egreso"
                   placeholder="Ingresar nota de egreso"
-                ></b-form-input>
+                  rows="3"
+                ></b-form-textarea>
               </b-form-group>
             </b-card-body>
           </b-card>
@@ -566,7 +568,7 @@
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
             />
-            <h4>Total de medicamentos: {{ totalMedicamentos }}</h4>
+            <h4 v-if="[1, 3].includes(currentUser.user_type)">Total de medicamentos: {{ totalMedicamentos }}</h4>
           </b-tab>
 
           <b-tab title="Anestésicos">
@@ -586,7 +588,7 @@
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
             />
-            <h4>Total de anestésicos: {{ totalAnestesicos }}</h4>
+            <h4 v-if="[1, 3].includes(currentUser.user_type)">Total de anestésicos: {{ totalAnestesicos }}</h4>
           </b-tab>
 
           <b-tab title="Quirúrgico">
@@ -604,7 +606,7 @@
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
             />
-            <h4>Total de material quirúrgico: {{ totalQuirurgico }}</h4>
+            <h4 v-if="[1, 3].includes(currentUser.user_type)">Total de material quirúrgico: {{ totalQuirurgico }}</h4>
           </b-tab>
 
           <b-tab title="Común">
@@ -622,14 +624,14 @@
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
             />
-            <h4>Total de material común: {{ totalComun }}</h4>
+            <h4 v-if="[1, 3].includes(currentUser.user_type)">Total de material común: {{ totalComun }}</h4>
           </b-tab>
         </b-tabs>
       </b-form>
 
       <!-- Footer -->
       <template #modal-footer>
-        <h4>Total de consumos: {{ granTotalConsumos }}</h4>
+        <h4 v-if="[1, 3].includes(currentUser.user_type)">Total de consumos: {{ granTotalConsumos }}</h4>
         <b-button variant="primary" @click="onSave">Guardar</b-button>
         <b-button variant="danger" @click="closeModal('save')">Cancelar</b-button>
       </template>
@@ -726,7 +728,7 @@
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
             />
-            <h4>Total de medicamentos: {{ totalMedicamentos }}</h4>
+            <h4 v-if="[1, 3].includes(currentUser.user_type)">Total de medicamentos: {{ totalMedicamentos }}</h4>
           </b-tab>
 
           <b-tab title="Anestésicos">
@@ -746,7 +748,7 @@
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
             />
-            <h4>Total de anestésicos: {{ totalAnestesicos }}</h4>
+            <h4 v-if="[1, 3].includes(currentUser.user_type)">Total de anestésicos: {{ totalAnestesicos }}</h4>
           </b-tab>
 
           <b-tab title="Quirúrgico">
@@ -764,7 +766,7 @@
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
             />
-            <h4>Total de material quirúrgico: {{ totalQuirurgico }}</h4>
+            <h4 v-if="[1, 3].includes(currentUser.user_type)">Total de material quirúrgico: {{ totalQuirurgico }}</h4>
           </b-tab>
 
           <b-tab title="Común">
@@ -782,14 +784,14 @@
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
             />
-            <h4>Total de material común: {{ totalComun }}</h4>
+            <h4 v-if="[1, 3].includes(currentUser.user_type)">Total de material común: {{ totalComun }}</h4>
           </b-tab>
         </b-tabs>
       </b-form>
 
       <!-- Footer -->
       <template #modal-footer>
-        <h4>Total de consumos: {{ granTotalConsumos }}</h4>
+        <h4 v-if="[1, 3].includes(currentUser.user_type)">Total de consumos: {{ granTotalConsumos }}</h4>
         <b-button variant="primary" @click="onSave">Guardar</b-button>
         <b-button variant="danger" @click="closeModal('save2')">Cancelar</b-button>
       </template>
@@ -2982,6 +2984,19 @@ export default {
       }
 
       this.$bvModal.show('reporteModal')
+    },
+    async pagar_CuentaParcial () {
+      axios.patch(apiUrl + `/cuentas/${idCuentaParcial}/ingresoParcialPago`, {
+        TotalApagar: TotalApagar
+      })
+        .then((response) => {
+          this.$refs.vuetable.refresh()
+          this.idCuentaParcial = null
+          this.$bvModal.hide('reporteModal')
+        })
+        .catch((error) => {
+          console.error(error)
+        })
     },
     async generarPDF_CuentaParcial () {
       const FechaIngreso = this.fechaIngreso
