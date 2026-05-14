@@ -65,11 +65,13 @@
       >
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
-      <b-form @submit="$event.preventDefault()">
-        <b-form-group label="Contenido:">
-          <quill-editor v-model="form.receta" :options="editorOptions" class="custom-editor"></quill-editor>
-        </b-form-group>
-      </b-form>
+      <label class="mb-1">Contenido:</label>
+      <b-form-textarea
+        v-model="form.receta"
+        rows="6"
+        max-rows="12"
+        placeholder="Ingresar detalle de receta"
+      ></b-form-textarea>
       <template #modal-footer="{}">
         <b-button variant="primary" @click="saveReceta()"
           >Guardar</b-button
@@ -89,11 +91,13 @@
       >
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
-      <b-form @submit="$event.preventDefault()">
-        <b-form-group label="Contenido:">
-          <quill-editor v-model="form.evolucion" :options="editorOptions2" class="custom-editor"></quill-editor>
-        </b-form-group>
-      </b-form>
+      <label class="mb-1">Contenido:</label>
+      <b-form-textarea
+        v-model="form.evolucion"
+        rows="6"
+        max-rows="12"
+        placeholder="Ingresar evolución de paciente"
+      ></b-form-textarea>
       <template #modal-footer="{}">
         <b-button variant="primary" @click="saveEvolucion()"
           >Guardar</b-button
@@ -113,11 +117,13 @@
       >
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
-      <b-form @submit="$event.preventDefault()">
-        <b-form-group label="Contenido:">
-          <quill-editor v-model="form.orden" :options="editorOptions3" class="custom-editor"></quill-editor>
-        </b-form-group>
-      </b-form>
+      <label class="mb-1">Contenido:</label>
+      <b-form-textarea
+        v-model="form.orden"
+        rows="6"
+        max-rows="12"
+        placeholder="Agregar órden médica"
+      ></b-form-textarea>
       <template #modal-footer="{}">
         <b-button variant="primary" @click="saveOrden()"
           >Guardar</b-button
@@ -137,11 +143,13 @@
       >
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
-      <b-form @submit="$event.preventDefault()">
-        <b-form-group label="Contenido:">
-          <quill-editor v-model="form.notas" :options="editorOptions3" class="custom-editor"></quill-editor>
-        </b-form-group>
-      </b-form>
+      <label class="mb-1">Contenido:</label>
+      <b-form-textarea
+        v-model="form.notas"
+        rows="6"
+        max-rows="12"
+        placeholder="Indicar nota de enfermería"
+      ></b-form-textarea>
       <template #modal-footer="{}">
         <b-button variant="primary" @click="saveNotas()"
           >Guardar</b-button
@@ -1199,7 +1207,6 @@ import useVuelidate from '@vuelidate/core'
 import { required } from '@vuelidate/validators'
 import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
-import { quillEditor } from 'vue-quill-editor'
 import moment from 'moment'
 import { mapGetters } from 'vuex'
 import JsPDF from 'jspdf'
@@ -1212,7 +1219,6 @@ export default {
     vuetable: Vuetable,
     'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
     'datatable-heading': DatatableHeading,
-    quillEditor,
     Multiselect
   },
   setup () {
@@ -1259,45 +1265,6 @@ export default {
       selectedHab: null,
       to: 0,
       total: 0,
-      editorOptions: {
-        modules: {
-          toolbar: [
-            [{ 'header': '1' }, { 'header': '2' }, { 'font': [] }],
-            [{ size: [] }],
-            ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-            ['clean']
-          ]
-        },
-        placeholder: 'Escribir contenido de la receta',
-        theme: 'snow'
-      },
-      editorOptions2: {
-        modules: {
-          toolbar: [
-            [{ 'header': '1' }, { 'header': '2' }, { 'font': [] }],
-            [{ size: [] }],
-            ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-            ['clean']
-          ]
-        },
-        placeholder: 'Escribir la evolución',
-        theme: 'snow'
-      },
-      editorOptions3: {
-        modules: {
-          toolbar: [
-            [{ 'header': '1' }, { 'header': '2' }, { 'font': [] }],
-            [{ size: [] }],
-            ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-            ['clean']
-          ]
-        },
-        placeholder: 'Escribir la orden médica',
-        theme: 'snow'
-      },
       perPage: 25,
       search: '',
       existencias_selected_med: null,
