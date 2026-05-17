@@ -157,11 +157,11 @@
         <b-col >
           <b-form-group label="Área a la que desea trasladar:">
             <b-form-radio-group
-                      id="radio-group-2"
-                      v-model="selectedTrasOption"
-                      :options="optionsTraslado"
-                      name="radio-options"
-                    ></b-form-radio-group>
+              id="radio-group-2"
+              v-model="selectedTrasOption"
+              :options="optionsTraslado"
+              name="radio-options"
+            ></b-form-radio-group>
             <div v-if="selectedTrasOption==1||selectedTrasOption==4">
               Habitación
               <v-select
@@ -413,7 +413,6 @@ export default {
       optionsTraslado: [
         { text: 'Hospitalización', value: 1 },
         { text: 'Quirófano', value: 3 },
-        { text: 'Emergencia', value: 5 },
         { text: 'Intensivos', value: 4 }
       ],
       fields: [
@@ -604,17 +603,6 @@ export default {
           me.alertText = 'Se ha ingresado el paciente ' + me.form.nombres + ' exitosamente'
           me.$refs.vuetable.refresh()
           me.$refs['modal-4-servicios'].hide()
-          if (this.selectedTrasOption === 1 || this.selectedTrasOption === 4) {
-            axios
-              .put(apiUrl + '/habitaciones/inUse', {
-                id: this.selectedHab.id,
-                ocupante: this.form.id
-              })
-              .then((res) => {
-                this.selectedHab = null
-                this.getHabitaciones(0).then(me.$refs.selectHab.refresh())
-              })
-          }
           axios
             .post(apiUrl + ('/cuentas/create'), {
               numero: 1,
@@ -626,6 +614,17 @@ export default {
               estado: 1,
               id_expediente: this.form.id
             }).then((resp) => console.log(resp))
+          if (this.selectedTrasOption === 1 || this.selectedTrasOption === 4) {
+            axios
+              .put(apiUrl + '/habitaciones/inUse', {
+                id: this.selectedHab.id,
+                ocupante: this.form.id
+              })
+              .then((res) => {
+                this.selectedHab = null
+                this.getHabitaciones(0).then(me.$refs.selectHab.refresh())
+              })
+          }
         })
         .catch((error) => {
           me.alertVariant = 'danger'

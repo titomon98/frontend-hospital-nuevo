@@ -515,7 +515,7 @@ export default {
         } else {
           let me = this
           axios
-            .put(apiUrl + '/expedientes/changeState', {
+            .put(apiUrl + '/expedientes/egresoNormal', {
               id: this.form.id,
               estado: this.selectedQuitOption,
               estado_anterior: 1,

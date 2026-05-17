@@ -296,6 +296,16 @@
                       class="mb-2 button-spacing"
                       size="sm"
                       variant="dark"
+                    >Reingresar a hospital</b-button>
+
+                    <b-button
+                      @click="
+                        setData(props.rowData)
+                        $bvModal.show('modal-2-account')
+                      "
+                      class="mb-2 button-spacing"
+                      size="sm"
+                      variant="dark"
                     >Cobrar</b-button>
 
                     <b-button
@@ -583,45 +593,6 @@ export default {
       this.expediente = data.id_expediente
       this.onLoadAssurances(data.id_expediente)
       // this.getCuentas(data.id)
-    },
-    /* Guardar */
-    onSave () {
-      const me = this
-      axios.post(apiUrl + '/banco/create', {
-        form: me.form })
-        .then((response) => {
-          me.alertVariant = 'success'
-          me.showAlert()
-          me.alertText = 'Se ha creado el banco ' + me.form.name + ' exitosamente'
-          me.$refs.vuetable.refresh()
-          me.closeModal('save')
-        })
-        .catch((error) => {
-          me.alertVariant = 'danger'
-          me.showAlertError()
-          me.alertErrorText = error.response.data.msg
-          console.error('Error!', error)
-        })
-    },
-    /* Guardar */
-    onUpdate () {
-      const me = this
-      // this.$refs["modalSave"].hide();
-      axios.put(apiUrl + '/banco/update', {
-        form: me.form })
-        .then((response) => {
-          me.alertVariant = 'primary'
-          me.showAlert()
-          me.alertText = 'Se ha actualizado el banco ' + me.form.name + ' exitosamente'
-          me.$refs.vuetable.refresh()
-          me.closeModal('update')
-        })
-        .catch((error) => {
-          me.alertVariant = 'danger'
-          me.showAlertError()
-          me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-          console.error('Error!', error)
-        })
     },
     onState () {
       let me = this
