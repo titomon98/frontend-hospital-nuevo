@@ -125,7 +125,6 @@
                 <b-form-group label="CUI:">
                   <div v-if="calcularEdad >= 18">
                     <b-form-input
-                      type= "number"
                       v-model.trim="form.cui"
                       placeholder="Ingresar el CUI"
                     ></b-form-input>
@@ -204,10 +203,10 @@
                 </b-form-group>
               </b-col>
               <b-col md="4">
-                <b-form-group label="Nota de ingreso:">
+                <b-form-group label="Observaciones:">
                   <b-form-input
                     v-model.trim="form.motivo"
-                    placeholder="Ingresar nota de ingreso a hospital"
+                    placeholder="Ingresar observaciones"
                   ></b-form-input>
                 </b-form-group>
               </b-col>
@@ -251,7 +250,6 @@
               <b-col md="2">
                 <b-form-group label="CUI:">
                   <b-form-input
-                    type= "number"
                     v-model.trim="$v.form.cui_encargado.$model"
                     :class="{'is-invalid': $v.form.cui_encargado.$error}"
                     placeholder="Ingresar el CUI"
@@ -518,6 +516,11 @@ export default {
   methods: {
     validarAnoNacimiento () {
       this.$v.form.nacimiento.$touch()
+      if (this.calcularEdad >= 18) {
+        this.form.cui = ''
+      } else {
+        this.form.cui = 'NO DISPONIBLE'
+      }
     },
     onValidate () {
       this.$v.$touch()

@@ -86,7 +86,14 @@
                   :disabled="hasPermission([1, 3])"
                 >Eliminar registro</b-button>
                 <b-button
-                  v-else
+                  v-else-if="props.rowData.estado === 0"
+                  :disabled="true"
+                  class="mb-2 button-spacing"
+                  size="sm"
+                  variant="dark"
+                >El registro fue pagado</b-button>
+                <b-button
+                  v-else-if="props.rowData.estado === 100"
                   :disabled="true"
                   class="mb-2 button-spacing"
                   size="sm"

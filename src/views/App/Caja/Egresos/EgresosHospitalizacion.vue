@@ -221,6 +221,37 @@
                   >
                 </h5>
               </div>
+              <!-- Notas -->
+              <div slot="notas" slot-scope="props">
+                <b-badge
+                  v-if="['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo)"
+                  variant="danger"
+                  class="mb-1 d-block"
+                >
+                  Falta nota de ingreso
+                </b-badge>
+                <b-badge
+                  v-if="['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo_egreso)"
+                  variant="warning"
+                  class="mb-1 d-block"
+                >
+                  Falta nota de egreso
+                </b-badge>
+                <b-badge
+                  v-if="!props.rowData.cuentas[0].detalle_honorarios || props.rowData.cuentas[0].detalle_honorarios.length === 0"
+                  variant="danger"
+                  class="mb-1 d-block"
+                >
+                  Sin honorarios médicos
+                </b-badge>
+                <b-badge
+                  v-if="!['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo) && !['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo_egreso) && props.rowData.cuentas[0].detalle_honorarios && props.rowData.cuentas[0].detalle_honorarios.length > 0"
+                  variant="success"
+                  class="d-block"
+                >
+                  Notas completas
+                </b-badge>
+              </div>
               <!-- Botones -->
               <template slot="actions" slot-scope="props">
                 <div class="button-container">
@@ -229,6 +260,8 @@
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="dark"
+                    :disabled="['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo) || ['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo_egreso) || !props.rowData.cuentas[0].detalle_honorarios || props.rowData.cuentas[0].detalle_honorarios.length === 0"
+                    v-b-tooltip.top="['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo) ? 'Falta nota de ingreso' : ['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo_egreso) ? 'Falta nota de egreso' : 'Egresar paciente'"
                   >
                     Egresar paciente
                   </b-button>
@@ -375,6 +408,12 @@ export default {
           titleClass: '',
           dataClass: 'text-muted',
           width: '25%'
+        },
+        {
+          name: '__slot:notas',
+          title: 'Notas',
+          titleClass: '',
+          dataClass: 'text-muted'
         }
       ],
       fieldsAccounts: [

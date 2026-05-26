@@ -514,7 +514,7 @@
       <b-col md="12">
         <iq-card>
             <template v-slot:headerTitle>
-              <h4 class="card-title mt-3">Expedientes</h4>
+              <h4 class="card-title mt-3">Asignarción de habitación</h4>
                <div class="iq-search-bar mt-2">
                 <b-form action="#" class="searchbox">
                     <b-input id="search" placeholder="Buscar..." @input="(val) => searchChange(val)" />
@@ -777,20 +777,20 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
-          name: 'nacimiento',
-          sortField: 'nacimiento',
-          title: 'Fecha de nacimiento',
+          name: 'fecha_ingreso_reciente',
+          sortField: 'fecha_ingreso_reciente',
+          title: 'Fecha de ingreso',
           dataClass: 'list-item-heading'
         },
         {
-          name: 'edad',
-          title: 'Edad',
+          name: 'hora_ingreso_reciente',
+          sortField: 'hora_ingreso_reciente',
+          title: 'Hora de ingreso',
           dataClass: 'list-item-heading'
         },
         {
-          name: 'genero',
-          sortField: 'genero',
-          title: 'Género',
+          name: 'habitacione.numero',
+          title: 'Habitación',
           dataClass: 'list-item-heading'
         },
         {
