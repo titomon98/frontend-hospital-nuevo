@@ -98,8 +98,9 @@
                 </b-col>
 
             </b-row>
-            <b-row  class="ml-2">
-              <b-col md="4">
+            <!-- Reemplazar la segunda b-row (líneas 101-139) por esto: -->
+            <b-row class="ml-2">
+              <b-col md="3">
                 <b-form-group label="Nombre en factura:">
                   <b-form-input
                     v-model.trim="$v.form.nombre_encargado.$model"
@@ -109,12 +110,17 @@
                   <div v-if="$v.form.nombre_encargado.required.$invalid" class="invalid-feedback">
                     Debe ingresar el nombre en factura
                   </div>
-                  <div v-if="!$v.form.nombre_encargado.ValidateName.$error" class="invalid-feedback">
-                    El nombre solo debe contener letras mayúsculas y con tildes
-                  </div>
                 </b-form-group>
               </b-col>
-              <b-col md="4">
+              <b-col md="2">
+                <b-form-group label="NIT:">
+                  <b-form-input
+                    v-model.trim="form.nit_factura"
+                    placeholder="Ingresar NIT"
+                  ></b-form-input>
+                </b-form-group>
+              </b-col>
+              <b-col md="3">
                 <b-form-group label="Dirección:">
                   <b-form-input
                     v-model.trim="$v.form.direccion.$model"
@@ -127,14 +133,13 @@
                 <b-form-group label="Asignar médico tratante:">
                   <v-select
                     name="type"
-                    v-model = "selectedDoctor"
+                    v-model="selectedDoctor"
                     :options="doctors"
                     :reduce="doc => doc.value"
                     placeholder="Seleccione un médico"
                     label='text'
                     @search="onSearchMedicos"/>
                 </b-form-group>
-
               </b-col>
             </b-row>
             <b-row class="ml-2">
@@ -285,7 +290,9 @@ export default {
         cui: '',
         cui_encargado: '',
         contacto_encargado: '',
-        assignedDoctor: 0
+        assignedDoctor: 0,
+        nit_factura: '',
+        nombre_factura: ''
       },
       generos: ['Masculino', 'Femenino'],
       parentescos: ['Padre/Madre', 'Hermano/a', 'Hijo/a', 'Cónyuge', 'Otro'],

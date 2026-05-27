@@ -2994,190 +2994,190 @@ export default {
     },
 
     async generarPDF_CuentaParcial () {
-        const FechaIngreso = this.fechaIngreso
-        const data = this.dataPDFsumario
-        const fechaActual = new Date()
-        const fechaFormateada = fechaActual.toLocaleDateString('es-ES')
-        const opcionesHora = { hour: '2-digit', minute: '2-digit', hour12: true }
-        const horaFormateada = fechaActual.toLocaleTimeString('es-ES', opcionesHora)
+      const FechaIngreso = this.fechaIngreso
+      const data = this.dataPDFsumario
+      const fechaActual = new Date()
+      const fechaFormateada = fechaActual.toLocaleDateString('es-ES')
+      const opcionesHora = { hour: '2-digit', minute: '2-digit', hour12: true }
+      const horaFormateada = fechaActual.toLocaleTimeString('es-ES', opcionesHora)
 
-        let mensajeDias
+      let mensajeDias
 
-        if (!FechaIngreso) {
-            mensajeDias = 'NO ASIGNADA'
-        } else {
-            const fechaIngreso = new Date(FechaIngreso)
-            const diferenciaMs = fechaActual - fechaIngreso
-            const diasDiferencia = Math.floor(diferenciaMs / (1000 * 60 * 60 * 24))
-            mensajeDias = diasDiferencia
-        }
+      if (!FechaIngreso) {
+        mensajeDias = 'NO ASIGNADA'
+      } else {
+        const fechaIngreso = new Date(FechaIngreso)
+        const diferenciaMs = fechaActual - fechaIngreso
+        const diasDiferencia = Math.floor(diferenciaMs / (1000 * 60 * 60 * 24))
+        mensajeDias = diasDiferencia
+      }
 
-        try {
-            const UsoHabitaciones = data.costoTotal
-            const UsoIntensivo = data.costoIntensivo
-            const EmergenciasMedicoInterno = data.EmergenciasMedicoInterno || 0
-            const ConsumoTotal = data.consumos.reduce((acc, item) => acc + parseFloat(item.subtotal), 0)
-            const ConsumoComunTotal = data.consumosComunes.reduce((acc, item) => acc + parseFloat(item.total), 0)
-            const ConsumoMedicamentosTotal = data.consumosMedicamentos.reduce((acc, item) => acc + parseFloat(item.total), 0)
-            const ConsumoAnestesicosTotal = data.consumosAnestesicos.reduce((acc, item) => acc + parseFloat(item.total), 0)
-            let ConsumoQuirurgicosTotal = data.consumosQuirurgicos.reduce((acc, item) => acc + parseFloat(item.total), 0)
-            const ExamenesTotal = data.examenes.reduce((acc, item) => acc + parseFloat(item.total), 0)
-            const ServicioSalaOperacionesTotal = data.salaOperaciones.reduce((acc, item) => acc + parseFloat(item.total), 0)
-            const TotalHonorarios = data.honorarios.reduce((acc, item) => acc + parseFloat(item.total), 0)
-            const medicosOrdenados = data.honorarios.sort((a, b) => b.total - a.total)
+      try {
+        const UsoHabitaciones = data.costoTotal
+        const UsoIntensivo = data.costoIntensivo
+        const EmergenciasMedicoInterno = data.EmergenciasMedicoInterno || 0
+        const ConsumoTotal = data.consumos.reduce((acc, item) => acc + parseFloat(item.subtotal), 0)
+        const ConsumoComunTotal = data.consumosComunes.reduce((acc, item) => acc + parseFloat(item.total), 0)
+        const ConsumoMedicamentosTotal = data.consumosMedicamentos.reduce((acc, item) => acc + parseFloat(item.total), 0)
+        const ConsumoAnestesicosTotal = data.consumosAnestesicos.reduce((acc, item) => acc + parseFloat(item.total), 0)
+        let ConsumoQuirurgicosTotal = data.consumosQuirurgicos.reduce((acc, item) => acc + parseFloat(item.total), 0)
+        const ExamenesTotal = data.examenes.reduce((acc, item) => acc + parseFloat(item.total), 0)
+        const ServicioSalaOperacionesTotal = data.salaOperaciones.reduce((acc, item) => acc + parseFloat(item.total), 0)
+        const TotalHonorarios = data.honorarios.reduce((acc, item) => acc + parseFloat(item.total), 0)
+        const medicosOrdenados = data.honorarios.sort((a, b) => b.total - a.total)
 
-            const TotalGeneral =
-                UsoHabitaciones +
-                UsoIntensivo +
-                ConsumoTotal +
-                ConsumoComunTotal +
-                ConsumoMedicamentosTotal +
-                ConsumoAnestesicosTotal +
-                ConsumoQuirurgicosTotal +
-                ExamenesTotal +
-                ServicioSalaOperacionesTotal +
-                EmergenciasMedicoInterno
+        const TotalGeneral =
+          UsoHabitaciones +
+          UsoIntensivo +
+          ConsumoTotal +
+          ConsumoComunTotal +
+          ConsumoMedicamentosTotal +
+          ConsumoAnestesicosTotal +
+          ConsumoQuirurgicosTotal +
+          ExamenesTotal +
+          ServicioSalaOperacionesTotal +
+          EmergenciasMedicoInterno
 
-            const TotalGeneral2 =
-                UsoHabitaciones +
-                UsoIntensivo +
-                ConsumoTotal +
-                ConsumoComunTotal +
-                ConsumoMedicamentosTotal +
-                ConsumoAnestesicosTotal +
-                ConsumoQuirurgicosTotal +
-                ServicioSalaOperacionesTotal +
-                EmergenciasMedicoInterno
+        const TotalGeneral2 =
+          UsoHabitaciones +
+          UsoIntensivo +
+          ConsumoTotal +
+          ConsumoComunTotal +
+          ConsumoMedicamentosTotal +
+          ConsumoAnestesicosTotal +
+          ConsumoQuirurgicosTotal +
+          ServicioSalaOperacionesTotal +
+          EmergenciasMedicoInterno
 
-            const TotalApagar = TotalGeneral2 + TotalHonorarios + ExamenesTotal
-            this.TotalApagar = TotalApagar
-            const doc = new JsPDF()
+        const TotalApagar = TotalGeneral2 + TotalHonorarios + ExamenesTotal
+        this.TotalApagar = TotalApagar
+        const doc = new JsPDF()
 
-            doc.setFontSize(10).setFont(undefined, 'bold')
-            doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO', 110, 10, { align: 'center' })
+        doc.setFontSize(10).setFont(undefined, 'bold')
+        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO', 110, 10, { align: 'center' })
 
-            doc.setFontSize(10).setFont(undefined, 'normal')
-            doc.text('CUENTA DE PACIENTE', 110, 14, { align: 'center' })
+        doc.setFontSize(10).setFont(undefined, 'normal')
+        doc.text('CUENTA DE PACIENTE', 110, 14, { align: 'center' })
 
-            doc.setFontSize(8).setFont(undefined, 'normal')
-            doc.text('NOMBRE DEL PACIENTE:', 14, 20)
-            doc.text(`${this.nombrePaciente}`, 50, 20)
-            doc.text('_____________________________________________________________________________________________', 50, 21)
+        doc.setFontSize(8).setFont(undefined, 'normal')
+        doc.text('NOMBRE DEL PACIENTE:', 14, 20)
+        doc.text(`${this.nombrePaciente}`, 50, 20)
+        doc.text('_____________________________________________________________________________________________', 50, 21)
 
-            doc.text('CUARTO NO.:', 14, 27)
-            doc.text(`${data.numerohabitacion}`, 40, 27)
-            doc.text('__________', 35, 28)
+        doc.text('CUARTO NO.:', 14, 27)
+        doc.text(`${data.numerohabitacion}`, 40, 27)
+        doc.text('__________', 35, 28)
 
-            doc.text('TIPO DE SERVICIO:', 60, 27)
-            doc.text('', 87, 27)
-            doc.text('___________________________', 87, 28)
+        doc.text('TIPO DE SERVICIO:', 60, 27)
+        doc.text('', 87, 27)
+        doc.text('___________________________', 87, 28)
 
-            doc.text('D/ESTANCIA: ', 130, 27)
-            doc.text(`${mensajeDias}`, 170, 27)
-            doc.text('_____________________________', 150, 28)
+        doc.text('D/ESTANCIA: ', 130, 27)
+        doc.text(`${mensajeDias}`, 170, 27)
+        doc.text('_____________________________', 150, 28)
 
-            doc.text('MD TRATANTE:', 14, 34)
-            doc.text(`${data.nombremedico}`, 36, 34)
-            doc.text('______________________________________________________________________________________________________', 36, 35)
+        doc.text('MD TRATANTE:', 14, 34)
+        doc.text(`${data.nombremedico}`, 36, 34)
+        doc.text('______________________________________________________________________________________________________', 36, 35)
 
-            ConsumoQuirurgicosTotal = parseFloat(ConsumoQuirurgicosTotal) + parseFloat(ConsumoTotal)
-            doc.autoTable({
-                body: [
-                    ['HOSPITALIZACION', `Q${UsoHabitaciones.toFixed(2)}`],
-                    ['SALA DE OPERACIONES', `Q${ServicioSalaOperacionesTotal.toFixed(2)}`],
-                    ['CONSUMO MEDICAMENTOS', `Q${ConsumoMedicamentosTotal.toFixed(2)}`],
-                    ['MATERIAL MEDICO QUIRÚRGICO', `Q${ConsumoQuirurgicosTotal.toFixed(2)}`],
-                    ['ANESTESICOS', `Q${ConsumoAnestesicosTotal.toFixed(2)}`],
-                    ['MATERIAL COMÚN', `Q${ConsumoComunTotal.toFixed(2)}`],
-                    ['RECUPERACION', ''],
-                    ['INTENSIVO', `Q${UsoIntensivo.toFixed(2)}`],
-                    ['EMERGENCIAS  Medico Interno', `Q${EmergenciasMedicoInterno.toFixed(2)}`],
-                    ['OTROS', ''],
-                    ['TOTAL HOSPITALIZACION =', `Q${TotalGeneral2.toFixed(2)}`],
-                    ['TOTAL LAB. BIOMEDICO E.O. S.A. =', `Q${ExamenesTotal.toFixed(2)}`],
-                    ['TOTAL MENOS DESCUENTO =', `Q${TotalGeneral.toFixed(2)}`]
-                ],
-                startY: 41,
-                theme: 'grid',
-                styles: { fontSize: 10, cellPadding: 2, textColor: [0, 0, 0] },
-                columnStyles: {
-                    0: { halign: 'left' },
-                    1: { halign: 'left' }
-                },
-                didParseCell: function (data) {
-                    const rowIndex = data.row.index
-                    const colIndex = data.column.index
-                    if (rowIndex >= 10 && colIndex === 0) {
-                        data.cell.styles.halign = 'right'
-                    }
-                }
-            })
+        ConsumoQuirurgicosTotal = parseFloat(ConsumoQuirurgicosTotal) + parseFloat(ConsumoTotal)
+        doc.autoTable({
+          body: [
+            ['HOSPITALIZACION', `Q${UsoHabitaciones.toFixed(2)}`],
+            ['SALA DE OPERACIONES', `Q${ServicioSalaOperacionesTotal.toFixed(2)}`],
+            ['CONSUMO MEDICAMENTOS', `Q${ConsumoMedicamentosTotal.toFixed(2)}`],
+            ['MATERIAL MEDICO QUIRÚRGICO', `Q${ConsumoQuirurgicosTotal.toFixed(2)}`],
+            ['ANESTESICOS', `Q${ConsumoAnestesicosTotal.toFixed(2)}`],
+            ['MATERIAL COMÚN', `Q${ConsumoComunTotal.toFixed(2)}`],
+            ['RECUPERACION', ''],
+            ['INTENSIVO', `Q${UsoIntensivo.toFixed(2)}`],
+            ['EMERGENCIAS  Medico Interno', `Q${EmergenciasMedicoInterno.toFixed(2)}`],
+            ['OTROS', ''],
+            ['TOTAL HOSPITALIZACION =', `Q${TotalGeneral2.toFixed(2)}`],
+            ['TOTAL LAB. BIOMEDICO E.O. S.A. =', `Q${ExamenesTotal.toFixed(2)}`],
+            ['TOTAL MENOS DESCUENTO =', `Q${TotalGeneral.toFixed(2)}`]
+          ],
+          startY: 41,
+          theme: 'grid',
+          styles: { fontSize: 10, cellPadding: 2, textColor: [0, 0, 0] },
+          columnStyles: {
+            0: { halign: 'left' },
+            1: { halign: 'left' }
+          },
+          didParseCell: function (data) {
+            const rowIndex = data.row.index
+            const colIndex = data.column.index
+            if (rowIndex >= 10 && colIndex === 0) {
+              data.cell.styles.halign = 'right'
+            }
+          }
+        })
 
-            const nextTableStartY = doc.lastAutoTable.finalY + 10
+        const nextTableStartY = doc.lastAutoTable.finalY + 10
 
-            doc.setFontSize(12).setFont(undefined, 'normal')
-            doc.text(`FECHA ${fechaFormateada} ${horaFormateada}`, 14, nextTableStartY)
+        doc.setFontSize(12).setFont(undefined, 'normal')
+        doc.text(`FECHA ${fechaFormateada} ${horaFormateada}`, 14, nextTableStartY)
 
-            doc.setFontSize(10).setFont(undefined, 'bold')
-            doc.text('HONORARIOS MEDICOS Y OTROS SERVICIOS', 100, nextTableStartY + 15, { align: 'center' })
+        doc.setFontSize(10).setFont(undefined, 'bold')
+        doc.text('HONORARIOS MEDICOS Y OTROS SERVICIOS', 100, nextTableStartY + 15, { align: 'center' })
 
-            const tableRows = medicosOrdenados.map((medico, index) => [
-                index + 1,
-                medico.medico.nombre,
-                medico.descripcion,
-                `Q${(Number(medico.total) || 0).toFixed(2)}`
-            ])
+        const tableRows = medicosOrdenados.map((medico, index) => [
+          index + 1,
+          medico.medico.nombre,
+          medico.descripcion,
+          `Q${(Number(medico.total) || 0).toFixed(2)}`
+        ])
 
-            doc.autoTable({
-                head: [['#', 'MEDICO', 'DESCRIPCION', 'VALOR']],
-                body: tableRows,
-                startY: nextTableStartY + 20,
-                theme: 'grid',
-                styles: { fontSize: 10, cellPadding: 2, textColor: [0, 0, 0] },
-                headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], fontStyle: 'bold' },
-                alternateRowStyles: { fillColor: [240, 240, 240] }
-            })
+        doc.autoTable({
+          head: [['#', 'MEDICO', 'DESCRIPCION', 'VALOR']],
+          body: tableRows,
+          startY: nextTableStartY + 20,
+          theme: 'grid',
+          styles: { fontSize: 10, cellPadding: 2, textColor: [0, 0, 0] },
+          headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], fontStyle: 'bold' },
+          alternateRowStyles: { fillColor: [240, 240, 240] }
+        })
 
-            const nextTableStartY2 = doc.lastAutoTable.finalY + 10
+        const nextTableStartY2 = doc.lastAutoTable.finalY + 10
 
-            doc.setFontSize(10).setFont(undefined, 'bold')
-            doc.text('LIQUIDACION', 100, nextTableStartY2, { align: 'center' })
+        doc.setFontSize(10).setFont(undefined, 'bold')
+        doc.text('LIQUIDACION', 100, nextTableStartY2, { align: 'center' })
 
-            doc.autoTable({
-                body: [
-                    ['TOTAL HOSPITALIZACION', `Q${TotalGeneral2.toFixed(2)}`],
-                    ['TOTAL LAB. BIOMEDICO E.O. S.A.', `Q${ExamenesTotal.toFixed(2)}`],
-                    ['TOTAL HONORARIOS MEDICOS Y OTROS SERVICIOS', `Q${TotalHonorarios.toFixed(2)}`],
-                    ['EMERGENCIAS MEDICO INTERNO', `Q${EmergenciasMedicoInterno.toFixed(2)}`],
-                    ['TOTAL A PAGAR =', `Q${TotalApagar.toFixed(2)}`]
-                ],
-                startY: nextTableStartY2 + 5,
-                theme: 'grid',
-                styles: { fontSize: 10, cellPadding: 2, textColor: [0, 0, 0] },
-                columnStyles: {
-                    0: { halign: 'left' },
-                    1: { halign: 'left' }
-                },
-                didParseCell: function (data) {
-                    const rowIndex = data.row.index
-                    const colIndex = data.column.index
-                    if (rowIndex >= 4 && colIndex === 0) {
-                        data.cell.styles.halign = 'right'
-                    }
-                }
-            })
+        doc.autoTable({
+          body: [
+            ['TOTAL HOSPITALIZACION', `Q${TotalGeneral2.toFixed(2)}`],
+            ['TOTAL LAB. BIOMEDICO E.O. S.A.', `Q${ExamenesTotal.toFixed(2)}`],
+            ['TOTAL HONORARIOS MEDICOS Y OTROS SERVICIOS', `Q${TotalHonorarios.toFixed(2)}`],
+            ['EMERGENCIAS MEDICO INTERNO', `Q${EmergenciasMedicoInterno.toFixed(2)}`],
+            ['TOTAL A PAGAR =', `Q${TotalApagar.toFixed(2)}`]
+          ],
+          startY: nextTableStartY2 + 5,
+          theme: 'grid',
+          styles: { fontSize: 10, cellPadding: 2, textColor: [0, 0, 0] },
+          columnStyles: {
+            0: { halign: 'left' },
+            1: { halign: 'left' }
+          },
+          didParseCell: function (data) {
+            const rowIndex = data.row.index
+            const colIndex = data.column.index
+            if (rowIndex >= 4 && colIndex === 0) {
+              data.cell.styles.halign = 'right'
+            }
+          }
+        })
 
-            const nextTableStartY3 = doc.lastAutoTable.finalY + 10
+        const nextTableStartY3 = doc.lastAutoTable.finalY + 10
 
-            doc.setFontSize(10).setFont(undefined, 'normal')
-            doc.text('_______________________________________', 110, nextTableStartY3, { align: 'center' })
-            doc.text('Nombre y Firma del Cajero', 110, nextTableStartY3 + 5, { align: 'center' })
+        doc.setFontSize(10).setFont(undefined, 'normal')
+        doc.text('_______________________________________', 110, nextTableStartY3, { align: 'center' })
+        doc.text('Nombre y Firma del Cajero', 110, nextTableStartY3 + 5, { align: 'center' })
 
-            doc.save(`cuenta_Parcial_${this.nombrePaciente}.PDF`)
-        } catch (error) {
-            console.error('Error al generar el reporte:', error)
-            this.$alert('Ocurrió un error al generar el reporte. Por favor, intente de nuevo.', 'Error')
-        }
+        doc.save(`cuenta_Parcial_${this.nombrePaciente}.PDF`)
+      } catch (error) {
+        console.error('Error al generar el reporte:', error)
+        this.$alert('Ocurrió un error al generar el reporte. Por favor, intente de nuevo.', 'Error')
+      }
     },
     formatearMonto (monto) {
       const montoNumerico = parseFloat(monto)
