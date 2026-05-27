@@ -505,7 +505,19 @@
           {{ row.item.medico }}
         </template>
         <template #cell(total)="row">
-          {{ row.item.total }}
+          <div v-if="[1, 3].includes(currentUser.user_type)" class="d-flex align-items-center" style="gap:6px;">
+            <b-form-input
+              v-model="row.item.total"
+              type="number"
+              size="sm"
+              style="width:110px;"
+              @keyup.enter="updateHonorarioTotal(row.item)"
+            />
+            <b-button size="sm" variant="primary" @click="updateHonorarioTotal(row.item)">
+              <i class="ri-save-line"></i>
+            </b-button>
+          </div>
+          <span v-else>{{ row.item.total }}</span>
         </template>
       </b-table>
 
@@ -3602,6 +3614,24 @@ export default {
           console.error('Error!', error)
         })
     },
+    async updateHonorarioTotal (item) {
+      try {
+        await axios.patch(apiUrl + '/detalle_honorarios/updateTotal', {
+          id: item.id,
+          total: item.total,
+          updated_by: this.currentUser.nombre || this.currentUser.usuario
+        })
+        this.alertVariant = 'success'
+        this.showAlert()
+        this.alertText = 'Honorario actualizado correctamente'
+      } catch (error) {
+        this.alertVariant = 'danger'
+        this.showAlertError()
+        this.alertErrorText = error.response?.data?.msg || 'Error al actualizar el honorario'
+        console.error('Error al actualizar honorario:', error)
+      }
+    },
+
     onMotivoEgresoAssignment () {
       const motivoE = this.form.motivo_egreso
       axios.put(apiUrl + '/cuentas/updateMotivoEgreso', {
