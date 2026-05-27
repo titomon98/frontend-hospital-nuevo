@@ -1,7 +1,5 @@
 1. Eliminar emergencia - listo
 2. En ver honorarios necesita un total (por cuenta) - listo
-3. Si el paciente se ingresa en emergencia y luego se traslada, debe cobrar solo 25 del médico interno y la habitación - listo, solo validar que usuarios serán médicos internos, si no se asigna id de médico a los usuarios no crea el registro.
-5. Ingresar múltiples laboratorios a la vez - listo
 6. Al eliminar honorarios ya no tienen que aparecer en el voucher - listo, se agregó un nuevo estado para diferenciar eliminados de pagados
 7. El total de honorarios SIEMPRE aparece en el voucher ya, es lo primero que aparece - listo, explicar donde aparece
 8. Quitar las flechas del DPI en ingreso de paciente - listo
@@ -12,7 +10,9 @@
 16. Si no tiene honorarios médicos un paciente tmapoco permite egreso - listo
 
 
+3. Si el paciente se ingresa en emergencia y luego se traslada, debe cobrar solo 25 del médico interno y la habitación
 4. Verificar la suma de laboratorios 
+5. Ingresar múltiples laboratorios a la vez - CADA VEZ QUE SE HACE UNA BUSQUEDA SE PIERDE LA SELECCION ANTERIOR
 12. No aparece sala de operaciones agredada
 13. Cuando se agregue un paquete, en lugar de "cobrar" todos los consumos, debe cobrar el paquete como tal.
 14. Desplegar el nombre de ayudante, circulante e instrumentista en agregar ⁠Servicios
@@ -22,3 +22,4 @@
 20. El corte del día de hospital debe informar solo los gastos de hospital, no los honorarios ni laboratorios
 21. Clonar consumos de enfermería en consumos de farmacia
 22. En los voucher de honorarios no tomar en cuenta honorarios pendientes, solo tomar en cuenta honorarios del día que se genera.
+23. Si hay medicos que dejan honorarios de cortesia o la doctora Champet que deja honorarios en 0 es posible hacer el egreso.
