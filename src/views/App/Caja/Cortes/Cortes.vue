@@ -63,20 +63,26 @@
       <b-form @submit="$event.preventDefault()">
         <b-form-group label="Seleccionar Médico">
           <v-select
-            name="medico"
-            v-model="selectedMedico"
-            :options="medicos"
-            :filterable="false"
-            placeholder="Seleccione el médico"
-            @search="onSearchDatosMedicos"
+              name="medico"
+              v-model="selectedMedico"
+              :options="medicos"
+              :filterable="false"
+              placeholder="Seleccione el médico"
+              @search="onSearchDatosMedicos"
+              @input="onMedicoSelected"
           >
-            <template v-slot:option="option">
-              {{ option.nombre }}
-            </template>
-            <template slot="selected-option" slot-scope="option">
-              {{ option.nombre }}
-            </template>
+              <template v-slot:option="option">{{ option.nombre }}</template>
+              <template slot="selected-option" slot-scope="option">{{ option.nombre }}</template>
           </v-select>
+        </b-form-group>
+
+        <!-- Nuevo campo de fecha, solo visible si ya se seleccionó un médico -->
+        <b-form-group v-if="medicoYaSeleccionado" label="Filtrar por fecha:">
+            <b-form-input
+                type="date"
+                v-model="fechaFiltro"
+                @change="buscarPacientesPorFecha"
+            ></b-form-input>
         </b-form-group>
 
         <b-form-group label="Cantidad:">
@@ -142,11 +148,10 @@
       <b-col md="12">
         <iq-card>
             <template v-slot:headerAction>
-              <b-button
-                @click="$bvModal.show('modal-voucher')"
-                class="col-sm"
-                variant="primary"
-              >Voucher Honorarios</b-button>
+              <!-- En el template, cambia el botón de abrir modal -->
+              <b-button @click="abrirModalVoucher()" class="col-sm" variant="primary">
+                Voucher Honorarios
+              </b-button>
             </template>
             <template v-slot:headerTitle>
               <h4 class="card-title mt-3">Cortes</h4>
@@ -386,6 +391,8 @@ export default {
       // MEDICOS
       pdf_select_medicos: null,
       fechaActual: null,
+      fechaFiltro: null,
+      medicoYaSeleccionado: false,
       numero_voucher: null,
       dataMedicos: null,
       selectedMedico: null,
@@ -403,13 +410,14 @@ export default {
   },
   watch: {
     selectedMedico (newValue) {
-      console.log(newValue)
       if (newValue) {
-        this.agregarPacientes(newValue)
+        this.formVoucher.medico = newValue
+        this.formVoucher.id_paciente = null
+        // No llames a agregarPacientes, ya maneja esto
       } else {
         this.pacientes = []
         this.formVoucher.cantidad = 0
-        console.log('Ningun medico seleccionado, pacientes limpiados')
+        this.formVoucher.medico = null
       }
     }
   },
@@ -900,25 +908,50 @@ export default {
     },
     // VOUCHER HONORARIOS MEDICOS
 
-    onSearchDatosMedicos (search, loading) {
-      if (search.length) {
-        loading(true)
-        this.onSearchMedicos(search, loading)
-      }
-    },
-    onSearchMedicos (search, loading) {
-      axios.get(apiUrl + '/voucher/getSearch',
-        {
-          params: {
-            search: search
-          }
+    onSearchDatosMedicos(search, loading) {
+        if (search.length) {
+            loading(true);
+            this.onSearchMedicos(search, loading);
         }
-      ).then((response) => {
-        this.fechaActual = response.data.fechaActual
-        this.numero_voucher = response.data.numero
-        this.medicos = response.data.Medicos
-        loading(false)
-      })
+    },
+
+    onSearchMedicos(search, loading) {
+        const params = { search };
+        // Solo agrega fecha si el médico ya fue seleccionado antes y hay una fecha de filtro
+        if (this.medicoYaSeleccionado && this.fechaFiltro) {
+            params.fecha = this.fechaFiltro;
+        }
+
+        axios.get(apiUrl + '/voucher/getSearch', { params })
+            .then((response) => {
+                this.fechaActual = response.data.fechaActual;
+                this.fechaFiltro = this.fechaFiltro || this.fechaActual; // solo la primera vez
+                this.numero_voucher = response.data.numero;
+                this.medicos = response.data.Medicos;
+                loading(false);
+            });
+    },
+
+    onMedicoSelected(medico) {
+        if (!this.medicoYaSeleccionado) {
+            // Primera selección: marcar y usar fecha actual
+            this.medicoYaSeleccionado = true;
+            this.fechaFiltro = this.fechaActual;
+        }
+        this.buscarPacientesPorFecha();
+    },
+
+    buscarPacientesPorFecha() {
+        if (!this.selectedMedico) return;
+        axios.get(apiUrl + '/voucher/getPacientesHonorarios', {
+            params: {
+                idMedico: this.selectedMedico.id,
+                fecha: this.fechaFiltro,
+            }
+        }).then((response) => {
+            this.pacientes = response.data.pacientes;
+            this.formVoucher.cantidad = response.data.Total;
+        });
     },
     agregarPacientes (newValue) {
       this.formVoucher.medico = newValue
@@ -943,6 +976,11 @@ export default {
         })
     },
     crearVoucher () {
+      if(!this.formVoucher.cantidad) {
+        alert('No hay honorarios en la fecha indicada.')
+        return
+      }
+
       if (!this.formVoucher.cantidadEscrita || this.formVoucher.cantidadEscrita.trim() === '') {
         alert('Debe agregar la cantidad por escrito.')
         return
@@ -954,6 +992,7 @@ export default {
           this.closeModal('save 2')
         })
         .catch(error => {
+
           console.error('Error al crear el voucher:', error)
         })
     },
@@ -961,7 +1000,11 @@ export default {
       const data = this.formVoucher
       const Pacientes = this.pacientes
       const numero = this.numero_voucher
-      const fechaInicio = this.fechaActual
+      const hoy = new Date()
+      const dd = String(hoy.getDate()).padStart(2, '0')
+      const mm = String(hoy.getMonth() + 1).padStart(2, '0')
+      const yyyy = hoy.getFullYear()
+      const fechaInicio = `${dd}/${mm}/${yyyy}`
 
       try {
         const doc = new JsPDF()
@@ -974,7 +1017,7 @@ export default {
 
         doc.setFontSize(10)
         doc.text('TIPO DE PAGO:     HONORARIOS.', 15, 50)
-        doc.text(`FECHA DE PAGO:     ${moment(fechaInicio).format('DD/MM/YYYY')}`, 140, 50)
+        doc.text(`FECHA DE PAGO:     ${fechaInicio}`, 140, 50)
 
         doc.setFontSize(10)
         doc.text('PROVEEDOR:      HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO', 15, 60)
@@ -1041,7 +1084,7 @@ export default {
 
           currentY = doc.lastAutoTable.finalY
         }
-        doc.save(`Vaoucher_Pago_Honorarios_${data.medico.nombre}_Fecha_${moment(fechaInicio).format('DD/MM/YYYY')}.pdf`)
+        doc.save(`Voucher_Pago_Honorarios_${data.medico.nombre}_Fecha_${dd}-${mm}-${yyyy}.pdf`)
       } catch (error) {
         console.error('Error al generar el reporte:', error)
         this.$alert('Ocurrió un error al generar el reporte. Por favor, intente de nuevo.', 'Error')
@@ -1166,7 +1209,47 @@ export default {
           this.alertErrorText = 'Hubo un problema al generar el reporte. Por favor, intente nuevamente.'
           this.showAlertError()
         })
-    }
+    },
+    abrirModalVoucher () {
+      // Fecha de hoy en formato YYYY-MM-DD (requerido por input type="date")
+      const hoy = new Date()
+      const yyyy = hoy.getFullYear()
+      const mm = String(hoy.getMonth() + 1).padStart(2, '0')
+      const dd = String(hoy.getDate()).padStart(2, '0')
+      this.fechaFiltro = `${yyyy}-${mm}-${dd}`
+
+      // Limpiar estado previo
+      this.medicoYaSeleccionado = false
+      this.selectedMedico = null
+      this.pacientes = []
+      this.medicos = []
+      this.formVoucher.cantidad = null
+      this.formVoucher.medico = null
+
+      this.$bvModal.show('modal-voucher')
+    },
+    onMedicoSelected (medico) {
+      if (!medico) return
+      this.formVoucher.medico = medico
+      if (!this.medicoYaSeleccionado) {
+        this.medicoYaSeleccionado = true
+        // fechaFiltro ya está inicializada con hoy desde abrirModalVoucher()
+      }
+      this.buscarPacientesPorFecha()
+    },
+    buscarPacientesPorFecha() {
+      if (!this.selectedMedico) return
+      axios.get(apiUrl + '/voucher/getPacientesHonorarios', {
+        params: {
+          idMedico: this.selectedMedico.id,
+          fecha: this.fechaFiltro,
+        }
+      }).then((response) => {
+        this.pacientes = response.data.pacientes
+        this.formVoucher.cantidad = response.data.Total
+        this.formVoucher.id_paciente = response.data.pacientes.map(p => p.id)
+      })
+    },
   }
 }
 </script>
