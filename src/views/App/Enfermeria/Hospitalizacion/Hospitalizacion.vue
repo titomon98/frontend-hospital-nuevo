@@ -903,7 +903,7 @@
             <b-form-group label="Tipo de Examen:">
               <Multiselect
                 v-model="selectedExamenes"
-                :options="examenes_almacenadosBuscar"
+                :options="examenes_almacenadosCache"
                 :multiple="true"
                 :close-on-select="false"
                 :clear-on-select="false"
@@ -1748,6 +1748,7 @@ export default {
       item_examenes: [],
       examenes_almacenados: [],
       examenes_almacenadosBuscar: [],
+      examenes_almacenadosCache: [],
       encargados: [],
       currentPageExa: 1,
       selectedExamenes: [],
@@ -2217,6 +2218,7 @@ export default {
           this.item_examenes = []
           this.examenes_almacenados = []
           this.examenes_almacenadosBuscar = []
+          this.examenes_almacenadosCache = []
           this.selectedExamenes = []
           break
         }
@@ -3493,7 +3495,14 @@ export default {
 
       axios.get(apiUrl + '/examenesAlmacenadosBuscar/getSearch', { params })
         .then((response) => {
-          this.examenes_almacenadosBuscar = response.data.data
+          const nuevas = response.data.data
+          nuevas.forEach(opcion => {
+            const yaExiste = this.examenes_almacenadosCache.some(c => c.id === opcion.id)
+            if (!yaExiste) {
+              this.examenes_almacenadosCache.push(opcion)
+            }
+          })
+          this.examenes_almacenadosBuscar = nuevas
           this.$refs.vuetableBuscar.setData(response.data)
         })
         .catch((error) => {
