@@ -667,13 +667,7 @@ export default {
         mensajeDias = diasDiferencia
       }
 
-      let hospitalizacion
-
-      if (mensajeDias >= 2) {
-        hospitalizacion = data.costo2 * mensajeDias
-      } else {
-        hospitalizacion = data.costo1
-      }
+      const hospitalizacion = data.costoTotal ?? 0
 
       try {
         const ConsumoTotal = data.consumos.reduce((acc, item) => acc + parseFloat(item.subtotal), 0)
@@ -716,7 +710,7 @@ export default {
         doc.text(`${nombrePaciente}`, 50, 20)
         doc.text('_____________________________________________________________________________________________', 50, 21)
 
-        doc.text('CUARTRO NO.:', 14, 27)
+        doc.text('CUARTO NO.:', 14, 27)
         doc.text(`${data.numerohabitacion}`, 40, 27)
         doc.text('__________', 35, 28)
 
