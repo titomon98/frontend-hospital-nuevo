@@ -9,12 +9,12 @@
 15. Para el egreso del paciente no se debe permitir si no tiene notas de ingreso y egreso - listo, agregué dos mensajitos para saber cual falta
 16. Si no tiene honorarios médicos un paciente tmapoco permite egreso - listo
 
+5. Ingresar múltiples laboratorios a la vez - CADA VEZ QUE SE HACE UNA BUSQUEDA SE PIERDE LA SELECCION ANTERIOR
 22. En los voucher de honorarios no tomar en cuenta honorarios pendientes, solo tomar en cuenta honorarios del día que se genera - por defecto busca todos los honorarios del día, pero se pueden seleccionar solo los de una fecha especifica
 23. Si hay medicos que dejan honorarios de cortesia o la doctora Champet que deja honorarios en 0 es posible hacer el egreso - listo
 
 3. Si el paciente se ingresa en emergencia y luego se traslada, debe cobrar solo 25 del médico interno y la habitación
 4. Verificar la suma de laboratorios 
-5. Ingresar múltiples laboratorios a la vez - CADA VEZ QUE SE HACE UNA BUSQUEDA SE PIERDE LA SELECCION ANTERIOR
 12. No aparece sala de operaciones agredada
 13. Cuando se agregue un paquete, en lugar de "cobrar" todos los consumos, debe cobrar el paquete como tal.
 14. Desplegar el nombre de ayudante, circulante e instrumentista en agregar ⁠Servicios
