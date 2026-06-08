@@ -3258,14 +3258,14 @@ export default {
     generarReporteHojaEmergenciaPDF (id) {
       axios.get(apiUrl + `/consumos/hojaEmergencia/${id}`)
         .then((response) => {
-        this.dataPDFsumario = response.data
-        this.generarHojaEmergenciaPDF(response.data)
-      })
-      .catch((error) => {
-        console.error('Error al generar la hoja de emergencia:', error)
-        this.alertErrorText = 'Hubo un problema al generar el reporte. Por favor, intente nuevamente.'
-        this.showAlertError()
-      })
+          this.dataPDFsumario = response.data
+          this.generarHojaEmergenciaPDF(response.data)
+        })
+        .catch((error) => {
+          console.error('Error al generar la hoja de emergencia:', error)
+          this.alertErrorText = 'Hubo un problema al generar el reporte. Por favor, intente nuevamente.'
+          this.showAlertError()
+        })
     },
 
     generarHojaEmergenciaPDF (data) {
@@ -3288,7 +3288,7 @@ export default {
       // Fecha y hora de ingreso (reales)
       const fechaObj = new Date(data.fechaIngreso + 'T' + (data.horaIngreso || '00:00'))
       const fechaFormateada = fechaObj.toLocaleDateString('es-ES')
-      const horaFormateada  = fechaObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: true })
+      const horaFormateada = fechaObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: true })
 
       // Información del paciente
       doc.text(`FECHA: ${fechaFormateada}`, 20, 45)

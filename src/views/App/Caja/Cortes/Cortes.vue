@@ -563,7 +563,6 @@ export default {
     /* Guardar */
     onUpdate () {
       const me = this
-      // this.$refs["modalSave"].hide();
       axios.put(apiUrl + '/banco/update', {
         form: me.form })
         .then((response) => {
@@ -890,7 +889,6 @@ export default {
             this.pdf.setFontSize(5).setFont(undefined, 'normal')
             this.pdf.text(i + '/' + totalPages, 12, 1)
             altura = altura + 0.5
-            // drawHeader(doc);
           }
         }
         var pdfData = this.pdf.output('blob')
@@ -908,50 +906,27 @@ export default {
     },
     // VOUCHER HONORARIOS MEDICOS
 
-    onSearchDatosMedicos(search, loading) {
-        if (search.length) {
-            loading(true);
-            this.onSearchMedicos(search, loading);
-        }
+    onSearchDatosMedicos (search, loading) {
+      if (search.length) {
+        loading(true)
+        this.onSearchMedicos(search, loading)
+      }
     },
+    onSearchMedicos (search, loading) {
+      const params = { search }
+      // Solo agrega fecha si el médico ya fue seleccionado antes y hay una fecha de filtro
+      if (this.medicoYaSeleccionado && this.fechaFiltro) {
+        params.fecha = this.fechaFiltro
+      }
 
-    onSearchMedicos(search, loading) {
-        const params = { search };
-        // Solo agrega fecha si el médico ya fue seleccionado antes y hay una fecha de filtro
-        if (this.medicoYaSeleccionado && this.fechaFiltro) {
-            params.fecha = this.fechaFiltro;
-        }
-
-        axios.get(apiUrl + '/voucher/getSearch', { params })
-            .then((response) => {
-                this.fechaActual = response.data.fechaActual;
-                this.fechaFiltro = this.fechaFiltro || this.fechaActual; // solo la primera vez
-                this.numero_voucher = response.data.numero;
-                this.medicos = response.data.Medicos;
-                loading(false);
-            });
-    },
-
-    onMedicoSelected(medico) {
-        if (!this.medicoYaSeleccionado) {
-            // Primera selección: marcar y usar fecha actual
-            this.medicoYaSeleccionado = true;
-            this.fechaFiltro = this.fechaActual;
-        }
-        this.buscarPacientesPorFecha();
-    },
-
-    buscarPacientesPorFecha() {
-        if (!this.selectedMedico) return;
-        axios.get(apiUrl + '/voucher/getPacientesHonorarios', {
-            params: {
-                idMedico: this.selectedMedico.id,
-                fecha: this.fechaFiltro,
-            }
-        }).then((response) => {
-            this.pacientes = response.data.pacientes;
-            this.formVoucher.cantidad = response.data.Total;
-        });
+      axios.get(apiUrl + '/voucher/getSearch', { params })
+        .then((response) => {
+          this.fechaActual = response.data.fechaActual
+          this.fechaFiltro = this.fechaFiltro || this.fechaActual // solo la primera vez
+          this.numero_voucher = response.data.numero
+          this.medicos = response.data.Medicos
+          loading(false)
+        })
     },
     agregarPacientes (newValue) {
       this.formVoucher.medico = newValue
@@ -976,7 +951,7 @@ export default {
         })
     },
     crearVoucher () {
-      if(!this.formVoucher.cantidad) {
+      if (!this.formVoucher.cantidad) {
         alert('No hay honorarios en la fecha indicada.')
         return
       }
@@ -992,7 +967,6 @@ export default {
           this.closeModal('save 2')
         })
         .catch(error => {
-
           console.error('Error al crear el voucher:', error)
         })
     },
@@ -1237,19 +1211,19 @@ export default {
       }
       this.buscarPacientesPorFecha()
     },
-    buscarPacientesPorFecha() {
+    buscarPacientesPorFecha () {
       if (!this.selectedMedico) return
       axios.get(apiUrl + '/voucher/getPacientesHonorarios', {
         params: {
           idMedico: this.selectedMedico.id,
-          fecha: this.fechaFiltro,
+          fecha: this.fechaFiltro
         }
       }).then((response) => {
         this.pacientes = response.data.pacientes
         this.formVoucher.cantidad = response.data.Total
         this.formVoucher.id_paciente = response.data.pacientes.map(p => p.id)
       })
-    },
+    }
   }
 }
 </script>
