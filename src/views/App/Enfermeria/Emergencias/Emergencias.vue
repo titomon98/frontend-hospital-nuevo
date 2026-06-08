@@ -1184,7 +1184,7 @@
                       {{ ['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo) ? 'Agregar nota de ingreso' : 'Modificar nota de ingreso' }}
                   </b-button>
                     <b-button
-                    @click="generarReporteHojaEmergenciaPDF(props.rowData.id, props.rowData)"
+                    @click="generarReporteHojaEmergenciaPDF(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="success"
@@ -3255,82 +3255,21 @@ export default {
       doc.save('reporte_historial.pdf')
     },
     /* HOJA DE COBRE EN EMERGENCIA */
-    generarReporteHojaEmergenciaPDF (id, expediente) {
-      axios.get(apiUrl + `/consumos/sumario/${id}`)
+    generarReporteHojaEmergenciaPDF (id) {
+      axios.get(apiUrl + `/consumos/hojaEmergencia/${id}`)
         .then((response) => {
-          this.dataPDFsumario = response.data
-          this.nombrePaciente = expediente.nombres + ' ' + expediente.apellidos
-          this.fechaIngreso = this.dataPDFsumario.fechaFormateada
-          this.generarHojaEmergenciaPDF(expediente)
-        })
-        .catch((error) => {
-          console.error('Error al generar el reporte de cuenta:', error)
-          this.alertErrorText = 'Hubo un problema al generar el reporte. Por favor, intente nuevamente.'
-          this.showAlertError()
-        })
+        this.dataPDFsumario = response.data
+        this.generarHojaEmergenciaPDF(response.data)
+      })
+      .catch((error) => {
+        console.error('Error al generar la hoja de emergencia:', error)
+        this.alertErrorText = 'Hubo un problema al generar el reporte. Por favor, intente nuevamente.'
+        this.showAlertError()
+      })
     },
 
-    generarHojaEmergenciaPDF (expediente) {
-      // const FechaIngreso = this.fechaIngreso
-      const data = this.dataPDFsumario
-      console.log(expediente)
-      const fechaActual = new Date()
-      const fechaFormateada = fechaActual.toLocaleDateString('es-ES')
-      const opcionesHora = { hour: '2-digit', minute: '2-digit', hour12: true }
-      const horaFormateada = fechaActual.toLocaleTimeString('es-ES', opcionesHora)
-      const datos = {
-        fecha: '04/06/2025',
-        hora: '14:35',
-        nombre: 'CORTIZ WINCHESTER',
-        edad: '45',
-        direccion: 'Zona 1, San Marcos',
-        telefono: '5555-1234',
-        motivo: 'Dolor abdominal',
-        diagnostico: 'Apendicitis',
-        tratamiento: 'Cirugía',
-        medico: 'Dr. Ramírez',
-        hospitalizado: true,
-        examenes: 'Hemograma, Urianálisis',
-        medicamentos: [
-          { nombre: 'Suero', precio: '25.00' },
-          { nombre: 'Jeringas', precio: '5.00' }
-        ],
-        total: '30.00',
-        emergencia: '50.00',
-        laboratorios: '100.00',
-        subtotal: '180.00',
-        rx: '40.00',
-        honorarios: '200.00',
-        totalPagar: '420.00',
-        observaciones: 'Paciente estable post cirugía.'
-      }
-
-      const ConsumoTotal = data.consumos.reduce((acc, item) => acc + parseFloat(item.subtotal), 0)
-      const ConsumoComunTotal = data.consumosComunes.reduce((acc, item) => acc + parseFloat(item.total), 0)
-      const ConsumoMedicamentosTotal = data.consumosMedicamentos.reduce((acc, item) => acc + parseFloat(item.total), 0)
-      let ConsumoQuirurgicosTotal = data.consumosQuirurgicos.reduce((acc, item) => acc + parseFloat(item.total), 0)
-      const ExamenesTotal = data.examenes.reduce((acc, item) => acc + parseFloat(item.total), 0)
-      const ServicioSalaOperacionesTotal = data.salaOperaciones.reduce((acc, item) => acc + parseFloat(item.total), 0)
-      const TotalHonorarios = data.honorarios.reduce((acc, item) => acc + parseFloat(item.total), 0)
-
-      const TotalGeneral =
-        ConsumoTotal +
-        ConsumoComunTotal +
-        ConsumoMedicamentosTotal +
-        ConsumoQuirurgicosTotal +
-        ExamenesTotal +
-        ServicioSalaOperacionesTotal
-
-      const TotalGeneral2 =
-        ConsumoTotal +
-        ConsumoComunTotal +
-        ConsumoMedicamentosTotal +
-        ConsumoQuirurgicosTotal
-
-      const TotalApagar = TotalGeneral + TotalHonorarios + ExamenesTotal
-      this.TotalApagar = TotalApagar
+    generarHojaEmergenciaPDF (data) {
       const doc = new JsPDF()
-
       doc.setFontSize(12)
       doc.setFont('times', 'normal')
 
@@ -3343,100 +3282,108 @@ export default {
       doc.setTextColor(0, 0, 0)
       doc.setFontSize(14)
       doc.text('HOJA DE EMERGENCIAS', 70, 35)
-
       doc.setFontSize(12)
       doc.setFont(undefined, 'normal')
 
+      // Fecha y hora de ingreso (reales)
+      const fechaObj = new Date(data.fechaIngreso + 'T' + (data.horaIngreso || '00:00'))
+      const fechaFormateada = fechaObj.toLocaleDateString('es-ES')
+      const horaFormateada  = fechaObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: true })
+
       // Información del paciente
-      doc.text(`FECHA: ${fechaFormateada || ''}`, 20, 45)
-      doc.text(`HORA: ${horaFormateada || ''}`, 120, 45)
-      doc.text(`NOMBRE DEL PACIENTE: ${this.nombrePaciente || ''}`, 20, 55)
-      doc.text(`EDAD: ${expediente.edad || ''}`, 20, 65)
-      doc.text(`DIRECCIÓN: ${expediente.direccion || ''}`, 50, 65)
-      doc.text(`TELÉFONO: ${expediente.telefono || ''}`, 150, 65)
-      doc.text(`MOTIVO DE LA CONSULTA: ${datos.motivo || ''}`, 20, 75)
-      doc.text(`DIAGNÓSTICO: ${datos.diagnostico || ''}`, 20, 85)
-      doc.text(`TRATAMIENTO: ${datos.tratamiento || ''}`, 20, 95)
-      doc.text(`MÉDICO TRATANTE: ${datos.medico || ''}`, 20, 105)
-      doc.text(`SE HOSPITALIZA: ${datos.hospitalizado ? 'Sí' : 'No'}`, 130, 105)
+      doc.text(`FECHA: ${fechaFormateada}`, 20, 45)
+      doc.text(`HORA: ${horaFormateada}`, 120, 45)
+      doc.text(`NOMBRE DEL PACIENTE: ${data.nombre}`, 20, 55)
+      doc.text(`EDAD: ${data.edad}`, 20, 65)
+      doc.text(`DIRECCIÓN: ${data.direccion}`, 50, 65)
+      doc.text(`TELÉFONO: ${data.telefono}`, 150, 65)
+      doc.text(`MOTIVO DE LA CONSULTA: ${data.motivo}`, 20, 75)
+      doc.text(`DIAGNÓSTICO: ${data.diagnostico}`, 20, 85)
+      doc.text(`TRATAMIENTO: ${data.tratamiento}`, 20, 95)
+      doc.text(`MÉDICO TRATANTE: ${data.medico}`, 20, 105)
+      doc.text(`SE HOSPITALIZA: ${data.seHospitaliza ? 'Sí' : 'No'}`, 130, 105)
 
       doc.text('EXÁMENES DE LABORATORIO:', 20, 115)
-      doc.text(datos.examenes || '', 20, 122)
+      doc.text(data.examenes || '', 20, 122)
 
       doc.text('MEDICINA Y MATERIAL MÉDICO QUIRÚRGICO:', 20, 135)
 
       let totalY = 135
+      console.log(data)
       doc.text('MEDICINA', 20, totalY += 7)
       doc.text('___________________________', 20, totalY += 1)
-      doc.text(`Q. ${ConsumoMedicamentosTotal.toFixed(2)}`, 150, totalY -= 1)
+      doc.text(`Q. ${data.totalMedicamentos.toFixed(2)}`, 150, totalY -= 1)
       doc.text('_________________', 150, totalY += 1)
       totalY -= 1
 
       doc.text('MATERIAL QUIRURGICO', 20, totalY += 7)
       doc.text('___________________________', 20, totalY += 1)
-      doc.text(`Q. ${ConsumoQuirurgicosTotal.toFixed(2)}`, 150, totalY -= 1)
+      doc.text(`Q. ${data.totalQuirurgico.toFixed(2)}`, 150, totalY -= 1)
       doc.text('_________________', 150, totalY += 1)
       totalY -= 1
 
       doc.text('ANESTESICOS', 20, totalY += 7)
       doc.text('___________________________', 20, totalY += 1)
-      doc.text(`Q. 0.00`, 150, totalY -= 1)
+      doc.text(`Q. ${data.totalAnestesicos.toFixed(2)}`, 150, totalY -= 1)
       doc.text('_________________', 150, totalY += 1)
       totalY -= 1
 
       doc.text('MATERIAL COMUN', 20, totalY += 7)
       doc.text('___________________________', 20, totalY += 1)
-      doc.text(`Q. ${ConsumoComunTotal.toFixed(2)}`, 150, totalY -= 1)
+      doc.text(`Q. ${data.totalComun.toFixed(2)}`, 150, totalY -= 1)
       doc.text('_________________', 150, totalY += 1)
       totalY -= 1
 
       doc.text('OTROS', 20, totalY += 7)
       doc.text('___________________________', 20, totalY += 1)
-      doc.text(`Q. ${ConsumoTotal.toFixed(2)}`, 150, totalY -= 1)
+      doc.text(`Q. ${data.totalOtros.toFixed(2)}`, 150, totalY -= 1)
       doc.text('_________________', 150, totalY += 1)
       totalY -= 1
 
-      // Totales
+      const subtotalConsumos = data.totalMedicamentos + data.totalQuirurgico + data.totalAnestesicos + data.totalComun + data.totalOtros
+
       doc.text('TOTAL ............................................................................................................', 20, totalY += 7)
-      doc.text(`Q. ${TotalGeneral2.toFixed(2)}`, 150, totalY -= 1)
+      doc.text(`Q. ${subtotalConsumos.toFixed(2)}`, 150, totalY -= 1)
       doc.text('_________________', 150, totalY += 1)
       totalY += 3
 
       doc.text('DERECHO DE EMERGENCIA .....................................................................', 20, totalY += 7)
-      doc.text(`Q. ${datos.emergencia || ''}`, 150, totalY -= 1)
+      doc.text(`Q. ${data.totalDerechoEmergencia.toFixed(2)}`, 150, totalY -= 1)
       doc.text('_________________', 150, totalY += 1)
       totalY -= 1
 
       doc.text('LABORATORIOS ...........................................................................................', 20, totalY += 7)
-      doc.text(`Q. ${datos.laboratorios || ''}`, 150, totalY -= 1)
+      doc.text(`Q. ${data.totalExamenes.toFixed(2)}`, 150, totalY -= 1)
       doc.text('_________________', 150, totalY += 1)
       totalY -= 1
 
+      const subtotal = subtotalConsumos + data.totalDerechoEmergencia + data.totalExamenes
+
       doc.text('SUBTOTAL ....................................................................................................', 20, totalY += 7)
-      doc.text(`Q. ${datos.subtotal || ''}`, 150, totalY -= 1)
+      doc.text(`Q. ${subtotal.toFixed(2)}`, 150, totalY -= 1)
       doc.text('_________________', 150, totalY += 1)
       totalY -= 1
 
       doc.text('RX ...................................................................................................................', 20, totalY += 7)
-      doc.text(`Q. ${datos.rx || ''}`, 150, totalY -= 1)
+      doc.text(`Q. 0.00`, 150, totalY -= 1)
       doc.text('_________________', 150, totalY += 1)
       totalY -= 1
 
       doc.text('HONORARIOS ...............................................................................................', 20, totalY += 7)
-      doc.text(`Q. ${datos.honorarios || ''}`, 150, totalY -= 1)
+      doc.text(`Q. ${data.totalHonorarios.toFixed(2)}`, 150, totalY -= 1)
       doc.text('_________________', 150, totalY += 1)
       totalY -= 1
 
       doc.text('TOTAL A PAGAR: .........................................................................................', 20, totalY += 7)
-      doc.text(`Q. ${TotalApagar || ''}`, 150, totalY -= 1)
+      doc.text(`Q. ${data.totalAPagar.toFixed(2)}`, 150, totalY -= 1)
       doc.text('_________________', 150, totalY += 1)
       totalY -= 1
 
       doc.text('OBSERVACIONES:', 20, totalY += 14)
-      doc.text(datos.observaciones || '', 20, totalY += 7)
-
+      doc.text(data.observaciones || '', 20, totalY += 7)
       doc.text('NOMBRE Y FIRMA MÉDICO INTERNO:', 20, totalY += 50)
 
+      this.TotalApagar = data.totalAPagar
       doc.save('hoja_emergencias.pdf')
     },
 

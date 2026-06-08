@@ -1,212 +1,407 @@
 <template>
-    <b-container fluid>
-      <b-row>
-        <b-col sm="12">
-        <iq-card class-name="iq-card-block iq-card-stretch iq-card-height">
-          <template v-slot:headerTitle>
-            <div class="center-text">
-              <h3 class="card-title">HISTORIAL DE CONSUMO DE MEDICAMENTOS, MATERIAL COMUN Y QUIRURGICO</h3>
-            </div>
-          </template>
-          <template v-slot:body>
-            <h4 class="card-title">CONSUMO DE MEDICAMENTOS</h4>
-            <div class="row mb-3">
-              <div class="col-md-4">
-                <b-form-group label="Fecha Desde:">
-                  <b-form-input type="date" v-model="fechaDesde"></b-form-input>
-                </b-form-group>
-              </div>
-              <div class="col-md-4">
-                <b-form-group label="Fecha Hasta:">
-                  <b-form-input type="date" v-model="fechaHasta"></b-form-input>
-                </b-form-group>
-              </div>
-              <div class="col-md-4">
-                <b-button variant="primary" @click="realizarBusqueda">Buscar</b-button>
-              </div>
-            </div>
-            <datatable-heading
-              :changePageSize="changePageSizes"
-              :searchChange="searchChange"
-              :from="from"
-              :to="to"
-              :total="total"
-              :perPage="perPage"
-            >
-            </datatable-heading>
-            <vuetable
-              ref="vuetable"
-              class="table-divided order-with-arrow"
-              :api-url="apiBase"
-              :query-params="makeQueryParams"
-              :per-page="perPage"
-              :reactive-api-url="true"
-              :fields="fields"
-              pagination-path
-              @vuetable:pagination-data="onPaginationData"
-            >
-            </vuetable>
-            <vuetable-pagination-bootstrap
-                ref="pagination"
-                @vuetable-pagination:change-page="onChangePage"
-              />
-          </template>
-        </iq-card>
-      </b-col>
+  <b-container fluid>
+    <b-alert
+      :variant="alertVariant"
+      :show="alertCountDown"
+      dismissible
+      fade
+      @dismissed="alertCountDown=0"
+      class="bg-white"
+    >
+      <div class="iq-alert-text">{{ alertText }}</div>
+    </b-alert>
+    <b-modal id="modal-desactivar" ref="modal-desactivar" title="Eliminar consumo">
+      <h6 class="my-4">
+        ¿Desea eliminar el consumo de {{ consumoToDelete.nombre_medicamento }} al paciente {{ consumoToDelete.nombre_completo }} ?
+      </h6>
+      <template #modal-footer="{}">
+        <b-button
+          type="submit"
+          variant="primary"
+          @click="onState()"
+          >Eliminar</b-button
+        >
+        <b-button variant="danger" @click="$bvModal.hide('modal-desactivar')"
+          >Cancelar</b-button
+        >
+      </template>
+    </b-modal>
+    <b-modal id="modal-revisar" ref="modal-revisar" title="Eliminar consumo">
+      <h6 class="my-4">
+        ¿Desea comprobar que el consumo de {{ consumoToDelete.nombre_medicamento }} al paciente {{ consumoToDelete.nombre_completo }} es correcto?
+      </h6>
+      <template #modal-footer="{}">
+        <b-button
+          type="submit"
+          variant="success"
+          @click="onReview()"
+          >Revisar</b-button
+        >
+        <b-button variant="danger" @click="$bvModal.hide('modal-revisar')"
+          >Cancelar</b-button
+        >
+      </template>
+    </b-modal>
+    <b-row>
       <b-col sm="12">
-        <iq-card class-name="iq-card-block iq-card-stretch iq-card-height">
-          <template v-slot:body>
-            <h4 class="card-title">CONSUMO DE ANESTÉSICOS</h4>
-            <div class="row mb-3">
-              <div class="col-md-4">
-                <b-form-group label="Fecha Desde:">
-                  <b-form-input type="date" v-model="fechaDesde"></b-form-input>
-                </b-form-group>
-              </div>
-              <div class="col-md-4">
-                <b-form-group label="Fecha Hasta:">
-                  <b-form-input type="date" v-model="fechaHasta"></b-form-input>
-                </b-form-group>
-              </div>
-              <div class="col-md-4">
-                <b-button variant="primary" @click="realizarBusqueda">Buscar</b-button>
-              </div>
+      <iq-card class-name="iq-card-block iq-card-stretch iq-card-height">
+        <template v-slot:headerTitle>
+          <div class="center-text">
+            <h3 class="card-title">HISTORIAL DE CONSUMO DE MEDICAMENTOS, MATERIAL COMUN Y QUIRURGICO</h3>
+          </div>
+        </template>
+        <template v-slot:body>
+          <h4 class="card-title">CONSUMO DE MEDICAMENTOS</h4>
+          <div class="row mb-3">
+            <div class="col-md-4">
+              <b-form-group label="Fecha Desde:">
+                <b-form-input type="date" v-model="fechaDesde"></b-form-input>
+              </b-form-group>
             </div>
-            <datatable-heading
-              :changePageSize="changePageSizes"
-              :searchChange="searchChange"
-              :from="from"
-              :to="to"
-              :total="total"
-              :perPage="perPage"
-            >
-            </datatable-heading>
-            <vuetable
-              ref="vuetable"
-              class="table-divided order-with-arrow"
-              :api-url="apiBaseAnestesico"
-              :query-params="makeQueryParams"
-              :per-page="perPage"
-              :reactive-api-url="true"
-              :fields="fields"
-              pagination-path
-              @vuetable:pagination-data="onPaginationData"
-            >
-            </vuetable>
-            <vuetable-pagination-bootstrap
-                ref="pagination"
-                @vuetable-pagination:change-page="onChangePage"
-              />
-          </template>
-        </iq-card>
-      </b-col>
-      <b-col sm="12">
-        <iq-card class-name="iq-card-block iq-card-stretch iq-card-height">
-          <template v-slot:body>
-            <h4 class="card-title">CONSUMO DE MATERIAL COMUN</h4>
-            <div class="row mb-3">
-              <div class="col-md-4">
-                <b-form-group label="Fecha Desde:">
-                  <b-form-input type="date" v-model="fechaDesdeComun"></b-form-input>
-                </b-form-group>
-              </div>
-              <div class="col-md-4">
-                <b-form-group label="Fecha Hasta:">
-                  <b-form-input type="date" v-model="fechaHastaComun"></b-form-input>
-                </b-form-group>
-              </div>
-              <div class="col-md-4">
-                <b-button variant="primary" @click="realizarBusquedaComun">Buscar</b-button>
-              </div>
+            <div class="col-md-4">
+              <b-form-group label="Fecha Hasta:">
+                <b-form-input type="date" v-model="fechaHasta"></b-form-input>
+              </b-form-group>
             </div>
-            <datatable-heading
-              :changePageSize="changePageSizesComun"
-              :searchChange="searchChangeComun"
-              :from="fromComun"
-              :to="toComun"
-              :total="totalComun"
-              :perPage="perPageComun"
-            >
-            </datatable-heading>
-            <vuetable
-              ref="vuetable_Comun"
-              class="table-divided order-with-arrow"
-              :api-url="apiBaseComun"
-              :query-params="makeQueryParamsComun"
-              :per-page="perPageComun"
-              :reactive-api-url="true"
-              :fields="fieldsComun"
-              pagination-path
-              @vuetable:pagination-data="onPaginationDataComun"
-            >
-            </vuetable>
-            <vuetable-pagination-bootstrap
-                ref="paginationComun"
-                @vuetable-pagination:change-page="onChangePageComun"
-              />
-          </template>
-        </iq-card>
-      </b-col>
-      <b-col sm="12">
-        <iq-card class-name="iq-card-block iq-card-stretch iq-card-height">
-          <template v-slot:body>
-            <h4 class="card-title">CONSUMO DE MATERIAL QUIRURGICO</h4>
-            <div class="row mb-3">
-              <div class="col-md-4">
-                <b-form-group label="Fecha Desde:">
-                  <b-form-input type="date" v-model="fechaDesdeQuirurgico"></b-form-input>
-                </b-form-group>
-              </div>
-              <div class="col-md-4">
-                <b-form-group label="Fecha Hasta:">
-                  <b-form-input type="date" v-model="fechaHastaQuirurgico"></b-form-input>
-                </b-form-group>
-              </div>
-              <div class="col-md-4">
-                <b-button variant="primary" @click="realizarBusquedaQuirurgico">Buscar</b-button>
-              </div>
+            <div class="col-md-4">
+              <b-button variant="primary" @click="realizarBusqueda">Buscar</b-button>
             </div>
-            <datatable-heading
-              :changePageSize="changePageSizesQuirurgico"
-              :searchChange="searchChangeQuirurgico"
-              :from="fromQuirurgico"
-              :to="toQuirurgico"
-              :total="totalQuirurgico"
-              :perPage="perPageQuirurgico"
-            >
-            </datatable-heading>
-            <vuetable
-              ref="vuetable_Quirurgico"
-              class="table-divided order-with-arrow"
-              :api-url="apiBaseQuirurgico"
-              :query-params="makeQueryParamsQuirurgico"
-              :per-page="perPageQuirurgico"
-              :reactive-api-url="true"
-              :fields="fieldsQuirurgico"
-              pagination-path
-              @vuetable:pagination-data="onPaginationDataQuirurgico"
-            >
-            </vuetable>
-            <vuetable-pagination-bootstrap
-                ref="paginationQuirurgico"
-                @vuetable-pagination:change-page="onChangePageQuirurgico"
-              />
-          </template>
-        </iq-card>
-      </b-col>
-      </b-row>
-    </b-container>
-  </template>
+          </div>
+          <datatable-heading
+            :changePageSize="changePageSizes"
+            :searchChange="searchChange"
+            :from="from"
+            :to="to"
+            :total="total"
+            :perPage="perPage"
+          >
+          </datatable-heading>
+          <vuetable
+            ref="vuetable"
+            class="table-divided order-with-arrow"
+            :api-url="apiBase"
+            :query-params="makeQueryParams"
+            :per-page="perPage"
+            :reactive-api-url="true"
+            :fields="fields"
+            pagination-path
+            @vuetable:pagination-data="onPaginationData"
+            :row-class="getRowClass"
+          >
+            <template slot="actions" slot-scope="props">
+                <div class="button-container">
+                <b-button
+                  v-if="props.rowData.estado === 1 && props.rowData.reviewed_by === null"
+                  @click="
+                    setData(props.rowData, 1)
+                  "
+                  v-b-modal.modal-desactivar
+                  class="mb-2 button-spacing"
+                  size="sm"
+                  variant="danger"
+                  :disabled="hasPermission([1, 3])"
+                >Eliminar registro</b-button>
+                <b-button
+                  v-else-if="props.rowData.estado === 0 && props.rowData.reviewed_by === null"
+                  :disabled="true"
+                  class="mb-2 button-spacing"
+                  size="sm"
+                  variant="dark"
+                >El registro fue eliminado</b-button>
+                <b-button
+                  v-if="props.rowData.estado === 1 && props.rowData.reviewed_by === null"
+                  @click="
+                    setData(props.rowData, 1)
+                  "
+                  v-b-modal.modal-revisar
+                  class="mb-2 button-spacing"
+                  size="sm"
+                  variant="success"
+                  :disabled="hasPermission([1, 3])"
+                >Revisar registro</b-button>
+                <b-button
+                  v-else-if="props.rowData.reviewed_by !== null"
+                  :disabled="true"
+                  class="mb-2 button-spacing"
+                  size="sm"
+                  variant="success"
+                >El registro fue revisado</b-button>
+              </div>
+            </template>
+          </vuetable>
+          <vuetable-pagination-bootstrap
+              ref="pagination"
+              @vuetable-pagination:change-page="onChangePage"
+            />
+        </template>
+      </iq-card>
+    </b-col>
+    <b-col sm="12">
+      <iq-card class-name="iq-card-block iq-card-stretch iq-card-height">
+        <template v-slot:body>
+          <h4 class="card-title">CONSUMO DE ANESTÉSICOS</h4>
+          <div class="row mb-3">
+            <div class="col-md-4">
+              <b-form-group label="Fecha Desde:">
+                <b-form-input type="date" v-model="fechaDesdeAnestesicos"></b-form-input>
+              </b-form-group>
+            </div>
+            <div class="col-md-4">
+              <b-form-group label="Fecha Hasta:">
+                <b-form-input type="date" v-model="fechaHastaAnestesicos"></b-form-input>
+              </b-form-group>
+            </div>
+            <div class="col-md-4">
+              <b-button variant="primary" @click="realizarBusquedaAnestesicos">Buscar</b-button>
+            </div>
+          </div>
+          <datatable-heading
+            :changePageSize="changePageSizesAnestesicos"
+            :searchChange="searchChangeAnestesicos"
+            :from="fromAnestesicos"
+            :to="toAnestesicos"
+            :total="totalAnestesicos"
+            :perPage="perPageAnestesicos"
+          >
+          </datatable-heading>
+          <vuetable
+            ref="vuetable_Anestesicos"
+            class="table-divided order-with-arrow"
+            :api-url="apiBaseAnestesicos"
+            :query-params="makeQueryParamsAnestesicos"
+            :per-page="perPageAnestesicos"
+            :reactive-api-url="true"
+            :fields="fields"
+            pagination-path
+            @vuetable:pagination-data="onPaginationDataAnestesicos"
+            :row-class="getRowClass"
+          >
+            <template slot="actions" slot-scope="props">
+              <div class="button-container">
+                <b-button
+                  v-if="props.rowData.estado === 1 && props.rowData.reviewed_by === null"
+                  @click="setData(props.rowData, 1)"
+                  v-b-modal.modal-desactivar
+                  class="mb-2 button-spacing"
+                  size="sm"
+                  variant="danger"
+                  :disabled="hasPermission([1, 3])"
+                >Eliminar registro</b-button>
+                <b-button
+                  v-else-if="props.rowData.estado === 0 && props.rowData.reviewed_by === null"
+                  :disabled="true"
+                  class="mb-2 button-spacing"
+                  size="sm"
+                  variant="dark"
+                >El registro fue eliminado</b-button>
+                <b-button
+                  v-if="props.rowData.estado === 1 && props.rowData.reviewed_by === null"
+                  @click="setData(props.rowData, 1)"
+                  v-b-modal.modal-revisar
+                  class="mb-2 button-spacing"
+                  size="sm"
+                  variant="success"
+                  :disabled="hasPermission([1, 3])"
+                >Revisar registro</b-button>
+                <b-button
+                  v-else-if="props.rowData.reviewed_by !== null"
+                  :disabled="true"
+                  class="mb-2 button-spacing"
+                  size="sm"
+                  variant="success"
+                >El registro fue revisado</b-button>
+              </div>
+            </template>
+          </vuetable>
+          <vuetable-pagination-bootstrap
+            ref="paginationAnestesicos"
+            @vuetable-pagination:change-page="onChangePageAnestesicos"
+          />
+        </template>
+      </iq-card>
+    </b-col>
+    <b-col sm="12">
+      <iq-card class-name="iq-card-block iq-card-stretch iq-card-height">
+        <template v-slot:body>
+          <h4 class="card-title">CONSUMO DE MATERIAL COMUN</h4>
+          <div class="row mb-3">
+            <div class="col-md-4">
+              <b-form-group label="Fecha Desde:">
+                <b-form-input type="date" v-model="fechaDesdeComun"></b-form-input>
+              </b-form-group>
+            </div>
+            <div class="col-md-4">
+              <b-form-group label="Fecha Hasta:">
+                <b-form-input type="date" v-model="fechaHastaComun"></b-form-input>
+              </b-form-group>
+            </div>
+            <div class="col-md-4">
+              <b-button variant="primary" @click="realizarBusquedaComun">Buscar</b-button>
+            </div>
+          </div>
+          <datatable-heading
+            :changePageSize="changePageSizesComun"
+            :searchChange="searchChangeComun"
+            :from="fromComun"
+            :to="toComun"
+            :total="totalComun"
+            :perPage="perPageComun"
+          >
+          </datatable-heading>
+          <vuetable
+            ref="vuetable_Comun"
+            class="table-divided order-with-arrow"
+            :api-url="apiBaseComun"
+            :query-params="makeQueryParamsComun"
+            :per-page="perPageComun"
+            :reactive-api-url="true"
+            :fields="fieldsComun"
+            pagination-path
+            @vuetable:pagination-data="onPaginationDataComun"
+            :row-class="getRowClass"
+          >
+            <template slot="actions" slot-scope="props">
+              <div class="button-container">
+                <b-button
+                  v-if="props.rowData.estado === 1 && props.rowData.reviewed_by === null"
+                  @click="setData(props.rowData, 2)"
+                  v-b-modal.modal-desactivar
+                  class="mb-2 button-spacing"
+                  size="sm"
+                  variant="danger"
+                  :disabled="hasPermission([1, 3])"
+                >Eliminar registro</b-button>
+                <b-button
+                  v-else-if="props.rowData.estado === 0 && props.rowData.reviewed_by === null"
+                  :disabled="true"
+                  class="mb-2 button-spacing"
+                  size="sm"
+                  variant="dark"
+                >El registro fue eliminado</b-button>
+                <b-button
+                  v-if="props.rowData.estado === 1 && props.rowData.reviewed_by === null"
+                  @click="setData(props.rowData, 2)"
+                  v-b-modal.modal-revisar
+                  class="mb-2 button-spacing"
+                  size="sm"
+                  variant="success"
+                  :disabled="hasPermission([1, 3])"
+                >Revisar registro</b-button>
+                <b-button
+                  v-else-if="props.rowData.reviewed_by !== null"
+                  :disabled="true"
+                  class="mb-2 button-spacing"
+                  size="sm"
+                  variant="success"
+                >El registro fue revisado</b-button>
+              </div>
+            </template>
+          </vuetable>
+          <vuetable-pagination-bootstrap
+              ref="paginationComun"
+              @vuetable-pagination:change-page="onChangePageComun"
+            />
+        </template>
+      </iq-card>
+    </b-col>
+    <b-col sm="12">
+      <iq-card class-name="iq-card-block iq-card-stretch iq-card-height">
+        <template v-slot:body>
+          <h4 class="card-title">CONSUMO DE MATERIAL QUIRURGICO</h4>
+          <div class="row mb-3">
+            <div class="col-md-4">
+              <b-form-group label="Fecha Desde:">
+                <b-form-input type="date" v-model="fechaDesdeQuirurgico"></b-form-input>
+              </b-form-group>
+            </div>
+            <div class="col-md-4">
+              <b-form-group label="Fecha Hasta:">
+                <b-form-input type="date" v-model="fechaHastaQuirurgico"></b-form-input>
+              </b-form-group>
+            </div>
+            <div class="col-md-4">
+              <b-button variant="primary" @click="realizarBusquedaQuirurgico">Buscar</b-button>
+            </div>
+          </div>
+          <datatable-heading
+            :changePageSize="changePageSizesQuirurgico"
+            :searchChange="searchChangeQuirurgico"
+            :from="fromQuirurgico"
+            :to="toQuirurgico"
+            :total="totalQuirurgico"
+            :perPage="perPageQuirurgico"
+          >
+          </datatable-heading>
+          <vuetable
+            ref="vuetable_Quirurgico"
+            class="table-divided order-with-arrow"
+            :api-url="apiBaseQuirurgico"
+            :query-params="makeQueryParamsQuirurgico"
+            :per-page="perPageQuirurgico"
+            :reactive-api-url="true"
+            :fields="fieldsQuirurgico"
+            pagination-path
+            @vuetable:pagination-data="onPaginationDataQuirurgico"
+            :row-class="getRowClass"
+          >
+            <template slot="actions" slot-scope="props">
+              <div class="button-container">
+                <b-button
+                  v-if="props.rowData.estado === 1 && props.rowData.reviewed_by === null"
+                  @click="setData(props.rowData, 3)"
+                  v-b-modal.modal-desactivar
+                  class="mb-2 button-spacing"
+                  size="sm"
+                  variant="danger"
+                  :disabled="hasPermission([1, 3])"
+                >Eliminar registro</b-button>
+                <b-button
+                  v-else-if="props.rowData.estado === 0 && props.rowData.reviewed_by === null"
+                  :disabled="true"
+                  class="mb-2 button-spacing"
+                  size="sm"
+                  variant="dark"
+                >El registro fue eliminado</b-button>
+                <b-button
+                  v-if="props.rowData.estado === 1 && props.rowData.reviewed_by === null"
+                  @click="setData(props.rowData, 3)"
+                  v-b-modal.modal-revisar
+                  class="mb-2 button-spacing"
+                  size="sm"
+                  variant="success"
+                  :disabled="hasPermission([1, 3])"
+                >Revisar registro</b-button>
+                <b-button
+                  v-else-if="props.rowData.reviewed_by !== null"
+                  :disabled="true"
+                  class="mb-2 button-spacing"
+                  size="sm"
+                  variant="success"
+                >El registro fue revisado</b-button>
+              </div>
+            </template>
+          </vuetable>
+          <vuetable-pagination-bootstrap
+              ref="paginationQuirurgico"
+              @vuetable-pagination:change-page="onChangePageQuirurgico"
+            />
+        </template>
+      </iq-card>
+    </b-col>
+    </b-row>
+  </b-container>
+</template>
 
 <script>
 import { xray } from '../../../../config/pluginInit'
 import IqCard from '../../../../components/xray/cards/iq-card'
-// import axios from 'axios'
+import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
 import moment from 'moment'
 import DatatableHeading from '../../../Tables/DatatableHeading'
 import Vuetable from 'vuetable-2/src/components/Vuetable'
 import VuetablePaginationBootstrap from '../../../../components/common/VuetablePaginationBootstrap'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'Consumos',
@@ -219,8 +414,26 @@ export default {
   mounted () {
     xray.index()
   },
+  computed: {
+    ...mapGetters({
+      currentUser: 'currentUser'
+    })
+  },
   data: () => {
     return {
+      alertText: '',
+      alertCountDown: 0,
+      alertSecs: 5,
+      alertVariant: '',
+      consumoToDelete: {
+        cantidad: 0,
+        fecha_consumo: '',
+        nombre_completo: '',
+        nombre_medicamento: '',
+        numero_cuenta: '',
+        area: 0,
+        responsable: ''
+      },
       from: 0,
       to: 0,
       total: 0,
@@ -228,8 +441,17 @@ export default {
       search: '',
       fechaDesde: null,
       fechaHasta: null,
+      fromAnestesicos: 0,
+      toAnestesicos: 0,
+      totalAnestesicos: 0,
+      perPageAnestesicos: 5,
+      searchAnestesicos: '',
+      fechaDesdeAnestesicos: null,
+      fechaHastaAnestesicos: null,
+      lastPageAnestesicos: 0,
+      itemsAnestesicos: [],
       apiBase: apiUrl + '/detalle_consumo_medicamentos/list',
-      apiBaseAnestesico: apiUrl + '/detalle_consumo_medicamentos/listAnestesico',
+      apiBaseAnestesicos: apiUrl + '/detalle_consumo_medicamentos/listAnestesicos',
       slickOptions: {
         centerMode: false,
         centerPadding: '60px',
@@ -255,6 +477,12 @@ export default {
         }]
       },
       fields: [
+        {
+          name: '__slot:actions',
+          title: 'Acciones',
+          titleClass: '',
+          dataClass: 'text-muted'
+        },
         {
           name: 'numero_cuenta',
           sortField: 'numero_cuenta',
@@ -284,6 +512,24 @@ export default {
           sortField: 'fecha_consumo',
           title: 'Fecha de Consumo',
           dataClass: 'list-item-heading'
+        },
+        {
+          name: 'created_by',
+          sortField: 'created_by',
+          title: 'Administrado por',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'updated_by',
+          sortField: 'updated_by',
+          title: 'Eliminado por',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'reviewed_by',
+          sortField: 'reviewed_by',
+          title: 'Revisado por',
+          dataClass: 'list-item-heading'
         }
       ],
       fromComun: 0,
@@ -295,6 +541,12 @@ export default {
       fechaHastaComun: null,
       apiBaseComun: apiUrl + '/detalle_consumo_comun/list',
       fieldsComun: [
+        {
+          name: '__slot:actions',
+          title: 'Acciones',
+          titleClass: '',
+          dataClass: 'text-muted'
+        },
         {
           name: 'numero_cuenta',
           sortField: 'numero_cuenta',
@@ -323,6 +575,24 @@ export default {
           name: 'fecha_consumo',
           sortField: 'fecha_consumo',
           title: 'Fecha de Consumo',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'created_by',
+          sortField: 'created_by',
+          title: 'Administrado por',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'updated_by',
+          sortField: 'updated_by',
+          title: 'Eliminado por',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'reviewed_by',
+          sortField: 'reviewed_by',
+          title: 'Revisado por',
           dataClass: 'list-item-heading'
         }
       ],
@@ -336,6 +606,12 @@ export default {
       apiBaseQuirurgico: apiUrl + '/detalle_consumo_quirugicos/list',
       fieldsQuirurgico: [
         {
+          name: '__slot:actions',
+          title: 'Acciones',
+          titleClass: '',
+          dataClass: 'text-muted'
+        },
+        {
           name: 'numero_cuenta',
           sortField: 'numero_cuenta',
           title: 'Número de Cuenta',
@@ -364,11 +640,41 @@ export default {
           sortField: 'fecha_consumo',
           title: 'Fecha de Consumo',
           dataClass: 'list-item-heading'
+        },
+        {
+          name: 'created_by',
+          sortField: 'created_by',
+          title: 'Administrado por',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'updated_by',
+          sortField: 'updated_by',
+          title: 'Eliminado por',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'reviewed_by',
+          sortField: 'reviewed_by',
+          title: 'Revisado por',
+          dataClass: 'list-item-heading'
         }
       ]
     }
   },
   methods: {
+    getRowClass (rowData) {
+      if (!rowData.fecha_consumo) return ''
+
+      const partes = rowData.fecha_consumo.split(' ')
+      if (partes.length < 2) return ''
+
+      const hora = parseInt(partes[1].split(':')[0])
+
+      return (hora >= 7 && hora < 19)
+        ? 'fila-dia'
+        : 'fila-noche'
+    },
     realizarBusqueda () {
       this.$refs.vuetable.refresh()
       this.fechaDesde = null
@@ -412,6 +718,51 @@ export default {
     },
     onChangePage (page) {
       this.$refs.vuetable.changePage(page)
+    },
+
+    realizarBusquedaAnestesicos () {
+      this.$refs.vuetable_Anestesicos.refresh()
+      this.fechaDesdeAnestesicos = null
+      this.fechaHastaAnestesicos = null
+    },
+    makeQueryParamsAnestesicos (sortOrder, currentPage, perPage) {
+      return {
+        criterio: sortOrder[0] ? sortOrder[0].sortField : 'createdAt',
+        order: sortOrder[0] ? sortOrder[0].direction : 'desc',
+        page: currentPage,
+        limit: this.perPageAnestesicos,
+        search: this.searchAnestesicos,
+        fechaDesde: this.fechaDesdeAnestesicos ? moment(this.fechaDesdeAnestesicos).format('YYYY-MM-DD') : null,
+        fechaHasta: this.fechaHastaAnestesicos ? moment(this.fechaHastaAnestesicos).format('YYYY-MM-DD') : null
+      }
+    },
+    changePageSizesAnestesicos (perPage) {
+      this.perPageAnestesicos = perPage
+      this.$refs.vuetable_Anestesicos.refresh()
+    },
+    searchChangeAnestesicos (val) {
+      this.searchAnestesicos = val.toLowerCase()
+      this.$refs.vuetable_Anestesicos.refresh()
+    },
+    onPaginationDataAnestesicos (paginationData) {
+      this.fromAnestesicos = paginationData.from
+      this.toAnestesicos = paginationData.to
+      this.totalAnestesicos = paginationData.total
+      this.lastPageAnestesicos = paginationData.last_page
+      this.itemsAnestesicos = paginationData.data.map(item => {
+        item.fecha_consumo = moment(item.fecha_consumo).format('DD/MM/YYYY HH:mm')
+        item.cantidad = parseInt(item.cantidad)
+        return {
+          numero_cuenta: item.numero_cuenta,
+          nombre_medicamento: item.nombre_medicamento,
+          cantidad: item.cantidad,
+          fecha_consumo: item.fecha_consumo
+        }
+      })
+      this.$refs.paginationAnestesicos.setPaginationData(paginationData)
+    },
+    onChangePageAnestesicos (page) {
+      this.$refs.vuetable_Anestesicos.changePage(page)
     },
 
     realizarBusquedaComun () {
@@ -502,40 +853,177 @@ export default {
     },
     onChangePageQuirurgico (page) {
       this.$refs.vuetable_Quirurgico.changePage(page)
+    },
+    setData (data, area) {
+      this.consumoToDelete = data
+      this.consumoToDelete.area = area
+      this.consumoToDelete.responsable = this.currentUser.user
+    },
+    showAlert () {
+      this.alertCountDown = this.alertSecs
+    },
+    onState () {
+      let me = this
+      if (this.consumoToDelete.area === 1) { // Eliminando medicamento
+        axios
+          .put(apiUrl + '/detalle_consumo_medicamentos/deactivate', {
+            delete: this.consumoToDelete
+          })
+          .then((response) => {
+            me.alertVariant = 'danger'
+            me.showAlert()
+            me.alertText = response.data
+            me.$refs.vuetable.refresh()
+            me.$refs.vuetable_Anestesicos.refresh()
+            me.$refs['modal-desactivar'].hide()
+          })
+          .catch((error) => {
+            me.alertVariant = 'danger'
+            me.showAlertError()
+            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+            console.error('There was an error!', error)
+          })
+      } else if (this.consumoToDelete.area === 2) { // Eliminando medicamento
+        axios
+          .put(apiUrl + '/detalle_consumo_comun/deactivate', {
+            delete: this.consumoToDelete
+          })
+          .then((response) => {
+            me.alertVariant = 'danger'
+            me.showAlert()
+            me.alertText = response.data
+            me.$refs.vuetable_Comun.refresh()
+            me.$refs['modal-desactivar'].hide()
+          })
+          .catch((error) => {
+            me.alertVariant = 'danger'
+            me.showAlertError()
+            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+            console.error('There was an error!', error)
+          })
+      } else if (this.consumoToDelete.area === 3) { // Eliminando medicamento
+        axios
+          .put(apiUrl + '/detalle_consumo_quirurgicos/deactivate', {
+            delete: this.consumoToDelete
+          })
+          .then((response) => {
+            me.alertVariant = 'danger'
+            me.showAlert()
+            me.alertText = response.data
+            me.$refs.vuetable_Quirurgico.refresh()
+            me.$refs['modal-desactivar'].hide()
+          })
+          .catch((error) => {
+            me.alertVariant = 'danger'
+            me.showAlertError()
+            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+            console.error('There was an error!', error)
+          })
+      }
+    },
+    onReview () {
+      let me = this
+      if (this.consumoToDelete.area === 1) { // Revisando medicamento
+        axios
+          .put(apiUrl + '/detalle_consumo_medicamentos/review', {
+            delete: this.consumoToDelete
+          })
+          .then((response) => {
+            me.alertVariant = 'danger'
+            me.showAlert()
+            me.alertText = response.data
+            me.$refs.vuetable.refresh()
+            me.$refs.vuetable_Anestesicos.refresh()
+            me.$refs['modal-revisar'].hide()
+          })
+          .catch((error) => {
+            me.alertVariant = 'danger'
+            me.showAlertError()
+            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+            console.error('There was an error!', error)
+          })
+      } else if (this.consumoToDelete.area === 2) { // Revisando comun
+        axios
+          .put(apiUrl + '/detalle_consumo_comun/review', {
+            delete: this.consumoToDelete
+          })
+          .then((response) => {
+            me.alertVariant = 'danger'
+            me.showAlert()
+            me.alertText = response.data
+            me.$refs.vuetable_Comun.refresh()
+            me.$refs['modal-revisar'].hide()
+          })
+          .catch((error) => {
+            me.alertVariant = 'danger'
+            me.showAlertError()
+            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+            console.error('There was an error!', error)
+          })
+      } else if (this.consumoToDelete.area === 3) { // Revisando quirurgico
+        axios
+          .put(apiUrl + '/detalle_consumo_quirurgicos/review', {
+            delete: this.consumoToDelete
+          })
+          .then((response) => {
+            me.alertVariant = 'danger'
+            me.showAlert()
+            me.alertText = response.data
+            me.$refs.vuetable_Quirurgico.refresh()
+            me.$refs['modal-revisar'].hide()
+          })
+          .catch((error) => {
+            me.alertVariant = 'danger'
+            me.showAlertError()
+            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+            console.error('There was an error!', error)
+          })
+      }
+    },
+    hasPermission (blockedRoles = []) {
+      return !blockedRoles.includes(this.currentUser.user_type)
     }
   }
 }
 </script>
 <style>
 .iq-card-body{
-  flex: unset;
+flex: unset;
 }
 .center-text {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%; /* Adjust this if needed */
-    text-align: center;
-  }
-  .table {
-  width: 100%;
-  border-collapse: collapse;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%; /* Adjust this if needed */
+  text-align: center;
+}
+.table {
+width: 100%;
+border-collapse: collapse;
 }
 /* Estilo para las celdas de encabezado */
 .table th {
-  background-color: #f0f0f0; /* Color de fondo claro */
-  text-align: center;
-  padding: 10px;
-  border: 1px solid #ddd; /* Borde sutil */
+background-color: #f0f0f0; /* Color de fondo claro */
+text-align: center;
+padding: 10px;
+border: 1px solid #ddd; /* Borde sutil */
 }
 /* Estilo para las celdas de datos */
 .table td {
-  text-align: center;
-  padding: 8px;
-  border: 1px solid #ddd;
+text-align: center;
+padding: 8px;
+border: 1px solid #ddd;
 }
 /* Estilo para filas alternas */
 .table tr:nth-child(even) {
-  background-color: #f9f9f9; /* Color de fondo más claro para filas alternas */
+background-color: #f9f9f9; /* Color de fondo más claro para filas alternas */
+}
+
+.fila-dia {
+  background-color: #cfe2ff !important;  /* azul claro */
+}
+
+.fila-noche {
+  background-color: #f8d7da !important;  /* rojo claro */
 }
 </style>
