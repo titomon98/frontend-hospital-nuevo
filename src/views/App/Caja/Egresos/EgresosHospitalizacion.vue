@@ -88,12 +88,6 @@
           </b-form-group>
         </div>
         <div>
-          Nota de egreso
-        </div>
-        <div>
-          <b-input id="motivoEgreso" ref="motivoEgreso" v-model="motivoEgresoHospi" />
-        </div>
-        <div>
           <b-form-group label="Fecha de egreso:">
             <b-form-input
               type="date"
@@ -260,8 +254,8 @@
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="dark"
-                    :disabled="['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo) || ['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo_egreso) || !props.rowData.cuentas[0].detalle_honorarios || props.rowData.cuentas[0].detalle_honorarios.length === 0"
-                    v-b-tooltip.top="['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo) ? 'Falta nota de ingreso' : ['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo_egreso) ? 'Falta nota de egreso' : 'Egresar paciente'"
+                    :disabled="['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo) || !props.rowData.cuentas[0].detalle_honorarios || props.rowData.cuentas[0].detalle_honorarios.length === 0"
+                    v-b-tooltip.top="['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo) ? 'Falta nota de ingreso' : !props.rowData.cuentas[0].detalle_honorarios || props.rowData.cuentas[0].detalle_honorarios.length === 0 ? 'Sin honorarios médicos' : 'Egresar paciente'"
                   >
                     Egresar paciente
                   </b-button>
@@ -337,7 +331,6 @@ export default {
         fecha: null,
         hora: null
       },
-      motivoEgresoHospi: '',
       motivoTrasladoHospi: '',
       alertSecs: 5,
       alertCountDown: 0,
@@ -547,53 +540,36 @@ export default {
         })
     },
     onPatientQuit () {
-
-        if (this.motivoEgresoHospi === '') {
-          this.alertErrorText = 'No se ingresó una nota de egreso'
-          this.showAlertError()
-        } else {
-          let me = this
-          axios
-            .put(apiUrl + '/expedientes/egresoNormal', {
-              id: this.form.id,
-              estado: this.selectedQuitOption,
-              estado_anterior: 1,
-              motivo: this.motivoEgresoHospi,
-              habitaciones: 0,
-              form: this.form,
-              user: me.currentUser.user,
-              fecha: null,
-              hora: null
-            })
-            .then((response) => {
-              axios.put(apiUrl + '/habitaciones/available',
-                {
-                  ocupante: this.form.id
-                }
-              )
-
-              me.alertVariant = 'info'
-              me.showAlert()
-              me.alertText = 'Se ha egresado el paciente ' + me.form.nombres + ' exitosamente'
-              me.$refs.vuetableHosp.refresh()
-              me.$refs['modal-2-egresarHosp'].hide()
-            })
-            .then((response) => {
-              const motivoE = this.motivoEgresoHospi
-              axios.put(apiUrl + '/cuentas/updateMotivoEgreso', {
-                motivo_egreso: motivoE,
-                id: this.form.id
-              })
-              this.motivoEgresoHospi = ''
-            })
-            .catch((error) => {
-              me.alertVariant = 'danger'
-              me.showAlertError()
-              me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-              console.error('There was an error!', error)
-            })
-        }
-
+      let me = this
+      axios
+        .put(apiUrl + '/expedientes/egresoNormal', {
+          id: this.form.id,
+          estado: this.selectedQuitOption,
+          estado_anterior: 1,
+          habitaciones: 0,
+          form: this.form,
+          user: me.currentUser.user,
+          fecha: this.form.fecha,
+          hora: this.form.hora
+        })
+        .then((response) => {
+          axios.put(apiUrl + '/habitaciones/available', {
+            ocupante: this.form.id
+          })
+          me.alertVariant = 'info'
+          me.showAlert()
+          me.alertText = 'Se ha egresado el paciente ' + me.form.nombres + ' exitosamente'
+          me.$refs.vuetableHosp.refresh()
+          me.$refs['modal-2-egresarHosp'].hide()
+          this.form.fecha = null
+          this.form.hora = null
+        })
+        .catch((error) => {
+          me.alertVariant = 'danger'
+          me.showAlertError()
+          me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+          console.error('There was an error!', error)
+        })
     },
     makeQueryParams (sortOrder, currentPage, perPage) {
       return sortOrder[0]

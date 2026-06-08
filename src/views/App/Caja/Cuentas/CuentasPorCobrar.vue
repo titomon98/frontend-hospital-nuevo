@@ -10,6 +10,16 @@
     >
       <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
+    <b-modal id="modal-reingreso" ref="modal-reingreso" title="Reingresar paciente">
+      <h6 class="my-4">
+        ¿Desea reingresar al paciente <strong>{{ form.nombres }} {{ form.apellidos }}</strong> al hospital?
+      </h6>
+      <p class="text-muted">Se creará una nueva cuenta activa y el paciente podrá recibir consumos, honorarios y exámenes nuevamente.</p>
+      <template #modal-footer="{}">
+        <b-button variant="warning" @click="reingresar()">Confirmar reingreso</b-button>
+        <b-button variant="danger" @click="$bvModal.hide('modal-reingreso')">Cancelar</b-button>
+      </template>
+    </b-modal>
     <b-modal id="modal-1-traslado" ref="modal-1-traslado" title="Trasladar paciente">
       <b-alert
         :show="alertCountDownError"
@@ -291,11 +301,11 @@
                     <b-button
                       @click="
                         setData(props.rowData)
-                        $bvModal.show('modal-2-account')
+                        $bvModal.show('modal-reingreso')
                       "
                       class="mb-2 button-spacing"
                       size="sm"
-                      variant="dark"
+                      variant="warning"
                     >Reingresar a hospital</b-button>
 
                     <b-button
@@ -811,8 +821,7 @@ export default {
       } else {
         const fechaIngreso = new Date(FechaIngreso)
         const diferenciaMs = fechaActual - fechaIngreso
-        const diasDiferencia = Math.floor(diferenciaMs / (1000 * 60 * 60 * 24))
-        mensajeDias = diasDiferencia
+        mensajeDias = Math.max(1, Math.floor(diferenciaMs / (1000 * 60 * 60 * 24)))
       }
       const hospitalizacion = data.costoTotal ?? 0
 
@@ -969,6 +978,25 @@ export default {
         console.log(error)
         console.error('Error al generar el reporte:', error)
       }
+    },
+    reingresar () {
+      const me = this
+      axios.post(apiUrl + '/expedientes/reingresoNormal', {
+        id: this.expediente,
+        user: me.currentUser.user
+      })
+        .then(() => {
+          me.alertVariant = 'info'
+          me.alertText = 'El paciente ' + me.form.nombres + ' ha sido reingresado exitosamente'
+          me.showAlert()
+          me.$bvModal.hide('modal-reingreso')
+          me.$refs.vuetable.refresh()
+        })
+        .catch((error) => {
+          me.alertErrorText = 'Ha ocurrido un error al reingresar al paciente'
+          me.showAlertError()
+          console.error(error)
+        })
     }
   }
 }
