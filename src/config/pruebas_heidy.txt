@@ -31,3 +31,5 @@
 29. De enfermería y quirófano no se está debitando el inventario, si no del general. 
 30. Ver si receta tiene el formato de hospital.
 31. Entre pedidos de enfermería y farmacia no está llegando lo que se solicita para surtirlo.
+32. El cobro de ambulatorio aún no es conciso. Falta agregarlo a cuenta parcial. La cuenta parcial se muestra con el momento exacto en el que estamos.
+33. El cobro de ambulatorio es por hora o fracción, cualquier fracción.
