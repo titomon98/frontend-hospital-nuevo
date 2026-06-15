@@ -267,12 +267,12 @@
               <template slot="actions" slot-scope="props">
                 <div class="button-container">
                   <b-button
-                    @click="setData(props.rowData); $bvModal.show('modal-2-egresarHosp')"
+                    @click="setData(props.rowData); $bvModal.show('modal-2-egreso')"
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="dark"
-                    :disabled="['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo) || ['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo_egreso) || !props.rowData.cuentas[0].detalle_honorarios || props.rowData.cuentas[0].detalle_honorarios.length === 0"
-                    v-b-tooltip.top="['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo) ? 'Falta nota de ingreso' : ['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo_egreso) ? 'Falta nota de egreso' : 'Egresar paciente'"
+                    :disabled="['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo) || !props.rowData.cuentas[0].detalle_honorarios || props.rowData.cuentas[0].detalle_honorarios.length === 0"
+                    v-b-tooltip.top="['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo) ? 'Falta nota de ingreso' : !props.rowData.cuentas[0].detalle_honorarios || props.rowData.cuentas[0].detalle_honorarios.length === 0 ? 'Sin honorarios médicos' : 'Egresar paciente'"
                   >
                     Egresar paciente
                   </b-button>
@@ -512,6 +512,7 @@ export default {
       }
     },
     setData (data) {
+      this.form.nombres = data.nombres
       this.form.name = data.nombres + ' ' + data.apellidos
       this.form.apellidos = data.apellidos
       this.form.state = data.estado

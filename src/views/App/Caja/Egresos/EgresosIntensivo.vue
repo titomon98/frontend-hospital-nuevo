@@ -255,12 +255,12 @@
               <template slot="actions" slot-scope="props">
                 <div class="button-container">
                   <b-button
-                    @click="setData(props.rowData); $bvModal.show('modal-2-egresarHosp')"
+                    @click="setData(props.rowData); $bvModal.show('modal-2-uciegreso')"
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="dark"
-                    :disabled="['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo) || ['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo_egreso) || !props.rowData.cuentas[0].detalle_honorarios || props.rowData.cuentas[0].detalle_honorarios.length === 0"
-                    v-b-tooltip.top="['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo) ? 'Falta nota de ingreso' : ['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo_egreso) ? 'Falta nota de egreso' : 'Egresar paciente'"
+                    :disabled="['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo) || !props.rowData.cuentas[0].detalle_honorarios || props.rowData.cuentas[0].detalle_honorarios.length === 0"
+                    v-b-tooltip.top="['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo) ? 'Falta nota de ingreso' : !props.rowData.cuentas[0].detalle_honorarios || props.rowData.cuentas[0].detalle_honorarios.length === 0 ? 'Sin honorarios médicos' : 'Egresar paciente'"
                   >
                     Egresar paciente
                   </b-button>
@@ -497,6 +497,7 @@ export default {
       }
     },
     setData (data) {
+      this.form.nombres = data.nombres
       this.form.name = data.nombres + ' ' + data.apellidos
       this.form.apellidos = data.apellidos
       this.form.state = data.estado
@@ -549,72 +550,40 @@ export default {
         })
     },
     onPatientQuit () {
-      // this.paymentSum = parseFloat(this.paymentType.Efectivo) + parseFloat(this.paymentType.Tarjeta) + parseFloat(this.paymentType.Deposito) + parseFloat(this.paymentType.Cheque) + parseFloat(this.paymentType.Seguro)
-      this.paymentSum = 0
-      this.totalPayment = 0
       if (this.motivoEgresoIntensivo === '') {
         this.alertErrorText = 'No se ingresó una nota de egreso'
         this.showAlertError()
       } else {
-        if (this.paymentSum !== parseFloat(this.totalPayment)) {
-          this.alertErrorText = 'El total a pagar no concuerda con el total ingresado'
-          this.showAlertError()
-        } else {
-          let me = this
-          axios
-            .put(apiUrl + '/expedientes/changeState', {
-              id: this.form.id,
-              estado: this.selectedQuitOption,
-              estado_anterior: 4,
-              motivo: this.motivoEgresoIntensivo,
-              form: this.form,
-              habitaciones: 0,
-              user: me.currentUser.user,
-              fecha: null,
-              hora: null
+        let me = this
+        axios
+          .put(apiUrl + '/expedientes/changeState', {
+            id: this.form.id,
+            estado: this.selectedQuitOption,
+            estado_anterior: 4,
+            motivo: this.motivoEgresoIntensivo,
+            form: this.form,
+            habitaciones: 0,
+            user: me.currentUser.user,
+            fecha: null,
+            hora: null
+          })
+          .then((response) => {
+            this.motivoEgresoIntensivo = ''
+            axios.put(apiUrl + '/habitaciones/available', {
+              ocupante: this.form.id
             })
-            .then((response) => {
-              this.motivoEgresoIntensivo = ''
-              axios.put(apiUrl + '/habitaciones/available',
-                {
-                  ocupante: this.form.id
-                }
-              )
-              /* axios.put(apiUrl + '/cuentas/deactivate',
-                {
-                  id: this.selectedAccount,
-                  total_pagado: parseFloat(this.totPagado) + parseFloat(this.paymentSum),
-                  pendiente_de_pago: parseFloat(parseFloat(this.totalPayment) - parseFloat(this.paymentSum)),
-                  efectivo: this.paymentType.Efectivo,
-                  tarjeta: this.paymentType.Tarjeta,
-                  deposito: this.paymentType.Deposito,
-                  cheque: this.paymentType.Cheque,
-                  seguro: this.paymentType.Seguro,
-                  total: this.paymentSum,
-                  tipo: 'finiquito'
-                })
-                .then(
-                  this.selectedAccount = null,
-                  this.paymentType.Efectivo = 0,
-                  this.paymentType.Tarjeta = 0,
-                  this.paymentType.Deposito = 0,
-                  this.paymentType.Cheque = 0,
-                  this.paymentType.Seguro = 0,
-                  this.paymentSum = 0
-                ) */
-              me.alertVariant = 'info'
-              me.showAlert()
-              me.alertText = 'Se ha egresado el paciente ' + me.form.nombres + ' exitosamente'
-              me.$refs.vuetableUci.refresh()
-              me.$refs['modal-2-uciegreso'].hide()
-            })
-            .catch((error) => {
-              me.alertVariant = 'danger'
-              me.showAlertError()
-              me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-              console.error('There was an error!', error)
-            })
-        }
+            me.alertVariant = 'info'
+            me.showAlert()
+            me.alertText = 'Se ha egresado el paciente ' + me.form.nombres + ' exitosamente'
+            me.$refs.vuetableUci.refresh()
+            me.$refs['modal-2-uciegreso'].hide()
+          })
+          .catch((error) => {
+            me.alertVariant = 'danger'
+            me.showAlertError()
+            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+            console.error('There was an error!', error)
+          })
       }
     },
     makeQueryParams (sortOrder, currentPage, perPage) {

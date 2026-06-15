@@ -3642,20 +3642,56 @@ export default {
     },
     egresoEmergencia (data) {
       this.form.id = data.id
-      // Aqui mostrar motivo de consulta, diagnostico, tratamiento, observaciones, fecha y hora de salida
-      // Y un boton para cobrar derecho de emergencia
-      // El cobro a emergencia es 25, el pago a interno es 150
+      this.form.fecha = null
+      this.form.hora = null
+      // Precargar campos si ya existen en la cuenta
+      this.egreso.motivo = data.cuentas[0].motivo !== 'PENDIENTE' ? data.cuentas[0].motivo : null
+      this.egreso.diagnostico = data.cuentas[0].descripcion ?? null
+      this.egreso.tratamiento = data.cuentas[0].otros ?? null
+      this.egreso.observaciones = data.cuentas[0].motivo_egreso !== 'PENDIENTE' ? data.cuentas[0].motivo_egreso : null
       this.$refs['modal-egreso'].show()
     },
     onValidateEgreso () {
-      if (this.form.fecha === null || this.form.hora === null) {
+      if (!this.form.fecha || !this.form.hora) {
         this.alertVariant = 'danger'
         this.showAlertError()
         this.alertErrorText = 'La fecha o la hora no son correctas'
         return
       }
 
-      console.log('Llegamos bien hasta aqui')
+      if (!this.egreso.motivo || !this.egreso.diagnostico || !this.egreso.tratamiento) {
+        this.alertVariant = 'danger'
+        this.showAlertError()
+        this.alertErrorText = 'Por favor completa motivo, diagnóstico y tratamiento'
+        return
+      }
+
+      const me = this
+      axios.put(apiUrl + '/expedientes/egresoEmergencia', {
+        id: this.form.id,
+        fecha: this.form.fecha,
+        hora: this.form.hora,
+        user: me.currentUser.user,
+        egreso: {
+          motivo: this.egreso.motivo,
+          diagnostico: this.egreso.diagnostico,
+          tratamiento: this.egreso.tratamiento,
+          observaciones: this.egreso.observaciones
+        }
+      })
+        .then(() => {
+          me.alertVariant = 'info'
+          me.showAlert()
+          me.alertText = 'Se ha egresado al paciente exitosamente'
+          me.$refs.vuetable.refresh()
+          me.closeModal('egreso')
+        })
+        .catch((error) => {
+          me.alertVariant = 'danger'
+          me.showAlertError()
+          me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
+          console.error('Error en egreso de emergencia:', error)
+        })
     }
   }
 }

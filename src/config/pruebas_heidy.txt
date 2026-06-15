@@ -15,18 +15,18 @@
 22. En los voucher de honorarios no tomar en cuenta honorarios pendientes, solo tomar en cuenta honorarios del día que se genera - por defecto busca todos los honorarios del día, pero se pueden seleccionar solo los de una fecha especifica
 23. Si hay medicos que dejan honorarios de cortesia o la doctora Champet que deja honora
 24. Ya funciona la hoja de emergencias - listo
+3. Si el paciente se ingresa en emergencia y luego se traslada, debe cobrar solo 25 del médico interno y la habitación - Anulado, se cobran 250 de fijo
+17. Cuenta total a veces da error, ver por qué pasa
+26. En la hoja de emergencia siempre tiene que aparecer el rubro "derecho a emergencia" con valor de 250 quetzales. También debe aparecer el nombre del interno que ingresó al paciente.
+27. En emergencia por cada hora adicional se cobran 25 si y solo si estuvo en emergencia únicamente. Si se va a hospitalizar, entonces solo se cobran los 250.
 
-3. Si el paciente se ingresa en emergencia y luego se traslada, debe cobrar solo 25 del médico interno y la habitación
 4. Verificar la suma de laboratorios 
 13. Cuando se agregue un paquete, en lugar de "cobrar" todos los consumos, debe cobrar el paquete como tal.
 14. Desplegar el nombre de ayudante, circulante e instrumentista en agregar ⁠Servicios
-17. Cuenta total a veces da error, ver por qué pasa
 18. Colocar número de factura directo donde se cobra y que cree el registro de factura
 19. Aparece Nan en la cuenta del paciente JAIRO NOE CIFUENTES
 20. El corte del día de hospital debe informar solo los gastos de hospital, no los honorarios ni laboratorios
 25. Debe ser posible eliminar exámenes solo si no están pagados. Solo lo pueden hacer administración y gerencia.
-26. En la hoja de emergencia siempre tiene que aparecer el rubro "derecho a emergencia" con valor de 250 quetzales. También debe aparecer el nombre del interno que ingresó al paciente.
-27. En emergencia por cada hora adicional se cobran 25 si y solo si estuvo en emergencia únicamente. Si se va a hospitalizar, entonces solo se cobran los 250.
 28. Al trasladar al paciente de emergencia hacia hospitalización, ahora ya se cobran los 250 quetzales siempre, este proceso solo puede ser realizado por el médico interno para que aparezca su nombre en los registros.
 29. De enfermería y quirófano no se está debitando el inventario, si no del general. 
 30. Ver si receta tiene el formato de hospital.
