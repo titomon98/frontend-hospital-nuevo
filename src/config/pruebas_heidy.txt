@@ -33,3 +33,5 @@
 31. Entre pedidos de enfermería y farmacia no está llegando lo que se solicita para surtirlo.
 32. El cobro de ambulatorio aún no es conciso. Falta agregarlo a cuenta parcial. La cuenta parcial se muestra con el momento exacto en el que estamos.
 33. El cobro de ambulatorio es por hora o fracción, cualquier fracción.
+34. Crear un historial de todas las emergencias y hospitalizados que hubo en el hospital. Esto lo tengo que hacer a traves de la cuenta
+35. En la cuenta total se debe desplegar la hoja de emergencia si el paciente solo estuvo en emergencia. Ahora si estuvo hospitalizado, se cobra en el rubro de médico interno
