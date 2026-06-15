@@ -35,3 +35,4 @@
 33. El cobro de ambulatorio es por hora o fracción, cualquier fracción.
 34. Crear un historial de todas las emergencias y hospitalizados que hubo en el hospital. Esto lo tengo que hacer a traves de la cuenta, dejar en gerencia.
 35. En la cuenta total se debe desplegar la hoja de emergencia si el paciente solo estuvo en emergencia. Ahora si estuvo hospitalizado, se cobra en el rubro de médico interno
+36. En el corte de hospital no deben incluirse los honorarios dentro del corte. Son separados con el de los medicos
