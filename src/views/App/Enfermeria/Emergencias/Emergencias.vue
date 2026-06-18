@@ -1005,6 +1005,15 @@
             <tr v-for="row in item_examenes" :key="row.id">
               <td>
                 <b-button @click="verResultado(row.id)" variant="success">Ver resultado</b-button>
+                <b-button
+                  v-if="puedeEliminarEstudio"
+                  @click="eliminarExamenRealizado(row)"
+                  variant="danger"
+                  size="sm"
+                  class="ml-1"
+                  :disabled="parseFloat(row.pagado) !== 0"
+                  :title="parseFloat(row.pagado) !== 0 ? 'No se puede eliminar: el estudio ya tiene un pago registrado' : 'Eliminar estudio'"
+                >Eliminar estudio</b-button>
               </td>
               <td>{{ row.nombre }}</td>
               <td>{{ row.cui }}</td>
@@ -1288,7 +1297,11 @@ export default {
   computed: {
     ...mapGetters({
       currentUser: 'currentUser'
-    })
+    }),
+    puedeEliminarEstudio () {
+      const tipo = this.currentUser?.user_type
+      return tipo === 1 || tipo === 3
+    }
   },
   data () {
     return {
@@ -3692,6 +3705,38 @@ export default {
           me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
           console.error('Error en egreso de emergencia:', error)
         })
+    },
+    async eliminarExamenRealizado (row) {
+      if (parseFloat(row.pagado) !== 0) {
+        this.alertErrorText = 'No se puede eliminar el estudio porque ya tiene un pago registrado.'
+        this.alertCountDownError = 5
+        return
+      }
+
+      const confirmado = await this.$bvModal.msgBoxConfirm(
+        `¿Está seguro de eliminar el estudio "${row.nombre_examen}"?`,
+        {
+          title: 'Confirmar eliminación',
+          okVariant: 'danger',
+          okTitle: 'Eliminar',
+          cancelTitle: 'Cancelar'
+        }
+      )
+
+      if (!confirmado) return
+
+      try {
+        await axios.delete(apiUrl + '/examenes/eliminarExamen', {
+          data: {
+            id: row.id,
+            id_cuenta: row.id_cuenta
+          }
+        })
+        this.item_examenes = this.item_examenes.filter(e => e.id !== row.id)
+      } catch (error) {
+        this.alertErrorText = error.response?.data?.msg || 'Ocurrió un error al eliminar el estudio.'
+        this.alertCountDownError = 5
+      }
     }
   }
 }
