@@ -24,6 +24,7 @@
               <b-tab title="Validar descuentos" lazy><ValidarDescuentos/></b-tab>
               <b-tab title="Reportes" lazy><Reportes/></b-tab>
               <!-- Aqui meter un historial de pacientes hospitalizados actualmente-->
+              <b-tab title="Pacientes hospitalizados" lazy><PacientesHospitalizados/></b-tab>
               <b-tab title="Historial de emergencias" lazy><EmergenciasHistorial/></b-tab>
               <b-tab title="Historial de egresos en hospital" lazy><PacientesHistorial/></b-tab>
             </b-tabs>
@@ -40,6 +41,7 @@ import { apiUrl } from '../../../config/constant'
 import Users from './Users.vue'
 import Asuetos from './Asuetos.vue'
 import Reportes from './Reportes.vue'
+import PacientesHospitalizados from './PacientesHospitalizados.vue'
 import EmergenciasHistorial from './EmergenciasHistorial.vue'
 import PacientesHistorial from './PacientesHistorial.vue'
 
@@ -54,6 +56,7 @@ export default {
     Reportes,
     /* Efectivo, */
     ValidarDescuentos,
+    PacientesHospitalizados,
     EmergenciasHistorial,
     PacientesHistorial
   },
