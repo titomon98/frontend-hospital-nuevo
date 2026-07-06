@@ -1,0 +1,11 @@
+1. En Gerencia en pacientes hospitalizados en "Reporte de historial de cuenta", debe quedar la cuenta detallada. Esto en pdf y Excel.
+2. En Gerencia en pacientes hospitalizados no está mostrando los consumos. Tampoco en los pacientes ya egresados del hospital.
+3. Resumen de cuenta total también tiene que aparecer. No es detallada pero si tiene que tener un total de cada cosa. Esto en pdf y Excel.
+4. En las pestañas de resumen de Gerencia si tienen que detallarse los precios en los consumos.
+5. En pacientes egresados tiene que ser posible ver expediente, ver contrato, ver sumario, ver cuenta total, ver cuenta detallada, generar factura.
+6. Separar los cortes del hospital, del laboratorio y de los honorarios tienen que ir separados.
+7. La suma de laboratorio no se está haciendo correctamente. Solo se está tomando el último dato disponible.
+8. El contrato en caja está configurado en tamaño carta y es en oficio
+9. En pedidos pendientes se hace un registro de TODOS los consumos que se hacen en las habitaciones. Es con el estilo que lo estoy haciendo, pero no por "pedido" si no por "medicamento".
+10. Los consumos sin inventariar no deja registrarlos porque no tiene inventario.
+11. 
