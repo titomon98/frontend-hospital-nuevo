@@ -8,4 +8,14 @@
 8. El contrato en caja está configurado en tamaño carta y es en oficio
 9. En pedidos pendientes se hace un registro de TODOS los consumos que se hacen en las habitaciones. Es con el estilo que lo estoy haciendo, pero no por "pedido" si no por "medicamento".
 10. Los consumos sin inventariar no deja registrarlos porque no tiene inventario.
-11. 
+
+
+Pruebas de farmacia:
+
+1. En paquetes a la hora de agregar el paquete en sala de operaciones, se muestran las existencias del producto y no cuantas incluye el paquete. Debe haber una casilla en blanco para indicar cuanto se va a utilizar (Cantidad) y una casilla de cuanto incluye el paquete.
+2. Hacer lo mismo con el botón de Guardar paquete que con Guardar consumo, ya que si dan click varias veces se mete varias veces.
+3. Revisar todo el proceso de agregar un paquete y luego ofrecerlo. El paquete se cobra completo pero lo que se utiliza es lo que se descuenta.
+4. En el material quirúrgico debe aparecer cobrado el paquete. Indicar que fue parte de un paquete el cobro.
+5. En la cuenta resumida en pdf tiene que aparecer el costo en el material quirúrgico, todos los consumos no.
+6. En el caso de un seguro esto no aplica, ya que es uno por uno.
+7. En el caso de la cuenta detallada en excel, se debe mostrar el detalle de los consumos.
