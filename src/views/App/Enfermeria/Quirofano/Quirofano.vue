@@ -685,7 +685,7 @@
           striped
           hover
           :items="consumosTemporales"
-          :fields="['nombre', 'cantidad', 'existencias', 'acciones']"
+          :fields="fieldsInsumosSeleccionados"
           small
         >
           <template #cell(cantidad)="row">
@@ -695,6 +695,10 @@
               :min="1"
               placeholder="Cantidad"
             ></b-form-input>
+          </template>
+
+          <template #cell(incluye_paquete)="row">
+            {{ row.item.incluye_paquete !== undefined ? row.item.incluye_paquete : '-' }}
           </template>
 
           <template #cell(acciones)="row">
@@ -849,7 +853,7 @@
           striped
           hover
           :items="consumosTemporales"
-          :fields="['nombre', 'cantidad', 'existencias', 'acciones']"
+          :fields="fieldsInsumosSeleccionados"
           small
         >
           <template #cell(cantidad)="row">
@@ -859,6 +863,10 @@
               :min="1"
               placeholder="Cantidad"
             ></b-form-input>
+          </template>
+
+          <template #cell(incluye_paquete)="row">
+            {{ row.item.incluye_paquete !== undefined ? row.item.incluye_paquete : '-' }}
           </template>
 
           <template #cell(acciones)="row">
@@ -1406,6 +1414,12 @@ export default {
         is_comun: false
       },
       paquetes: [],
+      fieldsInsumosSeleccionados: [
+        'nombre',
+        'cantidad',
+        { key: 'incluye_paquete', label: 'Incluye el paquete' },
+        'acciones'
+      ],
       totalMedicamentos: 0.0,
       totalAnestesicos: 0.0,
       totalComun: 0.0,
@@ -4063,7 +4077,8 @@ export default {
           id: id,
           tipo: tipo,
           nombre: element.descripcion,
-          cantidad: parseInt(element.cantidad),
+          cantidad: null,
+          incluye_paquete: parseInt(element.cantidad),
           precio_venta: parseFloat(parseFloat(element.subtotal) / parseInt(element.cantidad)),
           existencias: dataConsumo.existencia_actual,
           inventariado: dataConsumo.inventariado
