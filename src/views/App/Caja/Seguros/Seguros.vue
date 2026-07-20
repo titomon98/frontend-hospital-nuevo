@@ -42,11 +42,12 @@
               value="id"></v-select>
         <div>Pacientes</div>
         <v-select
-              ref="selectAseg"
-              v-model="selectedExp"
-              :options="expedientes"
-              label="nombres"
-              value="id"></v-select>
+          ref="selectAseg"
+          v-model="selectedExp"
+          :options="expedientesConNombre"
+          label="nombreCompleto"
+          value="id">
+        </v-select>
       </b-form>
       <template #modal-footer="{}">
         <b-button variant="primary" @click="onValidate('save')"
@@ -162,7 +163,7 @@
         <b-form-group label="Nombre:">
           <b-input id="placeName" ref="placeName" v-model="placeName" />
         </b-form-group>
-        <b-form-group label="placePhone:">
+        <b-form-group label="Telefono:">
           <b-input id="placePhone" ref="placePhone" v-model="placePhone" />
         </b-form-group>
 
@@ -308,7 +309,13 @@ export default {
   computed: {
     ...mapGetters({
       currentUser: 'currentUser'
-    })
+    }),
+    expedientesConNombre () {
+      return this.expedientes.map(exp => ({
+        ...exp,
+        nombreCompleto: `${exp.nombres} ${exp.apellidos}`
+      }))
+    }
   },
   data () {
     return {
@@ -623,7 +630,7 @@ export default {
     getExpedients () {
       axios.get(apiUrl + '/expedientes/getAll').then((response) => {
         this.expedientes = response.data
-        console.log(response.data)
+        console.log(this.expedientes)
       })
     }
   }
