@@ -39,6 +39,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
 export default {
   name: 'Incentivos',
@@ -70,8 +71,8 @@ export default {
   methods: {
     async fetchExamenes () {
       try {
-        const response = await fetch(apiUrl + '/reporte/laboratio/comisiones')
-        const data = await response.json()
+        const response = await axios.get(apiUrl + '/reporte/laboratio/comisiones')
+        const data = response.data
         this.examenes = Array.isArray(data) ? data : data.items || []
       } catch (error) {
         console.error('Error al obtener los exámenes:', error)
