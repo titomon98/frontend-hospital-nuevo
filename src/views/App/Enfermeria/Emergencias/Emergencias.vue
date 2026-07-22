@@ -1205,7 +1205,7 @@
                       variant="primary"
                       :disabled="hasPermission([1, 3])"
                       @click="setEliminar(props.rowData); $bvModal.show('modal-eliminar-expediente')"
-                  >Eliminar paciente</b-button>
+                  >Eliminar emergencia</b-button>
                    <b-button
                     @click="egresoEmergencia(props.rowData)"
                     class="mb-2 button-spacing"
