@@ -685,7 +685,7 @@
           striped
           hover
           :items="consumosTemporales"
-          :fields="['nombre', 'cantidad', 'existencias', 'acciones']"
+          :fields="camposConsumosTemporales"
           small
         >
           <template #cell(cantidad)="row">
@@ -695,6 +695,12 @@
               :min="1"
               placeholder="Cantidad"
             ></b-form-input>
+          </template>
+
+          <template #cell(existencias)="row">
+            <!-- Las filas de paquete no muestran existencias; su columna es
+                 "Incluye paquete" -->
+            <span v-if="row.item.incluido_paquete == null">{{ row.item.existencias }}</span>
           </template>
 
           <template #cell(acciones)="row">
@@ -849,7 +855,7 @@
           striped
           hover
           :items="consumosTemporales"
-          :fields="['nombre', 'cantidad', 'existencias', 'acciones']"
+          :fields="camposConsumosTemporales"
           small
         >
           <template #cell(cantidad)="row">
@@ -859,6 +865,12 @@
               :min="1"
               placeholder="Cantidad"
             ></b-form-input>
+          </template>
+
+          <template #cell(existencias)="row">
+            <!-- Las filas de paquete no muestran existencias; su columna es
+                 "Incluye paquete" -->
+            <span v-if="row.item.incluido_paquete == null">{{ row.item.existencias }}</span>
           </template>
 
           <template #cell(acciones)="row">
@@ -2127,6 +2139,21 @@ export default {
   computed: {
     isCirugiaMayorOMedia () {
       return this.salaOperaciones.categoria === 'Cirugia media' || this.salaOperaciones.categoria === 'Cirugia mayor'
+    },
+    // Columnas de la tabla de insumos seleccionados. Las filas que vienen de
+    // un paquete muestran "Incluye paquete" (element.cantidad del detalle del
+    // paquete); las agregadas a mano conservan su columna de existencias. En
+    // una tabla mixta se ven ambas y cada fila llena la suya.
+    camposConsumosTemporales () {
+      const campos = ['nombre', 'cantidad']
+      if (this.consumosTemporales.some(i => i.incluido_paquete != null)) {
+        campos.push({ key: 'incluido_paquete', label: 'Incluye paquete' })
+      }
+      if (this.consumosTemporales.some(i => i.incluido_paquete == null)) {
+        campos.push('existencias')
+      }
+      campos.push('acciones')
+      return campos
     },
     ...mapGetters({
       currentUser: 'currentUser'
@@ -4063,7 +4090,14 @@ export default {
           id: id,
           tipo: tipo,
           nombre: element.descripcion,
-          cantidad: parseInt(element.cantidad),
+          // Casilla vacia: la enfermera anota cuanto se va a utilizar. onSave
+          // ya rechaza cantidades vacias o <= 0, asi que no se puede guardar
+          // sin llenarla.
+          cantidad: null,
+          // Cuanto trae el paquete para ese insumo (element.cantidad del
+          // detalle del paquete). Solo informativo en la tabla; el precio
+          // unitario ya se derivo aparte, no depende de esta casilla.
+          incluido_paquete: parseInt(element.cantidad),
           precio_venta: parseFloat(parseFloat(element.subtotal) / parseInt(element.cantidad)),
           existencias: dataConsumo.existencia_actual,
           inventariado: dataConsumo.inventariado
