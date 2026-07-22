@@ -22,5 +22,5 @@ Pruebas de farmacia:
 
 Pruebas en enfemería:
 
-1. Eliminar emergencia en lugar de eliminar paciente.
+1. Eliminar emergencia en lugar de eliminar paciente en el botón.
 2. 
