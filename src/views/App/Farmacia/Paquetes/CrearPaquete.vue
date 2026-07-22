@@ -274,7 +274,7 @@
             </table>
             <br>
             <br>
-            <b-button variant="dark" v-if="arrayDetalles.length > 0" @click="onValidateAll()" :disabled="!hasPermission([5])">AGREGAR PAQUETE</b-button>
+            <b-button v-anti-doble variant="dark" v-if="arrayDetalles.length > 0" @click="onValidateAll()" :disabled="!hasPermission([5])">AGREGAR PAQUETE</b-button>
           </template>
         </iq-card>
       </b-col>
