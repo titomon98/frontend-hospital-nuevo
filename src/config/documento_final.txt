@@ -1,26 +1,6 @@
-1. En Gerencia en pacientes hospitalizados en "Reporte de historial de cuenta", debe quedar la cuenta detallada. Esto en pdf y Excel.
-2. En Gerencia en pacientes hospitalizados no está mostrando los consumos. Tampoco en los pacientes ya egresados del hospital.
-3. Resumen de cuenta total también tiene que aparecer. No es detallada pero si tiene que tener un total de cada cosa. Esto en pdf y Excel.
-4. En las pestañas de resumen de Gerencia si tienen que detallarse los precios en los consumos.
-5. En pacientes egresados tiene que ser posible ver expediente, ver contrato, ver sumario, ver cuenta total, ver cuenta detallada, generar factura.
-6. Separar los cortes del hospital, del laboratorio y de los honorarios tienen que ir separados.
-7. La suma de laboratorio no se está haciendo correctamente. Solo se está tomando el último dato disponible.
-8. El contrato en caja está configurado en tamaño carta y es en oficio
-9. En pedidos pendientes se hace un registro de TODOS los consumos que se hacen en las habitaciones. Es con el estilo que lo estoy haciendo, pero no por "pedido" si no por "medicamento".
-10. Los consumos sin inventariar no deja registrarlos porque no tiene inventario.
-
-
-Pruebas de farmacia:
-
-1. En paquetes a la hora de agregar el paquete en sala de operaciones, se muestran las existencias del producto y no cuantas incluye el paquete. Debe haber una casilla en blanco para indicar cuanto se va a utilizar (Cantidad) y una casilla de cuanto incluye el paquete.
-2. Hacer lo mismo con el botón de Guardar paquete que con Guardar consumo, ya que si dan click varias veces se mete varias veces.
-3. Revisar todo el proceso de agregar un paquete y luego ofrecerlo. El paquete se cobra completo pero lo que se utiliza es lo que se descuenta.
-4. En el material quirúrgico debe aparecer cobrado el paquete. Indicar que fue parte de un paquete el cobro.
-5. En la cuenta resumida en pdf tiene que aparecer el costo en el material quirúrgico, todos los consumos no.
-6. En el caso de un seguro esto no aplica, ya que es uno por uno.
-7. En el caso de la cuenta detallada en excel, se debe mostrar el detalle de los consumos.
-
-Pruebas en enfemería:
-
-1. Eliminar emergencia en lugar de eliminar paciente en el botón.
-2. 
+1. Cuando se ingresa una cuenta como seguro, no aparece en cuentas por cobrar de seguro, si no en cuentas por cobrar normal.
+2. Al reingresar, la cuenta del laboratorio sigue tomando la anterior, y no la actual
+4. En la tabla de laboratorios en lugar de que aparezca el CUI que aparezca el precio del examen (solo usuario de gerencia y administracion)
+5. Al hacer el reingreso no se modifica la fecha ni la hora de ingreso. Tiene que aparecer solo el menu que aparece en la asignacion de habitacion exactamente igual. 
+6. El contrato, el espacio de las firmas se tiene que correr un poco para arriba para que quede espacio de autenticar
+7. El sumario tiene la direccion muy pegada, hay que bajar telefono para dejar mas espacio para la direccion. Subir parentesco para que la direccion tenga mas espacio
