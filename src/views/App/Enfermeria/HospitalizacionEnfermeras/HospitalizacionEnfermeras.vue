@@ -705,7 +705,7 @@ export default {
       this.total = paginationData.total
       this.lastPage = paginationData.last_page
       this.items = paginationData.data.map(item => {
-        item.fecha_consumo = moment(item.fecha_consumo).format('DD/MM/YYYY HH:mm')
+        item.fecha_consumo = moment.utc(item.fecha_consumo).format('DD/MM/YYYY HH:mm')
         item.cantidad = parseInt(item.cantidad)
         return {
           numero_cuenta: item.numero_cuenta,
@@ -750,7 +750,7 @@ export default {
       this.totalAnestesicos = paginationData.total
       this.lastPageAnestesicos = paginationData.last_page
       this.itemsAnestesicos = paginationData.data.map(item => {
-        item.fecha_consumo = moment(item.fecha_consumo).format('DD/MM/YYYY HH:mm')
+        item.fecha_consumo = moment.utc(item.fecha_consumo).format('DD/MM/YYYY HH:mm')
         item.cantidad = parseInt(item.cantidad)
         return {
           numero_cuenta: item.numero_cuenta,
@@ -795,7 +795,7 @@ export default {
       this.totalComun = paginationData.total
       this.lastPageComun = paginationData.last_page
       this.itemsComun = paginationData.data.map(item => {
-        item.fecha_consumo = moment(item.fecha_consumo).format('DD/MM/YYYY HH:mm')
+        item.fecha_consumo = moment.utc(item.fecha_consumo).format('DD/MM/YYYY HH:mm')
         item.cantidad = parseInt(item.cantidad)
         return {
           numero_cuenta: item.numero_cuenta,
@@ -840,7 +840,7 @@ export default {
       this.totalQuirurgico = paginationData.total
       this.lastPageQuirurgico = paginationData.last_page
       this.itemsQuirurgico = paginationData.data.map(item => {
-        item.fecha_consumo = moment(item.fecha_consumo).format('DD/MM/YYYY HH:mm')
+        item.fecha_consumo = moment.utc(item.fecha_consumo).format('DD/MM/YYYY HH:mm')
         item.cantidad = parseInt(item.cantidad)
         return {
           numero_cuenta: item.numero_cuenta,

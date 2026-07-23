@@ -275,7 +275,7 @@ export default {
       this.total = paginationData.total
       this.lastPage = paginationData.last_page
       this.items = paginationData.data.map(item => {
-        item.ingreso = moment(item.ingreso).format('DD/MM/YYYY HH:mm')
+        item.ingreso = moment.utc(item.ingreso).format('DD/MM/YYYY HH:mm')
         item.costo_base = parseInt(item.costo_base)
         return {
           numero_cuenta: item.numero_cuenta,
