@@ -26,24 +26,39 @@
             striped hover
             :items="form.pedido_detail"
             :fields="pedido_detail_fields">
+            <!-- Destino -->
+            <template #cell(destino)="row">
+              <b-badge :variant="row.item.destino === 2 ? 'info' : 'primary'">
+                {{ row.item.destino === 2 ? 'Quirófano' : 'Enfermería' }}
+              </b-badge>
+            </template>
+            <!-- Estado de surtido -->
+            <template #cell(estado)="row">
+              <b-badge :variant="row.item.estado === 0 ? 'success' : 'warning'">
+                {{ row.item.estado === 0 ? 'Surtido' : 'Pendiente' }}
+              </b-badge>
+            </template>
+            <!-- Accion: surtir esta linea -->
+            <template #cell(acciones)="row">
+              <b-button
+                v-if="row.item.estado !== 0"
+                v-anti-doble
+                size="sm"
+                variant="primary"
+                @click="surtirLinea(row.item)"
+                >Surtir</b-button
+              >
+              <span v-else class="text-muted">—</span>
+            </template>
           </b-table>
         </div>
       </template>
-      <template>
-      </template>
       <h6 class="my-4">
-        ¿Desea cambiar el estado del pedido: {{ form.codigoPedido }} ?
+        Surtido del pedido: {{ form.codigoPedido }}
       </h6>
       <template #modal-footer="{}">
-        <b-button
-          type="submit"
-          variant="primary"
-          @click="onState()
-                  $bvModal.hide('modal-4-pedido')"
-          >Surtir</b-button
-        >
-        <b-button variant="danger" @click="$bvModal.hide('modal-4-pedido')"
-          >Cancelar</b-button
+        <b-button variant="secondary" @click="$bvModal.hide('modal-4-pedido')"
+          >Cerrar</b-button
         >
       </template>
     </b-modal>
@@ -207,9 +222,19 @@ export default {
           sortable: true
         },
         {
+          key: 'destino',
+          label: 'Destino',
+          sortable: true
+        },
+        {
           key: 'estado',
           label: 'Surtido',
           sortable: true
+        },
+        {
+          key: 'acciones',
+          label: 'Acción',
+          sortable: false
         }
       ],
       fields: [
@@ -346,45 +371,41 @@ export default {
           console.error('Error!', error)
         })
     },
-    onState () {
-      let me = this
-      if (this.form.state === 1) {
-        axios
-          .put(apiUrl + '/pedidos/deactivate', {
-            id: this.form.id
-          })
-          .then((response) => {
-            me.alertVariant = 'warning'
-            me.showAlert()
-            me.alertText = 'Se ha surtido el pedido ' + me.form.codigoPedido + ' exitosamente'
-            me.$refs.vuetable.refresh()
-            me.$refs['modal-4-pedido'].hide()
-          })
-          .catch((error) => {
-            me.alertVariant = 'danger'
-            me.showAlertError()
-            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-            console.error('There was an error!', error)
-          })
-      } else {
-        axios
-          .put(apiUrl + '/banco/activate', {
-            id: this.form.id
-          })
-          .then((response) => {
-            me.alertVariant = 'info'
-            me.showAlert()
-            me.alertText = 'Se ha activado el banco ' + me.form.codigoPedido + ' exitosamente'
-            me.$refs.vuetable.refresh()
-            me.$refs['modal-4-pedido'].hide()
-          })
-          .catch((error) => {
-            me.alertVariant = 'danger'
-            me.showAlertError()
-            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-            console.error('There was an error!', error)
-          })
+    /* Surtir una linea individual del pedido */
+    surtirLinea (item) {
+      const me = this
+      if (item.estado === 0) {
+        return
       }
+      axios
+        .post(apiUrl + '/detallePedidos/surtir', {
+          id: item.id
+        })
+        .then((response) => {
+          // Refleja la linea surtida en la UI sin recargar todo el modal.
+          const idx = me.form.pedido_detail.findIndex((d) => d.id === item.id)
+          if (idx > -1) {
+            me.form.pedido_detail[idx].estado = 0
+            me.form.pedido_detail = me.form.pedido_detail.slice()
+          }
+          me.alertVariant = 'success'
+          me.showAlert()
+          me.alertText = 'Se ha surtido la línea "' + item.descripcion + '" exitosamente'
+          // Si el backend cerro el pedido (todas las lineas surtidas), sacarlo
+          // del listado de pendientes y cerrar el modal.
+          if (response.data && response.data.pedidoCerrado) {
+            me.$refs.vuetable.refresh()
+            me.$refs['modal-4-pedido'].hide()
+          }
+        })
+        .catch((error) => {
+          me.alertVariant = 'danger'
+          me.showAlertError()
+          me.alertErrorText =
+            (error.response && error.response.data && error.response.data.msg) ||
+            'Ha ocurrido un error, por favor intente más tarde'
+          console.error('There was an error!', error)
+        })
     },
     makeQueryParams (sortOrder, currentPage, perPage) {
       return sortOrder[0]
