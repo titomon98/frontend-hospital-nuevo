@@ -4,3 +4,5 @@
 5. Al hacer el reingreso no se modifica la fecha ni la hora de ingreso. Tiene que aparecer solo el menu que aparece en la asignacion de habitacion exactamente igual. 
 6. El contrato, el espacio de las firmas se tiene que correr un poco para arriba para que quede espacio de autenticar
 7. El sumario tiene la direccion muy pegada, hay que bajar telefono para dejar mas espacio para la direccion. Subir parentesco para que la direccion tenga mas espacio
+8. Crear un reporte de todos los consumos de HOSPITALIZACION, EMERGENCIA, INTENSIVO, QUIROFANO, por cada categoria. Para el reporte es de 9am a 8:59am del siguiente dia.
+9. Capacidad de modificar el pedido cuando las enfermeras se hayan robado las existencias (por ejemplo se solicitaron 10 pero solo hay 8 empaques fisicos)
