@@ -133,7 +133,7 @@
         </b-row>
         <div class="text-right mt-3">
           <b-button variant="secondary" @click="$bvModal.hide('modal-reporte-pedidos')">Cancelar</b-button>
-          <b-button variant="success" v-anti-doble type="submit" class="ml-2">Generar PDF</b-button>
+          <b-button variant="success" v-anti-doble type="button" class="ml-2" @click="generarReporte">Generar PDF</b-button>
         </div>
       </b-form>
     </b-modal>
