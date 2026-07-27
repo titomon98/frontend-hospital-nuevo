@@ -87,7 +87,7 @@
     <b-modal
       id="modal-reporte-pedidos"
       ref="modal-reporte-pedidos"
-      title="Generar reporte de consumos"
+      title="Generar reporte de pedidos surtidos"
       size="lg"
       hide-footer
     >
@@ -258,12 +258,12 @@ export default {
         } else {
           params.dia = r.dia
         }
-        const response = await axios.get(apiUrl + '/reporte/pedidos/consumos', { params })
+        const response = await axios.get(apiUrl + '/reporte/pedidos/surtidos', { params })
         const payload = response.data
         if (!payload.data || payload.data.length === 0) {
           me.alertVariant = 'warning'
           me.showAlert()
-          me.alertText = 'No se encontraron consumos con esos filtros'
+          me.alertText = 'No se encontraron pedidos surtidos con esos filtros'
           return
         }
         me.construirPdf(payload)
@@ -286,26 +286,26 @@ export default {
 
       const doc = new JsPDF()
       doc.setFontSize(16)
-      doc.text('Reporte de consumos - ' + tipoLabel, 105, 18, { align: 'center' })
+      doc.text('Reporte de pedidos surtidos - ' + tipoLabel, 105, 18, { align: 'center' })
       doc.setFontSize(11)
       doc.text('Área: ' + areaLabel, 14, 30)
       const periodo = payload.modo === 'dia'
         ? 'Día operativo: ' + moment(payload.desde).format('DD/MM/YYYY HH:mm') + ' a ' + moment(payload.hasta).format('DD/MM/YYYY HH:mm')
         : 'Rango: ' + moment(payload.desde).format('DD/MM/YYYY') + ' a ' + moment(payload.hasta).format('DD/MM/YYYY')
       doc.text(periodo, 14, 37)
-      doc.text('Registros: ' + payload.total_registros, 14, 44)
+      doc.text('Pedidos surtidos: ' + payload.total_registros, 14, 44)
 
       autoTable(doc, {
         startY: 50,
-        head: [['Fecha', 'Producto', 'Cuenta', 'Cantidad', 'Precio', 'Total']],
-        body: payload.data.map(d => [d.fecha, d.producto, d.cuenta, d.cantidad, d.precio_venta, d.total]),
-        foot: [['', '', '', '', 'Total general', payload.total_general]],
+        head: [['Fecha surtido', 'Código pedido', 'Producto', 'Cantidad', 'Destino']],
+        body: payload.data.map(d => [d.fecha, d.codigoPedido, d.producto, d.cantidad, d.destino]),
+        foot: [['', '', 'Total cantidad', payload.total_cantidad, '']],
         styles: { fontSize: 8 },
         headStyles: { fillColor: [40, 118, 74] },
         footStyles: { fillColor: [230, 230, 230], textColor: 20, fontStyle: 'bold' }
       })
 
-      const nombre = 'Reporte_' + payload.tipo + '_' + (payload.area || 'Todas') + '.pdf'
+      const nombre = 'Reporte_surtidos_' + payload.tipo + '_' + (payload.area || 'Todas') + '.pdf'
       doc.save(nombre)
     },
     /* Surtir una linea individual del pedido */
