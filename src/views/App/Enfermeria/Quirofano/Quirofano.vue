@@ -1647,7 +1647,8 @@ export default {
           name: 'precio_venta',
           sortField: 'precio_venta',
           title: 'Precio unitario',
-          dataClass: 'list-item-heading'
+          dataClass: 'list-item-heading',
+          callback: 'precioUnitarioConTooltip'
         },
         {
           name: 'total',
@@ -1697,7 +1698,8 @@ export default {
           name: 'precio_venta',
           sortField: 'precio_venta',
           title: 'Precio unitario',
-          dataClass: 'list-item-heading'
+          dataClass: 'list-item-heading',
+          callback: 'precioUnitarioConTooltip'
         },
         {
           name: 'total',
@@ -1747,7 +1749,8 @@ export default {
           name: 'precio_venta',
           sortField: 'precio_venta',
           title: 'Precio unitario',
-          dataClass: 'list-item-heading'
+          dataClass: 'list-item-heading',
+          callback: 'precioUnitarioConTooltip'
         },
         {
           name: 'total',
@@ -2171,6 +2174,16 @@ export default {
       return (hora >= 7 && hora < 19)
         ? 'fila-dia'
         : 'fila-noche'
+    },
+    /* Muestra el precio unitario; si es 0 agrega un ícono con tooltip que aclara
+       que el consumo se aplicó como parte de un paquete. */
+    precioUnitarioConTooltip (value) {
+      const precio = parseFloat(value)
+      if (!isNaN(precio) && precio === 0) {
+        return '<span style="cursor: help;" title="Este consumo se aplicó como parte de un paquete, por eso su precio unitario es Q0.">' +
+          '0.00 <i class="ri-information-line text-info"></i></span>'
+      }
+      return (value === null || value === undefined) ? '' : String(value)
     },
     async cargarInsumos (tipo) {
       let endpoint = ''
