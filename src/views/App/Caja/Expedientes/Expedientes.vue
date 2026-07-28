@@ -1310,33 +1310,22 @@ este documento como FIADOR SOLIDARIO DE. ${this.paciente.nombres} ${this.pacient
         { maxWidth: 18 }
       )
 
-      altura += 7
+      altura += 6
       this.pdf.text(
         `En la ciudad de Quetzaltenango, el dia ${dayText} del mes de ${month} de ${yearText}
-
                                             Quetzaltenango ${day} de ${month} de ${year}
-
-
-
-
 
 
 ______________________________________               ______________________________________
 
                    F) Paciente o responsable                                                        f) fiador
 
-
-
                        ${this.paciente.cui_encargado}
 ______________________________________               ______________________________________
 
                              No. DPI                                                                                       No. DPI
 
-
-
-
  Direccion: ${this.paciente.direccion_encargado}
-
  Tel: ${this.paciente.contacto_encargado}
 ______________________________________               ______________________________________
 
@@ -1347,7 +1336,7 @@ ______________________________________               ___________________________
         { maxWidth: 18 }
       )
 
-      altura += 12
+      altura += 10
       this.pdf.text(
         `COMO NOTARIO DOY FE: que las firmas que anteceden son autenticas por haber sido puestas en mi presencia el
 dia de hoy por ${this.paciente.nombre_encargado} con el Código Único de Identificación arriba indicadas y que los nombrados firman al pie de la presente, en la ciudad de Quetzaltenango, el dia ${dayText} del mes de ${month} de ${yearText}
@@ -1502,18 +1491,22 @@ ANTE MI
 
       posY += 2
       dibujarLinea(10, posY, 210, posY)
-      posY += 10
+      posY += 4
 
       // ----------------------------------------------
+      // Encargado: Parentesco en la misma fila que el nombre; Dirección con
+      // toda la fila (ancho completo) y Teléfono en su propia fila.
       // -----------------------------------------------
-      escribirTexto('En caso de emergencia notificar a:', 12, posY -= 6, 10, 'bold')
-      escribirTexto(paciente.nombre_encargado, 12, posY += 6)
-      escribirTexto('Parentesco:', 87, posY -= 6, 10, 'bold')
-      escribirTexto(paciente.parentesco_encargado, 87, posY += 6)
-      escribirTexto('Direccion:', 115, posY -= 6, 10, 'bold')
-      escribirTexto(paciente.direccion_encargado, 115, posY += 6)
-      escribirTexto('Tel:', 190, posY -= 6, 10, 'bold')
-      escribirTexto(paciente.contacto_encargado, 190, posY += 6)
+      escribirTexto('En caso de emergencia notificar a:', 12, posY, 10, 'bold')
+      escribirTexto(paciente.nombre_encargado, 78, posY)
+      escribirTexto('Parentesco:', 150, posY, 10, 'bold')
+      escribirTexto(paciente.parentesco_encargado, 172, posY)
+      posY += 5
+      escribirTexto('Direccion:', 12, posY, 10, 'bold')
+      escribirTexto(paciente.direccion_encargado, 32, posY)
+      posY += 5
+      escribirTexto('Tel:', 12, posY, 10, 'bold')
+      escribirTexto(paciente.contacto_encargado, 22, posY)
 
       posY += 2
       dibujarLinea(10, posY, 210, posY)
