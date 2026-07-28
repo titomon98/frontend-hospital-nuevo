@@ -1428,6 +1428,7 @@ export default {
       ],
       tituloVer: '',
       consumosTemporales: [],
+      paqueteSeleccionado: null,
       insumosActuales: [],
       tipoInsumoActual: '0',
       from: 0,
@@ -2242,12 +2243,24 @@ export default {
         return
       }
 
+      // Validación de cantidades (aplica igual a paquete y a consumos sueltos).
+      for (const consumo of this.consumosTemporales) {
+        if (consumo.cantidad <= 0 || (consumo.cantidad > consumo.existencias && consumo.inventariado === 'INVENTARIADO')) {
+          this.alertVariant = 'danger'
+          this.alertText = `Cantidad inválida para ${consumo.nombre}`
+          this.showAlert()
+          return
+        }
+      }
+
+      // Si los consumos vienen de un paquete, se aplica como cargo único.
+      if (this.paqueteSeleccionado) {
+        await this.aplicarPaquete()
+        return
+      }
+
       try {
         for (const consumo of this.consumosTemporales) {
-          // Agregar validación de cantidad
-          if (consumo.cantidad <= 0 || (consumo.cantidad > consumo.existencias && consumo.inventariado === 'INVENTARIADO')) {
-            throw new Error(`Cantidad inválida para ${consumo.nombre}`)
-          }
           this.$refs['modal-1-movimiento'].hide()
           if (consumo.tipo === '0' || consumo.tipo === '3') {
             await this.onSaveMedicamento(consumo)
@@ -2270,6 +2283,38 @@ export default {
         console.error('Error:', error)
       }
     },
+    /* Aplica el paquete seleccionado como un cargo único a la cuenta.
+       Envía las cantidades realmente consumidas; el backend cobra el paquete,
+       descuenta existencias, cobra excedentes y genera la reposición. */
+    async aplicarPaquete () {
+      try {
+        this.$refs['modal-1-movimiento'].hide()
+        this.$refs['modal-1-movimiento2'].hide()
+        const payload = {
+          id_paquete: this.paqueteSeleccionado.id,
+          id_cuenta: this.idCuentaSeleccionada,
+          user: this.currentUser.user,
+          consumos: this.consumosTemporales.map(c => ({
+            tipo: c.tipo,
+            id: c.id,
+            cantidad: c.cantidad
+          }))
+        }
+        await axios.post(apiUrl + '/paquetes/aplicarACuenta', { form: payload })
+        this.alertVariant = 'success'
+        this.alertText = 'El paquete ha sido aplicado a la cuenta exitosamente!'
+        this.showAlert()
+        this.consumosTemporales = []
+        this.paqueteSeleccionado = null
+      } catch (error) {
+        this.alertVariant = 'danger'
+        this.alertText =
+          (error.response && error.response.data && error.response.data.msg) ||
+          'Error al aplicar el paquete'
+        this.showAlert()
+        console.error('Error:', error)
+      }
+    },
     openModal2 () {
       this.tipoInsumoActual = '0'
       this.cargarInsumos('0')
@@ -2278,6 +2323,9 @@ export default {
       this.consumosTemporales = this.consumosTemporales.filter(item => item.id !== id)
     },
     mostrarModalConsumos (idCuenta) {
+      // Consumos manuales (no de paquete): limpiar cualquier marca de paquete.
+      this.paqueteSeleccionado = null
+      this.consumosTemporales = []
       if ([9, 10].includes(this.currentUser.user_type)) {
         this.showModal('modal-1-movimiento2')
       } else {
@@ -4018,6 +4066,10 @@ export default {
       })
     },
     async setPaquete (data) {
+      // Marca que los consumos temporales provienen de un paquete, para que al
+      // guardar se cobre como cargo único en vez de item por item.
+      this.paqueteSeleccionado = data
+      this.consumosTemporales = []
       const detallePaquetes = data.detalle_paquetes
 
       for (const element of detallePaquetes) {
