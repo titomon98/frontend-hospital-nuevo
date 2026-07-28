@@ -1648,7 +1648,7 @@ export default {
           sortField: 'precio_venta',
           title: 'Precio unitario',
           dataClass: 'list-item-heading',
-          callback: 'precioUnitarioConTooltip'
+          callback: this.precioUnitarioConTooltip
         },
         {
           name: 'total',
@@ -1699,7 +1699,7 @@ export default {
           sortField: 'precio_venta',
           title: 'Precio unitario',
           dataClass: 'list-item-heading',
-          callback: 'precioUnitarioConTooltip'
+          callback: this.precioUnitarioConTooltip
         },
         {
           name: 'total',
@@ -1750,7 +1750,7 @@ export default {
           sortField: 'precio_venta',
           title: 'Precio unitario',
           dataClass: 'list-item-heading',
-          callback: 'precioUnitarioConTooltip'
+          callback: this.precioUnitarioConTooltip
         },
         {
           name: 'total',
