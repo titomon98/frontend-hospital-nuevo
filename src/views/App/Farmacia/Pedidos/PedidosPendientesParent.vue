@@ -218,7 +218,8 @@ export default {
       tipoOptions: [
         { value: 'medicamentos', text: 'Medicamentos' },
         { value: 'comunes', text: 'Material común' },
-        { value: 'quirurgicos', text: 'Material quirúrgico' }
+        { value: 'quirurgicos', text: 'Material quirúrgico' },
+        { value: 'todos', text: 'Todos los tipos' }
       ],
       areaOptions: [
         { value: '', text: 'Todas las áreas' },
@@ -295,11 +296,22 @@ export default {
       doc.text(periodo, 14, 37)
       doc.text('Pedidos surtidos: ' + payload.total_registros, 14, 44)
 
+      const conTipo = payload.tipo === 'todos'
+      const head = conTipo
+        ? [['Fecha surtido', 'Código pedido', 'Tipo', 'Producto', 'Cantidad', 'Destino']]
+        : [['Fecha surtido', 'Código pedido', 'Producto', 'Cantidad', 'Destino']]
+      const body = payload.data.map(d => conTipo
+        ? [d.fecha, d.codigoPedido, d.tipoProducto, d.producto, d.cantidad, d.destino]
+        : [d.fecha, d.codigoPedido, d.producto, d.cantidad, d.destino])
+      const foot = conTipo
+        ? [['', '', '', 'Total cantidad', payload.total_cantidad, '']]
+        : [['', '', 'Total cantidad', payload.total_cantidad, '']]
+
       autoTable(doc, {
         startY: 50,
-        head: [['Fecha surtido', 'Código pedido', 'Producto', 'Cantidad', 'Destino']],
-        body: payload.data.map(d => [d.fecha, d.codigoPedido, d.producto, d.cantidad, d.destino]),
-        foot: [['', '', 'Total cantidad', payload.total_cantidad, '']],
+        head: head,
+        body: body,
+        foot: foot,
         styles: { fontSize: 8 },
         headStyles: { fillColor: [40, 118, 74] },
         footStyles: { fillColor: [230, 230, 230], textColor: 20, fontStyle: 'bold' }
