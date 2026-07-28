@@ -274,7 +274,7 @@
             </table>
             <br>
             <br>
-            <b-button variant="dark" v-if="arrayDetalles.length > 0" @click="onValidateAll()" :disabled="!hasPermission([5])">AGREGAR PAQUETE</b-button>
+            <b-button variant="dark" v-if="arrayDetalles.length > 0" @click="onValidateAll()" :disabled="!hasPermission([5])">{{ idEditando ? 'GUARDAR CAMBIOS' : 'AGREGAR PAQUETE' }}</b-button>
           </template>
         </iq-card>
       </b-col>
@@ -294,11 +294,21 @@ export default {
   name: 'CrearPaquete',
   components: {
   },
+  props: {
+    // Si viene un paquete, el componente entra en modo edicion.
+    paqueteEditar: {
+      type: Object,
+      default: null
+    }
+  },
   setup () {
     return { $v: useVuelidate() }
   },
   mounted () {
     xray.index()
+    if (this.paqueteEditar) {
+      this.cargarEdicion(this.paqueteEditar)
+    }
   },
   beforeDestroy () {
     // console.log('Aqui vamos a meter la validacion')
@@ -319,6 +329,7 @@ export default {
       granTotal: 0.0,
       enviarTotal: 0.0,
       id_usuario: 0,
+      idEditando: null,
       nombre: '',
       formMedicamento: {
         id: 0,
@@ -525,11 +536,64 @@ export default {
       this.formMedicamento.medicine = 'Ingresar'
       this.formMedicamento.cantidad = 'Ingresar'
       if (this.$v.$error !== true) {
-        this.onSave()
+        if (this.idEditando) {
+          this.onEditar()
+        } else {
+          this.onSave()
+        }
       } else {
         this.alertText = 'Ha ocurrido un error en el paquete'
         this.showAlertError()
       }
+    },
+    /* Precarga los datos del paquete a editar en el formulario. */
+    cargarEdicion (paquete) {
+      this.idEditando = paquete.id
+      this.nombre = paquete.nombre
+      this.enviarTotal = paquete.total
+      const dets = paquete.detalle_paquetes || []
+      this.arrayDetalles = dets.map((d, i) => {
+        const esMed = d.id_medicamento != null
+        const esQui = d.id_quirurgico != null
+        const esCom = d.id_comun != null
+        return {
+          cantidad: parseInt(d.cantidad),
+          descripcion: d.descripcion,
+          total: parseFloat(d.subtotal),
+          id: i + 1,
+          id_medicine: esMed ? d.id_medicamento : (esQui ? d.id_quirurgico : d.id_comun),
+          is_medicine: esMed,
+          is_quirurgico: esQui,
+          is_comun: esCom
+        }
+      })
+      this.total_array = this.arrayDetalles.length
+      this.granTotal = this.arrayDetalles.reduce((s, d) => s + parseFloat(d.total), 0)
+    },
+    /* Guarda los cambios de un paquete existente. */
+    onEditar () {
+      const me = this
+      axios.put(apiUrl + '/paquetes/editar', {
+        id: me.idEditando,
+        detalle: me.arrayDetalles,
+        nombre: me.nombre,
+        id_usuario: me.id_usuario,
+        total: me.enviarTotal
+      })
+        .then((response) => {
+          me.alertVariant = 'success'
+          me.showAlert()
+          me.alertText = 'Se ha actualizado el paquete exitosamente'
+          me.$emit('guardado')
+        })
+        .catch((error) => {
+          me.alertVariant = 'danger'
+          me.showAlertError()
+          me.alertText =
+            (error.response && error.response.data && error.response.data.msg) ||
+            'Error al actualizar el paquete'
+          console.error('Error!', error)
+        })
     },
     resetData () {
       this.formMedicamento.medicine = null

@@ -67,6 +67,13 @@
         >
       </template>
     </b-modal>
+    <b-modal id="modal-editar-paquete" ref="modal-editar-paquete" size="xl" title="Editar paquete" hide-footer>
+      <crear-paquete
+        v-if="paqueteEditar"
+        :paquete-editar="paqueteEditar"
+        @guardado="onGuardadoEdicion"
+      />
+    </b-modal>
     <b-modal id="modal-3-paquete" ref="modal-3-paquete" title="Desactivar paquete">
     <b-alert
         :show="alertCountDownError"
@@ -181,6 +188,15 @@
                     ><i :class="'fas fa-eye'"
                 /></b-button>
                 <b-button
+                    v-b-tooltip.top="'Editar'"
+                    @click="editarPaquete(props.rowData)"
+                    class="mb-2"
+                    size="sm"
+                    variant="outline-warning"
+                    :disabled="!hasPermission([5])"
+                    ><i :class="'fas fa-pencil-alt'"
+                /></b-button>
+                <b-button
                     v-b-tooltip.top="
                     props.rowData.estado == 1 ? 'Desactivar' : 'Activar'"
                     @click="
@@ -224,13 +240,15 @@ import { required } from '@vuelidate/validators'
 import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
 import { mapGetters } from 'vuex'
+import CrearPaquete from './CrearPaquete.vue'
 
 export default {
   name: 'Paquetes',
   components: {
     vuetable: Vuetable,
     'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
-    'datatable-heading': DatatableHeading
+    'datatable-heading': DatatableHeading,
+    CrearPaquete
   },
   setup () {
     return { $v: useVuelidate() }
@@ -251,6 +269,7 @@ export default {
       perPage: 5,
       search: '',
       id: 0,
+      paqueteEditar: null,
       arrayDetalles: [],
       form: {
         id: 0,
@@ -361,6 +380,20 @@ export default {
         this.alertErrorText = 'Revisa que todos los campos requeridos esten llenos'
         this.showAlertError()
       }
+    },
+    /* Abre el modal de edición con el paquete seleccionado. */
+    editarPaquete (data) {
+      this.paqueteEditar = data
+      this.$refs['modal-editar-paquete'].show()
+    },
+    /* Tras guardar la edición: cerrar y refrescar el listado. */
+    onGuardadoEdicion () {
+      this.$refs['modal-editar-paquete'].hide()
+      this.paqueteEditar = null
+      this.$refs.vuetable.refresh()
+      this.alertVariant = 'success'
+      this.showAlert()
+      this.alertText = 'El paquete ha sido actualizado exitosamente'
     },
     setData (data) {
       this.arrayDetalles = data.detalle_paquetes
