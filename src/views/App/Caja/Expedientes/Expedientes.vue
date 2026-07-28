@@ -1479,32 +1479,36 @@ ANTE MI
       // -------------------------------------
       // 6) Padre y Madre
       // -------------------------------------
+      // Padre y Madre en la misma fila.
       escribirTexto('Nombre del Padre:', 12, posY, 10, 'bold')
       escribirTexto(paciente.nombre_padre, 44, posY)
+      escribirTexto('Nombre de la Madre:', 110, posY, 10, 'bold')
+      escribirTexto(paciente.nombre_madre, 145, posY)
 
       posY += 2
       dibujarLinea(10, posY, 210, posY)
       posY += 5
 
-      escribirTexto('Nombre de la Madre:', 12, posY, 10, 'bold')
-      escribirTexto(paciente.nombre_madre, 47, posY)
-
-      posY += 2
-      dibujarLinea(10, posY, 210, posY)
-      posY += 4
-
       // ----------------------------------------------
-      // Encargado: Parentesco en la misma fila que el nombre; Dirección con
-      // toda la fila (ancho completo) y Teléfono en su propia fila.
+      // Encargado: Parentesco en la fila del nombre; Dirección con la fila
+      // completa; Teléfono en su propia fila, con líneas divisorias entre cada dato.
       // -----------------------------------------------
       escribirTexto('En caso de emergencia notificar a:', 12, posY, 10, 'bold')
       escribirTexto(paciente.nombre_encargado, 78, posY)
       escribirTexto('Parentesco:', 150, posY, 10, 'bold')
       escribirTexto(paciente.parentesco_encargado, 172, posY)
+
+      posY += 2
+      dibujarLinea(10, posY, 210, posY)
       posY += 5
+
       escribirTexto('Direccion:', 12, posY, 10, 'bold')
       escribirTexto(paciente.direccion_encargado, 32, posY)
+
+      posY += 2
+      dibujarLinea(10, posY, 210, posY)
       posY += 5
+
       escribirTexto('Tel:', 12, posY, 10, 'bold')
       escribirTexto(paciente.contacto_encargado, 22, posY)
 
