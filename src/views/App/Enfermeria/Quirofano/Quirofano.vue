@@ -717,7 +717,18 @@
               :reactive-api-url="true"
               :fields="fieldsConsumoInsumoMedicamento"
               :row-class="getRowClass"
-            ></vuetable>
+            >
+              <template slot="precio_venta" slot-scope="props">
+                <span>{{ props.rowData.precio_venta }}</span>
+                <i
+                  v-if="esPrecioCero(props.rowData.precio_venta)"
+                  v-b-tooltip.hover
+                  title="Este consumo se aplicó como parte de un paquete, por eso su precio unitario es Q0."
+                  class="ri-information-line"
+                  style="color: #000; cursor: help; margin-left: 4px;"
+                ></i>
+              </template>
+            </vuetable>
             <vuetable-pagination-bootstrap
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
@@ -737,7 +748,18 @@
               :reactive-api-url="true"
               :fields="fieldsConsumoInsumoMedicamento"
               :row-class="getRowClass"
-            ></vuetable>
+            >
+              <template slot="precio_venta" slot-scope="props">
+                <span>{{ props.rowData.precio_venta }}</span>
+                <i
+                  v-if="esPrecioCero(props.rowData.precio_venta)"
+                  v-b-tooltip.hover
+                  title="Este consumo se aplicó como parte de un paquete, por eso su precio unitario es Q0."
+                  class="ri-information-line"
+                  style="color: #000; cursor: help; margin-left: 4px;"
+                ></i>
+              </template>
+            </vuetable>
             <vuetable-pagination-bootstrap
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
@@ -757,7 +779,18 @@
               :reactive-api-url="true"
               :fields="fieldsConsumoInsumoQuirurgico"
               :row-class="getRowClass"
-            ></vuetable>
+            >
+              <template slot="precio_venta" slot-scope="props">
+                <span>{{ props.rowData.precio_venta }}</span>
+                <i
+                  v-if="esPrecioCero(props.rowData.precio_venta)"
+                  v-b-tooltip.hover
+                  title="Este consumo se aplicó como parte de un paquete, por eso su precio unitario es Q0."
+                  class="ri-information-line"
+                  style="color: #000; cursor: help; margin-left: 4px;"
+                ></i>
+              </template>
+            </vuetable>
             <vuetable-pagination-bootstrap
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
@@ -777,7 +810,18 @@
               :reactive-api-url="true"
               :fields="fieldsConsumoInsumo"
               :row-class="getRowClass"
-            ></vuetable>
+            >
+              <template slot="precio_venta" slot-scope="props">
+                <span>{{ props.rowData.precio_venta }}</span>
+                <i
+                  v-if="esPrecioCero(props.rowData.precio_venta)"
+                  v-b-tooltip.hover
+                  title="Este consumo se aplicó como parte de un paquete, por eso su precio unitario es Q0."
+                  class="ri-information-line"
+                  style="color: #000; cursor: help; margin-left: 4px;"
+                ></i>
+              </template>
+            </vuetable>
             <vuetable-pagination-bootstrap
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
@@ -1644,11 +1688,10 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
-          name: 'precio_venta',
+          name: '__slot:precio_venta',
           sortField: 'precio_venta',
           title: 'Precio unitario',
-          dataClass: 'list-item-heading',
-          callback: this.precioUnitarioConTooltip
+          dataClass: 'list-item-heading'
         },
         {
           name: 'total',
@@ -1695,11 +1738,10 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
-          name: 'precio_venta',
+          name: '__slot:precio_venta',
           sortField: 'precio_venta',
           title: 'Precio unitario',
-          dataClass: 'list-item-heading',
-          callback: this.precioUnitarioConTooltip
+          dataClass: 'list-item-heading'
         },
         {
           name: 'total',
@@ -1746,11 +1788,10 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
-          name: 'precio_venta',
+          name: '__slot:precio_venta',
           sortField: 'precio_venta',
           title: 'Precio unitario',
-          dataClass: 'list-item-heading',
-          callback: this.precioUnitarioConTooltip
+          dataClass: 'list-item-heading'
         },
         {
           name: 'total',
@@ -2175,15 +2216,10 @@ export default {
         ? 'fila-dia'
         : 'fila-noche'
     },
-    /* Muestra el precio unitario; si es 0 agrega un ícono con tooltip que aclara
-       que el consumo se aplicó como parte de un paquete. */
-    precioUnitarioConTooltip (value) {
+    /* True cuando el precio unitario es 0 (consumo aplicado como parte de un paquete). */
+    esPrecioCero (value) {
       const precio = parseFloat(value)
-      if (!isNaN(precio) && precio === 0) {
-        return '<span style="cursor: help;" title="Este consumo se aplicó como parte de un paquete, por eso su precio unitario es Q0.">' +
-          '0.00 <i class="ri-information-line text-info"></i></span>'
-      }
-      return (value === null || value === undefined) ? '' : String(value)
+      return !isNaN(precio) && precio === 0
     },
     async cargarInsumos (tipo) {
       let endpoint = ''
