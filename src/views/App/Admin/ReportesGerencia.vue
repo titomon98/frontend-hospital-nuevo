@@ -77,6 +77,13 @@
                   <b-col md="3"><b-form-group label="Fecha final:"><b-form-input type="date" v-model="cobrar.fechaFin"></b-form-input></b-form-group></b-col>
                   <b-col md="4" class="d-flex align-items-end"><b-button variant="success" v-anti-doble @click="generarCuentasPorCobrar">Generar PDF</b-button></b-col>
                 </b-row>
+                <hr>
+                <h5>Ingresos por fechas (pagos recibidos)</h5>
+                <b-row>
+                  <b-col md="3"><b-form-group label="Fecha inicial:"><b-form-input type="date" v-model="ingresos.fechaInicio"></b-form-input></b-form-group></b-col>
+                  <b-col md="3"><b-form-group label="Fecha final:"><b-form-input type="date" v-model="ingresos.fechaFin"></b-form-input></b-form-group></b-col>
+                  <b-col md="4" class="d-flex align-items-end"><b-button variant="success" v-anti-doble @click="generarIngresos">Generar PDF</b-button></b-col>
+                </b-row>
               </b-tab>
 
               <!-- SALA DE OPERACIONES -->
@@ -86,6 +93,38 @@
                   <b-col md="3"><b-form-group label="Fecha inicial:"><b-form-input type="date" v-model="cirugias.fechaInicio"></b-form-input></b-form-group></b-col>
                   <b-col md="3"><b-form-group label="Fecha final:"><b-form-input type="date" v-model="cirugias.fechaFin"></b-form-input></b-form-group></b-col>
                   <b-col md="4" class="d-flex align-items-end"><b-button variant="success" v-anti-doble @click="generarCirugias">Generar PDF</b-button></b-col>
+                </b-row>
+              </b-tab>
+
+              <!-- ENFERMERIA -->
+              <b-tab title="Enfermería">
+                <h5 class="mt-2">Reportes de pacientes</h5>
+                <b-row>
+                  <b-col md="3"><b-form-group label="Reporte:"><b-form-select v-model="enf.reporte" :options="enfOptions"></b-form-select></b-form-group></b-col>
+                  <b-col md="3"><b-form-group label="Fecha inicial:"><b-form-input type="date" v-model="enf.fechaInicio"></b-form-input></b-form-group></b-col>
+                  <b-col md="3"><b-form-group label="Fecha final:"><b-form-input type="date" v-model="enf.fechaFin"></b-form-input></b-form-group></b-col>
+                  <b-col md="3" class="d-flex align-items-end"><b-button variant="success" v-anti-doble @click="generarEnfermeria">Generar PDF</b-button></b-col>
+                </b-row>
+              </b-tab>
+
+              <!-- LABORATORIO -->
+              <b-tab title="Laboratorio">
+                <h5 class="mt-2">Reportes de exámenes</h5>
+                <b-row>
+                  <b-col md="3"><b-form-group label="Reporte:"><b-form-select v-model="lab.reporte" :options="labOptions"></b-form-select></b-form-group></b-col>
+                  <b-col md="3"><b-form-group label="Fecha inicial:"><b-form-input type="date" v-model="lab.fechaInicio"></b-form-input></b-form-group></b-col>
+                  <b-col md="3"><b-form-group label="Fecha final:"><b-form-input type="date" v-model="lab.fechaFin"></b-form-input></b-form-group></b-col>
+                  <b-col md="3" class="d-flex align-items-end"><b-button variant="success" v-anti-doble @click="generarLaboratorio">Generar PDF</b-button></b-col>
+                </b-row>
+              </b-tab>
+
+              <!-- MEDICOS -->
+              <b-tab title="Médicos">
+                <h5 class="mt-2">Honorarios por médico</h5>
+                <b-row>
+                  <b-col md="3"><b-form-group label="Fecha inicial:"><b-form-input type="date" v-model="med.fechaInicio"></b-form-input></b-form-group></b-col>
+                  <b-col md="3"><b-form-group label="Fecha final:"><b-form-input type="date" v-model="med.fechaFin"></b-form-input></b-form-group></b-col>
+                  <b-col md="4" class="d-flex align-items-end"><b-button variant="success" v-anti-doble @click="generarHonorarios">Generar PDF</b-button></b-col>
                 </b-row>
               </b-tab>
             </b-tabs>
@@ -122,6 +161,20 @@ export default {
       cirugias: { fechaInicio: '', fechaFin: '' },
       cuenta: { busqueda: '', opciones: [], seleccionada: null },
       pedidos: { tipo: 'todos', area: '', fechaInicio: '', fechaFin: '' },
+      ingresos: { fechaInicio: '', fechaFin: '' },
+      enf: { reporte: 'todos', fechaInicio: '', fechaFin: '' },
+      lab: { reporte: 'general', fechaInicio: '', fechaFin: '' },
+      med: { fechaInicio: '', fechaFin: '' },
+      enfOptions: [
+        { value: 'todos', text: 'Todos los pacientes por fechas' },
+        { value: 'egresados', text: 'Pacientes egresados' },
+        { value: 'fallecidos', text: 'Pacientes fallecidos' }
+      ],
+      labOptions: [
+        { value: 'general', text: 'Exámenes: más generados (general)' },
+        { value: 'diarios', text: 'Exámenes realizados por día' }
+      ],
+      estadosExp: { 0: 'Fallecido', 1: 'Activo', 6: 'Egresado', 7: 'Egresado', 8: 'Egresado' },
       tipoOptions: [
         { value: 'todos', text: 'Todos los tipos' },
         { value: 'medicamentos', text: 'Medicamentos' },
@@ -324,7 +377,104 @@ export default {
         }
         doc.save('Cuenta_detallada_' + p.cuenta.numero + '.pdf')
       } catch (e) { this.error(e, 'Error al generar la cuenta detallada') }
-    }
+    },
+    /* ---- Ingresos por fechas (caja) ---- */
+    async generarIngresos () {
+      if (!this.ingresos.fechaInicio || !this.ingresos.fechaFin) { this.error(null, 'Debe indicar el rango de fechas'); return }
+      try {
+        // Este endpoint usa fecha_inicio/fecha_final.
+        const p = await this.pedirDatos('/reporte/ingresosFechas', { fecha_inicio: this.ingresos.fechaInicio, fecha_final: this.ingresos.fechaFin })
+        if (!p || p.length === 0) { this.ok('No hay ingresos en ese rango'); return }
+        let totalPagado = 0
+        const body = p.map(c => {
+          const exp = c.expediente || c.Expediente || {}
+          totalPagado += (isNaN(parseFloat(c.total_pagado)) ? 0 : parseFloat(c.total_pagado))
+          return [
+            c.numero_cuenta,
+            ((exp.apellidos || '') + ' ' + (exp.nombres || '')).trim(),
+            this.q(c.total), this.q(c.total_pagado), this.q(c.pendiente_de_pago), this.q(c.descuento)
+          ]
+        })
+        const { doc, y } = this.nuevoDoc('INGRESOS POR FECHAS', [
+          'Del ' + moment(this.ingresos.fechaInicio).format('DD/MM/YYYY') + ' al ' + moment(this.ingresos.fechaFin).format('DD/MM/YYYY'),
+          'Total pagado: Q' + totalPagado.toFixed(2)
+        ])
+        this.tabla(doc, y, [['Cuenta', 'Paciente', 'Total', 'Pagado', 'Pendiente', 'Descuento']], body,
+          [['', '', '', 'Pagado', totalPagado.toFixed(2), '']])
+        doc.save('Ingresos_por_fechas.pdf')
+      } catch (e) { this.error(e, 'Error al generar el reporte de ingresos') }
+    },
+    /* ---- Enfermería: pacientes ---- */
+    async generarEnfermeria () {
+      if (!this.enf.fechaInicio || !this.enf.fechaFin) { this.error(null, 'Debe indicar el rango de fechas'); return }
+      const mapa = {
+        todos: { url: '/reporte/enfermeria/pacientesTodos', titulo: 'PACIENTES POR FECHAS' },
+        egresados: { url: '/reporte/enfermeria/egresados', titulo: 'PACIENTES EGRESADOS' },
+        fallecidos: { url: '/reporte/enfermeria/fallecidos', titulo: 'PACIENTES FALLECIDOS' }
+      }
+      const cfg = mapa[this.enf.reporte]
+      try {
+        const p = await this.pedirDatos(cfg.url, { fechaInicio: this.enf.fechaInicio, fechaFin: this.enf.fechaFin })
+        if (!p || p.length === 0) { this.ok('No hay pacientes con esos filtros'); return }
+        const { doc, y } = this.nuevoDoc(cfg.titulo, [
+          'Del ' + moment(this.enf.fechaInicio).format('DD/MM/YYYY') + ' al ' + moment(this.enf.fechaFin).format('DD/MM/YYYY'),
+          'Total: ' + p.length
+        ])
+        this.tabla(doc, y,
+          [['Paciente', 'CUI', 'Estado', 'Fecha']],
+          p.map(x => [((x.apellidos || '') + ' ' + (x.nombres || '')).trim(), x.cui || '', this.estadosExp[x.estado] || x.estado, moment(x.updatedAt || x.createdAt).format('DD/MM/YYYY')]))
+        doc.save('Enfermeria_' + this.enf.reporte + '.pdf')
+      } catch (e) { this.error(e, 'Error al generar el reporte') }
+    },
+    /* ---- Laboratorio: exámenes ---- */
+    async generarLaboratorio () {
+      if (!this.lab.fechaInicio || !this.lab.fechaFin) { this.error(null, 'Debe indicar el rango de fechas'); return }
+      try {
+        if (this.lab.reporte === 'general') {
+          const p = await this.pedirDatos('/reporte/laboratio/examenesGeneral', { fechaInicio: this.lab.fechaInicio, fechaFin: this.lab.fechaFin })
+          if (!p || p.length === 0) { this.ok('No hay exámenes en ese rango'); return }
+          const { doc, y } = this.nuevoDoc('EXÁMENES MÁS GENERADOS', [
+            'Del ' + moment(this.lab.fechaInicio).format('DD/MM/YYYY') + ' al ' + moment(this.lab.fechaFin).format('DD/MM/YYYY')
+          ])
+          this.tabla(doc, y, [['Examen', 'Total generado']], p.map(x => [x.nombreExamen, this.q(x.totalGenerado)]))
+          doc.save('Examenes_general.pdf')
+        } else {
+          const p = await this.pedirDatos('/reporte/laboratio/examenesDiarios', { fechaInicio: this.lab.fechaInicio, fechaFin: this.lab.fechaFin })
+          if (!p || p.length === 0) { this.ok('No hay exámenes en ese rango'); return }
+          const { doc, y } = this.nuevoDoc('EXÁMENES REALIZADOS POR DÍA', [
+            'Del ' + moment(this.lab.fechaInicio).format('DD/MM/YYYY') + ' al ' + moment(this.lab.fechaFin).format('DD/MM/YYYY')
+          ])
+          this.tabla(doc, y, [['Fecha', 'Examen', 'Paciente', 'Total']],
+            p.map(x => [moment(x.fecha).format('DD/MM/YYYY'), x.nombre_examen, x.nombre_paciente, this.q(x.total)]))
+          doc.save('Examenes_diarios.pdf')
+        }
+      } catch (e) { this.error(e, 'Error al generar el reporte') }
+    },
+    /* ---- Médicos: honorarios ---- */
+    async generarHonorarios () {
+      if (!this.med.fechaInicio || !this.med.fechaFin) { this.error(null, 'Debe indicar el rango de fechas'); return }
+      try {
+        const p = await this.pedirDatos('/reporte/medicos/honorarios', { fechaInicio: this.med.fechaInicio, fechaFin: this.med.fechaFin })
+        const sinPagar = p.sinPagar || []
+        const pagados = p.pagados || []
+        if (sinPagar.length === 0 && pagados.length === 0) { this.ok('No hay honorarios en ese rango'); return }
+        const { doc, y } = this.nuevoDoc('HONORARIOS POR MÉDICO', [
+          'Del ' + moment(this.med.fechaInicio).format('DD/MM/YYYY') + ' al ' + moment(this.med.fechaFin).format('DD/MM/YYYY')
+        ])
+        let yy = y
+        const fila = x => [x.nombre_medico, x.paciente, x.descripcion, this.q(x.total_honorario)]
+        if (sinPagar.length) {
+          doc.setFontSize(11).setFont(undefined, 'bold'); doc.text('Sin pagar', 14, yy); yy += 4
+          yy = this.tabla(doc, yy, [['Médico', 'Paciente', 'Descripción', 'Total']], sinPagar.map(fila))
+        }
+        if (pagados.length) {
+          doc.setFontSize(11).setFont(undefined, 'bold'); doc.text('Pagados', 14, yy); yy += 4
+          this.tabla(doc, yy, [['Médico', 'Paciente', 'Descripción', 'Total']], pagados.map(fila))
+        }
+        doc.save('Honorarios_por_medico.pdf')
+      } catch (e) { this.error(e, 'Error al generar el reporte de honorarios') }
+    },
+    q (v) { return (isNaN(parseFloat(v)) ? 0 : parseFloat(v)).toFixed(2) }
   }
 }
 </script>
