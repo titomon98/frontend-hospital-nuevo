@@ -49,6 +49,14 @@
                   <b-col md="3"><b-form-group label="Fecha final:"><b-form-input type="date" v-model="pedidos.fechaFin"></b-form-input></b-form-group></b-col>
                 </b-row>
                 <b-button variant="success" v-anti-doble @click="generarPedidos">Generar PDF</b-button>
+                <hr>
+                <h5>Reportes de consumo / proveedores</h5>
+                <b-row>
+                  <b-col md="3"><b-form-group label="Reporte:"><b-form-select v-model="farm.reporte" :options="farmOptions"></b-form-select></b-form-group></b-col>
+                  <b-col md="3"><b-form-group label="Fecha inicial:"><b-form-input type="date" v-model="farm.fechaInicio"></b-form-input></b-form-group></b-col>
+                  <b-col md="3"><b-form-group label="Fecha final:"><b-form-input type="date" v-model="farm.fechaFin"></b-form-input></b-form-group></b-col>
+                  <b-col md="3" class="d-flex align-items-end"><b-button variant="success" v-anti-doble @click="generarFarmacia">Generar PDF</b-button></b-col>
+                </b-row>
               </b-tab>
 
               <!-- CAJA / SEGUROS -->
@@ -165,10 +173,19 @@ export default {
       enf: { reporte: 'todos', fechaInicio: '', fechaFin: '' },
       lab: { reporte: 'general', fechaInicio: '', fechaFin: '' },
       med: { fechaInicio: '', fechaFin: '' },
+      farm: { reporte: 'productos', fechaInicio: '', fechaFin: '' },
+      farmOptions: [
+        { value: 'productos', text: 'Productos más utilizados' },
+        { value: 'proveedores', text: 'Proveedores más solicitados' },
+        { value: 'suministro', text: 'Suministro de medicamentos a pacientes' }
+      ],
       enfOptions: [
         { value: 'todos', text: 'Todos los pacientes por fechas' },
         { value: 'egresados', text: 'Pacientes egresados' },
-        { value: 'fallecidos', text: 'Pacientes fallecidos' }
+        { value: 'fallecidos', text: 'Pacientes fallecidos' },
+        { value: 'porLugar', text: 'Pacientes por lugar (resumen)' },
+        { value: 'servicios', text: 'Servicios más consumidos' },
+        { value: 'medicamentos', text: 'Medicamentos más consumidos' }
       ],
       labOptions: [
         { value: 'general', text: 'Exámenes: más generados (general)' },
@@ -404,26 +421,92 @@ export default {
         doc.save('Ingresos_por_fechas.pdf')
       } catch (e) { this.error(e, 'Error al generar el reporte de ingresos') }
     },
-    /* ---- Enfermería: pacientes ---- */
+    /* ---- Enfermería ---- */
     async generarEnfermeria () {
       if (!this.enf.fechaInicio || !this.enf.fechaFin) { this.error(null, 'Debe indicar el rango de fechas'); return }
-      const mapa = {
-        todos: { url: '/reporte/enfermeria/pacientesTodos', titulo: 'PACIENTES POR FECHAS' },
-        egresados: { url: '/reporte/enfermeria/egresados', titulo: 'PACIENTES EGRESADOS' },
-        fallecidos: { url: '/reporte/enfermeria/fallecidos', titulo: 'PACIENTES FALLECIDOS' }
-      }
-      const cfg = mapa[this.enf.reporte]
+      const rango = { fechaInicio: this.enf.fechaInicio, fechaFin: this.enf.fechaFin }
+      const sub = 'Del ' + moment(this.enf.fechaInicio).format('DD/MM/YYYY') + ' al ' + moment(this.enf.fechaFin).format('DD/MM/YYYY')
+      const r = this.enf.reporte
       try {
-        const p = await this.pedirDatos(cfg.url, { fechaInicio: this.enf.fechaInicio, fechaFin: this.enf.fechaFin })
-        if (!p || p.length === 0) { this.ok('No hay pacientes con esos filtros'); return }
-        const { doc, y } = this.nuevoDoc(cfg.titulo, [
-          'Del ' + moment(this.enf.fechaInicio).format('DD/MM/YYYY') + ' al ' + moment(this.enf.fechaFin).format('DD/MM/YYYY'),
-          'Total: ' + p.length
-        ])
-        this.tabla(doc, y,
-          [['Paciente', 'CUI', 'Estado', 'Fecha']],
-          p.map(x => [((x.apellidos || '') + ' ' + (x.nombres || '')).trim(), x.cui || '', this.estadosExp[x.estado] || x.estado, moment(x.updatedAt || x.createdAt).format('DD/MM/YYYY')]))
-        doc.save('Enfermeria_' + this.enf.reporte + '.pdf')
+        if (r === 'todos' || r === 'egresados' || r === 'fallecidos') {
+          const mapa = {
+            todos: { url: '/reporte/enfermeria/pacientesTodos', titulo: 'PACIENTES POR FECHAS' },
+            egresados: { url: '/reporte/enfermeria/egresados', titulo: 'PACIENTES EGRESADOS' },
+            fallecidos: { url: '/reporte/enfermeria/fallecidos', titulo: 'PACIENTES FALLECIDOS' }
+          }
+          const cfg = mapa[r]
+          const p = await this.pedirDatos(cfg.url, rango)
+          if (!p || p.length === 0) { this.ok('No hay pacientes con esos filtros'); return }
+          const { doc, y } = this.nuevoDoc(cfg.titulo, [sub, 'Total: ' + p.length])
+          this.tabla(doc, y, [['Paciente', 'CUI', 'Estado', 'Fecha']],
+            p.map(x => [((x.apellidos || '') + ' ' + (x.nombres || '')).trim(), x.cui || '', this.estadosExp[x.estado] || x.estado, moment(x.updatedAt || x.createdAt).format('DD/MM/YYYY')]))
+          doc.save('Enfermeria_' + r + '.pdf')
+        } else if (r === 'porLugar') {
+          const p = await this.pedirDatos('/reporte/enfermeria/pacientesLugar', rango)
+          const { doc, y } = this.nuevoDoc('PACIENTES POR LUGAR', [sub])
+          this.tabla(doc, y, [['Lugar', 'Cantidad']], [
+            ['Hospitalización', p.cantidadHospitalizacion || 0],
+            ['Intensivo', p.cantidadIntensivo || 0],
+            ['Quirófano', p.cantidadQuirófano || 0],
+            ['Emergencia', p.cantidadEmergencia || 0],
+            ['Sala de Operaciones', p.cantidadSalaOperaciones || 0]
+          ])
+          doc.save('Pacientes_por_lugar.pdf')
+        } else if (r === 'servicios') {
+          const p = await this.pedirDatos('/reporte/enfermeria/serviciosMasConsumidos', rango)
+          const lista = (p && p.consumos) || []
+          if (lista.length === 0) { this.ok('No hay servicios en ese rango'); return }
+          const { doc, y } = this.nuevoDoc('SERVICIOS MÁS CONSUMIDOS', [sub])
+          this.tabla(doc, y, [['Servicio', 'Descripción', 'Cantidad', 'Total']],
+            lista.map(x => [x.nombre_servicio, x.descripcion, x.cantidad, this.q(x.total_consumido)]))
+          doc.save('Servicios_mas_consumidos.pdf')
+        } else if (r === 'medicamentos') {
+          const p = await this.pedirDatos('/reporte/enfermeria/medicamentos', rango)
+          const lista = (p && p.medicamentos) || []
+          if (lista.length === 0) { this.ok('No hay medicamentos en ese rango'); return }
+          const { doc, y } = this.nuevoDoc('MEDICAMENTOS MÁS CONSUMIDOS', [sub])
+          this.tabla(doc, y, [['Medicamento', 'Cantidad', 'Total']],
+            lista.map(x => [x.nombre_medicamento, x.cantidad_total, this.q(x.total_venta)]))
+          doc.save('Medicamentos_mas_consumidos.pdf')
+        }
+      } catch (e) { this.error(e, 'Error al generar el reporte') }
+    },
+    /* ---- Farmacia: consumo / proveedores ---- */
+    async generarFarmacia () {
+      if (!this.farm.fechaInicio || !this.farm.fechaFin) { this.error(null, 'Debe indicar el rango de fechas'); return }
+      const rango = { fechaInicio: this.farm.fechaInicio, fechaFin: this.farm.fechaFin }
+      const sub = 'Del ' + moment(this.farm.fechaInicio).format('DD/MM/YYYY') + ' al ' + moment(this.farm.fechaFin).format('DD/MM/YYYY')
+      try {
+        if (this.farm.reporte === 'productos') {
+          const p = await this.pedirDatos('/reporte/farmacia/productosMasUtilizados', rango)
+          const { doc, y } = this.nuevoDoc('PRODUCTOS MÁS UTILIZADOS', [sub])
+          let yy = y
+          const secc = (titulo, arr) => {
+            if (!arr || !arr.length) return
+            doc.setFontSize(11).setFont(undefined, 'bold'); doc.text(titulo, 14, yy); yy += 4
+            yy = this.tabla(doc, yy, [['Nombre', 'Cantidad', 'Total']], arr.map(x => [x.nombre, x.cantidad_total, this.q(x.total_venta)]))
+          }
+          secc('Medicamentos', p.medicamentos)
+          secc('Material quirúrgico', p.quirurgicos)
+          secc('Material común', p.comunes)
+          doc.save('Productos_mas_utilizados.pdf')
+        } else if (this.farm.reporte === 'proveedores') {
+          const p = await this.pedirDatos('/reporte/farmacia/proveedores', rango)
+          const lista = (p && p.resultado) || []
+          if (lista.length === 0) { this.ok('No hay proveedores en ese rango'); return }
+          const { doc, y } = this.nuevoDoc('PROVEEDORES MÁS SOLICITADOS', [sub])
+          this.tabla(doc, y, [['Proveedor', 'Representante', 'Teléfono', 'Solicitudes']],
+            lista.map(x => [x.nombre, x.representante || '', x.telefono || '', x.conteo]))
+          doc.save('Proveedores_mas_solicitados.pdf')
+        } else {
+          const p = await this.pedirDatos('/reporte/farmacia/suministroMedicamentos', rango)
+          const lista = (p && p.medicamentos) || []
+          if (lista.length === 0) { this.ok('No hay suministros en ese rango'); return }
+          const { doc, y } = this.nuevoDoc('SUMINISTRO DE MEDICAMENTOS A PACIENTES', [sub])
+          this.tabla(doc, y, [['Medicamento', 'Paciente', 'Cantidad', 'Total']],
+            lista.map(x => [x.nombre_medicamento, x.paciente, x.cantidad_total, this.q(x.total_venta)]))
+          doc.save('Suministro_medicamentos.pdf')
+        }
       } catch (e) { this.error(e, 'Error al generar el reporte') }
     },
     /* ---- Laboratorio: exámenes ---- */
