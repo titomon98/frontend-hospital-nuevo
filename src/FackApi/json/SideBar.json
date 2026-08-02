@@ -30,10 +30,22 @@
     "class_name": "",
     "is_icon_class": true,
     "icon": "ri-file-list-fill",
-    "link": {
-      "name": "gerencia.adminparent"
-    },
-    "rol": [1]
+    "link": {},
+    "rol": [1],
+    "children": [
+      {
+        "title": "Panel de administración",
+        "name": "Panel de administración",
+        "link": { "name": "gerencia.adminparent" },
+        "rol": [1]
+      },
+      {
+        "title": "Reportes de Gerencia",
+        "name": "Reportes de Gerencia",
+        "link": { "name": "gerencia.reportesgerencia" },
+        "rol": [1]
+      }
+    ]
   },
   {
     "title": "Caja",

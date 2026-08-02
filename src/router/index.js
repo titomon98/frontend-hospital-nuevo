@@ -24,6 +24,7 @@ const Users = () => import('../views/App/Admin/Users')
 const Cuartos = () => import('../views/App/Admin/Cuartos.vue')
 const Asuetos = () => import('../views/App/Admin/Asuetos.vue')
 const Reportes = () => import('../views/App/Admin/Reportes.vue')
+const ReportesGerencia = () => import('../views/App/Admin/ReportesGerencia.vue')
 
 // Caja
 const CortesCaja = () => import('../views/App/Caja/Cortes/Cortes.vue')
@@ -129,6 +130,7 @@ const AdminRoutes = (prop) => [
   { path: 'cuartos', name: `${prop}.cuartos`, meta: { auth: true, name: 'Cuartos', roles: [1] }, component: Cuartos },
   { path: 'asuetos', name: `${prop}.asuetos`, meta: { auth: true, name: 'Asuetos', roles: [1] }, component: Asuetos },
   { path: 'reportes', name: `${prop}.reportes`, meta: { auth: true, name: 'Reportes', roles: [1] }, component: Reportes },
+  { path: 'reportes-gerencia', name: `${prop}.reportesgerencia`, meta: { auth: true, name: 'Reportes de Gerencia', roles: [1] }, component: ReportesGerencia },
   { path: 'adminparent', name: `${prop}.adminparent`, meta: { auth: true, name: 'adminparent', roles: [1] }, component: AdminParent }
 ]
 
