@@ -273,8 +273,8 @@ export default {
           'Total: ' + p.total
         ])
         this.tabla(doc, y,
-          [['Fecha', 'Expediente', 'Paciente', 'Médico']],
-          p.data.map(d => [moment(d.fecha).format('DD/MM/YYYY'), d.expediente, d.paciente, d.medico]))
+          [['Fecha', 'Paciente', 'No. Cuarto', 'Edad', 'Médico Tratante', 'Ingreso', 'Egreso']],
+          p.data.map(d => [moment(d.fecha).format('DD/MM/YYYY'), d.paciente, d.cuarto, d.edad, d.medico, d.ingreso, d.egreso]))
         doc.save('Estadistica_pacientes.pdf')
       } catch (e) { this.error(e, 'Error al generar la estadística') }
     },
