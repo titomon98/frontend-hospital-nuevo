@@ -652,6 +652,14 @@
       <!-- Footer -->
       <template #modal-footer>
         <h4 v-if="[1, 3].includes(currentUser.user_type)">Total de consumos: {{ granTotalConsumos }}</h4>
+        <div class="mt-2 mb-3">
+          <b-badge :variant="varianteRevisionConsumos">Revisión de consumos: {{ textoRevisionConsumos }}</b-badge>
+          <span v-if="revisionConsumos.reviewedBy" class="ml-2 text-muted">por {{ revisionConsumos.reviewedBy }}</span>
+          <div v-if="puedeRevisarConsumos" class="mt-2">
+            <b-button variant="success" size="sm" v-anti-doble @click="revisarConsumos(1)">Revisar y comprobar</b-button>
+            <b-button variant="danger" size="sm" v-anti-doble @click="revisarConsumos(2)" class="ml-2">Revisar y reportar inconsistencia</b-button>
+          </div>
+        </div>
         <b-button variant="primary" @click="onSave">Guardar</b-button>
         <b-button variant="danger" @click="closeModal('save')">Cancelar</b-button>
       </template>
@@ -812,6 +820,14 @@
       <!-- Footer -->
       <template #modal-footer>
         <h4 v-if="[1, 3].includes(currentUser.user_type)">Total de consumos: {{ granTotalConsumos }}</h4>
+        <div class="mt-2 mb-3">
+          <b-badge :variant="varianteRevisionConsumos">Revisión de consumos: {{ textoRevisionConsumos }}</b-badge>
+          <span v-if="revisionConsumos.reviewedBy" class="ml-2 text-muted">por {{ revisionConsumos.reviewedBy }}</span>
+          <div v-if="puedeRevisarConsumos" class="mt-2">
+            <b-button variant="success" size="sm" v-anti-doble @click="revisarConsumos(1)">Revisar y comprobar</b-button>
+            <b-button variant="danger" size="sm" v-anti-doble @click="revisarConsumos(2)" class="ml-2">Revisar y reportar inconsistencia</b-button>
+          </div>
+        </div>
         <b-button variant="primary" @click="onSave">Guardar</b-button>
         <b-button variant="danger" @click="closeModal('save2')">Cancelar</b-button>
       </template>
@@ -1202,6 +1218,7 @@
 <script>
 import { xray } from '../../../../config/pluginInit'
 import DatatableHeading from '../../../Tables/DatatableHeading'
+import revisionConsumosMixin from '../../../../mixins/revisionConsumos'
 import Vuetable from 'vuetable-2/src/components/Vuetable'
 import VuetablePaginationBootstrap from '../../../../components/common/VuetablePaginationBootstrap'
 import useVuelidate from '@vuelidate/core'
@@ -1215,6 +1232,7 @@ import 'jspdf-autotable'
 import Multiselect from 'vue-multiselect'
 
 export default {
+  mixins: [revisionConsumosMixin],
   name: 'Intensivo',
   components: {
     vuetable: Vuetable,
@@ -2850,6 +2868,7 @@ export default {
           this.granTotalConsumos = (parseFloat(this.totalMedicamentos) + parseFloat(this.totalAnestesicos) + parseFloat(this.totalComun) + parseFloat(this.totalQuirurgico)).toFixed(2)
           // Hospitalizacion, Quirofano, Intensivo
           this.apiBaseConsumoMedicamento = apiUrl + `/detalle_consumo_medicamentos/list/${response.data.id}/Intensivo`
+          this.cargarRevisionConsumos(response.data.id)
           this.apiBaseConsumoAnestesicos = apiUrl + `/detalle_consumo_medicamentos/listAnestesicos/${response.data.id}/Intensivo`
           this.apiBaseConsumoQuirurgico = apiUrl + `/detalle_consumo_quirugicos/list/${response.data.id}/Intensivo`
           this.apiBaseConsumoComun = apiUrl + `/detalle_consumo_comun/list/${response.data.id}/Intensivo`
