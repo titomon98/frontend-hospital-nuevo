@@ -285,8 +285,8 @@ export default {
         if (!p.data || p.data.length === 0) { this.ok('No hay existencias registradas'); return }
         const { doc, y } = this.nuevoDoc('INVENTARIO GENERAL', ['Total de productos: ' + p.total])
         this.tabla(doc, y,
-          [['Tipo', 'Nombre', 'Existencia']],
-          p.data.map(d => [d.tipo, d.nombre, d.existencia]))
+          [['Tipo', 'Nombre', 'Existencia', 'Precio costo', 'Precio venta']],
+          p.data.map(d => [d.tipo, d.nombre, d.existencia, d.precio_costo, d.precio_venta]))
         doc.save('Inventario_general.pdf')
       } catch (e) { this.error(e, 'Error al generar el inventario') }
     },
