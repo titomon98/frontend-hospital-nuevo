@@ -28,7 +28,7 @@
                   </b-col>
                 </b-row>
                 <hr>
-                <h5>Estadística de pacientes (fecha, paciente, médico)</h5>
+                <h5>Censo de pacientes (fecha, paciente, médico)</h5>
                 <b-row>
                   <b-col md="3"><b-form-group label="Fecha inicial:"><b-form-input type="date" v-model="estad.fechaInicio"></b-form-input></b-form-group></b-col>
                   <b-col md="3"><b-form-group label="Fecha final:"><b-form-input type="date" v-model="estad.fechaFin"></b-form-input></b-form-group></b-col>
@@ -262,20 +262,20 @@ export default {
         doc.save('Censo_' + this.censo.dia + '.pdf')
       } catch (e) { this.error(e, 'Error al generar el censo') }
     },
-    /* ---- Estadística de pacientes ---- */
+    /* ---- Censo de pacientes ---- */
     async generarEstadistica () {
       if (!this.estad.fechaInicio || !this.estad.fechaFin) { this.error(null, 'Debe indicar el rango de fechas'); return }
       try {
         const p = await this.pedirDatos('/reporte/gerencia/estadisticaPacientes', this.estad)
         if (!p.data || p.data.length === 0) { this.ok('No hay pacientes en ese rango'); return }
-        const { doc, y } = this.nuevoDoc('ESTADÍSTICA DE PACIENTES', [
+        const { doc, y } = this.nuevoDoc('CENSO DE PACIENTES', [
           'Del ' + moment(this.estad.fechaInicio).format('DD/MM/YYYY') + ' al ' + moment(this.estad.fechaFin).format('DD/MM/YYYY'),
           'Total: ' + p.total
         ])
         this.tabla(doc, y,
           [['Fecha', 'Paciente', 'No. Cuarto', 'Edad', 'Médico Tratante', 'Ingreso', 'Egreso']],
           p.data.map(d => [moment(d.fecha).format('DD/MM/YYYY'), d.paciente, d.cuarto, d.edad, d.medico, d.ingreso, d.egreso]))
-        doc.save('Estadistica_pacientes.pdf')
+        doc.save('Censo_pacientes.pdf')
       } catch (e) { this.error(e, 'Error al generar la estadística') }
     },
     /* ---- Inventario general ---- */
