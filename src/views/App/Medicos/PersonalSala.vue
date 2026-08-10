@@ -215,14 +215,14 @@
         <thead>
             <tr>
                 <th>Descripción</th>
-                <th>Servicio brindado a</th>
+                <th>Servicio</th>
             </tr>
         </thead>
 
         <tbody>
             <tr v-for="details in arrayDetalles" :key="details.id">
                 <td>{{ details.descripcion }}</td>
-                <td>{{ details.servicio_sala_operacione.cuenta.expediente.nombres + ' ' +  details.servicio_sala_operacione.cuenta.expediente.apellidos}}</td>
+                <td>{{ details.servicio ? details.servicio.descripcion : '' }}</td>
             </tr>
         </tbody>
       </table>

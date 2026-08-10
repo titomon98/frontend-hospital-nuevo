@@ -275,6 +275,28 @@
             min="1"
           ></b-form-input>
         </b-form-group>
+        <!-- Solo para servicios de personal (id 9-14): elegir personal de sala
+             para saber quien estuvo ayudando. -->
+        <b-form-group v-if="esServicioPersonal" label="Personal de sala:">
+          <Multiselect
+            v-model="selectedPersonal"
+            :options="personalOptions"
+            :multiple="true"
+            :close-on-select="false"
+            :clear-on-select="false"
+            :preserve-search="true"
+            placeholder="Seleccione el personal de sala"
+            label="nombre"
+            track-by="id"
+          >
+            <template v-slot:option="{ option }">
+              <div class="custom-option">
+                <strong>{{ option.nombre }}</strong>
+                <small v-if="option.categoria"> -- {{ option.categoria }}</small>
+              </div>
+            </template>
+          </Multiselect>
+        </b-form-group>
       </b-form>
       <template #modal-footer="{}">
         <b-button variant="primary" @click="saveServicio"
@@ -2191,6 +2213,13 @@ export default {
     isCirugiaMayorOMedia () {
       return this.salaOperaciones.categoria === 'Cirugia media' || this.salaOperaciones.categoria === 'Cirugia mayor'
     },
+    // Los servicios id 9-14 son roles de personal (Circulante, Ayudantia,
+    // Instrumentista); al elegirlos se pide el personal de sala involucrado.
+    esServicioPersonal () {
+      if (!this.servicio || this.servicio.id === null || this.servicio.id === undefined) return false
+      const id = Number(this.servicio.id)
+      return id >= 9 && id <= 14
+    },
     ...mapGetters({
       currentUser: 'currentUser'
     })
@@ -2253,7 +2282,8 @@ export default {
         this.insumosActuales = response.data.map(insumo => ({
           value: insumo.id,
           text: insumo.nombre + ' --- ' + insumo.presentacione.nombre,
-          existencias_actuales: insumo.existencia_actual_quirofano,
+          // Los NO INVENTARIADOS no llevan control de existencia: siempre 1.
+          existencias_actuales: insumo.inventariado === 'NO INVENTARIADO' ? 1 : insumo.existencia_actual_quirofano,
           precio_venta: insumo.precio_venta,
           inventariado: insumo.inventariado
         }))
@@ -2531,6 +2561,7 @@ export default {
           this.servicio = null
           this.form.servicio = null
           this.form.selected_insumo = '0'
+          this.selectedPersonal = []
           break
         }
         case 'ver-servicio': {
@@ -2968,13 +2999,27 @@ export default {
         me.form.descripcion = 'Añadido en quirófano'
         axios.post(apiUrl + '/consumos/create', {
           form: me.form })
-          .then((response) => {
+          .then(async (response) => {
+            // Si el servicio es de personal (9-14) y se eligio personal de sala,
+            // se guarda quien ayudo como registro aislado personal<->servicio
+            // (no se liga al consumo ni a la cuenta).
+            if (me.esServicioPersonal && me.selectedPersonal.length > 0) {
+              try {
+                await axios.post(apiUrl + '/detalle_personal/createForServicio', {
+                  id_servicio: me.servicio.id,
+                  personal: me.selectedPersonal
+                })
+              } catch (errPersonal) {
+                console.error('Error guardando personal de sala:', errPersonal)
+              }
+            }
             me.alertVariant = 'primary'
             me.showAlert()
             me.alertText = 'Se ha creado el consumo de un servicio exitosamente'
             me.$refs.vuetable.refresh()
             me.closeModal('add-servicio')
             me.form.id = 0
+            me.selectedPersonal = []
           })
           .catch((error) => {
             me.alertVariant = 'danger'

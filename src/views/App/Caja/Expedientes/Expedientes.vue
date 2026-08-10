@@ -402,6 +402,26 @@
               <!-- columna -->
             </b-row>
           </b-tab>
+          <b-tab title="Facturación">
+            <b-row class="ml-2">
+              <b-col md="4">
+                <b-form-group label="Nombre para factura:">
+                  <b-form-input
+                    v-model.trim="form.nombre_factura"
+                    placeholder="Ingresar nombre para la factura"
+                  ></b-form-input>
+                </b-form-group>
+              </b-col>
+              <b-col md="4">
+                <b-form-group label="NIT de factura:">
+                  <b-form-input
+                    v-model.trim="form.nit_factura"
+                    placeholder="Ingresar NIT para la factura"
+                  ></b-form-input>
+                </b-form-group>
+              </b-col>
+            </b-row>
+          </b-tab>
           </b-tabs>
         </div>
       </b-form>
@@ -651,6 +671,8 @@ export default {
         nombre_conyuge: '',
         direccion_conyuge: '',
         telefono_conyuge: '',
+        nit_factura: '',
+        nombre_factura: '',
         selectedOption: 'hospi',
         assignedDoctor: 0,
         tipo_paciente: '0',
@@ -933,9 +955,12 @@ export default {
       this.form.estado_civil_encargado = data.estado_civil_encargado
       this.form.cui_encargado = data.cui_encargado
       this.form.profesion_encargado = data.profesion_encargado
+      this.form.direccion_encargado = data.direccion_encargado
       this.form.nombre_conyuge = data.nombre_conyuge
       this.form.direccion_conyuge = data.direccion_conyuge
       this.form.telefono_conyuge = data.telefono_conyuge
+      this.form.nit_factura = data.nit_factura
+      this.form.nombre_factura = data.nombre_factura
       this.form.expediente = data.expediente
       this.form.state = data.estado
       this.form.id = data.id

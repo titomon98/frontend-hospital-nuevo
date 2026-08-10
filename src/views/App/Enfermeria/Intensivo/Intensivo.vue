@@ -1899,7 +1899,8 @@ export default {
         this.insumosActuales = response.data.map(insumo => ({
           value: insumo.id,
           text: insumo.nombre + ' --- ' + insumo.presentacione.nombre,
-          existencias_actuales: insumo.existencia_actual_farmacia,
+          // Los NO INVENTARIADOS no llevan control de existencia: siempre 1.
+          existencias_actuales: insumo.inventariado === 'NO INVENTARIADO' ? 1 : insumo.existencia_actual_farmacia,
           precio_venta: insumo.precio_venta,
           inventariado: insumo.inventariado
         }))
