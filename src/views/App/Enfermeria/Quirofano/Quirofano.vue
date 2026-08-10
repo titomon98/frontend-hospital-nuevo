@@ -1656,6 +1656,11 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
+          name: 'personal',
+          title: 'Personal de sala',
+          dataClass: 'list-item-heading'
+        },
+        {
           name: 'createdAt',
           sortField: 'createdAt',
           title: 'Creación',
@@ -1699,6 +1704,11 @@ export default {
           name: 'descripcion',
           sortField: 'descripcion',
           title: 'Lugar de consumo',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'personal',
+          title: 'Personal de sala',
           dataClass: 'list-item-heading'
         },
         {
@@ -3007,7 +3017,8 @@ export default {
               try {
                 await axios.post(apiUrl + '/detalle_personal/createForServicio', {
                   id_servicio: me.servicio.id,
-                  personal: me.selectedPersonal
+                  personal: me.selectedPersonal,
+                  user: me.currentUser.user
                 })
               } catch (errPersonal) {
                 console.error('Error guardando personal de sala:', errPersonal)
