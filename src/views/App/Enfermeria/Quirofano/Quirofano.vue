@@ -707,7 +707,7 @@
           striped
           hover
           :items="consumosTemporales"
-          :fields="['nombre', 'cantidad', 'existencias', 'acciones']"
+          :fields="camposInsumosSeleccionados"
           small
         >
           <template #cell(cantidad)="row">
@@ -923,7 +923,7 @@
           striped
           hover
           :items="consumosTemporales"
-          :fields="['nombre', 'cantidad', 'existencias', 'acciones']"
+          :fields="camposInsumosSeleccionados"
           small
         >
           <template #cell(cantidad)="row">
@@ -2220,6 +2220,13 @@ export default {
     }
   },
   computed: {
+    // Columnas de la tabla "INSUMOS SELECCIONADOS". La columna de cantidad
+    // sugerida solo aparece cuando los consumos vienen de un paquete.
+    camposInsumosSeleccionados () {
+      return this.paqueteSeleccionado
+        ? ['nombre', 'cantidad_sugerida', 'cantidad', 'existencias', 'acciones']
+        : ['nombre', 'cantidad', 'existencias', 'acciones']
+    },
     isCirugiaMayorOMedia () {
       return this.salaOperaciones.categoria === 'Cirugia media' || this.salaOperaciones.categoria === 'Cirugia mayor'
     },
@@ -4239,6 +4246,7 @@ export default {
           id: id,
           tipo: tipo,
           nombre: element.descripcion,
+          cantidad_sugerida: parseInt(element.cantidad),
           cantidad: parseInt(element.cantidad),
           precio_venta: parseFloat(parseFloat(element.subtotal) / parseInt(element.cantidad)),
           existencias: dataConsumo.existencia_actual,
