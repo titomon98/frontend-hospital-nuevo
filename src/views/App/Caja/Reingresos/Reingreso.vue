@@ -231,6 +231,91 @@
         >
       </template>
     </b-modal>
+    <b-modal id="modal-reingreso-menu" ref="modal-reingreso-menu" title="Reingresar paciente" size="xl">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <b-card>
+        <b-card-body>
+          <b-row class="ml-8">
+            <b-col md="4">
+              <b-form-group label="Fecha de ingreso:">
+                <b-form-input type="date" v-model.trim="formReingreso.fecha" placeholder="Ingresar fecha de ingreso"></b-form-input>
+              </b-form-group>
+            </b-col>
+            <b-col md="4">
+              <b-form-group label="Hora de ingreso:">
+                <b-form-input type="time" v-model.trim="formReingreso.hora" placeholder="Ingresar hora de ingreso"></b-form-input>
+              </b-form-group>
+            </b-col>
+          </b-row>
+          <b-row class="ml-9">
+            <b-col md="3">
+              <b-form-group label="Área a la que ingresa:">
+                <b-form-radio v-model="formReingreso.selectedOption" value="hospi" name="reingresoArea">Hospitalización</b-form-radio>
+                <b-form-radio v-model="formReingreso.selectedOption" value="quirofano" name="reingresoArea">Quirófano</b-form-radio>
+                <b-form-radio v-model="formReingreso.selectedOption" value="intensivo" name="reingresoArea">Intensivo</b-form-radio>
+              </b-form-group>
+            </b-col>
+            <b-col md="3">
+              <b-form-group label="Paciente:">
+                <b-form-radio v-model="formReingreso.tipo_paciente" value="0" name="reingresoTipo" @change="getHabitacionesReingreso()">Normal</b-form-radio>
+                <b-form-radio v-model="formReingreso.tipo_paciente" value="1" name="reingresoTipo" @change="getHabitacionesReingreso()">Ambulatorio</b-form-radio>
+              </b-form-group>
+            </b-col>
+            <b-col md="7">
+              <b-form-group label="Cuartos">
+                <div v-for="item in tiposHabitacionesReingresoFiltrados" :key="item.tipo">
+                  <b-row>
+                    <b-col cols="4">
+                      <h6 class="mt-2">{{ item.nombre }}</h6>
+                      <b-form-checkbox v-if="formReingreso.selectedOption == 'hospi'" v-model="formReingreso.estudioDeSueno" value="1" class="mt-2 mb-4">Estudio de sueño</b-form-checkbox>
+                      <b-form-checkbox v-if="formReingreso.selectedOption == 'hospi'" v-model="formReingreso.estudioDeSueno" value="2" class="mt-2 mb-4">Quimioterapia</b-form-checkbox>
+                    </b-col>
+                    <b-col v-for="habitacion in habitacionesReingresoPorTipo(item.tipo)" :key="habitacion.id" cols="2">
+                      <b-button
+                        :variant="getButtonVariantReingreso(habitacion)"
+                        @click="formReingreso.habitacion = habitacion.id"
+                        class="mb-4 room-button"
+                        :class="{ 'disabled-room': habitacion.estado !== 1 }"
+                        v-b-tooltip.hover="{ title: getRoomTooltipReingreso(habitacion.estado) }"
+                        block
+                        :disabled="habitacion.estado !== 1"
+                      >{{ habitacion.numero }}</b-button>
+                    </b-col>
+                  </b-row>
+                </div>
+              </b-form-group>
+            </b-col>
+          </b-row>
+          <b-row class="ml-9">
+            <b-col md="6">
+              <b-form-group label="Médico tratante:">
+                <v-select
+                  name="medicoReingreso"
+                  v-model="selectedMedicoReingreso"
+                  :options="doctorsReingreso"
+                  :reduce="doc => doc.value"
+                  placeholder="Seleccione un médico"
+                  label="text"
+                  @search="onSearchMedicosReingreso"
+                />
+              </b-form-group>
+            </b-col>
+          </b-row>
+        </b-card-body>
+      </b-card>
+      <template #modal-footer="{}">
+        <b-button variant="warning" @click="confirmarReingreso()">Confirmar reingreso</b-button>
+        <b-button variant="danger" @click="$bvModal.hide('modal-reingreso-menu')">Cancelar</b-button>
+      </template>
+    </b-modal>
     <b-row>
       <b-col md="12">
         <iq-card>
@@ -304,12 +389,7 @@
                   <div v-if="props.rowData.solvencia == 1">
                     <b-button
                       v-b-tooltip.top="'Ingresar'"
-                      @click="
-                        setData(props.rowData)
-                        props.rowData.estado == 1
-                          ? $bvModal.show('modal-3-servicios')
-                          : $bvModal.show('modal-4-servicios')
-                      "
+                      @click="abrirModalReingreso(props.rowData)"
                       class="mb-2"
                       size="sm"
                       :variant="
@@ -363,7 +443,18 @@ export default {
   computed: {
     ...mapGetters([
       'currentUser'
-    ])
+    ]),
+    tiposHabitacionesReingresoFiltrados () {
+      if (this.formReingreso.selectedOption === 'intensivo') {
+        return this.tiposHabitaciones.filter(t => t.tipo.toLowerCase() === 'intensivo')
+      }
+      return this.tiposHabitaciones
+    },
+    habitacionesReingresoPorTipo () {
+      return (tipo) => {
+        return this.habitacionesReingreso.filter(h => h.tipo.toUpperCase() === tipo.toUpperCase())
+      }
+    }
   },
   data () {
     return {
@@ -404,6 +495,28 @@ export default {
       selectedHab: null,
       apiBase: apiUrl + '/expedientes/listReingreso',
       habitaciones: [],
+      // Reingreso con asignacion de habitacion + medico (menu igual al de asignar habitacion)
+      formReingreso: {
+        fecha: null,
+        hora: null,
+        selectedOption: 'hospi',
+        tipo_paciente: '0',
+        estudioDeSueno: 0,
+        habitacion: null,
+        id: 0,
+        cuenta: 0,
+        expediente: ''
+      },
+      habitacionesReingreso: [],
+      doctorsReingreso: [],
+      selectedMedicoReingreso: null,
+      tiposHabitaciones: [
+        { tipo: 'Privada', nombre: 'Cuartos Privados' },
+        { tipo: 'Especial', nombre: 'Cuartos Especiales' },
+        { tipo: 'Semi-privada', nombre: 'Cuartos Semi-privados' },
+        { tipo: 'Intensivo', nombre: 'Intensivo' },
+        { tipo: 'Intermedio', nombre: 'Intermedio' }
+      ],
       options: [
         { text: 'Nombres', value: 'nombres' },
         { text: 'Apellidos', value: 'apellidos' },
@@ -473,6 +586,111 @@ export default {
     }
   },
   methods: {
+    // --- Reingreso con asignacion de habitacion + medico ---
+    abrirModalReingreso (rowData) {
+      this.formReingreso = {
+        fecha: null,
+        hora: null,
+        selectedOption: 'hospi',
+        tipo_paciente: '0',
+        estudioDeSueno: 0,
+        habitacion: null,
+        id: rowData.id,
+        cuenta: 0,
+        expediente: rowData.expediente
+      }
+      this.selectedMedicoReingreso = null
+      this.doctorsReingreso = []
+      // La fila es un expediente (no trae cuenta): se obtiene la cuenta del paciente.
+      axios.get(apiUrl + '/cuentas/getByExp', { params: { id: rowData.id } })
+        .then((response) => {
+          const cuentas = response.data || []
+          const cuenta = cuentas.find(c => c.estado === 1) || cuentas[cuentas.length - 1]
+          this.formReingreso.cuenta = cuenta ? cuenta.id : 0
+        })
+        .catch((error) => { console.error('Error al obtener la cuenta:', error) })
+      this.getHabitacionesReingreso()
+      this.$bvModal.show('modal-reingreso-menu')
+    },
+    getHabitacionesReingreso () {
+      return axios.get(apiUrl + '/habitaciones/getAll', { params: { tipo: 0 } })
+        .then((response) => { this.habitacionesReingreso = response.data })
+        .catch((error) => { console.error('Error al cargar habitaciones:', error) })
+    },
+    getButtonVariantReingreso (habitacion) {
+      if (this.formReingreso.habitacion === habitacion.id) return 'primary'
+      return habitacion.estado === 1 ? 'success' : 'outline-secondary'
+    },
+    getRoomTooltipReingreso (estado) {
+      const status = { 0: 'Deshabilitada', 1: 'Disponible', 2: 'Ocupada' }
+      return status[estado] || 'No disponible'
+    },
+    getDoctorsReingreso (search) {
+      axios.get(apiUrl + '/medicos/getSearch', { params: { search: search } })
+        .then((response) => {
+          this.doctorsReingreso = response.data.map(medico => ({ value: medico.id, text: medico.nombre }))
+        })
+    },
+    onSearchMedicosReingreso (search) {
+      if (search.length) this.getDoctorsReingreso(search)
+    },
+    async confirmarReingreso () {
+      const f = this.formReingreso
+      if (!f.fecha || !f.hora) {
+        this.alertErrorText = 'Debe ingresar fecha y hora de ingreso'
+        this.showAlertError()
+        return
+      }
+      if (f.habitacion === null) {
+        this.alertErrorText = 'Debe seleccionar una habitación'
+        this.showAlertError()
+        return
+      }
+      if (!this.selectedMedicoReingreso) {
+        this.alertErrorText = 'Debe seleccionar un médico'
+        this.showAlertError()
+        return
+      }
+      if (!f.cuenta) {
+        this.alertErrorText = 'No se encontró la cuenta del paciente'
+        this.showAlertError()
+        return
+      }
+      const me = this
+      try {
+        // 1. Reingreso (reactiva el expediente, usa la fecha/hora del formulario)
+        await axios.post(apiUrl + '/expedientes/reingresoNormal', {
+          id: f.id, fecha: f.fecha, hora: f.hora, user: me.currentUser.user
+        })
+        // 2. Asignar habitacion (crea el detalle de habitacion con esa fecha/hora)
+        await axios.put(apiUrl + '/expedientes/assignRoom', {
+          form: {
+            id: f.id,
+            cuenta: f.cuenta,
+            habitacion: f.habitacion,
+            fecha: f.fecha,
+            hora: f.hora,
+            tipo_paciente: f.tipo_paciente,
+            estudioDeSueno: f.estudioDeSueno,
+            selectedOption: f.selectedOption
+          },
+          user: me.currentUser.user
+        })
+        // 3. Asignar medico
+        await axios.put(apiUrl + '/expedientes/assignDoctor', {
+          form: { expediente: f.expediente, assignedDoctor: me.selectedMedicoReingreso }
+        })
+        me.alertVariant = 'info'
+        me.alertText = 'El paciente ha sido reingresado y asignado exitosamente'
+        me.showAlert()
+        me.$bvModal.hide('modal-reingreso-menu')
+        me.$refs.vuetable.refresh()
+      } catch (error) {
+        me.alertErrorText = 'Ha ocurrido un error al reingresar al paciente'
+        me.showAlertError()
+        console.error(error)
+      }
+    },
     openModal (modal, action) {
       switch (modal) {
         case 'save': {
@@ -703,3 +921,16 @@ export default {
   }
 }
 </script>
+<style>
+  .disabled-room {
+    background-color: #9e9e9e !important;
+    border-color: #7d7d7d !important;
+    color: white !important;
+    cursor: not-allowed;
+    opacity: 1 !important
+  }
+
+  .room-button:disabled {
+    opacity: 1 !important
+  }
+</style>
