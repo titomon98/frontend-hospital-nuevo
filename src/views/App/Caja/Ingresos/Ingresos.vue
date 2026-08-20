@@ -313,6 +313,26 @@
                 </b-form-group>
               </b-col>
             </b-row>
+            <!-- Datos de factura -->
+            <h4 class="card-title mt-3">Datos de factura</h4>
+            <b-row class="ml-2">
+              <b-col md="4">
+                <b-form-group label="Nombre en factura:">
+                  <b-form-input
+                    v-model.trim="form.nombre_factura"
+                    placeholder="Ingresar nombre en factura"
+                  ></b-form-input>
+                </b-form-group>
+              </b-col>
+              <b-col md="2">
+                <b-form-group label="NIT:">
+                  <b-form-input
+                    v-model.trim="form.nit_factura"
+                    placeholder="Ingresar NIT"
+                  ></b-form-input>
+                </b-form-group>
+              </b-col>
+            </b-row>
             <!-- Datos de conyuge -->
             <h4 class="card-title mt-3">Ingreso de conyuge</h4>
             <b-row class="ml-2">
@@ -453,7 +473,9 @@ export default {
         motivo: null,
         fecha: null,
         hora: null,
-        tipo_cuenta: 1
+        tipo_cuenta: 1,
+        nit_factura: '',
+        nombre_factura: ''
       },
       nacionalidades: ['Guatemala', 'El Salvador', 'México', 'Honduras', 'Belice', 'Otro'],
       generos: ['Masculino', 'Femenino'],
