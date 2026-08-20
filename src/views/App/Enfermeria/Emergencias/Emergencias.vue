@@ -1012,7 +1012,7 @@
             <tr>
               <th>Acciones</th>
               <th>Nombre</th>
-              <th>CUI</th>
+              <th>{{ [1, 3].includes(currentUser.user_type) ? 'Precio' : 'CUI' }}</th>
               <th>Examen Realizado</th>
               <th>Fecha y Hora</th>
             </tr>
@@ -1032,7 +1032,7 @@
                 >Eliminar estudio</b-button>
               </td>
               <td>{{ row.nombre }}</td>
-              <td>{{ row.cui }}</td>
+              <td>{{ [1, 3].includes(currentUser.user_type) ? ('Q' + row.total) : row.cui }}</td>
               <td>{{ row.nombre_examen }}</td>
               <td>{{ row.fecha_hora }}</td>
             </tr>
