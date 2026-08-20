@@ -864,7 +864,10 @@
             <b-button variant="danger" size="sm" v-anti-doble @click="revisarConsumos(2)" class="ml-2">Revisar y reportar inconsistencia</b-button>
           </div>
         </div>
-        <b-button variant="primary" @click="onSave">Guardar</b-button>
+        <b-button variant="primary" :disabled="guardandoConsumos" @click="onSave">
+          <b-spinner small v-if="guardandoConsumos"></b-spinner>
+          {{ guardandoConsumos ? 'Guardando...' : 'Guardar' }}
+        </b-button>
         <b-button variant="danger" @click="closeModal('save')">Cancelar</b-button>
       </template>
     </b-modal>
@@ -1036,7 +1039,10 @@
             <b-button variant="danger" size="sm" v-anti-doble @click="revisarConsumos(2)" class="ml-2">Revisar y reportar inconsistencia</b-button>
           </div>
         </div>
-        <b-button variant="primary" @click="onSave">Guardar</b-button>
+        <b-button variant="primary" :disabled="guardandoConsumos" @click="onSave">
+          <b-spinner small v-if="guardandoConsumos"></b-spinner>
+          {{ guardandoConsumos ? 'Guardando...' : 'Guardar' }}
+        </b-button>
         <b-button variant="danger" @click="closeModal('save2')">Cancelar</b-button>
       </template>
     </b-modal>
@@ -1513,6 +1519,7 @@ export default {
       tituloVer: '',
       consumosTemporales: [],
       paqueteSeleccionado: null,
+      guardandoConsumos: false,
       insumosActuales: [],
       tipoInsumoActual: '0',
       from: 0,
@@ -2357,9 +2364,12 @@ export default {
         return
       }
 
-      // Validación de cantidades (aplica igual a paquete y a consumos sueltos).
+      // Validación de cantidades. En un paquete NO se valida existencia: el
+      // backend cobra el excedente y descuenta solo lo disponible.
       for (const consumo of this.consumosTemporales) {
-        if (consumo.cantidad <= 0 || (consumo.cantidad > consumo.existencias && consumo.inventariado === 'INVENTARIADO')) {
+        const excedeExistencia = !this.paqueteSeleccionado &&
+          consumo.cantidad > consumo.existencias && consumo.inventariado === 'INVENTARIADO'
+        if (consumo.cantidad <= 0 || excedeExistencia) {
           this.alertVariant = 'danger'
           this.alertText = `Cantidad inválida para ${consumo.nombre}`
           this.showAlert()
@@ -2367,13 +2377,16 @@ export default {
         }
       }
 
-      // Si los consumos vienen de un paquete, se aplica como cargo único.
-      if (this.paqueteSeleccionado) {
-        await this.aplicarPaquete()
-        return
-      }
-
+      // Anti doble-click / doble guardado mientras se procesa (importante con
+      // paquetes grandes que tardan varios segundos).
+      if (this.guardandoConsumos) return
+      this.guardandoConsumos = true
       try {
+        // Si los consumos vienen de un paquete, se aplica como cargo único.
+        if (this.paqueteSeleccionado) {
+          await this.aplicarPaquete()
+          return
+        }
         this.$refs['modal-1-movimiento'].hide()
         // Un solo request: todos los consumos se guardan en una transaccion.
         await axios.post(apiUrl + '/detalle_consumos/batch', {
@@ -2402,6 +2415,8 @@ export default {
         this.alertText = 'Error al guardar consumos'
         this.showAlert()
         console.error('Error:', error)
+      } finally {
+        this.guardandoConsumos = false
       }
     },
     /* Aplica el paquete seleccionado como un cargo único a la cuenta.
@@ -2409,8 +2424,9 @@ export default {
        descuenta existencias, cobra excedentes y genera la reposición. */
     async aplicarPaquete () {
       try {
-        this.$refs['modal-1-movimiento'].hide()
-        this.$refs['modal-1-movimiento2'].hide()
+        // Guardas: si el ref del modal no existe, no debe tirar y cancelar el guardado.
+        if (this.$refs['modal-1-movimiento']) this.$refs['modal-1-movimiento'].hide()
+        if (this.$refs['modal-1-movimiento2']) this.$refs['modal-1-movimiento2'].hide()
         const payload = {
           id_paquete: this.paqueteSeleccionado.id,
           id_cuenta: this.idCuentaSeleccionada,
