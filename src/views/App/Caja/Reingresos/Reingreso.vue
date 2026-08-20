@@ -312,7 +312,10 @@
         </b-card-body>
       </b-card>
       <template #modal-footer="{}">
-        <b-button variant="warning" @click="confirmarReingreso()">Confirmar reingreso</b-button>
+        <b-button variant="warning" :disabled="guardandoReingreso" @click="confirmarReingreso()">
+          <b-spinner small v-if="guardandoReingreso"></b-spinner>
+          {{ guardandoReingreso ? 'Reingresando...' : 'Confirmar reingreso' }}
+        </b-button>
         <b-button variant="danger" @click="$bvModal.hide('modal-reingreso-menu')">Cancelar</b-button>
       </template>
     </b-modal>
@@ -510,6 +513,7 @@ export default {
       habitacionesReingreso: [],
       doctorsReingreso: [],
       selectedMedicoReingreso: null,
+      guardandoReingreso: false,
       tiposHabitaciones: [
         { tipo: 'Privada', nombre: 'Cuartos Privados' },
         { tipo: 'Especial', nombre: 'Cuartos Especiales' },
@@ -595,20 +599,11 @@ export default {
         tipo_paciente: '0',
         estudioDeSueno: 0,
         habitacion: null,
-        id: rowData.id,
-        cuenta: 0,
-        expediente: rowData.expediente
+        id: rowData.id
       }
       this.selectedMedicoReingreso = null
       this.doctorsReingreso = []
-      // La fila es un expediente (no trae cuenta): se obtiene la cuenta del paciente.
-      axios.get(apiUrl + '/cuentas/getByExp', { params: { id: rowData.id } })
-        .then((response) => {
-          const cuentas = response.data || []
-          const cuenta = cuentas.find(c => c.estado === 1) || cuentas[cuentas.length - 1]
-          this.formReingreso.cuenta = cuenta ? cuenta.id : 0
-        })
-        .catch((error) => { console.error('Error al obtener la cuenta:', error) })
+      // Aqui NO se busca cuenta: el paciente egreso y pago, el backend crea una nueva.
       this.getHabitacionesReingreso()
       this.$bvModal.show('modal-reingreso-menu')
     },
@@ -651,34 +646,24 @@ export default {
         this.showAlertError()
         return
       }
-      if (!f.cuenta) {
-        this.alertErrorText = 'No se encontró la cuenta del paciente'
-        this.showAlertError()
-        return
-      }
+      if (this.guardandoReingreso) return
+      this.guardandoReingreso = true
       const me = this
       try {
-        // 1. Reingreso (reactiva el expediente, usa la fecha/hora del formulario)
-        await axios.post(apiUrl + '/expedientes/reingresoNormal', {
-          id: f.id, fecha: f.fecha, hora: f.hora, user: me.currentUser.user
-        })
-        // 2. Asignar habitacion (crea el detalle de habitacion con esa fecha/hora)
-        await axios.put(apiUrl + '/expedientes/assignRoom', {
+        // Un solo endpoint (transaccion): crea una cuenta NUEVA, reactiva el
+        // expediente al area, crea el cuarto y asigna el medico.
+        await axios.post(apiUrl + '/expedientes/reingresoConAsignacion', {
           form: {
             id: f.id,
-            cuenta: f.cuenta,
+            selectedOption: f.selectedOption,
             habitacion: f.habitacion,
             fecha: f.fecha,
             hora: f.hora,
             tipo_paciente: f.tipo_paciente,
             estudioDeSueno: f.estudioDeSueno,
-            selectedOption: f.selectedOption
-          },
-          user: me.currentUser.user
-        })
-        // 3. Asignar medico
-        await axios.put(apiUrl + '/expedientes/assignDoctor', {
-          form: { expediente: f.expediente, assignedDoctor: me.selectedMedicoReingreso }
+            assignedDoctor: me.selectedMedicoReingreso,
+            user: me.currentUser.user
+          }
         })
         me.alertVariant = 'info'
         me.alertText = 'El paciente ha sido reingresado y asignado exitosamente'
@@ -686,9 +671,12 @@ export default {
         me.$bvModal.hide('modal-reingreso-menu')
         me.$refs.vuetable.refresh()
       } catch (error) {
-        me.alertErrorText = 'Ha ocurrido un error al reingresar al paciente'
+        me.alertErrorText = (error.response && error.response.data && error.response.data.msg) ||
+          'Ha ocurrido un error al reingresar al paciente'
         me.showAlertError()
         console.error(error)
+      } finally {
+        me.guardandoReingreso = false
       }
     },
     openModal (modal, action) {
