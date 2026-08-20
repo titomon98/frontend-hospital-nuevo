@@ -2374,16 +2374,23 @@ export default {
       }
 
       try {
-        for (const consumo of this.consumosTemporales) {
-          this.$refs['modal-1-movimiento'].hide()
-          if (consumo.tipo === '0' || consumo.tipo === '3') {
-            await this.onSaveMedicamento(consumo)
-          } else if (consumo.tipo === '1') {
-            await this.onSaveQuirurgico(consumo)
-          } else if (consumo.tipo === '2') {
-            await this.onSaveComunes(consumo)
+        this.$refs['modal-1-movimiento'].hide()
+        // Un solo request: todos los consumos se guardan en una transaccion.
+        await axios.post(apiUrl + '/detalle_consumos/batch', {
+          form: {
+            id_cuenta: this.idCuentaSeleccionada,
+            movimiento: 'SALIDAQ',
+            user: this.currentUser.user,
+            consumos: this.consumosTemporales.map(c => ({
+              tipo: c.tipo,
+              id: c.id,
+              cantidad: c.cantidad,
+              precio_venta: c.precio_venta,
+              inventariado: c.inventariado,
+              nombre: c.nombre
+            }))
           }
-        }
+        })
         // Éxito
         this.alertVariant = 'success'
         this.alertText = 'Consumos registrados exitosamente!'
@@ -4201,45 +4208,36 @@ export default {
       // guardar se cobre como cargo único en vez de item por item.
       this.paqueteSeleccionado = data
       this.consumosTemporales = []
-      const detallePaquetes = data.detalle_paquetes
+      const detallePaquetes = data.detalle_paquetes || []
+
+      // Recolectar los ids por tipo y pedir existencia/inventariado en UNA sola
+      // llamada (antes se hacia un getOne por item, en serie).
+      const ids = { comun: [], quirurgico: [], medicamento: [] }
+      detallePaquetes.forEach(el => {
+        if (el.id_comun !== null) ids.comun.push(el.id_comun)
+        else if (el.id_quirurgico !== null) ids.quirurgico.push(el.id_quirurgico)
+        else if (el.id_medicamento !== null) ids.medicamento.push(el.id_medicamento)
+      })
+
+      let mapa = { comun: {}, quirurgico: {}, medicamento: {} }
+      try {
+        const { data: resp } = await axios.post(apiUrl + '/paquetes/existenciasInsumos', ids)
+        mapa = resp
+      } catch (error) {
+        console.log(error)
+      }
 
       for (const element of detallePaquetes) {
-        console.log(element)
-        let dataConsumo = {
-          existencia_actual: 0,
-          inventariado: ''
-        }
-
         let tipo = '0' // Quirurgico es 1, Comun es 2, 0 y 3 son medicamento
         let id
+        let info = { existencia_actual: 0, inventariado: '' }
 
         if (element.id_comun !== null) {
-          try {
-            const response = await axios.get(apiUrl + '/comun/getOne', { params: { id: element.id_comun } })
-            dataConsumo = response.data
-            tipo = '2'
-            id = element.id_comun
-          } catch (error) {
-            console.log(error)
-          }
+          tipo = '2'; id = element.id_comun; info = mapa.comun[id] || info
         } else if (element.id_quirurgico !== null) {
-          try {
-            const response = await axios.get(apiUrl + '/quirurgico/getOne', { params: { id: element.id_quirurgico } })
-            dataConsumo = response.data
-            tipo = '1'
-            id = element.id_quirurgico
-          } catch (error) {
-            console.log(error)
-          }
+          tipo = '1'; id = element.id_quirurgico; info = mapa.quirurgico[id] || info
         } else if (element.id_medicamento !== null) {
-          try {
-            const response = await axios.get(apiUrl + '/medicamentos/getOne', { params: { id: element.id_medicamento } })
-            dataConsumo = response.data
-            tipo = '0'
-            id = element.id_medicamento
-          } catch (error) {
-            console.log(error)
-          }
+          tipo = '0'; id = element.id_medicamento; info = mapa.medicamento[id] || info
         }
 
         this.consumosTemporales.push({
@@ -4249,8 +4247,8 @@ export default {
           cantidad_sugerida: parseInt(element.cantidad),
           cantidad: parseInt(element.cantidad),
           precio_venta: parseFloat(parseFloat(element.subtotal) / parseInt(element.cantidad)),
-          existencias: dataConsumo.existencia_actual,
-          inventariado: dataConsumo.inventariado
+          existencias: info.existencia_actual,
+          inventariado: info.inventariado
         })
       }
 

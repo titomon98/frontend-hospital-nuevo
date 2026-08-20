@@ -1971,20 +1971,29 @@ export default {
       }
 
       try {
+        // Validar cantidades antes de enviar.
         for (const consumo of this.consumosTemporales) {
-          // Agregar validación de cantidad
           if (consumo.cantidad <= 0 || (consumo.cantidad > consumo.existencias && consumo.inventariado === 'INVENTARIADO')) {
             throw new Error(`Cantidad inválida para ${consumo.nombre}`)
           }
-          this.$refs['modal-1-movimiento'].hide()
-          if (consumo.tipo === '0' || consumo.tipo === '3') {
-            await this.onSaveMedicamento(consumo)
-          } else if (consumo.tipo === '1') {
-            await this.onSaveQuirurgico(consumo)
-          } else if (consumo.tipo === '2') {
-            await this.onSaveComunes(consumo)
-          }
         }
+        this.$refs['modal-1-movimiento'].hide()
+        // Un solo request: todos los consumos en una transaccion.
+        await axios.post(apiUrl + '/detalle_consumos/batch', {
+          form: {
+            id_cuenta: this.idCuentaSeleccionada,
+            movimiento: 'SALIDAH',
+            user: this.currentUser.user,
+            consumos: this.consumosTemporales.map(c => ({
+              tipo: c.tipo,
+              id: c.id,
+              cantidad: c.cantidad,
+              precio_venta: c.precio_venta,
+              inventariado: c.inventariado,
+              nombre: c.nombre
+            }))
+          }
+        })
         // Éxito
         this.alertVariant = 'success'
         this.alertText = 'Consumos registrados exitosamente!'
