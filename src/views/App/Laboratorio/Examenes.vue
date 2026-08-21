@@ -30,13 +30,21 @@
         </b-row>
         <b-row class="ml-2">
           <b-col md="6">
-            <b-form-group label="Nombre Paciente">
+            <b-form-checkbox
+              v-model="pacienteNuevo"
+              switch
+              class="mb-2"
+              @change="onTogglePacienteNuevo"
+            >
+              Paciente nuevo (aún no registrado)
+            </b-form-checkbox>
+            <b-form-group v-if="!pacienteNuevo" label="Nombre Paciente">
               <v-select
                 name="type"
                 v-model="selectedExpediente"
                 :options="expedientesExamenes"
                 :filterable="false"
-                placeholder="Seleccione o Ingrese al Paciente"
+                placeholder="Busque y seleccione al paciente"
                 @search="onSearch_expediente"
               >
                 <template v-slot:spinner="{ loading }">
@@ -52,9 +60,23 @@
                 </template>
               </v-select>
               <b-form-text>
-                Ingrese el nombre y apellido separados por una coma (e.g., JUAN, PEREZ)
+                Busque y seleccione un paciente ya registrado.
               </b-form-text>
             </b-form-group>
+            <template v-else>
+              <b-form-group label="Nombres">
+                <b-form-input
+                  v-model.trim="form.nombre"
+                  placeholder="Nombres del paciente"
+                ></b-form-input>
+              </b-form-group>
+              <b-form-group label="Apellidos">
+                <b-form-input
+                  v-model.trim="form.apellido"
+                  placeholder="Apellidos del paciente"
+                ></b-form-input>
+              </b-form-group>
+            </template>
           </b-col>
           <b-col md="5">
             <b-form-checkbox
@@ -623,6 +645,7 @@ export default {
       currentPageExa: 1,
       expedientesExamenes: [],
       selectedExpediente: null,
+      pacienteNuevo: false,
       selectedExamenAlmacenado: null,
       encargados: [],
       medicos: [],
@@ -929,24 +952,16 @@ export default {
   },
   watch: {
     selectedExpediente (newValue) {
-      if (newValue.cui) {
-        this.form.nombre = newValue.nombres + ' ' + newValue.apellidos
-        this.form.cui = newValue.cui
-        this.form.whatsapp = newValue.telefono
-        this.form.id_expediente = newValue.id
-      } else {
-        const [nombres, apellidos] = newValue.nombres.split(',').map(str => str.trim())
-        this.form.nombre = nombres.toUpperCase()
-        this.form.apellido = apellidos ? apellidos.toUpperCase() : ''
-        this.form.NewExpediente = true
-
-        if (!this.$v.form.nombre.$error) {
-          const [nombres, apellidos] = newValue.nombres.split(',').map(str => str.trim())
-          this.form.nombre = nombres.toUpperCase()
-          this.form.apellido = apellidos ? apellidos.toUpperCase() : ''
-          this.form.NewExpediente = true
-        }
+      // Solo pacientes ya registrados (los nuevos se ingresan con el switch "Paciente nuevo").
+      if (!newValue) {
+        return
       }
+      this.form.nombre = newValue.nombres + ' ' + (newValue.apellidos || '')
+      this.form.apellido = ''
+      this.form.cui = newValue.cui
+      this.form.whatsapp = newValue.telefono
+      this.form.id_expediente = newValue.id
+      this.form.NewExpediente = false
     },
     selectedExamenes (newValue) {
       if (newValue) {
@@ -973,6 +988,9 @@ export default {
           this.$refs['modal_agregar'].hide()
           this.form.id = 0
           this.form.nombre = ''
+          this.form.apellido = ''
+          this.form.NewExpediente = false
+          this.pacienteNuevo = false
           this.form.cui = 0
           this.form.edad = null
           this.form.comision = ''
@@ -1061,6 +1079,16 @@ export default {
     /* AREA PARA GUARDAR, LISTAR Y VER EXAMENES */
     onSave () {
       const me = this
+      if (this.pacienteNuevo && !this.form.nombre) {
+        this.alertErrorText = 'Ingrese al menos los nombres del paciente nuevo'
+        this.showAlertError()
+        return
+      }
+      if (!this.pacienteNuevo && !this.form.id_expediente) {
+        this.alertErrorText = 'Busque y seleccione un paciente registrado, o marque "Paciente nuevo"'
+        this.showAlertError()
+        return
+      }
       axios.post(apiUrl + '/Examenes_realizados/create', {
         form: me.form, user: me.currentUser.user })
         .then((response) => {
@@ -1095,12 +1123,22 @@ export default {
           }
         }
       ).then((response) => {
-        if (!response.data.some(option => option.nombres + ' ' + option.apellidos === search)) {
-          response.data.unshift({ nombres: search })
-        }
         this.expedientesExamenes = response.data
         loading(false)
       })
+    },
+    // Alterna entre paciente registrado (select) y paciente nuevo (nombres/apellidos).
+    onTogglePacienteNuevo (esNuevo) {
+      this.selectedExpediente = null
+      this.expedientesExamenes = []
+      this.form.NewExpediente = esNuevo
+      this.form.nombre = ''
+      this.form.apellido = ''
+      this.form.id_expediente = null
+      if (esNuevo) {
+        this.form.cui = 'NO DISPONIBLE'
+        this.form.whatsapp = ''
+      }
     },
     onSearch_tipoExamen (search, loading) {
       if (search.length) {
