@@ -45,6 +45,11 @@ export default {
         console.error('Error cargando revisión de consumos:', error)
       }
     },
+    // Se dispara cuando el componente RevisarConsumos termina de confirmar todos
+    // los consumos: recarga el badge de estado de la cuenta.
+    async onRevisionFinalizada () {
+      await this.cargarRevisionConsumos(this.revisionConsumos.idCuenta)
+    },
     // estado: 1 = comprobado, 2 = inconsistencia.
     async revisarConsumos (estado) {
       const idCuenta = this.revisionConsumos.idCuenta

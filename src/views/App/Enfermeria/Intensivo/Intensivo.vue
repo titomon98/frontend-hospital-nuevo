@@ -656,8 +656,7 @@
           <b-badge :variant="varianteRevisionConsumos">Revisión de consumos: {{ textoRevisionConsumos }}</b-badge>
           <span v-if="revisionConsumos.reviewedBy" class="ml-2 text-muted">por {{ revisionConsumos.reviewedBy }}</span>
           <div v-if="puedeRevisarConsumos" class="mt-2">
-            <b-button variant="success" size="sm" v-anti-doble @click="revisarConsumos(1)">Revisar y comprobar</b-button>
-            <b-button variant="danger" size="sm" v-anti-doble @click="revisarConsumos(2)" class="ml-2">Revisar y reportar inconsistencia</b-button>
+            <revisar-consumos :id-cuenta="revisionConsumos.idCuenta" movimiento="SALIDAI" @finalizado="onRevisionFinalizada" />
           </div>
         </div>
         <b-button variant="primary" @click="onSave">Guardar</b-button>
@@ -824,8 +823,7 @@
           <b-badge :variant="varianteRevisionConsumos">Revisión de consumos: {{ textoRevisionConsumos }}</b-badge>
           <span v-if="revisionConsumos.reviewedBy" class="ml-2 text-muted">por {{ revisionConsumos.reviewedBy }}</span>
           <div v-if="puedeRevisarConsumos" class="mt-2">
-            <b-button variant="success" size="sm" v-anti-doble @click="revisarConsumos(1)">Revisar y comprobar</b-button>
-            <b-button variant="danger" size="sm" v-anti-doble @click="revisarConsumos(2)" class="ml-2">Revisar y reportar inconsistencia</b-button>
+            <revisar-consumos :id-cuenta="revisionConsumos.idCuenta" movimiento="SALIDAI" @finalizado="onRevisionFinalizada" />
           </div>
         </div>
         <b-button variant="primary" @click="onSave">Guardar</b-button>
@@ -1230,6 +1228,7 @@ import { mapGetters } from 'vuex'
 import JsPDF from 'jspdf'
 import 'jspdf-autotable'
 import Multiselect from 'vue-multiselect'
+import RevisarConsumos from '../../../../components/RevisarConsumos'
 
 export default {
   mixins: [revisionConsumosMixin],
@@ -1238,7 +1237,8 @@ export default {
     vuetable: Vuetable,
     'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
     'datatable-heading': DatatableHeading,
-    Multiselect
+    Multiselect,
+    'revisar-consumos': RevisarConsumos
   },
   setup () {
     return { $v: useVuelidate() }
