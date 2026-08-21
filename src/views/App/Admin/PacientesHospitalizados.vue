@@ -418,6 +418,7 @@ import moment from 'moment'
 import { mapGetters } from 'vuex'
 import JsPDF from 'jspdf'
 import 'jspdf-autotable'
+import { claseFilaDiaNoche } from '../../../config/fechas'
 
 export default {
   name: 'PacientesHospitalizados',
@@ -776,11 +777,7 @@ export default {
       this.$bvModal.hide(modal)
     },
     getRowClass (rowData) {
-      if (!rowData.createdAt) return ''
-      const partes = rowData.createdAt.split(' ')
-      if (partes.length < 2) return ''
-      const hora = parseInt(partes[1].split(':')[0])
-      return (hora >= 7 && hora < 19) ? 'fila-dia' : 'fila-noche'
+      return claseFilaDiaNoche(rowData.createdAt)
     },
     calcularEdad (Fecha) {
       if (!Fecha) return ''

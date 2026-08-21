@@ -1307,6 +1307,7 @@ import JsPDF from 'jspdf'
 import 'jspdf-autotable'
 import Multiselect from 'vue-multiselect'
 import RevisarConsumos from '../../../../components/RevisarConsumos'
+import { claseFilaDiaNoche } from '../../../../config/fechas'
 
 export default {
   mixins: [revisionConsumosMixin],
@@ -1986,16 +1987,7 @@ export default {
   },
   methods: {
     getRowClass (rowData) {
-      if (!rowData.createdAt) return ''
-
-      const partes = rowData.createdAt.split(' ')
-      if (partes.length < 2) return ''
-
-      const hora = parseInt(partes[1].split(':')[0])
-
-      return (hora >= 7 && hora < 19)
-        ? 'fila-dia'
-        : 'fila-noche'
+      return claseFilaDiaNoche(rowData.createdAt)
     },
     async cargarInsumos (tipo) {
       let endpoint = ''

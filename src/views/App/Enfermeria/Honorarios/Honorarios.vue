@@ -123,6 +123,7 @@ import DatatableHeading from '../../../Tables/DatatableHeading'
 import Vuetable from 'vuetable-2/src/components/Vuetable'
 import VuetablePaginationBootstrap from '../../../../components/common/VuetablePaginationBootstrap'
 import { mapGetters } from 'vuex'
+import { claseFilaDiaNoche } from '../../../../config/fechas'
 
 export default {
   name: 'Honorarios',
@@ -241,16 +242,7 @@ export default {
   },
   methods: {
     getRowClass (rowData) {
-      if (!rowData.fecha_honorario) return ''
-
-      const partes = rowData.fecha_honorario.split(' ')
-      if (partes.length < 2) return ''
-
-      const hora = parseInt(partes[1].split(':')[0])
-
-      return (hora >= 7 && hora < 19)
-        ? 'fila-dia'
-        : 'fila-noche'
+      return claseFilaDiaNoche(rowData.fecha_honorario)
     },
     realizarBusqueda () {
       this.$refs.vuetable.refresh()
