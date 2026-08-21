@@ -576,6 +576,7 @@
               ref="vuetableConsumoInsumos"
               class="table-divided table-responsive order-with-arrow"
               :api-url="apiBaseConsumoMedicamento"
+              @vuetable:pagination-data="onPaginationDataConsumo"
               :query-params="makeQueryParamsConsumoInsumo"
                data-path="data"
                pagination-path=""
@@ -596,6 +597,7 @@
               ref="vuetableConsumoInsumos"
               class="table-divided table-responsive order-with-arrow"
               :api-url="apiBaseConsumoAnestesicos"
+              @vuetable:pagination-data="onPaginationDataConsumo"
               :query-params="makeQueryParamsConsumoInsumo"
                data-path="data"
                pagination-path=""
@@ -616,6 +618,7 @@
               ref="vuetableConsumoQuirurgicos"
               class="table-divided table-responsive order-with-arrow"
               :api-url="apiBaseConsumoQuirurgico"
+              @vuetable:pagination-data="onPaginationDataConsumo"
               :query-params="makeQueryParamsConsumoInsumo"
               :per-page="perPage"
               :reactive-api-url="true"
@@ -634,6 +637,7 @@
               ref="vuetableConsumoComunes"
               class="table-divided table-responsive order-with-arrow"
               :api-url="apiBaseConsumoComun"
+              @vuetable:pagination-data="onPaginationDataConsumo"
               :query-params="makeQueryParamsConsumoInsumo"
               :per-page="perPage"
               :reactive-api-url="true"
@@ -743,6 +747,7 @@
               ref="vuetableConsumoInsumos"
               class="table-divided table-responsive order-with-arrow"
               :api-url="apiBaseConsumoMedicamento"
+              @vuetable:pagination-data="onPaginationDataConsumo"
               :query-params="makeQueryParamsConsumoInsumo"
                data-path="data"
                pagination-path=""
@@ -763,6 +768,7 @@
               ref="vuetableConsumoInsumosAnestesicos"
               class="table-divided table-responsive order-with-arrow"
               :api-url="apiBaseConsumoAnestesicos"
+              @vuetable:pagination-data="onPaginationDataConsumo"
               :query-params="makeQueryParamsConsumoInsumo"
                data-path="data"
                pagination-path=""
@@ -783,6 +789,7 @@
               ref="vuetableConsumoQuirurgicos"
               class="table-divided table-responsive order-with-arrow"
               :api-url="apiBaseConsumoQuirurgico"
+              @vuetable:pagination-data="onPaginationDataConsumo"
               :query-params="makeQueryParamsConsumoInsumo"
               :per-page="perPage"
               :reactive-api-url="true"
@@ -801,6 +808,7 @@
               ref="vuetableConsumoComunes"
               class="table-divided table-responsive order-with-arrow"
               :api-url="apiBaseConsumoComun"
+              @vuetable:pagination-data="onPaginationDataConsumo"
               :query-params="makeQueryParamsConsumoInsumo"
               :per-page="perPage"
               :reactive-api-url="true"
@@ -2697,15 +2705,14 @@ export default {
       this.toP = paginationData.to
       this.totalP = paginationData.total
       this.lastPageP = paginationData.last_page
-      this.items = paginationData.data.map(item => {
-        item.createdAt = moment(item.createdAt).format('DD/MM/YYYY HH:mm:ss')
-        item.updatedAt = moment(item.updatedAt).format('DD/MM/YYYY HH:mm:ss')
-        return {
-          createdAt: item.createdAt,
-          updatedAt: item.updatedAt
-        }
-      })
-      this.$refs.paginationConsumo.setPaginationData(paginationData)
+      // Los paginadores de las pestañas de consumos comparten el mismo ref
+      // (array): se actualizan todos de forma segura.
+      const _pc = this.$refs.paginationConsumo
+      if (Array.isArray(_pc)) {
+        _pc.forEach(x => { if (x && x.setPaginationData) x.setPaginationData(paginationData) })
+      } else if (_pc && _pc.setPaginationData) {
+        _pc.setPaginationData(paginationData)
+      }
     },
     onChangePageConsumo (page) {
       this.$refs.vuetableConsumos.changePage(page)
