@@ -917,6 +917,7 @@
             <b-form-group label="Tipo de Examen:">
               <Multiselect
                 v-model="selectedExamenes"
+                @keydown.native.delete.capture.stop="() => {}"
                 :options="examenes_almacenadosCache"
                 :multiple="true"
                 :close-on-select="false"
