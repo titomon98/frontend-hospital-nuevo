@@ -480,6 +480,34 @@
         <b-button variant="danger" @click="closeModal('contrato')">Cancelar</b-button>
       </template>
     </b-modal>
+
+    <!-- SOLO GERENCIA: corregir fecha/hora de ingreso actual (casos de error) -->
+    <b-modal id="modal-editar-ingreso" ref="modal-editar-ingreso" title="Editar fecha y hora de ingreso">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <p class="text-muted">
+        Corrige el ingreso actual de <strong>{{ editarIngreso.nombre }}</strong>. Se actualizará el
+        expediente, la cuenta activa y el detalle de habitación (afecta el cobro).
+      </p>
+      <b-form-group label="Fecha de ingreso">
+        <b-form-input type="date" v-model="editarIngreso.fecha"></b-form-input>
+      </b-form-group>
+      <b-form-group label="Hora de ingreso">
+        <b-form-input type="time" step="1" v-model="editarIngreso.hora"></b-form-input>
+      </b-form-group>
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click="guardarEditarIngreso()">Guardar</b-button>
+        <b-button variant="danger" @click="$bvModal.hide('modal-editar-ingreso')">Cancelar</b-button>
+      </template>
+    </b-modal>
+
     <b-row>
       <b-col md="12">
         <iq-card>
@@ -585,6 +613,15 @@
                     variant="success"
                     :disabled="!hasPermission([5, 7])"
                   >Generar Cuenta Total de paciente</b-button>
+
+                  <b-button
+                    v-if="currentUser.user_type === 1 && [1, 3, 4, 5, 91, 93, 94, 95].includes(props.rowData.estado)"
+                    v-b-tooltip.top="'Corregir fecha/hora de ingreso'"
+                    @click="setEditarIngreso(props.rowData)"
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="warning"
+                  >Editar ingreso</b-button>
                 </div>
               </template>
               <!-- Paginacion -->
@@ -693,6 +730,7 @@ export default {
       alertText: '',
       alertErrorText: '',
       alertVariant: '',
+      editarIngreso: { id: 0, nombre: '', fecha: '', hora: '' },
       selectedAccount: null,
       cuentas: [],
       selectedTrasOption: 4,
@@ -1035,6 +1073,42 @@ export default {
     showAlertError () {
       this.alertCountDownError = this.alertSecs
       this.alertCountDown = this.alertSecs
+    },
+    setEditarIngreso (rowData) {
+      const hora = rowData.hora_ingreso_reciente
+      this.editarIngreso = {
+        id: rowData.id,
+        nombre: `${rowData.nombres} ${rowData.apellidos}`,
+        fecha: rowData.fecha_ingreso_reciente ? moment(rowData.fecha_ingreso_reciente).format('YYYY-MM-DD') : '',
+        hora: hora ? String(hora).substring(0, 8) : ''
+      }
+      this.$refs['modal-editar-ingreso'].show()
+    },
+    guardarEditarIngreso () {
+      if (!this.editarIngreso.fecha || !this.editarIngreso.hora) {
+        this.alertErrorText = 'La fecha y la hora son obligatorias'
+        this.showAlertError()
+        return
+      }
+      const me = this
+      axios.put(apiUrl + '/expedientes/editarIngresoActual', {
+        id_expediente: this.editarIngreso.id,
+        fecha: this.editarIngreso.fecha,
+        hora: this.editarIngreso.hora,
+        user: this.currentUser.user,
+        user_type: this.currentUser.user_type
+      })
+        .then(() => {
+          me.alertVariant = 'primary'
+          me.showAlert()
+          me.alertText = 'La fecha y hora de ingreso se actualizaron correctamente'
+          me.$refs['modal-editar-ingreso'].hide()
+          me.$refs.vuetable.refresh()
+        })
+        .catch((error) => {
+          me.alertErrorText = error.response?.data?.msg || 'Ha ocurrido un error, por favor intente más tarde'
+          me.showAlertError()
+        })
     },
     getCuentas (num) {
       this.totalSUM = 0

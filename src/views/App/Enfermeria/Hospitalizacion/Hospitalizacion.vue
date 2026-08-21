@@ -433,6 +433,35 @@
         >
       </template>
     </b-modal>
+
+    <!-- SOLO GERENCIA: eliminar el reingreso/hospitalización actual (casos de error) -->
+    <b-modal id="modal-eliminar-reingreso" ref="modal-eliminar-reingreso" title="Eliminar reingreso">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <p>
+        Se eliminará la cuenta actual de <strong>{{ eliminarReingreso.nombre }}</strong>, sacando al
+        paciente del hospital <strong>sin cobrar nada</strong>. Si hay consumos registrados, se
+        repondrán al inventario. Esta acción no se puede deshacer.
+      </p>
+      <b-form-group label="Motivo de la eliminación">
+        <b-form-textarea
+          v-model="eliminarReingreso.motivo"
+          placeholder="Ej. hora de ingreso mal registrada"
+          rows="2"
+        ></b-form-textarea>
+      </b-form-group>
+      <template #modal-footer="{}">
+        <b-button variant="danger" @click="confirmarEliminarReingreso()">Eliminar</b-button>
+        <b-button variant="secondary" @click="$bvModal.hide('modal-eliminar-reingreso')">Cancelar</b-button>
+      </template>
+    </b-modal>
     <b-modal id="modal-ver-honorarios" size="lg" ref="modal-ver-honorarios" title="Ver honorarios">
       <b-alert
         :show="alertCountDownError"
@@ -1187,6 +1216,14 @@
                   >
                       {{ ['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo_egreso) ? 'Agregar nota de egreso' : 'Modificar nota de egreso' }}
                   </b-button>
+                  <b-button
+                      v-if="currentUser.user_type === 1"
+                      v-b-tooltip.top="'Eliminar reingreso (saca al paciente sin cobrar)'"
+                      @click="setEliminarReingreso(props.rowData)"
+                      class="mb-2 mt-2 button-spacing"
+                      size="sm"
+                      variant="danger"
+                  >Eliminar reingreso</b-button>
                 </div>
                 <!-- Tipo de paciente-->
                 <div slot="tipo_paciente" slot-scope="props">
@@ -1279,6 +1316,7 @@ export default {
   },
   data () {
     return {
+      eliminarReingreso: { id: 0, nombre: '', motivo: '' },
       TotalApagar: 0.0,
       idCuentaParcial: 0,
       totalMedicamentos: 0.0,
@@ -2639,6 +2677,36 @@ export default {
     },
     showAlertError () {
       this.alertCountDownError = this.alertSecs
+    },
+    setEliminarReingreso (rowData) {
+      this.eliminarReingreso = {
+        id: rowData.id,
+        nombre: `${rowData.nombres} ${rowData.apellidos}`,
+        motivo: ''
+      }
+      this.$refs['modal-eliminar-reingreso'].show()
+    },
+    confirmarEliminarReingreso () {
+      const me = this
+      axios.delete(apiUrl + '/expedientes/eliminarCuentaActual', {
+        data: {
+          id_expediente: this.eliminarReingreso.id,
+          user: this.currentUser.user,
+          user_type: this.currentUser.user_type,
+          motivo: this.eliminarReingreso.motivo || null
+        }
+      })
+        .then(() => {
+          me.alertVariant = 'primary'
+          me.showAlert()
+          me.alertText = 'La cuenta actual del paciente ha sido eliminada correctamente'
+          me.$refs['modal-eliminar-reingreso'].hide()
+          me.$refs.vuetable.refresh()
+        })
+        .catch((error) => {
+          me.alertErrorText = error.response?.data?.msg || 'Ha ocurrido un error, por favor intente más tarde'
+          me.showAlertError()
+        })
     },
     makeQueryParamsReceta (sortOrder, currentPage, perPage) {
       return sortOrder[0]

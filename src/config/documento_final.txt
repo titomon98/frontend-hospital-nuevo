@@ -1,7 +1,5 @@
 1. Cuando se ingresa una cuenta como seguro, no aparece en cuentas por cobrar de seguro, si no en cuentas por cobrar normal.
-2. Al reingresar, la cuenta del laboratorio sigue tomando la anterior, y no la actual
-4. En la tabla de laboratorios en lugar de que aparezca el CUI que aparezca el precio del examen (solo usuario de gerencia y administracion)
-5. Al hacer el reingreso no se modifica la fecha ni la hora de ingreso. Tiene que aparecer solo el menu que aparece en la asignacion de habitacion exactamente igual. 
+5. Tiene que aparecer solo el menu que aparece en la asignacion de habitacion exactamente igual. 
 6. El contrato, el espacio de las firmas se tiene que correr un poco para arriba para que quede espacio de autenticar
 7. El sumario tiene la direccion muy pegada, hay que bajar telefono para dejar mas espacio para la direccion. Subir parentesco para que la direccion tenga mas espacio
 

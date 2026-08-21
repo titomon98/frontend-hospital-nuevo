@@ -27,6 +27,7 @@
               <b-tab title="Pacientes hospitalizados" lazy><PacientesHospitalizados/></b-tab>
               <b-tab title="Historial de emergencias" lazy><EmergenciasHistorial/></b-tab>
               <b-tab title="Historial de egresos en hospital" lazy><PacientesHistorial/></b-tab>
+              <b-tab title="Historial eliminaciones" lazy><EliminacionesHistorial/></b-tab>
             </b-tabs>
           </template>
         </iq-card>
@@ -44,6 +45,7 @@ import Reportes from './Reportes.vue'
 import PacientesHospitalizados from './PacientesHospitalizados.vue'
 import EmergenciasHistorial from './EmergenciasHistorial.vue'
 import PacientesHistorial from './PacientesHistorial.vue'
+import EliminacionesHistorial from './EliminacionesHistorial.vue'
 
 /* import Efectivo from './Efectivo.vue' */
 import ValidarDescuentos from './Descuentos/ValidarDescuentos.vue'
@@ -58,7 +60,8 @@ export default {
     ValidarDescuentos,
     PacientesHospitalizados,
     EmergenciasHistorial,
-    PacientesHistorial
+    PacientesHistorial,
+    EliminacionesHistorial
   },
   data () {
     return {

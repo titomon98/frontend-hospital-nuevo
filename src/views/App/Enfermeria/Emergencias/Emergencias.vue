@@ -1061,6 +1061,13 @@
       <h6 class="my-4">
         ¿Desea eliminar el expediente ?
       </h6>
+      <b-form-group label="Motivo de la eliminación">
+        <b-form-textarea
+          v-model="motivoEliminar"
+          placeholder="Ej. hora de ingreso mal registrada"
+          rows="2"
+        ></b-form-textarea>
+      </b-form-group>
       <template #modal-footer="{}">
         <b-button
           type="submit"
@@ -1332,6 +1339,7 @@ export default {
   },
   data () {
     return {
+      motivoEliminar: '',
       TotalApagar: 0.0,
       idCuentaParcial: 0,
       totalMedicamentos: 0.0,
@@ -3661,6 +3669,7 @@ export default {
     setEliminar (data) {
       this.form.id = data.id
       this.form.expediente = data.expediente
+      this.motivoEliminar = ''
       const masDeUnaCuenta = data.cuentas.length
 
       if (masDeUnaCuenta > 1) {
@@ -3674,7 +3683,7 @@ export default {
     },
     eliminarEmergencia () {
       axios.delete(apiUrl + '/expedientes/delete', {
-        data: { id: this.form.id }
+        data: { id: this.form.id, user: this.currentUser.user, motivo: this.motivoEliminar || null }
       })
         .then((response) => {
           this.alertVariant = 'primary'
