@@ -622,6 +622,14 @@
                     size="sm"
                     variant="warning"
                   >Editar ingreso</b-button>
+
+                  <b-button
+                    v-b-tooltip.top="'Marca al paciente como de seguro (su deuda irá a Seguros por cobrar)'"
+                    @click="toggleSeguro(props.rowData)"
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    :variant="props.rowData.es_seguro === 1 ? 'info' : 'outline-info'"
+                  >{{ props.rowData.es_seguro === 1 ? 'Quitar de seguro' : 'Marcar de seguro' }}</b-button>
                 </div>
               </template>
               <!-- Paginacion -->
@@ -1066,6 +1074,27 @@ export default {
     },
     onChangePage (page) {
       this.$refs.vuetable.changePage(page)
+    },
+    toggleSeguro (rowData) {
+      const me = this
+      const nuevo = rowData.es_seguro === 1 ? 0 : 1
+      axios.put(apiUrl + '/expedientes/setSeguro', {
+        id: rowData.id,
+        es_seguro: nuevo,
+        user: this.currentUser.user
+      })
+        .then(() => {
+          me.alertVariant = 'primary'
+          me.showAlert()
+          me.alertText = nuevo === 1
+            ? 'El paciente quedó marcado como de seguro'
+            : 'El paciente ya no es de seguro'
+          me.$refs.vuetable.refresh()
+        })
+        .catch((error) => {
+          me.alertErrorText = error.response?.data?.msg || 'Ha ocurrido un error, por favor intente más tarde'
+          me.showAlertError()
+        })
     },
     showAlert () {
       this.alertCountDown = this.alertSecs

@@ -24,7 +24,7 @@
         <b-form-group label="Póliza:">
           <b-input id="poliza" ref="poliza" v-model="poliza" />
         </b-form-group>
-        <b-form-group label="Asegurado:">
+        <b-form-group label="Asegurado (titular de la póliza, puede ser otra persona):">
           <b-input id="nombreAsegurado" ref="nombreAsegurado" v-model="nombreAsegurado" />
         </b-form-group>
         <b-form-group label="Teléfono del asegurado:">
@@ -40,9 +40,9 @@
               :options="aseguradoras"
               label="nombre"
               value="id"></v-select>
-        <div>Pacientes</div>
+        <div>Paciente asegurado (expediente al que se le carga el seguro)</div>
         <v-select
-          ref="selectAseg"
+          ref="selectPacienteAsegurado"
           v-model="selectedExp"
           :options="expedientesConNombre"
           label="nombreCompleto"
