@@ -668,8 +668,8 @@ export default {
           nombres: item.expediente.nombres,
           apellidos: item.expediente.apellidos,
           numero: item.numero,
-          total: item.total,
-          totalPagado: item.total_pagado,
+          total: item.total_hospital,
+          totalPagado: item.total_hospital,
           fecha: item.createdAt,
           tipo: item.tipo
         }))
@@ -733,8 +733,8 @@ export default {
           var totPagado = 0
           var totPendiente = 0
           data.forEach(item => {
-            tot = parseFloat(tot) + parseFloat(item.total)
-            totPagado = parseFloat(totPagado) + parseFloat(item.total_pagado)
+            tot = parseFloat(tot) + parseFloat(item.total_hospital)
+            totPagado = parseFloat(totPagado) + parseFloat(item.total_hospital)
             totPendiente = parseFloat(totPendiente) + parseFloat(item.pendiente_de_pago)
           })
           this.pdf.text('Corte del día ' + this.selectedDateFormatted, 5, altura)
