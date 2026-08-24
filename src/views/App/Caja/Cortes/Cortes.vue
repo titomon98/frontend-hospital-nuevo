@@ -722,10 +722,20 @@ export default {
               totIntensivo = parseFloat(totIntensivo) + parseFloat(item.totalPagado)
             }
           })
+          // Medios de pago SOLO de la porción de hospital: cada pago se escala por la
+          // razón hospital de su cuenta (total_hospital / total_pagado), porque los pagos
+          // no están categorizados. Así los medios de pago suman el total de hospital.
+          const campos = ['efectivo', 'tarjeta', 'recargoTarjeta', 'deposito', 'cheque', 'seguro', 'transferencia']
           data.forEach(item => {
+            const pagado = parseFloat(item.total_pagado) || 0
+            const razon = pagado > 0 ? (parseFloat(item.total_hospital) || 0) / pagado : 0
             if (item.detalle_pago_cuentas.length > 0) {
               item.detalle_pago_cuentas.forEach(i => {
-                medioDePago.push(i)
+                const escalado = { ...i }
+                campos.forEach(c => {
+                  escalado[c] = ((parseFloat(i[c]) || 0) * razon).toFixed(2)
+                })
+                medioDePago.push(escalado)
               })
             }
           })
