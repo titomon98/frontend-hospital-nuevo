@@ -109,35 +109,22 @@
           ></b-form-input>
         </b-form-group>
 
-        <b-form-group label="Cantidad entregada al momento:">
-          <b-form-input
-            type="number"
-            v-model="formVoucher.total"
-            placeholder="Ingresar el total pagado"
-          ></b-form-input>
-        </b-form-group>
-
-        <b-form-group label="Método de pago al médico:">
-          <b-form-radio-group
-            v-model="formVoucher.metodo_pago"
-            :options="[
-              { text: 'Efectivo', value: 'Efectivo' },
-              { text: 'Transferencia', value: 'Transferencia' }
-            ]"
-          ></b-form-radio-group>
-        </b-form-group>
-
-        <b-form-group
-          v-if="formVoucher.metodo_pago === 'Transferencia'"
-          label="Tipo de transferencia:"
-        >
-          <b-form-radio-group
-            v-model="formVoucher.tipo_transferencia"
-            :options="[
-              { text: 'Paciente al médico', value: 'Paciente al médico' },
-              { text: 'Hospital al médico', value: 'Hospital al médico' }
-            ]"
-          ></b-form-radio-group>
+        <b-form-group label="Desglose de lo entregado al médico:">
+          <b-row>
+            <b-col md="4">
+              <label>Efectivo:</label>
+              <b-form-input type="number" v-model="formVoucher.pago_efectivo" placeholder="Q0.00"></b-form-input>
+            </b-col>
+            <b-col md="4">
+              <label>Transferencia del hospital:</label>
+              <b-form-input type="number" v-model="formVoucher.pago_transferencia_hospital" placeholder="Q0.00"></b-form-input>
+            </b-col>
+            <b-col md="4">
+              <label>Transferencia del paciente:</label>
+              <b-form-input type="number" v-model="formVoucher.pago_transferencia_paciente" placeholder="Q0.00"></b-form-input>
+            </b-col>
+          </b-row>
+          <div class="mt-2"><strong>Total entregado: Q{{ totalEntregado.toFixed(2) }}</strong></div>
         </b-form-group>
 
         <!-- Tabla de pacientes antes de generar el PDF -->
@@ -329,6 +316,11 @@ export default {
       if (!this.selectedDate) return ''
       const [y, m, d] = this.selectedDate.split('-')
       return `${d}-${m}-${y}`
+    },
+    totalEntregado () {
+      return (parseFloat(this.formVoucher.pago_efectivo) || 0) +
+        (parseFloat(this.formVoucher.pago_transferencia_hospital) || 0) +
+        (parseFloat(this.formVoucher.pago_transferencia_paciente) || 0)
     }
   },
   data () {
@@ -464,8 +456,9 @@ export default {
         cantidadEscrita: null,
         observaciones: null,
         total: 0,
-        metodo_pago: 'Efectivo',
-        tipo_transferencia: null
+        pago_efectivo: 0,
+        pago_transferencia_hospital: 0,
+        pago_transferencia_paciente: 0
       }
     }
   },
@@ -1168,20 +1161,8 @@ export default {
         return
       }
 
-      if (!this.formVoucher.metodo_pago) {
-        alert('Seleccione el método de pago al médico.')
-        return
-      }
-
-      if (this.formVoucher.metodo_pago === 'Transferencia' && !this.formVoucher.tipo_transferencia) {
-        alert('Seleccione el tipo de transferencia (paciente o hospital).')
-        return
-      }
-
-      // Si no es transferencia, no se envía tipo de transferencia.
-      if (this.formVoucher.metodo_pago !== 'Transferencia') {
-        this.formVoucher.tipo_transferencia = null
-      }
+      // La cantidad entregada es la suma del desglose (efectivo + transferencias).
+      this.formVoucher.total = this.totalEntregado
 
       axios.post(apiUrl + '/voucher/create', this.formVoucher)
         .then(response => {
@@ -1268,19 +1249,21 @@ export default {
         }
 
         if (data.total !== 0) {
-          const metodoTexto = data.metodo_pago === 'Transferencia' && data.tipo_transferencia
-            ? `Transferencia — ${data.tipo_transferencia}`
-            : (data.metodo_pago || '')
+          const ef = parseFloat(data.pago_efectivo) || 0
+          const th = parseFloat(data.pago_transferencia_hospital) || 0
+          const tp = parseFloat(data.pago_transferencia_paciente) || 0
           doc.autoTable({
+            head: [['Desglose de lo entregado', 'Monto']],
             body: [
-              [{ content: 'Total entregado', styles: { halign: 'center' } }],
-              [{ content: `${data.total}`, styles: { halign: 'right' } }],
-              [{ content: 'Método de pago', styles: { halign: 'center' } }],
-              [{ content: metodoTexto, styles: { halign: 'left' } }]
+              ['Efectivo', `Q${ef.toFixed(2)}`],
+              ['Transferencia del hospital', `Q${th.toFixed(2)}`],
+              ['Transferencia del paciente', `Q${tp.toFixed(2)}`],
+              ['Total entregado', `Q${(ef + th + tp).toFixed(2)}`]
             ],
             startY: currentY + 10,
             theme: 'grid',
-            styles: { fontSize: 10, cellPadding: 2, textColor: [0, 0, 0] }
+            styles: { fontSize: 10, cellPadding: 2, textColor: [0, 0, 0] },
+            headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' }
           })
 
           currentY = doc.lastAutoTable.finalY
@@ -1427,8 +1410,9 @@ export default {
       this.formVoucher.cantidad = null
       this.formVoucher.medico = null
       this.formVoucher.total = 0
-      this.formVoucher.metodo_pago = 'Efectivo'
-      this.formVoucher.tipo_transferencia = null
+      this.formVoucher.pago_efectivo = 0
+      this.formVoucher.pago_transferencia_hospital = 0
+      this.formVoucher.pago_transferencia_paciente = 0
 
       this.$bvModal.show('modal-voucher')
     },
