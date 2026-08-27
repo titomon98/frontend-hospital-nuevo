@@ -220,6 +220,10 @@
               pagination-path
               @vuetable:pagination-data="onPaginationData"
             >
+              <!-- Fecha de egreso formateada -->
+              <div slot="fecha_egreso" slot-scope="props">
+                {{ props.rowData.fecha_egreso ? formatearFecha(props.rowData.fecha_egreso) : '' }}
+              </div>
               <!-- Estado -->
               <div slot="estado" slot-scope="props">
                 <h5 v-if="props.rowData.estado == 1">
@@ -396,9 +400,8 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
-          name: 'fecha_corte',
-          sortField: 'fecha_corte',
-          title: 'Fecha de corte',
+          name: '__slot:fecha_egreso',
+          title: 'Fecha de egreso',
           dataClass: 'list-item-heading'
         },
         {
@@ -858,6 +861,10 @@ export default {
           })
       }
     },
+    formatearFecha (fecha) {
+      const f = moment(fecha)
+      return f.isValid() ? f.format('DD/MM/YYYY') : fecha
+    },
     verPacientes () {
       if (!this.selectedDate) {
         this.alertVariant = 'danger'
@@ -909,6 +916,7 @@ export default {
       this.arrayDetalles = type === 1 ? this.detalle
         : data.map(item => ({
           expediente: item.expediente.expediente,
+          factura: item.numero_factura ? item.numero_factura : 'no hay numero de factura registrado',
           nombres: item.expediente.nombres,
           apellidos: item.expediente.apellidos,
           numero: item.numero,
@@ -951,24 +959,24 @@ export default {
           var grupos = {}
           var subtotales = {}
           categorias.forEach(cat => { grupos[cat] = []; subtotales[cat] = 0 })
-          var totalGeneral = 0
           var totalHospitalCorte = 0
-          var totalHonorariosCorte = 0
           this.arrayDetalles.forEach(item => {
             var cat = categorias.indexOf(item.categoria) !== -1 ? item.categoria : 'Hospitalización'
             grupos[cat].push(item)
             subtotales[cat] += item.totalHospital
-            totalGeneral += item.totalFull
             totalHospitalCorte += item.totalHospital
-            totalHonorariosCorte += item.totalHonorarios
           })
-          // Desglose de métodos de pago (montos reales cobrados, sin escalar).
+          // Métodos de pago SOLO de la porción de hospital (los honorarios van en su
+          // propio corte). Cada pago se escala por la razón hospital de su cuenta, así
+          // el total de métodos de pago coincide con el total de hospital.
           var camposPago = ['efectivo', 'tarjeta', 'recargoTarjeta', 'deposito', 'cheque', 'seguro', 'transferencia']
           var etiquetasPago = ['Efectivo', 'Tarjeta', 'RecargoTarjeta', 'Deposito', 'Cheque', 'Seguro', 'Transferencia']
           var totalesPago = { efectivo: 0, tarjeta: 0, recargoTarjeta: 0, deposito: 0, cheque: 0, seguro: 0, transferencia: 0 }
           data.forEach(item => {
-            (item.detalle_pago_cuentas || []).forEach(i => {
-              camposPago.forEach(c => { totalesPago[c] += parseFloat(i[c]) || 0 })
+            var pagado = parseFloat(item.total_pagado) || 0
+            var razon = pagado > 0 ? (parseFloat(item.total_hospital) || 0) / pagado : 0
+            ;(item.detalle_pago_cuentas || []).forEach(i => {
+              camposPago.forEach(c => { totalesPago[c] += (parseFloat(i[c]) || 0) * razon })
             })
           })
           var totalMetodosPago = camposPago.reduce((a, c) => a + totalesPago[c], 0)
@@ -1022,7 +1030,7 @@ export default {
             this.pdf.text(cat + ' — Q.' + subtotales[cat].toFixed(2), 1.5, finalY + 0.6)
             autoTable(this.pdf, {
               columns: [
-                { header: 'Expediente', dataKey: 'expediente' },
+                { header: 'Factura', dataKey: 'factura' },
                 { header: 'Nombre', dataKey: 'nombres' },
                 { header: 'Apellido', dataKey: 'apellidos' },
                 { header: 'Fecha', dataKey: 'fecha' },
@@ -1036,24 +1044,34 @@ export default {
             })
             finalY = this.pdf.lastAutoTable.finalY
           })
-          // Totales + desglose de métodos de pago, SIEMPRE debajo de la última tabla.
-          // El laboratorio NO va aquí: va en el corte de laboratorio (independiente).
+          // Solo el dinero de HOSPITAL (los honorarios van en su propio corte; no hay
+          // gran total combinado). Debajo de la última tabla, sin solaparse.
           var yTot = (this.pdf.lastAutoTable ? this.pdf.lastAutoTable.finalY : finalY) + 1
           var pageH = this.pdf.internal.pageSize.getHeight()
-          var lineaTotal = (txt) => {
-            if (yTot > pageH - 1) { this.pdf.addPage(); yTot = 1.5 }
-            this.pdf.setFontSize(9).setFont(undefined, 'bold')
-            this.pdf.text(txt, 1.5, yTot)
-            yTot += 0.6
-          }
-          lineaTotal('Total general: Q.' + totalGeneral.toFixed(2))
-          lineaTotal('Total hospital: Q.' + totalHospitalCorte.toFixed(2))
-          lineaTotal('Total honorarios: Q.' + totalHonorariosCorte.toFixed(2))
-          yTot += 0.3
-          camposPago.forEach((c, idx) => {
-            lineaTotal(etiquetasPago[idx] + ': Q.' + totalesPago[c].toFixed(2))
+          if (yTot > pageH - 4) { this.pdf.addPage(); yTot = 1.5 }
+          this.pdf.setFontSize(9).setFont(undefined, 'bold')
+          this.pdf.text('Total hospital: Q.' + totalHospitalCorte.toFixed(2), 1.5, yTot)
+          yTot += 0.5
+          this.pdf.setFontSize(9).setFont(undefined, 'normal')
+          this.pdf.text('Métodos de pago (hospital)', 1.5, yTot)
+          // Métodos de pago en tabla (más estético).
+          autoTable(this.pdf, {
+            columns: [
+              { header: 'Método', dataKey: 'metodo' },
+              { header: 'Monto', dataKey: 'monto' }
+            ],
+            body: camposPago.map((c, idx) => ({ metodo: etiquetasPago[idx], monto: 'Q.' + totalesPago[c].toFixed(2) }))
+              .concat([{ metodo: 'Total métodos de pago', monto: 'Q.' + totalMetodosPago.toFixed(2) }]),
+            startY: yTot + 0.3,
+            margin: { top: 5, left: 1.5 },
+            tableWidth: 8,
+            theme: 'grid',
+            headStyles: { fontSize: 7, fillColor: [21, 21, 21], textColor: [225, 225, 225], fontStyle: 'bold' },
+            bodyStyles: { fontSize: 7 },
+            didParseCell: (d) => {
+              if (d.row.index === camposPago.length) { d.cell.styles.fontStyle = 'bold' }
+            }
           })
-          lineaTotal('Total métodos de pago: Q.' + totalMetodosPago.toFixed(2))
         }
         var pdfData = this.pdf.output('blob')
         // Convert PDF to data URL
