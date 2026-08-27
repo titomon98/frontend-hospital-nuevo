@@ -65,6 +65,12 @@
                         size="sm"
                         variant="dark"
                       >Ver reporte por día</b-button>
+                      <b-button
+                        @click="verPacientes()"
+                        class="mb-2 mt-2 button-spacing"
+                        size="sm"
+                        variant="primary"
+                      >Ver exámenes pagados</b-button>
                     </b-form-group>
                     <b-form action="#" class="searchbox">
                       <b-input id="search" placeholder="Buscar..." @input="(val) => searchChange(val)" />
@@ -76,6 +82,10 @@
             <template v-slot:headerAction>
           </template>
           <template v-slot:body>
+            <p v-if="!tablaVisible" class="text-muted mt-2">
+              Seleccione una fecha y presione "Ver exámenes pagados" para ver los exámenes pagados ese día.
+            </p>
+            <div v-if="tablaVisible">
             <datatable-heading
               :changePageSize="changePageSizes"
               :searchChange="searchChange"
@@ -126,6 +136,7 @@
                 ref="pagination"
                 @vuetable-pagination:change-page="onChangePage"
               />
+            </div>
           </template>
         </iq-card>
       </b-col>
@@ -205,6 +216,7 @@ export default {
       alertErrorText: '',
       alertVariant: '',
       apiBase: apiUrl + '/lab_cuentas/list',
+      tablaVisible: false,
       fields: [
         {
           name: '__slot:actions',
@@ -443,22 +455,27 @@ export default {
           })
       }
     },
+    verPacientes () {
+      if (!this.selectedDate) {
+        this.alertVariant = 'danger'
+        this.showAlert()
+        this.alertText = 'Seleccione una fecha primero.'
+        return
+      }
+      this.tablaVisible = true
+      this.$nextTick(() => {
+        if (this.$refs.vuetable) this.$refs.vuetable.refresh()
+      })
+    },
     makeQueryParams (sortOrder, currentPage, perPage) {
-      return sortOrder[0]
-        ? {
-          criterio: sortOrder[0] ? sortOrder[0].sortField : 'createdAt',
-          order: sortOrder[0] ? sortOrder[0].direction : 'desc',
-          page: currentPage,
-          limit: this.perPage,
-          search: this.search
-        }
-        : {
-          criterio: sortOrder[0] ? sortOrder[0].sortField : 'createdAt',
-          order: sortOrder[0] ? sortOrder[0].direction : 'desc',
-          page: currentPage,
-          limit: this.perPage,
-          search: this.search
-        }
+      return {
+        criterio: sortOrder[0] ? sortOrder[0].sortField : 'createdAt',
+        order: sortOrder[0] ? sortOrder[0].direction : 'desc',
+        page: currentPage,
+        limit: this.perPage,
+        search: this.search,
+        fecha_corte: this.selectedDate
+      }
     },
     changePageSizes (perPage) {
       this.perPage = perPage
