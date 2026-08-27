@@ -351,15 +351,30 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
+          name: 'total_hospital',
+          title: 'Total Hospital',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'total_honorarios',
+          title: 'Total Honorarios',
+          dataClass: 'list-item-heading'
+        },
+        {
+          name: 'total_laboratorio',
+          title: 'Total Laboratorio',
+          dataClass: 'list-item-heading'
+        },
+        {
           name: 'total',
           sortField: 'total',
-          title: 'total',
+          title: 'Gran Total',
           dataClass: 'list-item-heading'
         },
         {
           name: 'total_pagado',
           sortField: 'total_pagado',
-          title: 'Total ingresado',
+          title: 'Total Pagado',
           dataClass: 'list-item-heading'
         },
         {
