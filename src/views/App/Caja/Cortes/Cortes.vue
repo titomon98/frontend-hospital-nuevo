@@ -117,6 +117,29 @@
           ></b-form-input>
         </b-form-group>
 
+        <b-form-group label="Método de pago al médico:">
+          <b-form-radio-group
+            v-model="formVoucher.metodo_pago"
+            :options="[
+              { text: 'Efectivo', value: 'Efectivo' },
+              { text: 'Transferencia', value: 'Transferencia' }
+            ]"
+          ></b-form-radio-group>
+        </b-form-group>
+
+        <b-form-group
+          v-if="formVoucher.metodo_pago === 'Transferencia'"
+          label="Tipo de transferencia:"
+        >
+          <b-form-radio-group
+            v-model="formVoucher.tipo_transferencia"
+            :options="[
+              { text: 'Paciente al médico', value: 'Paciente al médico' },
+              { text: 'Hospital al médico', value: 'Hospital al médico' }
+            ]"
+          ></b-form-radio-group>
+        </b-form-group>
+
         <!-- Tabla de pacientes antes de generar el PDF -->
         <b-table
           striped hover bordered
@@ -440,7 +463,9 @@ export default {
         cantidad: null,
         cantidadEscrita: null,
         observaciones: null,
-        total: 0
+        total: 0,
+        metodo_pago: 'Efectivo',
+        tipo_transferencia: null
       }
     }
   },
@@ -1143,6 +1168,21 @@ export default {
         return
       }
 
+      if (!this.formVoucher.metodo_pago) {
+        alert('Seleccione el método de pago al médico.')
+        return
+      }
+
+      if (this.formVoucher.metodo_pago === 'Transferencia' && !this.formVoucher.tipo_transferencia) {
+        alert('Seleccione el tipo de transferencia (paciente o hospital).')
+        return
+      }
+
+      // Si no es transferencia, no se envía tipo de transferencia.
+      if (this.formVoucher.metodo_pago !== 'Transferencia') {
+        this.formVoucher.tipo_transferencia = null
+      }
+
       axios.post(apiUrl + '/voucher/create', this.formVoucher)
         .then(response => {
           this.generarPDFMedicos3()
@@ -1228,10 +1268,15 @@ export default {
         }
 
         if (data.total !== 0) {
+          const metodoTexto = data.metodo_pago === 'Transferencia' && data.tipo_transferencia
+            ? `Transferencia — ${data.tipo_transferencia}`
+            : (data.metodo_pago || '')
           doc.autoTable({
             body: [
               [{ content: 'Total entregado', styles: { halign: 'center' } }],
-              [{ content: `${data.total}`, styles: { halign: 'rigth' } }]
+              [{ content: `${data.total}`, styles: { halign: 'right' } }],
+              [{ content: 'Método de pago', styles: { halign: 'center' } }],
+              [{ content: metodoTexto, styles: { halign: 'left' } }]
             ],
             startY: currentY + 10,
             theme: 'grid',
@@ -1381,6 +1426,9 @@ export default {
       this.medicos = []
       this.formVoucher.cantidad = null
       this.formVoucher.medico = null
+      this.formVoucher.total = 0
+      this.formVoucher.metodo_pago = 'Efectivo'
+      this.formVoucher.tipo_transferencia = null
 
       this.$bvModal.show('modal-voucher')
     },
