@@ -179,6 +179,12 @@
                             size="sm"
                             variant="dark"
                           >Ver métodos de pago del día</b-button>
+                          <b-button
+                            @click="verPacientes()"
+                            class="mb-2 mt-2 button-spacing"
+                            size="sm"
+                            variant="primary"
+                          >Ver pacientes egresados</b-button>
                         </b-col>
                       </b-row>
                     </b-form-group>
@@ -190,6 +196,10 @@
               </div>
             </template>
           <template v-slot:body>
+            <p v-if="!tablaVisible" class="text-muted mt-2">
+              Seleccione una fecha y presione "Ver pacientes egresados" para ver los pacientes con esa fecha de egreso.
+            </p>
+            <div v-if="tablaVisible">
             <datatable-heading
               :changePageSize="changePageSizes"
               :searchChange="searchChange"
@@ -227,7 +237,7 @@
               <template slot="actions" slot-scope="props">
                 <b-button-group>
                   <b-button
-                    @click="setData(props.rowData)"
+                    @click="verDetalle(props.rowData)"
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="dark"
@@ -240,6 +250,7 @@
                 ref="pagination"
                 @vuetable-pagination:change-page="onChangePage"
               />
+            </div>
           </template>
         </iq-card>
       </b-col>
@@ -325,6 +336,7 @@ export default {
       alertErrorText: '',
       alertVariant: '',
       apiBase: apiUrl + '/cuentas/payList',
+      tablaVisible: false,
       fields: [
         {
           name: '__slot:actions',
@@ -552,6 +564,139 @@ export default {
         this.printSale(data, 1)
       })
     },
+    // Ver detalle -> previsualiza el PDF de gastos médicos del paciente (cuenta parcial).
+    verDetalle (rowData) {
+      const id = rowData.expediente ? rowData.expediente.id : rowData.id_expediente
+      const nombres = rowData.expediente ? rowData.expediente.nombres : ''
+      const apellidos = rowData.expediente ? rowData.expediente.apellidos : ''
+      axios.get(apiUrl + `/consumos/cuentaParcial/${id}`)
+        .then((response) => {
+          this.generarPDF_CuentaParcial(response.data, `${nombres} ${apellidos}`, response.data.fechaFormateada)
+        })
+        .catch((error) => {
+          console.error('Error al generar el detalle de gastos médicos:', error)
+          this.alertVariant = 'danger'
+          this.showAlert()
+          this.alertText = 'Hubo un problema al generar el detalle. Intente nuevamente.'
+        })
+    },
+    generarPDF_CuentaParcial (data, nombrePaciente, FechaIngreso) {
+      const fechaActual = new Date()
+      const fechaFormateada = fechaActual.toLocaleDateString('es-ES')
+      const opcionesHora = { hour: '2-digit', minute: '2-digit', hour12: true }
+      const horaFormateada = fechaActual.toLocaleTimeString('es-ES', opcionesHora)
+
+      let mensajeDias
+      if (!FechaIngreso) {
+        mensajeDias = 'NO ASIGNADA'
+      } else {
+        const fechaIngreso = new Date(FechaIngreso)
+        const diferenciaMs = fechaActual - fechaIngreso
+        mensajeDias = Math.max(1, Math.floor(diferenciaMs / (1000 * 60 * 60 * 24)))
+      }
+      const hospitalizacion = data.costoTotal ?? 0
+
+      try {
+        const ConsumoTotal = data.consumos.reduce((acc, item) => acc + parseFloat(item.subtotal), 0)
+        const ConsumoComunTotal = data.consumosComunes.reduce((acc, item) => acc + parseFloat(item.total), 0)
+        const ConsumoMedicamentosTotal = data.consumosMedicamentos.reduce((acc, item) => acc + parseFloat(item.total), 0)
+        const ConsumoQuirurgicosTotal = data.consumosQuirurgicos.reduce((acc, item) => acc + parseFloat(item.total), 0)
+        const ExamenesTotal = data.examenes.reduce((acc, item) => acc + parseFloat(item.total), 0)
+        const ServicioSalaOperacionesTotal = data.salaOperaciones.reduce((acc, item) => acc + parseFloat(item.total), 0)
+        const TotalHonorarios = data.honorarios.reduce((acc, item) => acc + parseFloat(item.total), 0)
+        const medicosOrdenados = data.honorarios.sort((a, b) => b.total - a.total)
+
+        const TotalGeneral = ConsumoTotal + ConsumoComunTotal + ConsumoMedicamentosTotal + ConsumoQuirurgicosTotal + ExamenesTotal + ServicioSalaOperacionesTotal + hospitalizacion
+        const TotalGeneral2 = ConsumoTotal + ConsumoComunTotal + ConsumoMedicamentosTotal + ConsumoQuirurgicosTotal + ServicioSalaOperacionesTotal + hospitalizacion
+        const TotalApagar = TotalGeneral2 + TotalHonorarios + ExamenesTotal
+        const doc = new JsPDF()
+
+        doc.setFontSize(10).setFont(undefined, 'bold')
+        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO', 110, 10, { align: 'center' })
+        doc.setFontSize(10).setFont(undefined, 'normal')
+        doc.text('CUENTA TOTAL DE PACIENTE', 110, 14, { align: 'center' })
+        doc.setFontSize(8).setFont(undefined, 'normal')
+        doc.text('NOMBRE DEL PACIENTE:', 14, 20)
+        doc.text(`${nombrePaciente}`, 50, 20)
+        doc.text('CUARTO NO.:', 14, 27)
+        doc.text(`${data.numerohabitacion}`, 40, 27)
+        doc.text('D/ESTANCIA: ', 130, 27)
+        doc.text(`${mensajeDias}`, 170, 27)
+        doc.text('MD TRATANTE:', 14, 34)
+        doc.text(`${data.nombremedico}`, 36, 34)
+        autoTable(doc, {
+          body: [
+            ['HOSPITALIZACION', `Q${hospitalizacion.toFixed(2)}`],
+            ['SALA DE OPERACIONES', `Q${ServicioSalaOperacionesTotal.toFixed(2)}`],
+            ['CONSUMO MEDICAMENTOS', `Q${ConsumoMedicamentosTotal.toFixed(2)}`],
+            ['MATERIAL MEDICO QUIRÚRGICO', `Q${ConsumoQuirurgicosTotal.toFixed(2)}`],
+            ['ANESTESICOS', ''],
+            ['MATERIAL COMÚN', `Q${ConsumoComunTotal.toFixed(2)}`],
+            ['SERVICIOS', `Q${ConsumoTotal.toFixed(2)}`],
+            ['INTENSIVO', 'Q 0.00'],
+            ['EMERGENCIAS  Medico Interno', ''],
+            ['OTROS', ''],
+            ['TOTAL HOSPITALIZACION =', `Q${TotalGeneral2.toFixed(2)}`],
+            ['TOTAL LAB. BIOMEDICO E.O. S.A. =', `Q${ExamenesTotal.toFixed(2)}`],
+            ['TOTAL MENOS DESCUENTO =', `Q${TotalGeneral.toFixed(2)}`]
+          ],
+          startY: 41,
+          theme: 'grid',
+          styles: { fontSize: 10, cellPadding: 2, textColor: [0, 0, 0] },
+          columnStyles: { 0: { halign: 'left' }, 1: { halign: 'left' } }
+        })
+
+        const nextTableStartY = doc.lastAutoTable.finalY + 10
+        doc.setFontSize(12).setFont(undefined, 'normal')
+        doc.text(`FECHA ${fechaFormateada} ${horaFormateada}`, 14, nextTableStartY)
+        doc.setFontSize(10).setFont(undefined, 'bold')
+        doc.text('HONORARIOS MEDICOS Y OTROS SERVICIOS', 100, nextTableStartY + 15, { align: 'center' })
+
+        const tableRows = medicosOrdenados.map((medico, index) => [
+          index + 1,
+          medico.medico.nombre,
+          medico.descripcion,
+          `Q${(Number(medico.total) || 0).toFixed(2)}`
+        ])
+        autoTable(doc, {
+          head: [['#', 'MEDICO', 'DESCRIPCION', 'VALOR']],
+          body: tableRows,
+          startY: nextTableStartY + 20,
+          theme: 'grid',
+          styles: { fontSize: 10, cellPadding: 2, textColor: [0, 0, 0] },
+          headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], fontStyle: 'bold' },
+          alternateRowStyles: { fillColor: [240, 240, 240] }
+        })
+
+        const nextTableStartY2 = doc.lastAutoTable.finalY + 10
+        doc.setFontSize(10).setFont(undefined, 'bold')
+        doc.text('LIQUIDACION', 100, nextTableStartY2, { align: 'center' })
+        autoTable(doc, {
+          body: [
+            ['TOTAL HOSPITALIZACION', `Q${TotalGeneral2.toFixed(2)}`],
+            ['TOTAL LAB. BIOMEDICO E.O. S.A.', `Q${ExamenesTotal.toFixed(2)}`],
+            ['TOTAL HONORARIOS MEDICOS Y OTROS SERVICIOS', `Q${TotalHonorarios.toFixed(2)}`],
+            ['TOTAL A PAGAR =', `Q${TotalApagar.toFixed(2)}`]
+          ],
+          startY: nextTableStartY2 + 5,
+          theme: 'grid',
+          styles: { fontSize: 10, cellPadding: 2, textColor: [0, 0, 0] },
+          columnStyles: { 0: { halign: 'left' }, 1: { halign: 'left' } }
+        })
+
+        const nextTableStartY3 = doc.lastAutoTable.finalY + 10
+        doc.setFontSize(10).setFont(undefined, 'normal')
+        doc.text('_______________________________________', 110, nextTableStartY3, { align: 'center' })
+        doc.text('Nombre y Firma del Cajero', 110, nextTableStartY3 + 5, { align: 'center' })
+
+        this.pdf = doc
+        this.pdfName = `Detalle_gastos_${nombrePaciente}.pdf`
+        this.previewURL = URL.createObjectURL(doc.output('blob'))
+        this.$refs['modal-pdf'].show()
+      } catch (error) {
+        console.error('Error al generar el reporte:', error)
+      }
+    },
     getReport () {
       axios.get(apiUrl + '/cuentas/listCortesPerDate', {
         params: {
@@ -713,22 +858,27 @@ export default {
           })
       }
     },
+    verPacientes () {
+      if (!this.selectedDate) {
+        this.alertVariant = 'danger'
+        this.showAlert()
+        this.alertText = 'Seleccione una fecha primero.'
+        return
+      }
+      this.tablaVisible = true
+      this.$nextTick(() => {
+        if (this.$refs.vuetable) this.$refs.vuetable.refresh()
+      })
+    },
     makeQueryParams (sortOrder, currentPage, perPage) {
-      return sortOrder[0]
-        ? {
-          criterio: sortOrder[0] ? sortOrder[0].sortField : 'createdAt',
-          order: sortOrder[0] ? sortOrder[0].direction : 'desc',
-          page: currentPage,
-          limit: this.perPage,
-          search: this.search
-        }
-        : {
-          criterio: sortOrder[0] ? sortOrder[0].sortField : 'createdAt',
-          order: sortOrder[0] ? sortOrder[0].direction : 'desc',
-          page: currentPage,
-          limit: this.perPage,
-          search: this.search
-        }
+      return {
+        criterio: sortOrder[0] ? sortOrder[0].sortField : 'createdAt',
+        order: sortOrder[0] ? sortOrder[0].direction : 'desc',
+        page: currentPage,
+        limit: this.perPage,
+        search: this.search,
+        fecha_egreso: this.selectedDate
+      }
     },
     changePageSizes (perPage) {
       this.perPage = perPage
