@@ -954,7 +954,6 @@ export default {
           var totalGeneral = 0
           var totalHospitalCorte = 0
           var totalHonorariosCorte = 0
-          var totalLaboratorioCorte = 0
           this.arrayDetalles.forEach(item => {
             var cat = categorias.indexOf(item.categoria) !== -1 ? item.categoria : 'Hospitalización'
             grupos[cat].push(item)
@@ -962,8 +961,17 @@ export default {
             totalGeneral += item.totalFull
             totalHospitalCorte += item.totalHospital
             totalHonorariosCorte += item.totalHonorarios
-            totalLaboratorioCorte += item.totalLaboratorio
           })
+          // Desglose de métodos de pago (montos reales cobrados, sin escalar).
+          var camposPago = ['efectivo', 'tarjeta', 'recargoTarjeta', 'deposito', 'cheque', 'seguro', 'transferencia']
+          var etiquetasPago = ['Efectivo', 'Tarjeta', 'RecargoTarjeta', 'Deposito', 'Cheque', 'Seguro', 'Transferencia']
+          var totalesPago = { efectivo: 0, tarjeta: 0, recargoTarjeta: 0, deposito: 0, cheque: 0, seguro: 0, transferencia: 0 }
+          data.forEach(item => {
+            (item.detalle_pago_cuentas || []).forEach(i => {
+              camposPago.forEach(c => { totalesPago[c] += parseFloat(i[c]) || 0 })
+            })
+          })
+          var totalMetodosPago = camposPago.reduce((a, c) => a + totalesPago[c], 0)
           this.pdf.text('Corte del día ' + this.selectedDateFormatted, 5, altura)
           this.pdfName = 'Corte del día ' + this.selectedDateFormatted + '.pdf'
           altura = altura + 0.5
@@ -1028,7 +1036,8 @@ export default {
             })
             finalY = this.pdf.lastAutoTable.finalY
           })
-          // Los 4 totales separados, SIEMPRE debajo de la última tabla (nunca encima).
+          // Totales + desglose de métodos de pago, SIEMPRE debajo de la última tabla.
+          // El laboratorio NO va aquí: va en el corte de laboratorio (independiente).
           var yTot = (this.pdf.lastAutoTable ? this.pdf.lastAutoTable.finalY : finalY) + 1
           var pageH = this.pdf.internal.pageSize.getHeight()
           var lineaTotal = (txt) => {
@@ -1040,7 +1049,11 @@ export default {
           lineaTotal('Total general: Q.' + totalGeneral.toFixed(2))
           lineaTotal('Total hospital: Q.' + totalHospitalCorte.toFixed(2))
           lineaTotal('Total honorarios: Q.' + totalHonorariosCorte.toFixed(2))
-          lineaTotal('Total laboratorio: Q.' + totalLaboratorioCorte.toFixed(2))
+          yTot += 0.3
+          camposPago.forEach((c, idx) => {
+            lineaTotal(etiquetasPago[idx] + ': Q.' + totalesPago[c].toFixed(2))
+          })
+          lineaTotal('Total métodos de pago: Q.' + totalMetodosPago.toFixed(2))
         }
         var pdfData = this.pdf.output('blob')
         // Convert PDF to data URL
