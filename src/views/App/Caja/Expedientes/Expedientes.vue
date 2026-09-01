@@ -1558,8 +1558,13 @@ ANTE MI
 
       escribirTexto('Dirección:', 12, posY, 10, 'bold')
       escribirTexto(paciente.direccion, 30, posY)
-      escribirTexto('Tel:', 165, posY, 10, 'bold')
-      escribirTexto(paciente.telefono, 175, posY)
+
+      posY += 2
+      dibujarLinea(10, posY, 210, posY)
+      posY += 5
+
+      escribirTexto('Tel:', 155, posY, 10, 'bold')
+      escribirTexto(paciente.telefono, 165, posY)
 
       posY += 2
       dibujarLinea(10, posY, 210, posY)
@@ -1620,13 +1625,8 @@ ANTE MI
       // -------------------------------------
       escribirTexto('Nombre del Padre:', 12, posY, 10, 'bold')
       escribirTexto(paciente.nombre_padre, 44, posY)
-
-      posY += 2
-      dibujarLinea(10, posY, 210, posY)
-      posY += 5
-
-      escribirTexto('Nombre de la Madre:', 12, posY, 10, 'bold')
-      escribirTexto(paciente.nombre_madre, 47, posY)
+      escribirTexto('Nombre de la Madre:', 110, posY, 10, 'bold')
+      escribirTexto(paciente.nombre_madre, 145, posY)
 
       posY += 2
       dibujarLinea(10, posY, 210, posY)
