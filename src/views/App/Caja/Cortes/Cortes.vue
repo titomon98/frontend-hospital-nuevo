@@ -1366,6 +1366,27 @@ export default {
           doc.text('No hay honorarios pagados.', 14, startYPagado + 10)
         }
 
+        // Resumen de pagos del día (estilo corte de hospital)
+        const resumen = data.resumenPagos || { efectivo: 0, transferenciaMedico: 0, totalPendiente: 0 }
+        const efectivo = Number(resumen.efectivo) || 0
+        const transferenciaMedico = Number(resumen.transferenciaMedico) || 0
+        const totalPendiente = Number(resumen.totalPendiente) || 0
+        const startYResumen = doc.lastAutoTable ? doc.lastAutoTable.finalY + 15 : 200
+        doc.setFontSize(14).setFont(undefined, 'bold')
+        doc.text('Resumen de pagos del día', 14, startYResumen)
+        doc.autoTable({
+          body: [
+            ['Efectivo', `Q${efectivo.toFixed(2)}`],
+            ['Transferencia a médico', `Q${transferenciaMedico.toFixed(2)}`],
+            ['Total entregado', `Q${(efectivo + transferenciaMedico).toFixed(2)}`],
+            ['Total pendiente de pago', `Q${totalPendiente.toFixed(2)}`]
+          ],
+          startY: startYResumen + 5,
+          theme: 'grid',
+          styles: { fontSize: 10, cellPadding: 2, textColor: [0, 0, 0] },
+          columnStyles: { 0: { halign: 'left', fontStyle: 'bold' }, 1: { halign: 'right' } }
+        })
+
         // Guardar el PDF
         doc.save(`Corte_de_honorarios_${fechaInicio}_a_${fechaFin}.pdf`)
       } catch (error) {
