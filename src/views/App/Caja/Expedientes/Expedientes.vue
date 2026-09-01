@@ -337,6 +337,13 @@
                     :options="parentescos"
                     placeholder="Seleccione parentesco"
                   />
+                  <b-form-input
+                    v-if="form.parentesco_encargado === 'Otro'"
+                    v-model="parentescoOtro"
+                    class="mt-1"
+                    placeholder="Especifique parentesco"
+                    @input="parentescoOtro = ($event || '').toUpperCase()"
+                  ></b-form-input>
                 </b-form-group>
               </b-col>
               <!-- columna -->
@@ -729,6 +736,7 @@ export default {
       nacionalidades: ['Guatemala', 'El Salvador', 'México', 'Honduras', 'Belice', 'Otro'],
       generos: ['Masculino', 'Femenino'],
       parentescos: ['Padre/Madre', 'Hermano/a', 'Hijo/a', 'Cónyuge', 'Otro'],
+      parentescoOtro: '',
       estados_civiles: ['Soltero/a', 'Casado/a', 'Viudo/a', 'Separado/a', 'Divorciado/a', 'Otro'],
       doctors: [],
       totPagado: 0,
@@ -991,7 +999,13 @@ export default {
       this.form.genero = data.genero
       this.form.nombre_encargado = data.nombre_encargado
       this.form.contacto_encargado = data.contacto_encargado
-      this.form.parentesco_encargado = data.parentesco_encargado
+      if (data.parentesco_encargado && !this.parentescos.includes(data.parentesco_encargado)) {
+        this.form.parentesco_encargado = 'Otro'
+        this.parentescoOtro = data.parentesco_encargado
+      } else {
+        this.form.parentesco_encargado = data.parentesco_encargado
+        this.parentescoOtro = ''
+      }
       this.form.edad_encargado = data.edad_encargado
       this.form.estado_civil = data.estado_civil
       this.form.profesion = data.profesion
@@ -1016,8 +1030,12 @@ export default {
     onUpdate () {
       const me = this
       // this.$refs["modalSave"].hide();
+      const form = { ...me.form }
+      if (form.parentesco_encargado === 'Otro') {
+        form.parentesco_encargado = (me.parentescoOtro || '').toUpperCase()
+      }
       axios.put(apiUrl + '/expedientes/update', {
-        form: me.form, user: me.currentUser.user })
+        form, user: me.currentUser.user })
         .then((response) => {
           me.alertVariant = 'primary'
           me.showAlert()
