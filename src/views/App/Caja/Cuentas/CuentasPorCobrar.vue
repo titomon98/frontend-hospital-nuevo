@@ -829,7 +829,10 @@ export default {
         const ConsumoTotal = data.consumos.reduce((acc, item) => acc + parseFloat(item.subtotal), 0)
         const ConsumoComunTotal = data.consumosComunes.reduce((acc, item) => acc + parseFloat(item.total), 0)
         const ConsumoMedicamentosTotal = data.consumosMedicamentos.reduce((acc, item) => acc + parseFloat(item.total), 0)
+        const ConsumoAnestesicosTotal = (data.consumosAnestesicos || []).reduce((acc, item) => acc + parseFloat(item.total), 0)
         const ConsumoQuirurgicosTotal = data.consumosQuirurgicos.reduce((acc, item) => acc + parseFloat(item.total), 0)
+        // Los servicios se muestran sumados dentro de material médico quirúrgico.
+        const MaterialQuirurgicoConServicios = ConsumoQuirurgicosTotal + ConsumoTotal
         const ExamenesTotal = data.examenes.reduce((acc, item) => acc + parseFloat(item.total), 0)
         const ServicioSalaOperacionesTotal = data.salaOperaciones.reduce((acc, item) => acc + parseFloat(item.total), 0)
         const TotalHonorarios = data.honorarios.reduce((acc, item) => acc + parseFloat(item.total), 0)
@@ -839,6 +842,7 @@ export default {
           ConsumoTotal +
           ConsumoComunTotal +
           ConsumoMedicamentosTotal +
+          ConsumoAnestesicosTotal +
           ConsumoQuirurgicosTotal +
           ExamenesTotal +
           ServicioSalaOperacionesTotal +
@@ -848,6 +852,7 @@ export default {
           ConsumoTotal +
           ConsumoComunTotal +
           ConsumoMedicamentosTotal +
+          ConsumoAnestesicosTotal +
           ConsumoQuirurgicosTotal +
           ServicioSalaOperacionesTotal +
           hospitalizacion
@@ -871,7 +876,7 @@ export default {
         doc.text('__________', 35, 28)
 
         doc.text('TIPO DE SERVICIO:', 60, 27)
-        doc.text('', 87, 27)
+        doc.text(`${data.tipoServicio || ''}`, 87, 27)
         doc.text('___________________________', 87, 28)
 
         doc.text('D/ESTANCIA: ', 130, 27)
@@ -886,10 +891,9 @@ export default {
             ['HOSPITALIZACION', `Q${hospitalizacion.toFixed(2)}`],
             ['SALA DE OPERACIONES', `Q${ServicioSalaOperacionesTotal.toFixed(2)}`],
             ['CONSUMO MEDICAMENTOS', `Q${ConsumoMedicamentosTotal.toFixed(2)}`],
-            ['MATERIAL MEDICO QUIRÚRGICO', `Q${ConsumoQuirurgicosTotal.toFixed(2)}`],
-            ['ANESTESICOS', ''],
+            ['MATERIAL MEDICO QUIRÚRGICO', `Q${MaterialQuirurgicoConServicios.toFixed(2)}`],
+            ['ANESTESICOS', `Q${ConsumoAnestesicosTotal.toFixed(2)}`],
             ['MATERIAL COMÚN', `Q${ConsumoComunTotal.toFixed(2)}`],
-            ['SERVICIOS', `Q${ConsumoTotal.toFixed(2)}`],
             ['RECUPERACION', ''],
             ['INTENSIVO', `Q 0.00`],
             ['EMERGENCIAS  Medico Interno', ''],
