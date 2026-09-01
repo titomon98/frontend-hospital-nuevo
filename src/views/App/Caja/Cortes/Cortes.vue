@@ -1312,8 +1312,8 @@ export default {
         if (sinPagarOrdenados.length > 0) {
           const sinPagarRows = sinPagarOrdenados.map((medico, index) => [
             index + 1,
-            medico.nombre_medico,
             medico.paciente || 'Desconocido',
+            medico.nombre_medico,
             medico.lugar,
             medico.descripcion,
             `Q${medico.total_honorario.toFixed(2)}`,
@@ -1322,7 +1322,7 @@ export default {
           ])
 
           doc.autoTable({
-            head: [['#', 'Nombre del Medico', 'Nombre del Paciente', 'Lugar', 'Descripción', 'Total Honorarios', 'Fecha', 'Estado']],
+            head: [['#', 'Nombre del Paciente', 'Nombre del Medico', 'Lugar', 'Descripción', 'Total Honorarios', 'Fecha', 'Estado']],
             body: sinPagarRows,
             startY: 77,
             theme: 'grid',
@@ -1343,8 +1343,8 @@ export default {
         if (pagadoOrdenados.length > 0) {
           const pagadoRows = pagadoOrdenados.map((medico, index) => [
             index + 1,
-            medico.nombre_medico,
             medico.paciente || 'Desconocido',
+            medico.nombre_medico,
             medico.lugar,
             medico.descripcion,
             `Q${medico.total_honorario.toFixed(2)}`,
@@ -1353,7 +1353,7 @@ export default {
           ])
 
           doc.autoTable({
-            head: [['#', 'Nombre del Medico', 'Nombre del Paciente', 'Lugar', 'Descripción', 'Total Honorarios', 'Fecha', 'Estado']],
+            head: [['#', 'Nombre del Paciente', 'Nombre del Medico', 'Lugar', 'Descripción', 'Total Honorarios', 'Fecha', 'Estado']],
             body: pagadoRows,
             startY: startYPagado + 5,
             theme: 'grid',
