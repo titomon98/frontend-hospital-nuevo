@@ -71,17 +71,33 @@ export default {
       guardando: false,
       alertText: '',
       fields: [
+        { key: 'rubro_label', label: 'Rubro' },
         { key: 'nombre', label: 'Consumo' },
+        { key: 'administrado_en', label: 'Administrado en' },
         { key: 'cantidad', label: 'Cant. registrada' },
         { key: 'cantidad_real', label: 'Cant. real usada' },
         { key: 'estado', label: 'Estado' },
         { key: 'accion', label: '' }
-      ]
+      ],
+      // movimiento (SALIDAX) -> nombre del area con el que se guarda en descripcion
+      areasPorMovimiento: {
+        SALIDAH: 'Hospitalizacion',
+        SALIDAQ: 'Quirofano',
+        SALIDAI: 'Intensivo',
+        SALIDAE: 'Emergencia'
+      },
+      rubroLabels: {
+        medicamento: 'Medicamentos',
+        anestesico: 'Anestésicos',
+        quirurgico: 'Material quirúrgico',
+        comun: 'Material común'
+      }
     }
   },
   computed: {
     ...mapGetters(['currentUser']),
     modalId () { return 'modal-revisar-consumos-' + this.movimiento },
+    areaActual () { return this.areasPorMovimiento[this.movimiento] || '' },
     puedeRevisar () { return [1, 3, 9, 11].includes(this.currentUser && this.currentUser.user_type) },
     puedeModificar () { return [1, 3].includes(this.currentUser && this.currentUser.user_type) },
     confirmados () { return this.consumos.filter(c => c.reviewed_by).length },
@@ -101,8 +117,14 @@ export default {
       if (!this.idCuenta) return
       this.cargando = true
       try {
-        const { data } = await axios.get(apiUrl + '/revisionConsumos/consumos/' + this.idCuenta)
-        this.consumos = (data || []).map(c => ({ ...c, _real: c.cantidad }))
+        const { data } = await axios.get(apiUrl + '/revisionConsumos/consumos/' + this.idCuenta, {
+          params: { area: this.areaActual }
+        })
+        this.consumos = (data || []).map(c => ({
+          ...c,
+          _real: c.cantidad,
+          rubro_label: this.rubroLabels[c.rubro] || c.rubro
+        }))
       } catch (error) {
         console.error(error)
         this.alertText = 'No se pudieron cargar los consumos.'
