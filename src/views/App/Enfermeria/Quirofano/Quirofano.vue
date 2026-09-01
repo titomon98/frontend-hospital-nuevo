@@ -622,16 +622,17 @@
                   <th>Tiempo</th>
                   <th>Total</th>
                   <th>Agregado por</th>
+                  <th v-if="[1, 3].includes(currentUser.user_type)">Acciones</th>
                 </tr>
               </thead>
 
               <tbody>
                 <tr v-if="loadingSala">
-                  <td colspan="3" class="text-center">Cargando...</td>
+                  <td colspan="5" class="text-center">Cargando...</td>
                 </tr>
 
                 <tr v-else-if="salas.length === 0">
-                  <td colspan="3" class="text-center">No hay registros</td>
+                  <td colspan="5" class="text-center">No hay registros</td>
                 </tr>
 
                 <tr v-for="item in salas" :key="item.id">
@@ -639,6 +640,9 @@
                   <td>{{ item.horas }}</td>
                   <td>Q {{ item.total }}</td>
                   <td>{{ item.created_by }}</td>
+                  <td v-if="[1, 3].includes(currentUser.user_type)">
+                    <b-button size="sm" variant="warning" @click="abrirEditarSala(item)">Editar</b-button>
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -651,6 +655,22 @@
           <b-button variant="primary" @click="addSalaOperaciones()">Cobrar</b-button>
           <b-button variant="danger" @click="closeModal('sala-operaciones')">Cancelar</b-button>
         </template>
+    </b-modal>
+    <b-modal id="modal-editar-sala" ref="modal-editar-sala" title="Editar total de sala de operaciones">
+      <p class="text-muted">Ajustá el costo por cobro extra, descuento o mal cálculo. El cambio se registra en Gerencia (quién y cuándo).</p>
+      <b-form-group label="Total actual">
+        <b-form-input :value="'Q ' + editarSalaForm.total_anterior" disabled></b-form-input>
+      </b-form-group>
+      <b-form-group label="Nuevo total (Q)">
+        <b-form-input type="number" min="0" v-model="editarSalaForm.total_nuevo" placeholder="Nuevo total"></b-form-input>
+      </b-form-group>
+      <b-form-group label="Motivo del ajuste">
+        <b-form-input v-model="editarSalaForm.motivo" placeholder="Ej. cobro extra, descuento, corrección"></b-form-input>
+      </b-form-group>
+      <template #modal-footer>
+        <b-button variant="primary" :disabled="guardandoEditarSala" @click="guardarEditarSala()">Guardar</b-button>
+        <b-button variant="danger" @click="$bvModal.hide('modal-editar-sala')">Cancelar</b-button>
+      </template>
     </b-modal>
     <b-modal id="modal-1-movimiento" size="xl" ref="modal-1-movimiento" title="Agregar Consumo" @shown="openModal2">
       <!-- Alerta -->
@@ -1513,6 +1533,8 @@ export default {
       granTotalConsumos: 0.0,
       salas: [],
       loadingSala: false,
+      editarSalaForm: { id: null, total_anterior: 0, total_nuevo: 0, motivo: '' },
+      guardandoEditarSala: false,
       personalOptions: [],
       selectedPersonal: [],
       resultados: null,
@@ -3398,6 +3420,53 @@ export default {
     onChangePageHonorario (page) {
       this.pagination.currentPage = page
       this.getDataHonorarios(this.currentExpedienteId)
+    },
+    abrirEditarSala (item) {
+      this.editarSalaForm = {
+        id: item.id,
+        total_anterior: parseFloat(item.total) || 0,
+        total_nuevo: parseFloat(item.total) || 0,
+        motivo: ''
+      }
+      this.$bvModal.show('modal-editar-sala')
+    },
+    async recargarSalas () {
+      if (!this.idCuentaSeleccionada) return
+      try {
+        const response = await axios.get(`${apiUrl}/salaOperaciones/getId/${this.idCuentaSeleccionada}`)
+        this.salas = response.data
+      } catch (error) {
+        console.error('Error recargando sala de operaciones', error)
+      }
+    },
+    async guardarEditarSala () {
+      const nuevo = parseFloat(this.editarSalaForm.total_nuevo)
+      if (isNaN(nuevo) || nuevo < 0) {
+        this.alertErrorText = 'Ingresá un total válido'
+        this.showAlertError()
+        return
+      }
+      this.guardandoEditarSala = true
+      try {
+        await axios.put(apiUrl + '/salaOperaciones/editarTotal', {
+          id: this.editarSalaForm.id,
+          total_nuevo: nuevo,
+          motivo: this.editarSalaForm.motivo,
+          user: this.currentUser.user,
+          user_type: this.currentUser.user_type
+        })
+        this.$bvModal.hide('modal-editar-sala')
+        await this.recargarSalas()
+        this.alertVariant = 'success'
+        this.alertText = 'Total de sala de operaciones actualizado'
+        this.showAlert()
+      } catch (error) {
+        this.alertErrorText = (error.response && error.response.data && error.response.data.msg) ||
+          'Ha ocurrido un error al editar la sala de operaciones'
+        this.showAlertError()
+      } finally {
+        this.guardandoEditarSala = false
+      }
     },
     async obtenerIdCuenta (idExpediente) {
       try {
