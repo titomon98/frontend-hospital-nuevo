@@ -653,6 +653,8 @@
               :api-url="apiBaseConsumoQuirurgico"
               @vuetable:pagination-data="onPaginationDataConsumo"
               :query-params="makeQueryParamsConsumoInsumo"
+              data-path="data"
+              pagination-path=""
               :per-page="perPage"
               :reactive-api-url="true"
               :fields="fieldsConsumoInsumoQuirurgico"
@@ -672,6 +674,8 @@
               :api-url="apiBaseConsumoComun"
               @vuetable:pagination-data="onPaginationDataConsumo"
               :query-params="makeQueryParamsConsumoInsumo"
+              data-path="data"
+              pagination-path=""
               :per-page="perPage"
               :reactive-api-url="true"
               :fields="fieldsConsumoInsumo"
@@ -825,6 +829,8 @@
               :api-url="apiBaseConsumoQuirurgico"
               @vuetable:pagination-data="onPaginationDataConsumo"
               :query-params="makeQueryParamsConsumoInsumo"
+              data-path="data"
+              pagination-path=""
               :per-page="perPage"
               :reactive-api-url="true"
               :fields="fieldsConsumoInsumoQuirurgico2"
@@ -844,6 +850,8 @@
               :api-url="apiBaseConsumoComun"
               @vuetable:pagination-data="onPaginationDataConsumo"
               :query-params="makeQueryParamsConsumoInsumo"
+              data-path="data"
+              pagination-path=""
               :per-page="perPage"
               :reactive-api-url="true"
               :fields="fieldsConsumoInsumo2"
@@ -2803,10 +2811,21 @@ export default {
       }
     },
     onChangePageConsumo (page) {
-      this.$refs.vuetableConsumos.changePage(page)
-      this.$refs.vuetableConsumoInsumos.changePage(page)
-      this.$refs.vuetableConsumoQuirurgicos.changePage(page)
-      this.$refs.vuetableConsumoComunes.changePage(page)
+      // Varias tablas comparten el mismo ref (aparecen en 2 modales), por lo que
+      // $refs puede ser un array. Cambiar de pagina de forma segura en todas.
+      const cambiarPagina = (ref) => {
+        if (!ref) return
+        if (Array.isArray(ref)) {
+          ref.forEach(x => { if (x && x.changePage) x.changePage(page) })
+        } else if (ref.changePage) {
+          ref.changePage(page)
+        }
+      }
+      cambiarPagina(this.$refs.vuetableConsumos)
+      cambiarPagina(this.$refs.vuetableConsumoInsumos)
+      cambiarPagina(this.$refs.vuetableConsumoInsumosAnestesicos)
+      cambiarPagina(this.$refs.vuetableConsumoQuirurgicos)
+      cambiarPagina(this.$refs.vuetableConsumoComunes)
     },
     getDataConsumos (id) {
       this.form.id = id
