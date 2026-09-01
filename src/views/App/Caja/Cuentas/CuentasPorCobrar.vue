@@ -91,6 +91,21 @@
                 selectable
               >
               </b-table>
+              <div v-if="desgloseCobro" class="mb-3">
+                <h6>Cobro por categoría</h6>
+                <p class="text-muted mb-2">Se cobra parte por parte. El paciente queda solvente cuando Hospital, Honorarios y Laboratorio llegan a cero.</p>
+                <b-table small bordered :items="filasDesglose" :fields="fieldsDesglose"></b-table>
+                <b-form-group label="¿A qué categoría abonar?">
+                  <b-form-radio-group v-model="categoriaCobro">
+                    <b-form-radio value="hospital" :disabled="desgloseCobro.hospital.pendiente <= 0">Hospital</b-form-radio>
+                    <b-form-radio value="honorarios" :disabled="desgloseCobro.honorarios.pendiente <= 0">Honorarios</b-form-radio>
+                    <b-form-radio value="laboratorio" :disabled="desgloseCobro.laboratorio.pendiente <= 0">Laboratorio</b-form-radio>
+                  </b-form-radio-group>
+                </b-form-group>
+                <div v-if="categoriaCobro" class="mb-2">
+                  <strong>Pendiente de {{ categoriaCobro }}: Q{{ pendienteCategoriaSeleccionada.toFixed(2) }}</strong>
+                </div>
+              </div>
               <b-form-group label="Seleccione métodos para pagar:" v-slot="{ ariaDescribedby }">
                 <b-form-checkbox-group
                   id="checkbox-group-1"
@@ -147,10 +162,8 @@
         </div>
       </template>
       <template #modal-footer="{}">
-        <b-button variant="primary" @click="
-          onPatientQuit()
-        "
-          >Aceptar</b-button
+        <b-button variant="primary" :disabled="!categoriaCobro" @click="onAbonarCategoria()"
+          >Abonar a categoría</b-button
         >
         <b-button variant="danger" @click="$bvModal.hide('modal-2-account')"
           >Cancelar</b-button
@@ -388,7 +401,20 @@ export default {
   computed: {
     ...mapGetters([
       'currentUser'
-    ])
+    ]),
+    filasDesglose () {
+      if (!this.desgloseCobro) return []
+      const d = this.desgloseCobro
+      return [
+        { categoria: 'Hospital', total: d.hospital.total, pagado: d.hospital.pagado, pendiente: d.hospital.pendiente },
+        { categoria: 'Honorarios', total: d.honorarios.total, pagado: d.honorarios.pagado, pendiente: d.honorarios.pendiente },
+        { categoria: 'Laboratorio', total: d.laboratorio.total, pagado: d.laboratorio.pagado, pendiente: d.laboratorio.pendiente }
+      ]
+    },
+    pendienteCategoriaSeleccionada () {
+      if (!this.desgloseCobro || !this.categoriaCobro) return 0
+      return this.desgloseCobro[this.categoriaCobro].pendiente
+    }
   },
   data () {
     return {
@@ -438,6 +464,15 @@ export default {
         Transferencia: 0
       },
       paymentSum: 0,
+      // Cobro separado por categoría (Hospital / Honorarios / Laboratorio)
+      desgloseCobro: null,
+      categoriaCobro: null,
+      fieldsDesglose: [
+        { key: 'categoria', label: 'Categoría' },
+        { key: 'total', label: 'Total' },
+        { key: 'pagado', label: 'Pagado' },
+        { key: 'pendiente', label: 'Pendiente' }
+      ],
       alertVariant: '',
       selectedHab: null,
       habitaciones: [],
@@ -545,6 +580,87 @@ export default {
       this.selectedAccount = items[0].id
       this.totalPayment = items[0].pendiente_de_pago
       this.totPagado = items[0].total_pagado
+      this.cargarDesgloseCobro(items[0].id)
+    },
+    async cargarDesgloseCobro (idCuenta) {
+      if (!idCuenta) { this.desgloseCobro = null; return }
+      try {
+        const { data } = await axios.get(apiUrl + `/cuentas/desgloseCobro/${idCuenta}`)
+        this.desgloseCobro = data
+        this.categoriaCobro = null
+      } catch (error) {
+        console.error('Error al cargar el desglose de cobro:', error)
+        this.desgloseCobro = null
+      }
+    },
+    resetPaymentInputs () {
+      this.selectedPayment = []
+      this.paymentType.Efectivo = 0
+      this.paymentType.Tarjeta = 0
+      this.paymentType.Recargo = 0
+      this.paymentType.Deposito = 0
+      this.paymentType.Cheque = 0
+      this.paymentType.Seguro = 0
+      this.paymentType.Transferencia = 0
+      this.selectAssurance = null
+    },
+    async onAbonarCategoria () {
+      if (!this.categoriaCobro) {
+        this.alertErrorText = 'Seleccioná una categoría para abonar'
+        this.showAlertError()
+        return
+      }
+      const paymentSum = parseFloat(this.paymentType.Efectivo || 0) +
+        parseFloat(this.paymentType.Tarjeta || 0) +
+        parseFloat(this.paymentType.Deposito || 0) +
+        parseFloat(this.paymentType.Cheque || 0) +
+        parseFloat(this.paymentType.Seguro || 0) +
+        parseFloat(this.paymentType.Transferencia || 0)
+      if (!(paymentSum > 0)) {
+        this.alertErrorText = 'Ingresá un monto a abonar mayor a cero'
+        this.showAlertError()
+        return
+      }
+      const pendiente = this.pendienteCategoriaSeleccionada
+      if (paymentSum > pendiente + 0.001) {
+        this.alertErrorText = `El abono (Q${paymentSum.toFixed(2)}) excede lo pendiente de ${this.categoriaCobro} (Q${pendiente.toFixed(2)})`
+        this.showAlertError()
+        return
+      }
+      try {
+        const { data } = await axios.put(apiUrl + '/cuentas/cobrarCategoria', {
+          id: this.selectedAccount,
+          categoria: this.categoriaCobro,
+          monto: paymentSum,
+          efectivo: this.paymentType.Efectivo,
+          tarjeta: this.paymentType.Tarjeta,
+          recargoTarjeta: this.paymentType.Recargo * this.paymentType.Tarjeta,
+          deposito: this.paymentType.Deposito,
+          cheque: this.paymentType.Cheque,
+          seguro: this.paymentType.Seguro,
+          transferencia: this.paymentType.Transferencia,
+          id_seguro: parseFloat(this.paymentType.Seguro || 0) > 0 && this.selectAssurance ? this.selectAssurance.id : 0,
+          id_expediente: this.expediente
+        })
+        this.resetPaymentInputs()
+        if (data.desglose) {
+          this.desgloseCobro = { ...data.desglose, solvente: data.solvente }
+        }
+        this.categoriaCobro = null
+        this.alertVariant = data.solvente ? 'info' : 'primary'
+        this.showAlert()
+        this.alertText = data.solvente
+          ? 'La cuenta quedó solventada por completo'
+          : 'Abono registrado correctamente'
+        this.$refs.vuetable.refresh()
+        if (data.solvente) {
+          this.$refs['modal-2-account'].hide()
+        }
+      } catch (error) {
+        this.alertErrorText = (error.response && error.response.data && error.response.data.msg) ||
+          'Ha ocurrido un error al registrar el abono'
+        this.showAlertError()
+      }
     },
     openModal (modal, action) {
       switch (modal) {
@@ -601,6 +717,7 @@ export default {
       this.totalPayment = data.pendiente_de_pago
       this.totPagado = data.total_pagado
       this.expediente = data.id_expediente
+      this.cargarDesgloseCobro(data.id)
       this.onLoadAssurances(data.id_expediente)
       // this.getCuentas(data.id)
     },
