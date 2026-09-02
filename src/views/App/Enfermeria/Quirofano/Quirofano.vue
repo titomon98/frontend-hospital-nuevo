@@ -656,16 +656,42 @@
           <b-button variant="danger" @click="closeModal('sala-operaciones')">Cancelar</b-button>
         </template>
     </b-modal>
-    <b-modal id="modal-editar-sala" ref="modal-editar-sala" title="Editar total de sala de operaciones">
-      <p class="text-muted">Ajustá el costo por cobro extra, descuento o mal cálculo. El cambio se registra en Gerencia (quién y cuándo).</p>
-      <b-form-group label="Total actual">
-        <b-form-input :value="'Q ' + editarSalaForm.total_anterior" disabled></b-form-input>
+    <b-modal id="modal-editar-sala" ref="modal-editar-sala" size="lg" title="Editar sala de operaciones">
+      <p class="text-muted">Corregí la sala (categoría, tiempo y adicionales) y el costo se recalcula. También podés fijar un total manual por cobro extra o descuento. El cambio queda registrado en Gerencia (quién y cuándo).</p>
+      <b-form-group label="Categoría">
+        <b-form-radio v-model="editarSalaForm.categoria" value="Cirugia menor" @change="calcularTotalEditar">Cirugía menor</b-form-radio>
+        <b-form-radio v-model="editarSalaForm.categoria" value="Cirugia media" @change="calcularTotalEditar">Cirugía media</b-form-radio>
+        <b-form-radio v-model="editarSalaForm.categoria" value="Cirugia mayor" @change="calcularTotalEditar">Cirugía mayor</b-form-radio>
+        <b-form-radio v-model="editarSalaForm.categoria" value="Parto" @change="calcularTotalEditar">Parto</b-form-radio>
+        <b-form-radio v-model="editarSalaForm.categoria" value="Legrado" @change="calcularTotalEditar">Legrado</b-form-radio>
       </b-form-group>
-      <b-form-group label="Nuevo total (Q)">
-        <b-form-input type="number" min="0" v-model="editarSalaForm.total_nuevo" placeholder="Nuevo total"></b-form-input>
+      <b-form-group label="Adicionales">
+        <b-form-checkbox v-model="editarSalaForm.oximetro" @change="calcularTotalEditar">Oxímetro</b-form-checkbox>
+        <b-form-checkbox v-model="editarSalaForm.cauterio" @change="calcularTotalEditar">Cauterio</b-form-checkbox>
+        <b-form-checkbox v-model="editarSalaForm.monitor" @change="calcularTotalEditar">Monitor</b-form-checkbox>
+      </b-form-group>
+      <b-row>
+        <b-col md="6">
+          <b-form-group label="Horas">
+            <b-form-input type="number" min="2" v-model="editarSalaForm.horas" @input="calcularTotalEditar"></b-form-input>
+          </b-form-group>
+        </b-col>
+        <b-col md="6">
+          <b-form-group label="Minutos">
+            <b-form-input type="number" min="0" max="59" v-model="editarSalaForm.minutos" @input="calcularTotalEditar"></b-form-input>
+          </b-form-group>
+        </b-col>
+      </b-row>
+      <div class="mb-2">
+        <span class="mr-3">Total actual: <strong>Q {{ editarSalaForm.total_anterior }}</strong></span>
+        <span>Total sugerido: <strong>Q {{ editarSalaForm.totalSugerido }}</strong></span>
+      </div>
+      <b-form-group label="Total a cobrar (Q)">
+        <b-form-input type="number" min="0" v-model="editarSalaForm.total_nuevo" placeholder="Total a cobrar"></b-form-input>
+        <small class="text-muted">Por defecto es el sugerido; cambialo solo para un cobro extra o descuento.</small>
       </b-form-group>
       <b-form-group label="Motivo del ajuste">
-        <b-form-input v-model="editarSalaForm.motivo" placeholder="Ej. cobro extra, descuento, corrección"></b-form-input>
+        <b-form-input v-model="editarSalaForm.motivo" placeholder="Ej. era sala mayor, cobro extra, descuento"></b-form-input>
       </b-form-group>
       <template #modal-footer>
         <b-button variant="primary" :disabled="guardandoEditarSala" @click="guardarEditarSala()">Guardar</b-button>
@@ -1533,7 +1559,19 @@ export default {
       granTotalConsumos: 0.0,
       salas: [],
       loadingSala: false,
-      editarSalaForm: { id: null, total_anterior: 0, total_nuevo: 0, motivo: '' },
+      editarSalaForm: {
+        id: null,
+        total_anterior: 0,
+        categoria: null,
+        oximetro: false,
+        cauterio: false,
+        monitor: false,
+        horas: 2,
+        minutos: 30,
+        totalSugerido: 0,
+        total_nuevo: 0,
+        motivo: ''
+      },
       guardandoEditarSala: false,
       personalOptions: [],
       selectedPersonal: [],
@@ -3422,13 +3460,53 @@ export default {
       this.getDataHonorarios(this.currentExpedienteId)
     },
     abrirEditarSala (item) {
+      const nombreCat = { 1: 'Cirugia menor', 2: 'Cirugia media', 3: 'Cirugia mayor', 4: 'Parto', 5: 'Legrado' }[item.id_categoria] || null
+      let horas = 2
+      let minutos = 30
+      if (item.horas && String(item.horas).includes(':')) {
+        const partes = String(item.horas).split(':')
+        horas = parseInt(partes[0]) || 2
+        minutos = parseInt(partes[1]) || 0
+      }
+      const totalActual = parseFloat(item.total) || 0
       this.editarSalaForm = {
         id: item.id,
-        total_anterior: parseFloat(item.total) || 0,
-        total_nuevo: parseFloat(item.total) || 0,
+        total_anterior: totalActual,
+        categoria: nombreCat,
+        oximetro: !!item.oximetro,
+        cauterio: !!item.cauterio,
+        monitor: !!item.monitor,
+        horas: horas,
+        minutos: minutos,
+        totalSugerido: totalActual,
+        total_nuevo: totalActual,
         motivo: ''
       }
       this.$bvModal.show('modal-editar-sala')
+      this.calcularTotalEditar()
+    },
+    async calcularTotalEditar () {
+      try {
+        const f = this.editarSalaForm
+        let total = 0
+        if (f.categoria) {
+          const response = await axios.get(apiUrl + `/Categorias_Sala_Operaciones/getSearch?search=${f.categoria}`)
+          const precio = parseFloat(response.data[0].precio)
+          const cobroExtra = parseFloat(response.data[0].cobro_extra)
+          const hora = parseFloat(f.horas) || 0
+          const minuto = parseFloat(f.minutos) || 0
+          if (hora === 2 && minuto > 30) total = precio + cobroExtra
+          else if (hora > 2) total = precio + ((hora - 2) * cobroExtra)
+          else total = precio
+        }
+        if (f.oximetro) total += parseFloat(this.preciosServicios['Oximetro']) || 0
+        if (f.cauterio) total += parseFloat(this.preciosServicios['Cauterio']) || 0
+        if (f.monitor) total += parseFloat(this.preciosServicios['Monitor']) || 0
+        this.editarSalaForm.totalSugerido = parseFloat(total).toFixed(2)
+        this.editarSalaForm.total_nuevo = parseFloat(total).toFixed(2)
+      } catch (error) {
+        console.error('Error al calcular el total de edición:', error)
+      }
     },
     async recargarSalas () {
       if (!this.idCuentaSeleccionada) return
@@ -3440,7 +3518,13 @@ export default {
       }
     },
     async guardarEditarSala () {
-      const nuevo = parseFloat(this.editarSalaForm.total_nuevo)
+      const f = this.editarSalaForm
+      const nuevo = parseFloat(f.total_nuevo)
+      if (!f.categoria) {
+        this.alertErrorText = 'Seleccioná una categoría de sala'
+        this.showAlertError()
+        return
+      }
       if (isNaN(nuevo) || nuevo < 0) {
         this.alertErrorText = 'Ingresá un total válido'
         this.showAlertError()
@@ -3449,16 +3533,22 @@ export default {
       this.guardandoEditarSala = true
       try {
         await axios.put(apiUrl + '/salaOperaciones/editarTotal', {
-          id: this.editarSalaForm.id,
+          id: f.id,
+          categoria: f.categoria,
+          horas: f.horas,
+          minutos: f.minutos,
+          oximetro: f.oximetro,
+          cauterio: f.cauterio,
+          monitor: f.monitor,
           total_nuevo: nuevo,
-          motivo: this.editarSalaForm.motivo,
+          motivo: f.motivo,
           user: this.currentUser.user,
           user_type: this.currentUser.user_type
         })
         this.$bvModal.hide('modal-editar-sala')
         await this.recargarSalas()
         this.alertVariant = 'success'
-        this.alertText = 'Total de sala de operaciones actualizado'
+        this.alertText = 'Sala de operaciones actualizada'
         this.showAlert()
       } catch (error) {
         this.alertErrorText = (error.response && error.response.data && error.response.data.msg) ||
