@@ -1581,18 +1581,13 @@ ANTE MI
       dibujarLinea(10, posY, 210, posY)
       posY += 5
 
-      escribirTexto('Tel:', 155, posY, 10, 'bold')
-      escribirTexto(paciente.telefono, 165, posY)
-
-      posY += 2
-      dibujarLinea(10, posY, 210, posY)
-      posY += 5
-
       // -------------------------------------
-      // 5) Fecha Nac., Edad, Nacionalidad
+      // 5) Fecha Nac., Edad, Sexo, Tel (el teléfono va en esta misma fila)
       // -------------------------------------
       escribirTexto('Fecha Nacimiento:', 12, posY, 10, 'bold')
       escribirTexto(paciente.nacimiento, 45, posY)
+      escribirTexto('Tel:', 150, posY, 10, 'bold')
+      escribirTexto(paciente.telefono, 162, posY)
       escribirTexto('Edad:', 70, posY, 10, 'bold')
       escribirTexto(String(paciente.edad), 80, posY)
       escribirTexto('Sexo:', 100, posY, 10, 'bold')

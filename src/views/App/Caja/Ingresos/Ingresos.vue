@@ -280,6 +280,13 @@
                     :options="parentescos"
                     placeholder="Seleccione parentesco"
                   />
+                  <b-form-input
+                    v-if="form.parentesco_encargado === 'Otro'"
+                    v-model="parentescoOtro"
+                    class="mt-1"
+                    placeholder="Especifique parentesco"
+                    @input="parentescoOtro = ($event || '').toUpperCase()"
+                  ></b-form-input>
                 </b-form-group>
               </b-col>
               <!-- columna -->
@@ -480,6 +487,7 @@ export default {
       nacionalidades: ['Guatemala', 'El Salvador', 'México', 'Honduras', 'Belice', 'Otro'],
       generos: ['Masculino', 'Femenino'],
       parentescos: ['Padre/Madre', 'Hermano/a', 'Hijo/a', 'Cónyuge', 'Otro'],
+      parentescoOtro: '',
       estados_civiles: ['Soltero/a', 'Casado/a', 'Viudo/a', 'Separado/a', 'Divorciado/a', 'Otro'],
       alertSecs: 5,
       alertCountDown: 0,
@@ -556,8 +564,12 @@ export default {
     /* Guardar */
     onSave () {
       const me = this
+      const form = { ...me.form }
+      if (form.parentesco_encargado === 'Otro') {
+        form.parentesco_encargado = (me.parentescoOtro || '').toUpperCase()
+      }
       axios.post(apiUrl + '/expedientes/create', {
-        form: me.form, user: me.currentUser.user })
+        form, user: me.currentUser.user })
         .then(() => {
           me.alertVariant = 'success'
           me.showAlert()
