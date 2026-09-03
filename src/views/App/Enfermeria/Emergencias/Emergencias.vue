@@ -2850,19 +2850,13 @@ export default {
       this.apiBaseConsumo = apiUrl + `/consumos/getId?id=${id}`
     },
     makeQueryParamsConsumoInsumo (sortOrder, currentPage, perPage) {
-      return sortOrder[0]
-        ? {
-          criterio: sortOrder[0] ? sortOrder[0].sortField : 'createdAt',
-          order: sortOrder[0] ? sortOrder[0].direction : 'desc',
-          page: currentPage,
-          limit: this.perPage
-        }
-        : {
-          criterio: sortOrder[0] ? sortOrder[0].sortField : 'createdAt',
-          order: sortOrder[0] ? sortOrder[0].direction : 'desc',
-          page: currentPage,
-          limit: this.perPage
-        }
+      // Por defecto se muestran los consumos en el orden en que se ingresaron.
+      return {
+        criterio: sortOrder[0] ? sortOrder[0].sortField : 'id',
+        order: sortOrder[0] ? sortOrder[0].direction : 'asc',
+        page: currentPage,
+        limit: this.perPage
+      }
     },
     onPaginationDataConsumoInsumo (paginationData) {
       this.fromP = paginationData.from
