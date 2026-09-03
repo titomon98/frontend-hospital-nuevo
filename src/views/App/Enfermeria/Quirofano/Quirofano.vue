@@ -530,6 +530,14 @@
           </div>
           <span v-else>{{ row.item.total }}</span>
         </template>
+        <template #cell(acciones)="row">
+          <b-button
+            v-if="[1, 3].includes(currentUser.user_type)"
+            size="sm"
+            variant="danger"
+            @click="eliminarHonorario(row.item)"
+          >Eliminar</b-button>
+        </template>
       </b-table>
 
       <h4 v-if="[1, 3].includes(currentUser.user_type)">
@@ -641,7 +649,8 @@
                   <td>Q {{ item.total }}</td>
                   <td>{{ item.created_by }}</td>
                   <td v-if="[1, 3].includes(currentUser.user_type)">
-                    <b-button size="sm" variant="warning" @click="abrirEditarSala(item)">Editar</b-button>
+                    <b-button size="sm" variant="warning" class="mr-1" @click="abrirEditarSala(item)">Editar</b-button>
+                    <b-button size="sm" variant="danger" @click="eliminarSala(item)">Eliminar</b-button>
                   </td>
                 </tr>
               </tbody>
@@ -2075,7 +2084,8 @@ export default {
         { key: 'descripcion', label: 'Descripción' },
         { key: 'total', label: 'Total' },
         { key: 'createdAt', label: 'Fecha y Hora' },
-        { key: 'updated_by', label: 'Creado por' }
+        { key: 'updated_by', label: 'Creado por' },
+        { key: 'acciones', label: 'Acciones' }
       ],
       pagination: {
         currentPage: 1,
@@ -3511,6 +3521,29 @@ export default {
         console.error('Error recargando sala de operaciones', error)
       }
     },
+    async eliminarSala (item) {
+      const confirmado = await this.$bvModal.msgBoxConfirm(
+        `¿Eliminar por completo esta sala de operaciones (Q${item.total})? Se restará de la cuenta y quedará registrado en Gerencia. Úsalo si se asignó al paciente equivocado.`,
+        { title: 'Eliminar sala de operaciones', okVariant: 'danger', okTitle: 'Eliminar', cancelTitle: 'Cancelar', centered: true }
+      )
+      if (!confirmado) return
+      try {
+        await axios.put(apiUrl + '/salaOperaciones/eliminar', {
+          id: item.id,
+          motivo: 'Sala eliminada (corrección / paciente equivocado)',
+          user: this.currentUser.user,
+          user_type: this.currentUser.user_type
+        })
+        await this.recargarSalas()
+        this.alertVariant = 'success'
+        this.alertText = 'Sala de operaciones eliminada'
+        this.showAlert()
+      } catch (error) {
+        this.alertErrorText = (error.response && error.response.data && error.response.data.msg) ||
+          'Ha ocurrido un error al eliminar la sala de operaciones'
+        this.showAlertError()
+      }
+    },
     async guardarEditarSala () {
       const f = this.editarSalaForm
       const nuevo = parseFloat(f.total_nuevo)
@@ -3904,6 +3937,27 @@ export default {
         this.showAlertError()
         this.alertErrorText = error.response?.data?.msg || 'Error al actualizar el honorario'
         console.error('Error al actualizar honorario:', error)
+      }
+    },
+    async eliminarHonorario (item) {
+      const confirmado = await this.$bvModal.msgBoxConfirm(
+        `¿Eliminar el honorario de ${item.medico || 'el médico'} por Q${item.total}? Se restará de la cuenta.`,
+        { title: 'Eliminar honorario', okVariant: 'danger', okTitle: 'Eliminar', cancelTitle: 'Cancelar', centered: true }
+      )
+      if (!confirmado) return
+      try {
+        await axios.put(apiUrl + '/detalle_honorarios/deactivate', {
+          delete: { id: item.id, responsable: this.currentUser.user }
+        })
+        this.alertVariant = 'success'
+        this.showAlert()
+        this.alertText = 'Honorario eliminado correctamente'
+        if (this.currentExpedienteId) await this.getDataHonorarios(this.currentExpedienteId)
+      } catch (error) {
+        this.alertVariant = 'danger'
+        this.showAlertError()
+        this.alertErrorText = error.response?.data?.msg || 'Error al eliminar el honorario'
+        console.error('Error al eliminar honorario:', error)
       }
     },
 
