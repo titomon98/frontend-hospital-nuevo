@@ -492,6 +492,14 @@
           </div>
           <span v-else>{{ row.item.total }}</span>
         </template>
+        <template #cell(acciones)="row">
+          <b-button
+            v-if="[1, 3].includes(currentUser.user_type)"
+            size="sm"
+            variant="danger"
+            @click="eliminarHonorario(row.item)"
+          >Eliminar</b-button>
+        </template>
       </b-table>
 
       <h4 v-if="[1, 3].includes(currentUser.user_type)">
@@ -1798,7 +1806,8 @@ export default {
         { key: 'descripcion', label: 'Descripción' },
         { key: 'total', label: 'Total' },
         { key: 'createdAt', label: 'Fecha y Hora' },
-        { key: 'updated_by', label: 'Creado por' }
+        { key: 'updated_by', label: 'Creado por' },
+        { key: 'acciones', label: 'Acciones' }
       ],
       pagination: {
         currentPage: 1,
@@ -3674,6 +3683,27 @@ export default {
         this.showAlertError()
         this.alertErrorText = error.response?.data?.msg || 'Error al actualizar el honorario'
         console.error('Error al actualizar honorario:', error)
+      }
+    },
+    async eliminarHonorario (item) {
+      const confirmado = await this.$bvModal.msgBoxConfirm(
+        `¿Eliminar el honorario de ${item.medico || 'el médico'} por Q${item.total}? Se restará de la cuenta.`,
+        { title: 'Eliminar honorario', okVariant: 'danger', okTitle: 'Eliminar', cancelTitle: 'Cancelar', centered: true }
+      )
+      if (!confirmado) return
+      try {
+        await axios.put(apiUrl + '/detalle_honorarios/deactivate', {
+          delete: { id: item.id, responsable: this.currentUser.user }
+        })
+        this.alertVariant = 'success'
+        this.showAlert()
+        this.alertText = 'Honorario eliminado correctamente'
+        if (this.currentExpedienteId) await this.getDataHonorarios(this.currentExpedienteId)
+      } catch (error) {
+        this.alertVariant = 'danger'
+        this.showAlertError()
+        this.alertErrorText = error.response?.data?.msg || 'Error al eliminar el honorario'
+        console.error('Error al eliminar honorario:', error)
       }
     },
 
