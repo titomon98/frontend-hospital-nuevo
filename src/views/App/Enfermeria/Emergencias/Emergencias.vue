@@ -1375,6 +1375,7 @@ export default {
       to: 0,
       total: 0,
       perPage: 25,
+      perPageConsumos: 100,
       search: '',
       existencias_selected_med: null,
       max_cant: 0,
@@ -2859,14 +2860,14 @@ export default {
       this.apiBaseConsumo = apiUrl + `/consumos/getId?id=${id}`
     },
     makeQueryParamsConsumoInsumo (sortOrder, currentPage, perPage) {
-      // Consumos por cuenta son pocos: se traen todos en una sola página y se
-      // muestran en orden de ingreso. Evita la paginación server-side que fallaba.
-      // ponytail: limit fijo 1000, subir si una cuenta llega a tener más consumos.
+      // Consumos por cuenta: se traen hasta perPageConsumos en una página, en orden
+      // de ingreso. Evita la paginación server-side (refs compartidos) que fallaba.
+      // ponytail: si una cuenta supera perPageConsumos, esas filas se ocultan (paginador roto).
       return {
         criterio: sortOrder[0] ? sortOrder[0].sortField : 'id',
         order: sortOrder[0] ? sortOrder[0].direction : 'asc',
-        page: 1,
-        limit: 1000
+        page: currentPage,
+        limit: this.perPageConsumos
       }
     },
     onPaginationDataConsumoInsumo (paginationData) {
