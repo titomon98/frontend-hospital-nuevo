@@ -2848,12 +2848,14 @@ export default {
       this.formMe.existencias_actuales = medicine_.existencias_actuales
     },
     makeQueryParamsConsumoInsumo (sortOrder, currentPage, perPage) {
-      // Por defecto se muestran los consumos en el orden en que se ingresaron.
+      // Consumos por cuenta son pocos: se traen todos en una sola página y se
+      // muestran en orden de ingreso. Evita la paginación server-side que fallaba.
+      // ponytail: limit fijo 1000, subir si una cuenta llega a tener más consumos.
       return {
         criterio: sortOrder[0] ? sortOrder[0].sortField : 'id',
         order: sortOrder[0] ? sortOrder[0].direction : 'asc',
-        page: currentPage,
-        limit: this.perPage
+        page: 1,
+        limit: 1000
       }
     },
     onPaginationDataConsumoInsumo (paginationData) {
