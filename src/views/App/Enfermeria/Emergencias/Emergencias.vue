@@ -3337,7 +3337,7 @@ export default {
       doc.text('HOSPITAL DE ESPECIALIDADES', 20, 20)
       doc.text('DE OCCIDENTE S.A. QUETZALTENANGO', 20, 27)
       doc.setTextColor(255, 0, 0)
-      doc.text('No. 000019', 160, 20)
+      doc.text(`No. ${data.numeroHoja || ''}`, 160, 20)
       doc.setTextColor(0, 0, 0)
       doc.setFontSize(14)
       doc.text('HOJA DE EMERGENCIAS', 70, 35)
