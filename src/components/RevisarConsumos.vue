@@ -47,7 +47,7 @@
       <div class="d-flex justify-content-between align-items-center">
         <span>
           <strong>{{ confirmados }}/{{ consumosVisibles.length }}</strong> confirmados
-          <span v-if="todosConfirmados" class="text-success ml-2">— revisión completada</span>
+          <span v-if="todosConfirmados" class="text-success ml-2">— revisión completada por: {{ revisadoPor }}</span>
         </span>
         <b-button variant="secondary" size="sm" @click="cerrar">Cerrar</b-button>
       </div>
@@ -106,7 +106,8 @@ export default {
     // Si viene rubro (pestaña activa), se muestran solo los consumos de ese rubro.
     consumosVisibles () { return this.rubro ? this.consumos.filter(c => c.rubro === this.rubro) : this.consumos },
     confirmados () { return this.consumosVisibles.filter(c => c.reviewed_by).length },
-    todosConfirmados () { return this.consumosVisibles.length > 0 && this.confirmados >= this.consumosVisibles.length }
+    todosConfirmados () { return this.consumosVisibles.length > 0 && this.confirmados >= this.consumosVisibles.length },
+    revisadoPor () { return [...new Set(this.consumosVisibles.filter(c => c.reviewed_by).map(c => c.reviewed_by))].join(', ') }
   },
   methods: {
     async abrir () {
