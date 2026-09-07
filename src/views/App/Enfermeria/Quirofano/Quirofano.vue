@@ -1605,7 +1605,7 @@ export default {
       to: 0,
       total: 0,
       perPage: 25,
-      perPageConsumos: 100,
+      perPageConsumos: 250,
       search: '',
       existencias_selected_med: null,
       max_cant: 0,
