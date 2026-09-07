@@ -578,7 +578,7 @@
 
         <!-- Tabla de consumos ya registrados -->
         <h5 class="mt-4">CONSUMOS REALIZADOS</h5>
-        <b-tabs content-class="mt-3">
+        <b-tabs content-class="mt-3" @input="consumoTabIndex = $event">
           <b-tab title="Medicamento" active>
             <vuetable
               ref="vuetableConsumoInsumos"
@@ -668,7 +668,7 @@
           <b-badge :variant="varianteRevisionConsumos">Revisión de consumos: {{ textoRevisionConsumos }}</b-badge>
           <span v-if="revisionConsumos.reviewedBy" class="ml-2 text-muted">por {{ revisionConsumos.reviewedBy }}</span>
           <div v-if="puedeRevisarConsumos" class="mt-2">
-            <revisar-consumos :id-cuenta="revisionConsumos.idCuenta" movimiento="SALIDAI" @finalizado="onRevisionFinalizada" />
+            <revisar-consumos :id-cuenta="revisionConsumos.idCuenta" movimiento="SALIDAI" :rubro="rubroConsumoActivo" @finalizado="onRevisionFinalizada" />
           </div>
         </div>
         <b-button variant="primary" @click="onSave">Guardar</b-button>
@@ -749,7 +749,7 @@
 
         <!-- Tabla de consumos ya registrados -->
         <h5 class="mt-4">CONSUMOS REALIZADOS</h5>
-        <b-tabs content-class="mt-3">
+        <b-tabs content-class="mt-3" @input="consumoTabIndex = $event">
           <b-tab title="Medicamento" active>
             <vuetable
               ref="vuetableConsumoInsumos"
@@ -839,7 +839,7 @@
           <b-badge :variant="varianteRevisionConsumos">Revisión de consumos: {{ textoRevisionConsumos }}</b-badge>
           <span v-if="revisionConsumos.reviewedBy" class="ml-2 text-muted">por {{ revisionConsumos.reviewedBy }}</span>
           <div v-if="puedeRevisarConsumos" class="mt-2">
-            <revisar-consumos :id-cuenta="revisionConsumos.idCuenta" movimiento="SALIDAI" @finalizado="onRevisionFinalizada" />
+            <revisar-consumos :id-cuenta="revisionConsumos.idCuenta" movimiento="SALIDAI" :rubro="rubroConsumoActivo" @finalizado="onRevisionFinalizada" />
           </div>
         </div>
         <b-button variant="primary" @click="onSave">Guardar</b-button>
@@ -1269,6 +1269,8 @@ export default {
     xray.index()
   },
   computed: {
+    // Rubro de la pestaña de consumos activa, para filtrar la revisión de consumos.
+    rubroConsumoActivo () { return ['medicamento', 'anestesico', 'quirurgico', 'comun'][this.consumoTabIndex] || 'medicamento' },
     ...mapGetters({
       currentUser: 'currentUser'
     })
@@ -1302,6 +1304,7 @@ export default {
       total: 0,
       perPage: 25,
       perPageConsumos: 250,
+      consumoTabIndex: 0,
       search: '',
       existencias_selected_med: null,
       max_cant: 0,

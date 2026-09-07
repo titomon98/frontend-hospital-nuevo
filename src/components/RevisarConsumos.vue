@@ -10,9 +10,11 @@
         <span v-if="!puedeModificar">(Tu rol solo puede confirmar la cantidad tal cual está registrada.)</span>
       </p>
 
+      <p v-if="rubro" class="mb-2"><strong>Rubro: {{ rubroLabels[rubro] || rubro }}</strong></p>
+
       <div v-if="cargando" class="text-center my-3"><b-spinner small></b-spinner> Cargando...</div>
 
-      <b-table v-else :items="consumos" :fields="fields" small responsive class="mb-2">
+      <b-table v-else :items="consumosVisibles" :fields="fields" small responsive class="mb-2">
         <template #cell(cantidad_real)="row">
           <b-form-input
             v-if="!row.item.reviewed_by"
@@ -44,7 +46,7 @@
 
       <div class="d-flex justify-content-between align-items-center">
         <span>
-          <strong>{{ confirmados }}/{{ consumos.length }}</strong> confirmados
+          <strong>{{ confirmados }}/{{ consumosVisibles.length }}</strong> confirmados
           <span v-if="todosConfirmados" class="text-success ml-2">— revisión completada</span>
         </span>
         <b-button variant="secondary" size="sm" @click="cerrar">Cerrar</b-button>
@@ -62,7 +64,8 @@ export default {
   name: 'RevisarConsumos',
   props: {
     idCuenta: { type: [Number, String], default: null },
-    movimiento: { type: String, required: true } // SALIDAQ / SALIDAH / SALIDAI / SALIDAE
+    movimiento: { type: String, required: true }, // SALIDAQ / SALIDAH / SALIDAI / SALIDAE
+    rubro: { type: String, default: null } // medicamento | anestesico | quirurgico | comun (pestaña activa)
   },
   data () {
     return {
@@ -100,8 +103,10 @@ export default {
     areaActual () { return this.areasPorMovimiento[this.movimiento] || '' },
     puedeRevisar () { return [1, 3, 9, 11].includes(this.currentUser && this.currentUser.user_type) },
     puedeModificar () { return [1, 3].includes(this.currentUser && this.currentUser.user_type) },
-    confirmados () { return this.consumos.filter(c => c.reviewed_by).length },
-    todosConfirmados () { return this.consumos.length > 0 && this.confirmados >= this.consumos.length }
+    // Si viene rubro (pestaña activa), se muestran solo los consumos de ese rubro.
+    consumosVisibles () { return this.rubro ? this.consumos.filter(c => c.rubro === this.rubro) : this.consumos },
+    confirmados () { return this.consumosVisibles.filter(c => c.reviewed_by).length },
+    todosConfirmados () { return this.consumosVisibles.length > 0 && this.confirmados >= this.consumosVisibles.length }
   },
   methods: {
     async abrir () {
