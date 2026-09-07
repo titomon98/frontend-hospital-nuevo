@@ -69,6 +69,30 @@
         >
       </template>
     </b-modal>
+    <b-modal id="modal-editar-paciente" ref="modal-editar-paciente" title="Editar datos del paciente" size="lg">
+      <b-form @submit="$event.preventDefault()">
+        <b-row>
+          <b-col md="4"><b-form-group label="Nombres:"><b-form-input v-model.trim="editarPacienteForm.nombre" placeholder="Nombres"></b-form-input></b-form-group></b-col>
+          <b-col md="4"><b-form-group label="Apellidos:"><b-form-input v-model.trim="editarPacienteForm.apellidos" placeholder="Apellidos"></b-form-input></b-form-group></b-col>
+          <b-col md="4"><b-form-group label="Apellido de casada:"><b-form-input v-model.trim="editarPacienteForm.casada" placeholder="Apellido de casada"></b-form-input></b-form-group></b-col>
+          <b-col md="4"><b-form-group label="Fecha de nacimiento:"><b-form-input type="date" v-model="editarPacienteForm.nacimiento"></b-form-input></b-form-group></b-col>
+          <b-col md="4"><b-form-group label="Teléfono:"><b-form-input v-model.trim="editarPacienteForm.telefono" placeholder="Teléfono"></b-form-input></b-form-group></b-col>
+          <b-col md="4"><b-form-group label="CUI:"><b-form-input v-model.trim="editarPacienteForm.cui" placeholder="CUI"></b-form-input></b-form-group></b-col>
+          <b-col md="4"><b-form-group label="Sexo:"><b-form-select v-model="editarPacienteForm.generos" :options="['Masculino', 'Femenino']"></b-form-select></b-form-group></b-col>
+          <b-col md="4"><b-form-group label="Nacionalidad:"><b-form-input v-model.trim="editarPacienteForm.nacionalidad" placeholder="Nacionalidad"></b-form-input></b-form-group></b-col>
+          <b-col md="4"><b-form-group label="Estado civil:"><b-form-input v-model.trim="editarPacienteForm.estado_civil" placeholder="Estado civil"></b-form-input></b-form-group></b-col>
+          <b-col md="8"><b-form-group label="Dirección:"><b-form-input v-model.trim="editarPacienteForm.direccion" placeholder="Dirección"></b-form-input></b-form-group></b-col>
+          <b-col md="4"><b-form-group label="Lugar de nacimiento:"><b-form-input v-model.trim="editarPacienteForm.lugar_nacimiento" placeholder="Lugar de nacimiento"></b-form-input></b-form-group></b-col>
+          <b-col md="4"><b-form-group label="Profesión u oficio:"><b-form-input v-model.trim="editarPacienteForm.profesion" placeholder="Profesión"></b-form-input></b-form-group></b-col>
+          <b-col md="4"><b-form-group label="Nombre del padre:"><b-form-input v-model.trim="editarPacienteForm.nombre_padre" placeholder="Nombre del padre"></b-form-input></b-form-group></b-col>
+          <b-col md="4"><b-form-group label="Nombre de la madre:"><b-form-input v-model.trim="editarPacienteForm.nombre_madre" placeholder="Nombre de la madre"></b-form-input></b-form-group></b-col>
+        </b-row>
+      </b-form>
+      <template #modal-footer="{}">
+        <b-button variant="primary" :disabled="guardandoPaciente" @click="guardarEdicionPaciente()">Guardar</b-button>
+        <b-button variant="danger" @click="$bvModal.hide('modal-editar-paciente')">Cancelar</b-button>
+      </template>
+    </b-modal>
     <b-modal id="modal-traslado" ref="modal-traslado" title="Trasladar paciente">
       <b-alert
         :show="alertCountDownError"
@@ -1128,6 +1152,12 @@
               <!-- Botones -->
               <template slot="actions" slot-scope="props">
                 <div class="button-container">
+                  <b-button
+                    @click="editarPacienteEmergencia(props.rowData)"
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="warning"
+                    >Editar</b-button>
                   <b-button @click="
                     setData(props.rowData)
                     traslado(props.rowData.id)"
@@ -1350,6 +1380,24 @@ export default {
   },
   data () {
     return {
+      editarPacienteForm: {
+        id: null,
+        nombre: '',
+        apellidos: '',
+        casada: '',
+        nacimiento: '',
+        telefono: '',
+        cui: '',
+        generos: null,
+        nacionalidad: '',
+        estado_civil: '',
+        direccion: '',
+        lugar_nacimiento: '',
+        profesion: '',
+        nombre_padre: '',
+        nombre_madre: ''
+      },
+      guardandoPaciente: false,
       motivoEliminar: '',
       TotalApagar: 0.0,
       idCuentaParcial: 0,
@@ -1999,6 +2047,55 @@ export default {
     }
   },
   methods: {
+    editarPacienteEmergencia (data) {
+      let nacimiento = ''
+      if (data.nacimiento) {
+        const m = moment(data.nacimiento, ['YYYY-MM-DD', 'DD/MM/YYYY', moment.ISO_8601], true)
+        nacimiento = m.isValid() ? m.format('YYYY-MM-DD') : ''
+      }
+      this.editarPacienteForm = {
+        id: data.id,
+        nombre: data.nombres || '',
+        apellidos: data.apellidos || '',
+        casada: data.casada || '',
+        nacimiento,
+        telefono: data.telefono || '',
+        cui: data.cui || '',
+        generos: data.genero || null,
+        nacionalidad: data.nacionalidad || '',
+        estado_civil: data.estado_civil || '',
+        direccion: data.direccion || '',
+        lugar_nacimiento: data.lugar_nacimiento || '',
+        profesion: data.profesion || '',
+        nombre_padre: data.nombre_padre || '',
+        nombre_madre: data.nombre_madre || ''
+      }
+      this.$bvModal.show('modal-editar-paciente')
+    },
+    async guardarEdicionPaciente () {
+      if (!this.editarPacienteForm.nombre || !this.editarPacienteForm.apellidos) {
+        this.alertErrorText = 'Nombres y apellidos son obligatorios'
+        this.showAlertError()
+        return
+      }
+      this.guardandoPaciente = true
+      try {
+        await axios.put(apiUrl + '/expedientes/updateDatosPaciente', {
+          form: { ...this.editarPacienteForm, user: this.currentUser.user },
+          user: this.currentUser.user
+        })
+        this.$bvModal.hide('modal-editar-paciente')
+        this.$refs.vuetable.refresh()
+        this.alertVariant = 'primary'
+        this.showAlert()
+        this.alertText = 'Datos del paciente actualizados'
+      } catch (error) {
+        this.alertErrorText = error.response?.data?.msg || 'Error al actualizar los datos'
+        this.showAlertError()
+      } finally {
+        this.guardandoPaciente = false
+      }
+    },
     getRowClass (rowData) {
       return claseFilaDiaNoche(rowData.createdAt)
     },
