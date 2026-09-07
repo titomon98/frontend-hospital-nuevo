@@ -3434,7 +3434,7 @@ export default {
       doc.text('HOSPITAL DE ESPECIALIDADES', 20, 20)
       doc.text('DE OCCIDENTE S.A. QUETZALTENANGO', 20, 27)
       doc.setTextColor(255, 0, 0)
-      doc.text('No. 000019', 160, 20)
+      doc.text(`No. ${data.numeroHoja || ''}`, 160, 20)
       doc.setTextColor(0, 0, 0)
       doc.setFontSize(14)
       doc.text('HOJA DE EMERGENCIAS', 70, 35)
@@ -3451,20 +3451,20 @@ export default {
       doc.text(`HORA: ${horaFormateada}`, 120, 45)
       doc.text(`NOMBRE DEL PACIENTE: ${data.nombre}`, 20, 55)
       doc.text(`EDAD: ${data.edad}`, 20, 65)
-      doc.text(`DIRECCIÓN: ${data.direccion}`, 50, 65)
       doc.text(`TELÉFONO: ${data.telefono}`, 150, 65)
-      doc.text(`MOTIVO DE LA CONSULTA: ${data.motivo}`, 20, 75)
-      doc.text(`DIAGNÓSTICO: ${data.diagnostico}`, 20, 85)
-      doc.text(`TRATAMIENTO: ${data.tratamiento}`, 20, 95)
-      doc.text(`MÉDICO TRATANTE: ${data.medico}`, 20, 105)
-      doc.text(`SE HOSPITALIZA: ${data.seHospitaliza ? 'Sí' : 'No'}`, 130, 105)
+      doc.text(`DIRECCIÓN: ${data.direccion}`, 20, 75)
+      doc.text(`MOTIVO DE LA CONSULTA: ${data.motivo}`, 20, 85)
+      doc.text(`DIAGNÓSTICO: ${data.diagnostico}`, 20, 95)
+      doc.text(`TRATAMIENTO: ${data.tratamiento}`, 20, 105)
+      doc.text(`MÉDICO TRATANTE: ${data.medico}`, 20, 115)
+      doc.text(`SE HOSPITALIZA: ${data.seHospitaliza ? 'Sí' : 'No'}`, 130, 115)
 
-      doc.text('EXÁMENES DE LABORATORIO:', 20, 115)
-      doc.text(data.examenes || '', 20, 122)
+      doc.text('EXÁMENES DE LABORATORIO:', 20, 125)
+      doc.text(data.examenes || '', 20, 132)
 
-      doc.text('MEDICINA Y MATERIAL MÉDICO QUIRÚRGICO:', 20, 135)
+      doc.text('MEDICINA Y MATERIAL MÉDICO QUIRÚRGICO:', 20, 145)
 
-      let totalY = 135
+      let totalY = 145
       console.log(data)
       doc.text('MEDICINA', 20, totalY += 7)
       doc.text('___________________________', 20, totalY += 1)
@@ -3862,6 +3862,8 @@ export default {
           me.showAlert()
           me.alertText = 'Se ha egresado al paciente exitosamente'
           me.$refs.vuetable.refresh()
+          // Al egresar se descarga automáticamente la hoja de emergencia.
+          me.generarReporteHojaEmergenciaPDF(me.form.id)
           me.closeModal('egreso')
         })
         .catch((error) => {
