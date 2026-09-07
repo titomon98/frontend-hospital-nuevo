@@ -66,7 +66,6 @@
                       @input="validarAnoNacimiento"
                     ></b-form-input>
                     <div v-if="$v.form.nacimiento.$error" class="invalid-feedback">
-                      <div v-if="!$v.form.nacimiento.required">Debe ingresar la fecha de nacimiento</div>
                       <div v-if="!$v.form.nacimiento.isValidYear">El año no puede tener más de 4 dígitos</div>
                       <div v-if="!$v.form.nacimiento.isPastYear">El año de nacimiento no puede ser mayor al actual</div>
                     </div>
@@ -319,7 +318,6 @@ export default {
           required, ValidateName: helpers.regex(/^[A-ZÁÉÍÓÚÜÑ\s]+$/)
         },
         nacimiento: {
-          required,
           isValidYear: (value) => {
             if (!value) return true
             const ano = new Date(value).getFullYear()
