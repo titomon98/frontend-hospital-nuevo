@@ -20,7 +20,7 @@ export default {
       return [1, 3, 9, 11].includes(this.currentUser && this.currentUser.user_type)
     },
     textoRevisionConsumos () {
-      if (this.revisionConsumos.estado === 1) return 'Consumos comprobados'
+      if (this.revisionConsumos.estado === 1) return 'completada'
       if (this.revisionConsumos.estado === 2) return 'Inconsistencia reportada'
       return 'Sin revisar'
     },
