@@ -3499,19 +3499,19 @@ export default {
       doc.text('_________________', 150, totalY += 1)
       totalY -= 1
 
-      doc.text('MATERIAL QUIRURGICO', 20, totalY += 7)
+      doc.text('MATERIAL QUIRÚRGICO', 20, totalY += 7)
       doc.text('___________________________', 20, totalY += 1)
       doc.text(`Q. ${data.totalQuirurgico.toFixed(2)}`, 150, totalY -= 1)
       doc.text('_________________', 150, totalY += 1)
       totalY -= 1
 
-      doc.text('ANESTESICOS', 20, totalY += 7)
+      doc.text('ANESTÉSICOS', 20, totalY += 7)
       doc.text('___________________________', 20, totalY += 1)
       doc.text(`Q. ${data.totalAnestesicos.toFixed(2)}`, 150, totalY -= 1)
       doc.text('_________________', 150, totalY += 1)
       totalY -= 1
 
-      doc.text('MATERIAL COMUN', 20, totalY += 7)
+      doc.text('MATERIAL COMÚN', 20, totalY += 7)
       doc.text('___________________________', 20, totalY += 1)
       doc.text(`Q. ${data.totalComun.toFixed(2)}`, 150, totalY -= 1)
       doc.text('_________________', 150, totalY += 1)
