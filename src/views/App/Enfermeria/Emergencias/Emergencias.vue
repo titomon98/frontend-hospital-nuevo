@@ -3840,6 +3840,14 @@ export default {
         })
     },
     egresoEmergencia (data) {
+      // Exigir al menos un honorario médico activo antes de egresar (detalle_honorarios ya viene filtrado por estado 1).
+      const honorarios = data.cuentas && data.cuentas[0] && data.cuentas[0].detalle_honorarios
+      if (!honorarios || honorarios.length === 0) {
+        this.alertVariant = 'danger'
+        this.showAlertError()
+        this.alertErrorText = 'Debe registrar al menos un honorario médico antes de egresar al paciente'
+        return
+      }
       this.form.id = data.id
       this.form.fecha = null
       this.form.hora = null
