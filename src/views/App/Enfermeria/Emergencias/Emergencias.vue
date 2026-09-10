@@ -86,6 +86,20 @@
           <b-col md="4"><b-form-group label="Profesión u oficio:"><b-form-input v-model.trim="editarPacienteForm.profesion" placeholder="Profesión"></b-form-input></b-form-group></b-col>
           <b-col md="4"><b-form-group label="Nombre del padre:"><b-form-input v-model.trim="editarPacienteForm.nombre_padre" placeholder="Nombre del padre"></b-form-input></b-form-group></b-col>
           <b-col md="4"><b-form-group label="Nombre de la madre:"><b-form-input v-model.trim="editarPacienteForm.nombre_madre" placeholder="Nombre de la madre"></b-form-input></b-form-group></b-col>
+          <b-col md="8">
+            <b-form-group label="Médico tratante:">
+              <v-select
+                v-model="editarPacienteForm.medico"
+                :options="medicos"
+                :filterable="false"
+                placeholder="Seleccione el médico"
+                @search="onSearchMedicos"
+              >
+                <template v-slot:option="option">{{ option.nombre }}</template>
+                <template slot="selected-option" slot-scope="option">{{ option.nombre }}</template>
+              </v-select>
+            </b-form-group>
+          </b-col>
         </b-row>
       </b-form>
       <template #modal-footer="{}">
@@ -1395,7 +1409,8 @@ export default {
         lugar_nacimiento: '',
         profesion: '',
         nombre_padre: '',
-        nombre_madre: ''
+        nombre_madre: '',
+        medico: null
       },
       guardandoPaciente: false,
       motivoEliminar: '',
@@ -2068,8 +2083,10 @@ export default {
         lugar_nacimiento: data.lugar_nacimiento || '',
         profesion: data.profesion || '',
         nombre_padre: data.nombre_padre || '',
-        nombre_madre: data.nombre_madre || ''
+        nombre_madre: data.nombre_madre || '',
+        medico: data.medico || null
       }
+      if (data.medico) this.medicos = [data.medico]
       this.$bvModal.show('modal-editar-paciente')
     },
     async guardarEdicionPaciente () {
@@ -2081,7 +2098,11 @@ export default {
       this.guardandoPaciente = true
       try {
         await axios.put(apiUrl + '/expedientes/updateDatosPaciente', {
-          form: { ...this.editarPacienteForm, user: this.currentUser.user },
+          form: {
+            ...this.editarPacienteForm,
+            id_medico: this.editarPacienteForm.medico ? this.editarPacienteForm.medico.id : undefined,
+            user: this.currentUser.user
+          },
           user: this.currentUser.user
         })
         this.$bvModal.hide('modal-editar-paciente')
