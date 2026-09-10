@@ -622,7 +622,7 @@
                   >Generar Cuenta Total de paciente</b-button>
 
                   <b-button
-                    v-if="currentUser.user_type === 1 && [1, 3, 4, 5, 91, 93, 94, 95].includes(props.rowData.estado)"
+                    v-if="[1, 3].includes(currentUser.user_type) && [1, 3, 4, 5, 91, 93, 94, 95].includes(props.rowData.estado)"
                     v-b-tooltip.top="'Corregir fecha/hora de ingreso'"
                     @click="setEditarIngreso(props.rowData)"
                     class="mb-2 button-spacing"
