@@ -689,7 +689,11 @@
               :reactive-api-url="true"
               :fields="fieldsConsumoInsumoMedicamento"
               :row-class="getRowClass"
-            ></vuetable>
+            >
+              <template slot="acciones" slot-scope="props">
+                <b-button v-if="[1, 3].includes(currentUser.user_type)" size="sm" variant="danger" title="Eliminar consumo" @click="eliminarConsumoRealizado(props.rowData, 1)"><i class="ri-delete-bin-line"></i></b-button>
+              </template>
+            </vuetable>
             <vuetable-pagination-bootstrap
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
@@ -699,7 +703,7 @@
 
           <b-tab title="Anestésicos">
             <vuetable
-              ref="vuetableConsumoInsumos"
+              ref="vuetableConsumoInsumosAnestesicos"
               class="table-divided table-responsive order-with-arrow"
               :api-url="apiBaseConsumoAnestesicos"
               @vuetable:pagination-data="onPaginationDataConsumo"
@@ -710,7 +714,11 @@
               :reactive-api-url="true"
               :fields="fieldsConsumoInsumoMedicamento"
               :row-class="getRowClass"
-            ></vuetable>
+            >
+              <template slot="acciones" slot-scope="props">
+                <b-button v-if="[1, 3].includes(currentUser.user_type)" size="sm" variant="danger" title="Eliminar consumo" @click="eliminarConsumoRealizado(props.rowData, 1)"><i class="ri-delete-bin-line"></i></b-button>
+              </template>
+            </vuetable>
             <vuetable-pagination-bootstrap
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
@@ -729,7 +737,11 @@
               :reactive-api-url="true"
               :fields="fieldsConsumoInsumoQuirurgico"
               :row-class="getRowClass"
-            ></vuetable>
+            >
+              <template slot="acciones" slot-scope="props">
+                <b-button v-if="[1, 3].includes(currentUser.user_type)" size="sm" variant="danger" title="Eliminar consumo" @click="eliminarConsumoRealizado(props.rowData, 3)"><i class="ri-delete-bin-line"></i></b-button>
+              </template>
+            </vuetable>
             <vuetable-pagination-bootstrap
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
@@ -748,7 +760,11 @@
               :reactive-api-url="true"
               :fields="fieldsConsumoInsumo"
               :row-class="getRowClass"
-            ></vuetable>
+            >
+              <template slot="acciones" slot-scope="props">
+                <b-button v-if="[1, 3].includes(currentUser.user_type)" size="sm" variant="danger" title="Eliminar consumo" @click="eliminarConsumoRealizado(props.rowData, 2)"><i class="ri-delete-bin-line"></i></b-button>
+              </template>
+            </vuetable>
             <vuetable-pagination-bootstrap
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
@@ -1625,6 +1641,11 @@ export default {
       ],
       fieldsConsumoInsumo: [
         {
+          name: '__slot:acciones',
+          title: 'Acciones',
+          dataClass: 'text-center'
+        },
+        {
           name: 'comune.nombre',
           sortField: 'comune.nombre',
           title: 'Nombre del insumo',
@@ -1675,6 +1696,11 @@ export default {
       ],
       fieldsConsumoInsumoQuirurgico: [
         {
+          name: '__slot:acciones',
+          title: 'Acciones',
+          dataClass: 'text-center'
+        },
+        {
           name: 'quirurgico.nombre',
           sortField: 'quirurgico.nombre',
           title: 'Nombre del insumo',
@@ -1724,6 +1750,11 @@ export default {
         }
       ],
       fieldsConsumoInsumoMedicamento: [
+        {
+          name: '__slot:acciones',
+          title: 'Acciones',
+          dataClass: 'text-center'
+        },
         {
           name: 'medicamento.nombre',
           sortField: 'medicamento.nombre',
@@ -3139,6 +3170,44 @@ export default {
       this.existencias_selected_med = medicine_.existencias_actuales + ' unidades en existencia.'
       this.formMe.precio_venta = medicine_.precio_venta
       this.formMe.existencias_actuales = medicine_.existencias_actuales
+    },
+    // Eliminar un consumo ya registrado (solo roles 1 y 3). Repone inventario en el
+    // backend y recalcula los totales mostrados. area: 1=medicamento/anestesico, 2=comun, 3=quirurgico.
+    async eliminarConsumoRealizado (rowData, area) {
+      const nombre = rowData.medicamento?.nombre || rowData.quirurgico?.nombre || rowData.comune?.nombre || 'este insumo'
+      const confirmado = await this.$bvModal.msgBoxConfirm(
+        `¿Eliminar el consumo "${nombre}"? Se repondrá al inventario.`,
+        { title: 'Confirmar eliminación', okVariant: 'danger', okTitle: 'Eliminar', cancelTitle: 'Cancelar' }
+      )
+      if (!confirmado) return
+      const endpoints = {
+        1: '/detalle_consumo_medicamentos/deactivate',
+        2: '/detalle_consumo_comun/deactivate',
+        3: '/detalle_consumo_quirurgicos/deactivate'
+      }
+      try {
+        await axios.put(apiUrl + endpoints[area], {
+          delete: { ...rowData, responsable: this.currentUser.user }
+        })
+        this.refrescarConsumos()
+      } catch (error) {
+        this.alertErrorText = error.response?.data?.msg || 'No se pudo eliminar el consumo'
+        this.showAlertError()
+      }
+    },
+    refrescarConsumos () {
+      const refs = ['vuetableConsumoInsumos', 'vuetableConsumoInsumosAnestesicos', 'vuetableConsumoQuirurgicos', 'vuetableConsumoComunes']
+      refs.forEach(r => { try { if (this.$refs[r]) this.$refs[r].refresh() } catch (e) {} })
+      this.recalcularTotalesConsumos()
+    },
+    async recalcularTotalesConsumos () {
+      if (!this.idCuentaSeleccionada) return
+      const r = await axios.get(apiUrl + `/cuentas/getTotales/Emergencia?id=${this.idCuentaSeleccionada}`)
+      this.totalMedicamentos = r.data.totalMedicamentos.toFixed(2)
+      this.totalComun = r.data.totalComun.toFixed(2)
+      this.totalQuirurgico = r.data.totalQuirurgico.toFixed(2)
+      this.totalAnestesicos = r.data.totalAnestesicos.toFixed(2)
+      this.granTotalConsumos = (parseFloat(this.totalMedicamentos) + parseFloat(this.totalAnestesicos) + parseFloat(this.totalComun) + parseFloat(this.totalQuirurgico)).toFixed(2)
     },
     async getConsumoMedicamentos (id) {
       try {
