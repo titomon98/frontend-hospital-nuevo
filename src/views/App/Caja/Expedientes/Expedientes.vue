@@ -509,6 +509,14 @@
       <b-form-group label="Hora de ingreso">
         <b-form-input type="time" step="1" v-model="editarIngreso.hora"></b-form-input>
       </b-form-group>
+      <b-form-group label="Tipo de paciente (define el cobro de habitación)">
+        <b-form-select v-model="editarIngreso.categoria" :options="[
+          { value: 'hospitalizacion', text: 'Hospitalización' },
+          { value: 'ambulatorio', text: 'Ambulatorio' },
+          { value: 'estudio', text: 'Estudio de sueño' },
+          { value: 'quimio', text: 'Quimioterapia' }
+        ]"></b-form-select>
+      </b-form-group>
       <template #modal-footer="{}">
         <b-button variant="primary" @click="guardarEditarIngreso()">Guardar</b-button>
         <b-button variant="danger" @click="$bvModal.hide('modal-editar-ingreso')">Cancelar</b-button>
@@ -746,7 +754,7 @@ export default {
       alertText: '',
       alertErrorText: '',
       alertVariant: '',
-      editarIngreso: { id: 0, nombre: '', fecha: '', hora: '' },
+      editarIngreso: { id: 0, nombre: '', fecha: '', hora: '', categoria: 'hospitalizacion' },
       selectedAccount: null,
       cuentas: [],
       selectedTrasOption: 4,
@@ -1123,11 +1131,19 @@ export default {
     },
     setEditarIngreso (rowData) {
       const hora = rowData.hora_ingreso_reciente
+      const tipoActual = rowData.cuentas && rowData.cuentas[0] ? rowData.cuentas[0].tipo_paciente : null
+      const mapaCategoria = {
+        'Ambulatorio': 'ambulatorio',
+        'Estudio de sueño': 'estudio',
+        'Quimioterapia': 'quimio',
+        'Hospitalización': 'hospitalizacion'
+      }
       this.editarIngreso = {
         id: rowData.id,
         nombre: `${rowData.nombres} ${rowData.apellidos}`,
         fecha: rowData.fecha_ingreso_reciente ? moment(rowData.fecha_ingreso_reciente).format('YYYY-MM-DD') : '',
-        hora: hora ? String(hora).substring(0, 8) : ''
+        hora: hora ? String(hora).substring(0, 8) : '',
+        categoria: mapaCategoria[tipoActual] || 'hospitalizacion'
       }
       this.$refs['modal-editar-ingreso'].show()
     },
@@ -1137,11 +1153,21 @@ export default {
         this.showAlertError()
         return
       }
+      // Traducir la categoría elegida al par tipo_paciente/estudioDeSueno que espera el backend.
+      const mapaPayload = {
+        hospitalizacion: { tipo_paciente: '0', estudioDeSueno: 0 },
+        ambulatorio: { tipo_paciente: '1', estudioDeSueno: 0 },
+        estudio: { tipo_paciente: '0', estudioDeSueno: 1 },
+        quimio: { tipo_paciente: '0', estudioDeSueno: 2 }
+      }
+      const cat = mapaPayload[this.editarIngreso.categoria] || mapaPayload.hospitalizacion
       const me = this
       axios.put(apiUrl + '/expedientes/editarIngresoActual', {
         id_expediente: this.editarIngreso.id,
         fecha: this.editarIngreso.fecha,
         hora: this.editarIngreso.hora,
+        tipo_paciente: cat.tipo_paciente,
+        estudioDeSueno: cat.estudioDeSueno,
         user: this.currentUser.user,
         user_type: this.currentUser.user_type
       })
