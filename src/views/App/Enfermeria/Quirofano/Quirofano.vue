@@ -3721,9 +3721,19 @@ export default {
         2: '/detalle_consumo_comun/deactivate',
         3: '/detalle_consumo_quirurgicos/deactivate'
       }
+      const fkPorArea = {
+        1: { medicamento_id: rowData.medicamento ? rowData.medicamento.id : rowData.id_medicamento },
+        2: { comune_id: rowData.comune ? rowData.comune.id : rowData.id_comun },
+        3: { quirurgico_id: rowData.quirurgico ? rowData.quirurgico.id : rowData.id_quirurgico }
+      }
       try {
         await axios.put(apiUrl + endpoints[area], {
-          delete: { ...rowData, responsable: this.currentUser.user }
+          delete: {
+            id: rowData.id,
+            cantidad: rowData.cantidad,
+            responsable: this.currentUser.user,
+            ...fkPorArea[area]
+          }
         })
         this.refrescarConsumos()
       } catch (error) {
