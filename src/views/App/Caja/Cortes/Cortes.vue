@@ -941,6 +941,7 @@ export default {
           factura: item.numero_factura ? item.numero_factura : 'no hay numero de factura registrado',
           nombres: item.expediente.nombres,
           apellidos: item.expediente.apellidos,
+          medico: item.expediente.medico ? item.expediente.medico.nombre : '',
           numero: item.numero,
           total: item.total_hospital,
           totalPagado: item.total_hospital,
@@ -1055,6 +1056,7 @@ export default {
                 { header: 'Factura', dataKey: 'factura' },
                 { header: 'Nombre', dataKey: 'nombres' },
                 { header: 'Apellido', dataKey: 'apellidos' },
+                { header: 'Médico tratante', dataKey: 'medico' },
                 { header: 'Fecha', dataKey: 'fecha' },
                 { header: 'Total hospital', dataKey: 'totalPagado' }
               ],
