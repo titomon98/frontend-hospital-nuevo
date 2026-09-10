@@ -332,7 +332,7 @@
                     >Cobrar</b-button>
 
                     <b-button
-                    @click="generarReporteCuentaParcial(props.rowData.expediente.id, props.rowData.expediente.nombres, props.rowData.expediente.apellidos)"
+                    @click="verCuentaOHoja(props.rowData)"
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="dark"
@@ -912,6 +912,139 @@ export default {
       this.paymentType = inptPay
     },
 
+    // Para pacientes de emergencia se muestra la Hoja de Emergencias; para el resto, el
+    // detalle de hospitalización (cuenta total).
+    verCuentaOHoja (rowData) {
+      if (rowData.tipo_paciente === 'Emergencia') {
+        this.generarReporteHojaEmergenciaPDF(rowData.expediente.id)
+      } else {
+        this.generarReporteCuentaParcial(rowData.expediente.id, rowData.expediente.nombres, rowData.expediente.apellidos)
+      }
+    },
+    generarReporteHojaEmergenciaPDF (id) {
+      axios.get(apiUrl + `/consumos/hojaEmergencia/${id}`)
+        .then((response) => {
+          this.generarHojaEmergenciaPDF(response.data)
+        })
+        .catch((error) => {
+          console.error('Error al generar la hoja de emergencia:', error)
+          this.alertErrorText = 'Hubo un problema al generar el reporte. Por favor, intente nuevamente.'
+          this.showAlertError()
+        })
+    },
+    generarHojaEmergenciaPDF (data) {
+      const doc = new JsPDF()
+      doc.setFontSize(12)
+      doc.setFont('times', 'normal')
+
+      doc.setFont(undefined, 'bold')
+      doc.text('HOSPITAL DE ESPECIALIDADES', 20, 20)
+      doc.text('DE OCCIDENTE S.A. QUETZALTENANGO', 20, 27)
+      doc.setTextColor(255, 0, 0)
+      doc.text(`No. ${data.numeroHoja || ''}`, 160, 20)
+      doc.setTextColor(0, 0, 0)
+      doc.setFontSize(14)
+      doc.text('HOJA DE EMERGENCIAS', 70, 35)
+      doc.setFontSize(12)
+      doc.setFont(undefined, 'normal')
+
+      const fechaObj = new Date(data.fechaIngreso + 'T' + (data.horaIngreso || '00:00'))
+      const fechaFormateada = fechaObj.toLocaleDateString('es-ES')
+      const horaFormateada = fechaObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: true })
+
+      doc.text(`FECHA: ${fechaFormateada}`, 20, 45)
+      doc.text(`HORA: ${horaFormateada}`, 120, 45)
+      doc.text(`NOMBRE DEL PACIENTE: ${data.nombre}`, 20, 55)
+      doc.text(`EDAD: ${data.edad}`, 20, 65)
+      doc.text(`TELÉFONO: ${data.telefono}`, 150, 65)
+      doc.text(`DIRECCIÓN: ${data.direccion}`, 20, 75)
+      doc.text(`MOTIVO DE LA CONSULTA: ${data.motivo}`, 20, 85)
+      doc.text(`DIAGNÓSTICO: ${data.diagnostico}`, 20, 95)
+      doc.text(`TRATAMIENTO: ${data.tratamiento}`, 20, 105)
+      doc.text(`MÉDICO TRATANTE: ${data.medico}`, 20, 115)
+      doc.text(`SE HOSPITALIZA: ${data.seHospitaliza ? 'Sí' : 'No'}`, 130, 115)
+
+      doc.text('EXÁMENES DE LABORATORIO:', 20, 125)
+      doc.text(data.examenes || '', 20, 132)
+
+      doc.text('MEDICINA Y MATERIAL MÉDICO QUIRÚRGICO:', 20, 145)
+
+      let totalY = 145
+      doc.text('MEDICINA', 20, totalY += 7)
+      doc.text('___________________________', 20, totalY += 1)
+      doc.text(`Q. ${data.totalMedicamentos.toFixed(2)}`, 150, totalY -= 1)
+      doc.text('_________________', 150, totalY += 1)
+      totalY -= 1
+
+      doc.text('MATERIAL QUIRÚRGICO', 20, totalY += 7)
+      doc.text('___________________________', 20, totalY += 1)
+      doc.text(`Q. ${data.totalQuirurgico.toFixed(2)}`, 150, totalY -= 1)
+      doc.text('_________________', 150, totalY += 1)
+      totalY -= 1
+
+      doc.text('ANESTÉSICOS', 20, totalY += 7)
+      doc.text('___________________________', 20, totalY += 1)
+      doc.text(`Q. ${data.totalAnestesicos.toFixed(2)}`, 150, totalY -= 1)
+      doc.text('_________________', 150, totalY += 1)
+      totalY -= 1
+
+      doc.text('MATERIAL COMÚN', 20, totalY += 7)
+      doc.text('___________________________', 20, totalY += 1)
+      doc.text(`Q. ${data.totalComun.toFixed(2)}`, 150, totalY -= 1)
+      doc.text('_________________', 150, totalY += 1)
+      totalY -= 1
+
+      doc.text('OTROS', 20, totalY += 7)
+      doc.text('___________________________', 20, totalY += 1)
+      doc.text(`Q. ${data.totalOtros.toFixed(2)}`, 150, totalY -= 1)
+      doc.text('_________________', 150, totalY += 1)
+      totalY -= 1
+
+      const subtotalConsumos = data.totalMedicamentos + data.totalQuirurgico + data.totalAnestesicos + data.totalComun + data.totalOtros
+
+      doc.text('TOTAL ............................................................................................................', 20, totalY += 7)
+      doc.text(`Q. ${subtotalConsumos.toFixed(2)}`, 150, totalY -= 1)
+      doc.text('_________________', 150, totalY += 1)
+      totalY += 3
+
+      doc.text('DERECHO DE EMERGENCIA .....................................................................', 20, totalY += 7)
+      doc.text(`Q. ${data.totalDerechoEmergencia.toFixed(2)}`, 150, totalY -= 1)
+      doc.text('_________________', 150, totalY += 1)
+      totalY -= 1
+
+      doc.text('LABORATORIOS ...........................................................................................', 20, totalY += 7)
+      doc.text(`Q. ${data.totalExamenes.toFixed(2)}`, 150, totalY -= 1)
+      doc.text('_________________', 150, totalY += 1)
+      totalY -= 1
+
+      const subtotal = subtotalConsumos + data.totalDerechoEmergencia + data.totalExamenes
+
+      doc.text('SUBTOTAL ....................................................................................................', 20, totalY += 7)
+      doc.text(`Q. ${subtotal.toFixed(2)}`, 150, totalY -= 1)
+      doc.text('_________________', 150, totalY += 1)
+      totalY -= 1
+
+      doc.text('RX ...................................................................................................................', 20, totalY += 7)
+      doc.text(`Q. 0.00`, 150, totalY -= 1)
+      doc.text('_________________', 150, totalY += 1)
+      totalY -= 1
+
+      doc.text('HONORARIOS ...............................................................................................', 20, totalY += 7)
+      doc.text(`Q. ${data.totalHonorarios.toFixed(2)}`, 150, totalY -= 1)
+      doc.text('_________________', 150, totalY += 1)
+      totalY -= 1
+
+      doc.text('TOTAL A PAGAR: .........................................................................................', 20, totalY += 7)
+      doc.text(`Q. ${data.totalAPagar.toFixed(2)}`, 150, totalY -= 1)
+      doc.text('_________________', 150, totalY += 1)
+      totalY -= 1
+
+      doc.text('OBSERVACIONES:', 20, totalY += 14)
+      doc.text(data.observaciones || '', 20, totalY += 7)
+      doc.text('NOMBRE Y FIRMA MÉDICO INTERNO:', 20, totalY += 50)
+
+      doc.save('hoja_emergencias.pdf')
+    },
     generarReporteCuentaParcial (id, nombres, apellidos) {
       axios.get(apiUrl + `/consumos/cuentaParcial/${id}`)
         .then((response) => {
