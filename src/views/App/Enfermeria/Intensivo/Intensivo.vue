@@ -972,6 +972,7 @@
       <template #modal-footer="{}">
 
         <div class="ml-auto" v-if="[1, 3].includes(currentUser.user_type)">
+          <span class="mr-2">Exámenes registrados: Q{{ totalExamenesRealizados }}</span>
           <span class="mr-2">Total: Q{{ TotalAPagar2 }}</span>
         </div>
 
@@ -998,6 +999,15 @@
             <tr v-for="row in item_examenes" :key="row.id">
               <td>
                 <b-button @click="verResultado(row.id)" variant="success">Ver resultado</b-button>
+                <b-button
+                  v-if="puedeEliminarEstudio"
+                  @click="eliminarExamenRealizado(row)"
+                  variant="danger"
+                  size="sm"
+                  class="ml-1"
+                  :disabled="parseFloat(row.pagado) !== 0"
+                  :title="parseFloat(row.pagado) !== 0 ? 'No se puede eliminar: el estudio ya tiene un pago registrado' : 'Eliminar estudio'"
+                >Eliminar estudio</b-button>
               </td>
               <td>{{ row.nombre }}</td>
               <td>{{ [1, 3].includes(currentUser.user_type) ? ('Q' + row.total) : row.cui }}</td>
@@ -1271,6 +1281,13 @@ export default {
   computed: {
     // Rubro de la pestaña de consumos activa, para filtrar la revisión de consumos.
     rubroConsumoActivo () { return ['medicamento', 'anestesico', 'quirurgico', 'comun'][this.consumoTabIndex] || 'medicamento' },
+    puedeEliminarEstudio () {
+      const tipo = this.currentUser?.user_type
+      return tipo === 1 || tipo === 3
+    },
+    totalExamenesRealizados () {
+      return this.item_examenes.reduce((acc, e) => acc + parseFloat(e.total || 0), 0).toFixed(2)
+    },
     ...mapGetters({
       currentUser: 'currentUser'
     })
@@ -3480,6 +3497,27 @@ export default {
       ).then((response) => {
         this.item_examenes = response.data
       })
+    },
+    async eliminarExamenRealizado (row) {
+      if (parseFloat(row.pagado) !== 0) {
+        this.alertErrorText = 'No se puede eliminar el estudio porque ya tiene un pago registrado.'
+        this.alertCountDownError = 5
+        return
+      }
+      const confirmado = await this.$bvModal.msgBoxConfirm(
+        `¿Está seguro de eliminar el estudio "${row.nombre_examen}"?`,
+        { title: 'Confirmar eliminación', okVariant: 'danger', okTitle: 'Eliminar', cancelTitle: 'Cancelar' }
+      )
+      if (!confirmado) return
+      try {
+        await axios.delete(apiUrl + '/examenes/eliminarExamen', {
+          data: { id: row.id, id_cuenta: row.id_cuenta }
+        })
+        this.item_examenes = this.item_examenes.filter(e => e.id !== row.id)
+      } catch (error) {
+        this.alertErrorText = error.response?.data?.msg || 'Ocurrió un error al eliminar el estudio.'
+        this.alertCountDownError = 5
+      }
     },
     searching_id_examenes_almacenados (search, loading) {
       axios.get(apiUrl + '/examenesAlmacenados/getSearch',

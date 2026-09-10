@@ -1049,7 +1049,10 @@
       </b-form>
       <template #modal-footer="{}">
 
-        <div class="ml-auto"> <span class="mr-2">Total: Q{{ TotalAPagar2 }}</span></div>
+        <div class="ml-auto">
+          <span v-if="[1, 3].includes(currentUser.user_type)" class="mr-2">Exámenes registrados: Q{{ totalExamenesRealizados }}</span>
+          <span class="mr-2">Total: Q{{ TotalAPagar2 }}</span>
+        </div>
 
         <b-button variant="primary" @click="guardarExamenRealizado"
           >Guardar</b-button
@@ -1390,6 +1393,9 @@ export default {
     puedeEliminarEstudio () {
       const tipo = this.currentUser?.user_type
       return tipo === 1 || tipo === 3
+    },
+    totalExamenesRealizados () {
+      return this.item_examenes.reduce((acc, e) => acc + parseFloat(e.total || 0), 0).toFixed(2)
     }
   },
   data () {
