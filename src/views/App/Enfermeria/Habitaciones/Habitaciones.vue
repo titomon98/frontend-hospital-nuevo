@@ -31,7 +31,7 @@
             Debe ingresar el número de la habitación
           </div>
         </b-form-group>
-        <b-form-group label="Costo ambulatorio de habitación:">
+        <b-form-group :label="esEmergencia ? 'Costo por cada hora adicional (después de 2 horas):' : 'Costo ambulatorio de habitación:'">
           <b-form-input
             v-model.trim="$v.form.costo_ambulatorio.$model"
             :state="!$v.form.costo_ambulatorio.$error"
@@ -42,7 +42,7 @@
             Debe ingresar el costo ambulatorio de la habitación
           </div>
         </b-form-group>
-        <b-form-group label="Costo diario de habitación:">
+        <b-form-group :label="esEmergencia ? 'Costo base de emergencia (primeras 2 horas):' : 'Costo diario de habitación:'">
           <b-form-input
             v-model.trim="$v.form.costo_diario.$model"
             :state="!$v.form.costo_diario.$error"
@@ -53,18 +53,7 @@
             Debe ingresar el costo diario de la habitación
           </div>
         </b-form-group>
-        <b-form-group label="Costo diario de habitación:">
-          <b-form-input
-            v-model.trim="$v.form.costo_diario.$model"
-            :state="!$v.form.costo_diario.$error"
-            placeholder="Ingresar costo diario de la habitación"
-            type="number"
-          ></b-form-input>
-          <div v-if="$v.form.costo_diario.required.$invalid" class="invalid-feedback">
-            Debe ingresar el costo diario de la habitación
-          </div>
-        </b-form-group>
-        <b-form-group label="Costo para estudio de sueño de habitación:">
+        <b-form-group v-if="!esEmergencia" label="Costo para estudio de sueño de habitación:">
           <b-form-input
             v-model.trim="$v.form.costo_estudio_de_sueno.$model"
             :state="!$v.form.costo_estudio_de_sueno.$error"
@@ -75,7 +64,7 @@
             Debe ingresar el costo para estudio de sueño de la habitación
           </div>
         </b-form-group>
-        <b-form-group label="Costo para quimioterapia de habitación:">
+        <b-form-group v-if="!esEmergencia" label="Costo para quimioterapia de habitación:">
           <b-form-input
             v-model.trim="$v.form.costo_quimioterapia.$model"
             :state="!$v.form.costo_quimioterapia.$error"
@@ -280,6 +269,9 @@ export default {
     xray.index()
   },
   computed: {
+    esEmergencia () {
+      return this.form.tipo === 'Emergencia'
+    },
     ...mapGetters({
       currentUser: 'currentUser'
     })
@@ -295,6 +287,7 @@ export default {
         id: 0,
         name: '',
         numero: 0,
+        tipo: '',
         costo_ambulatorio: 0,
         costo_diario: 0,
         costo_estudio_de_sueno: 0,
@@ -442,6 +435,7 @@ export default {
     },
     setData (data) {
       this.form.numero = data.numero
+      this.form.tipo = data.tipo
       this.form.costo_ambulatorio = data.costo_ambulatorio
       this.form.costo_diario = data.costo_diario
       this.form.costo_estudio_de_sueno = data.costo_estudio_de_sueno
