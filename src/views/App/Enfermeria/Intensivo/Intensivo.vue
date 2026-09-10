@@ -3263,7 +3263,6 @@ export default {
             ['TOTAL HOSPITALIZACION', `Q${TotalGeneral2.toFixed(2)}`],
             ['TOTAL LAB. BIOMEDICO E.O. S.A.', `Q${ExamenesTotal.toFixed(2)}`],
             ['TOTAL HONORARIOS MEDICOS Y OTROS SERVICIOS', `Q${TotalHonorarios.toFixed(2)}`],
-            ['EMERGENCIAS MEDICO INTERNO', `Q${EmergenciasMedicoInterno.toFixed(2)}`],
             ['TOTAL A PAGAR =', `Q${TotalApagar.toFixed(2)}`]
           ],
           startY: nextTableStartY2 + 5,
@@ -3276,7 +3275,7 @@ export default {
           didParseCell: function (data) {
             const rowIndex = data.row.index
             const colIndex = data.column.index
-            if (rowIndex >= 4 && colIndex === 0) {
+            if (rowIndex >= 3 && colIndex === 0) {
               data.cell.styles.halign = 'right'
             }
           }
