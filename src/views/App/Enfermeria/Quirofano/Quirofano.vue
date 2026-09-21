@@ -428,7 +428,7 @@
           <b-button variant="danger" @click="closeModal('add-honorarios')">Cancelar</b-button>
         </template>
     </b-modal>
-    <b-modal id="modal-4-nota" ref="modal-4-nota" title="Agregar nota de ingreso" size="md">
+    <b-modal id="modal-4-nota" ref="modal-4-nota" title="Agregar nota de ingreso" size="lg">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -446,7 +446,7 @@
                 <b-form-textarea
                   v-model.trim="form.motivo"
                   placeholder="Ingresar nota de ingreso a hospital"
-                  rows="3"
+                  rows="10"
                 ></b-form-textarea>
               </b-form-group>
             </b-card-body>
@@ -464,7 +464,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-5-nota" ref="modal-5-nota" title="Agregar nota de egreso" size="md">
+    <b-modal id="modal-5-nota" ref="modal-5-nota" title="Agregar nota de egreso" size="lg">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -482,7 +482,7 @@
                 <b-form-textarea
                   v-model.trim="form.motivo_egreso"
                   placeholder="Ingresar nota de egreso"
-                  rows="3"
+                  rows="10"
                 ></b-form-textarea>
               </b-form-group>
             </b-card-body>
