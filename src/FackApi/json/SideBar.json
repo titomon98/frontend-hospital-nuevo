@@ -189,7 +189,7 @@
         "class_name": "",
         "is_icon_class": true,
         "icon": "ri-arrow-left-circle-line",
-        "rol": [1, 3, 5, 9, 10, 11]
+        "rol": [1, 3, 5, 9, 10]
       },
       {
         "title": "Quirófano",
