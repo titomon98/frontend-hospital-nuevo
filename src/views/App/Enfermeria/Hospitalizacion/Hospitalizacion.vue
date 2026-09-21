@@ -1185,7 +1185,7 @@
                     @click="generarReporteCuentaParcial(props.rowData.id, props.rowData.nombres, props.rowData.apellidos)"
                     class="mb-2 button-spacing"
                     size="sm"
-                    variant="success"
+                    variant="warning"
                     :disabled="!hasPermission([9, 10])"
                    >Cuenta parcial</b-button>
 

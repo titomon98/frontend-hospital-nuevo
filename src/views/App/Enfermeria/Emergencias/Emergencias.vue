@@ -1297,7 +1297,7 @@
                     @click="generarReporteHojaEmergenciaPDF(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
-                    variant="success"
+                    variant="warning"
                     :disabled="!hasPermission([9, 10])"
                    >Hoja de Emergencia</b-button>
                    <b-button
