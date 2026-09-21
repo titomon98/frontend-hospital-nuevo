@@ -1195,14 +1195,20 @@
                   </span>
                 </template>
               </Multiselect>
-              <!-- Mostrar la lista de exámenes seleccionados -->
-              <div>
-                <ul class="selected-options-list" v-if="selectedExamenes.length > 0">
-                  <li v-for="(examen, index) in selectedExamenes" :key="examen.id">
-                    {{ index + 1 }}. {{ examen.nombre }}<span v-if="puedeVerPreciosExamenes"> - Precio: Q{{ examen.precio_normal }}</span>
-                  </li>
-                </ul>
-              </div>
+              <!-- Examenes seleccionados, en tabla (como los consumos) para que se vea claro que se eligio -->
+              <b-table
+                v-if="selectedExamenes.length > 0"
+                small
+                bordered
+                class="mt-2"
+                :items="selectedExamenes"
+                :fields="camposExamenesSeleccionados"
+              >
+                <template #cell(precio_normal)="row">Q{{ row.item.precio_normal }}</template>
+                <template #cell(acciones)="row">
+                  <b-button size="sm" variant="danger" @click="quitarExamenSeleccionado(row.item.id)">Quitar</b-button>
+                </template>
+              </b-table>
             </b-form-group>
           </b-col>
         </b-row>
@@ -2365,6 +2371,12 @@ export default {
     camposMedicamento1 () { return this.sinColumnasPrecio(this.fieldsConsumoInsumoMedicamento) },
     camposQuirurgico1 () { return this.sinColumnasPrecio(this.fieldsConsumoInsumoQuirurgico) },
     camposComun1 () { return this.sinColumnasPrecio(this.fieldsConsumoInsumo) },
+    camposExamenesSeleccionados () {
+      const base = [{ key: 'nombre', label: 'Examen' }, { key: 'tipo_examen', label: 'Tipo' }]
+      if (this.puedeVerPreciosExamenes) base.push({ key: 'precio_normal', label: 'Precio' })
+      base.push({ key: 'acciones', label: '' })
+      return base
+    },
     // Columnas de la tabla "INSUMOS SELECCIONADOS". La columna de cantidad
     // sugerida solo aparece cuando los consumos vienen de un paquete.
     camposInsumosSeleccionados () {
@@ -3753,6 +3765,9 @@ export default {
     },
     sinColumnasPrecio (campos) {
       return this.puedeVerPrecios ? campos : campos.filter(c => !['precio_venta', 'total'].includes(c.name))
+    },
+    quitarExamenSeleccionado (id) {
+      this.selectedExamenes = this.selectedExamenes.filter(e => e.id !== id)
     },
     refrescarConsumos () {
       const refs = ['vuetableConsumoInsumos', 'vuetableConsumoInsumosAnestesicos', 'vuetableConsumoQuirurgicos', 'vuetableConsumoComunes']
