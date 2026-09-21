@@ -220,12 +220,26 @@
             </template>
           </v-select>
         </b-form-group>
-        <b-form-group label="Cantidad:">
+        <b-form-group v-if="!esOxigenoHora && !esOxigenoCilindro" label="Cantidad:">
           <b-form-input
             v-model.trim="form.cantidad"
             placeholder="Ingresar cantidad utilizada"
             type="number"
           ></b-form-input>
+        </b-form-group>
+        <b-form-group v-if="esOxigenoHora" label="Tiempo de uso:">
+          <b-row>
+            <b-col><b-form-input type="number" min="0" v-model.number="oxigenoHoras" placeholder="Horas"></b-form-input></b-col>
+            <b-col><b-form-input type="number" min="0" max="59" v-model.number="oxigenoMinutos" placeholder="Minutos"></b-form-input></b-col>
+          </b-row>
+        </b-form-group>
+        <b-form-group v-if="esOxigenoCilindro" label="Cantidad de cilindro:">
+          <b-form-select v-model.number="oxigenoFraccion" :options="[
+            { value: 0.25, text: '1/4 de cilindro' },
+            { value: 0.5, text: '1/2 cilindro' },
+            { value: 0.75, text: '3/4 de cilindro' },
+            { value: 1, text: '1 cilindro' }
+          ]"></b-form-select>
         </b-form-group>
         <!-- Solo para servicios de personal (id 9-14): elegir personal de sala. -->
         <b-form-group v-if="esServicioPersonal" label="Personal de sala:">
@@ -1416,6 +1430,9 @@ export default {
       servicio: null,
       personalOptions: [],
       selectedPersonal: [],
+      oxigenoHoras: 0,
+      oxigenoMinutos: 0,
+      oxigenoFraccion: 1,
       alertSecs: 5,
       alertCountDown: 0,
       alertCountDownError: 0,
@@ -2596,6 +2613,8 @@ export default {
     },
     saveServicio () {
       const me = this
+      if (me.esOxigenoHora) me.form.cantidad = (parseInt(me.oxigenoHoras) || 0) + (parseInt(me.oxigenoMinutos) || 0) / 60
+      else if (me.esOxigenoCilindro) me.form.cantidad = me.oxigenoFraccion
       if (me.servicio !== null && me.form.cantidad !== null) {
         me.form.servicio = me.servicio
         me.form.descripcion = 'Añadido en intensivo'
@@ -2620,6 +2639,9 @@ export default {
             me.closeModal('add-servicio')
             me.form.id = 0
             me.selectedPersonal = []
+            me.oxigenoHoras = 0
+            me.oxigenoMinutos = 0
+            me.oxigenoFraccion = 1
           })
           .catch((error) => {
             me.alertVariant = 'danger'
