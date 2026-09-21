@@ -253,13 +253,13 @@
             placeholder="Seleccione un servicio a agregar"
             @search="onSearchServicios"
           >
-            <template v-slot:option="option" v-if="currentUser.user_type < 7">
+            <template v-slot:option="option" v-if="puedeVerPrecios">
               {{ option.descripcion + ' - Precio: ' + option.precio }}
             </template>
             <template v-slot:option="option" v-else>
               {{ option.descripcion }}
             </template>
-            <template v-slot:selected-option="option" v-if="currentUser.user_type < 7">
+            <template v-slot:selected-option="option" v-if="puedeVerPrecios">
               {{ option.descripcion + ' - Precio: ' + option.precio }}
             </template>
             <template v-slot:selected-option="option" v-else>
@@ -528,7 +528,7 @@
               <i class="ri-save-line"></i>
             </b-button>
           </div>
-          <span v-else>{{ row.item.total }}</span>
+          <span v-else-if="puedeVerPrecios">{{ row.item.total }}</span>
         </template>
         <template #cell(acciones)="row">
           <b-button
@@ -540,7 +540,7 @@
         </template>
       </b-table>
 
-      <h4 v-if="[1, 3].includes(currentUser.user_type)">
+      <h4 v-if="puedeVerPrecios">
         Total de honorarios: {{ honorarios.reduce((acc, item) => acc + parseFloat(item.total || 0), 0).toFixed(2) }}
       </h4>
 
@@ -628,7 +628,7 @@
                 <tr>
                   <th>Descripción</th>
                   <th>Tiempo</th>
-                  <th>Total</th>
+                  <th v-if="puedeVerPrecios">Total</th>
                   <th>Agregado por</th>
                   <th v-if="[1, 3].includes(currentUser.user_type)">Acciones</th>
                 </tr>
@@ -646,7 +646,7 @@
                 <tr v-for="item in salas" :key="item.id">
                   <td>{{ item.descripcion }}</td>
                   <td>{{ item.horas }}</td>
-                  <td>Q {{ item.total }}</td>
+                  <td v-if="puedeVerPrecios">Q {{ item.total }}</td>
                   <td>{{ item.created_by }}</td>
                   <td v-if="[1, 3].includes(currentUser.user_type)">
                     <b-button size="sm" variant="warning" class="mr-1" @click="abrirEditarSala(item)">Editar</b-button>
@@ -660,7 +660,7 @@
 
       </b-row>
       <template #modal-footer>
-        <div class="ml-auto"> <span v-if="currentUser.user_type < 7" class="mr-2">Total: Q{{ TotalAPagar }}</span></div>
+        <div class="ml-auto"> <span v-if="puedeVerPrecios" class="mr-2">Total: Q{{ TotalAPagar }}</span></div>
           <b-button variant="primary" @click="addSalaOperaciones()">Cobrar</b-button>
           <b-button variant="danger" @click="closeModal('sala-operaciones')">Cancelar</b-button>
         </template>
@@ -793,7 +793,7 @@
                pagination-path=""
               :per-page="perPage"
               :reactive-api-url="true"
-              :fields="fieldsConsumoInsumoMedicamento"
+              :fields="camposMedicamento1"
               :row-class="getRowClass"
             >
               <template slot="acciones" slot-scope="props">
@@ -814,7 +814,7 @@
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
             />
-            <h4 v-if="[1, 3].includes(currentUser.user_type)">Total de medicamentos: {{ totalMedicamentos }}</h4>
+            <h4 v-if="puedeVerPrecios">Total de medicamentos: {{ totalMedicamentos }}</h4>
           </b-tab>
 
           <b-tab title="Anestésicos">
@@ -828,7 +828,7 @@
                pagination-path=""
               :per-page="perPage"
               :reactive-api-url="true"
-              :fields="fieldsConsumoInsumoMedicamento"
+              :fields="camposMedicamento1"
               :row-class="getRowClass"
             >
               <template slot="acciones" slot-scope="props">
@@ -849,7 +849,7 @@
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
             />
-            <h4 v-if="[1, 3].includes(currentUser.user_type)">Total de anestésicos: {{ totalAnestesicos }}</h4>
+            <h4 v-if="puedeVerPrecios">Total de anestésicos: {{ totalAnestesicos }}</h4>
           </b-tab>
 
           <b-tab title="Quirúrgico">
@@ -863,7 +863,7 @@
                pagination-path=""
               :per-page="perPage"
               :reactive-api-url="true"
-              :fields="fieldsConsumoInsumoQuirurgico"
+              :fields="camposQuirurgico1"
               :row-class="getRowClass"
             >
               <template slot="acciones" slot-scope="props">
@@ -884,7 +884,7 @@
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
             />
-            <h4 v-if="[1, 3].includes(currentUser.user_type)">Total de material quirúrgico: {{ totalQuirurgico }}</h4>
+            <h4 v-if="puedeVerPrecios">Total de material quirúrgico: {{ totalQuirurgico }}</h4>
           </b-tab>
 
           <b-tab title="Común">
@@ -898,7 +898,7 @@
                pagination-path=""
               :per-page="perPage"
               :reactive-api-url="true"
-              :fields="fieldsConsumoInsumo"
+              :fields="camposComun1"
               :row-class="getRowClass"
             >
               <template slot="acciones" slot-scope="props">
@@ -919,14 +919,14 @@
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
             />
-            <h4 v-if="[1, 3].includes(currentUser.user_type)">Total de material común: {{ totalComun }}</h4>
+            <h4 v-if="puedeVerPrecios">Total de material común: {{ totalComun }}</h4>
           </b-tab>
         </b-tabs>
       </b-form>
 
       <!-- Footer -->
       <template #modal-footer>
-        <h4 v-if="[1, 3].includes(currentUser.user_type)">Total de consumos: {{ granTotalConsumos }}</h4>
+        <h4 v-if="puedeVerPrecios">Total de consumos: {{ granTotalConsumos }}</h4>
         <div class="mt-2 mb-3">
           <b-badge :variant="varianteRevisionConsumos">Revisión de consumos: {{ textoRevisionConsumos }}</b-badge>
           <span v-if="revisionConsumos.reviewedBy" class="ml-2 text-muted">por {{ revisionConsumos.reviewedBy }}</span>
@@ -1034,7 +1034,7 @@
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
             />
-            <h4 v-if="[1, 3].includes(currentUser.user_type)">Total de medicamentos: {{ totalMedicamentos }}</h4>
+            <h4 v-if="puedeVerPrecios">Total de medicamentos: {{ totalMedicamentos }}</h4>
           </b-tab>
 
           <b-tab title="Anestésicos">
@@ -1055,7 +1055,7 @@
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
             />
-            <h4 v-if="[1, 3].includes(currentUser.user_type)">Total de anestésicos: {{ totalAnestesicos }}</h4>
+            <h4 v-if="puedeVerPrecios">Total de anestésicos: {{ totalAnestesicos }}</h4>
           </b-tab>
 
           <b-tab title="Quirúrgico">
@@ -1076,7 +1076,7 @@
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
             />
-            <h4 v-if="[1, 3].includes(currentUser.user_type)">Total de material quirúrgico: {{ totalQuirurgico }}</h4>
+            <h4 v-if="puedeVerPrecios">Total de material quirúrgico: {{ totalQuirurgico }}</h4>
           </b-tab>
 
           <b-tab title="Común">
@@ -1097,14 +1097,14 @@
               ref="paginationConsumo"
               @vuetable-pagination:change-page="onChangePageConsumo"
             />
-            <h4 v-if="[1, 3].includes(currentUser.user_type)">Total de material común: {{ totalComun }}</h4>
+            <h4 v-if="puedeVerPrecios">Total de material común: {{ totalComun }}</h4>
           </b-tab>
         </b-tabs>
       </b-form>
 
       <!-- Footer -->
       <template #modal-footer>
-        <h4 v-if="[1, 3].includes(currentUser.user_type)">Total de consumos: {{ granTotalConsumos }}</h4>
+        <h4 v-if="puedeVerPrecios">Total de consumos: {{ granTotalConsumos }}</h4>
         <div class="mt-2 mb-3">
           <b-badge :variant="varianteRevisionConsumos">Revisión de consumos: {{ textoRevisionConsumos }}</b-badge>
           <span v-if="revisionConsumos.reviewedBy" class="ml-2 text-muted">por {{ revisionConsumos.reviewedBy }}</span>
@@ -1184,7 +1184,7 @@
                   <div class="custom-option">
                     <strong>{{ option.nombre }}</strong> --
                     <small> {{ option.tipo_examen }}</small> |
-                    <small>Precio: Q{{ option.precio_normal }}</small> |
+                    <small v-if="puedeVerPreciosExamenes">Precio: Q{{ option.precio_normal }} |</small>
                   </div>
                 </template>
 
@@ -1199,7 +1199,7 @@
               <div>
                 <ul class="selected-options-list" v-if="selectedExamenes.length > 0">
                   <li v-for="(examen, index) in selectedExamenes" :key="examen.id">
-                    {{ index + 1 }}. {{ examen.nombre }} - Precio: Q{{ examen.precio_normal }}
+                    {{ index + 1 }}. {{ examen.nombre }}<span v-if="puedeVerPreciosExamenes"> - Precio: Q{{ examen.precio_normal }}</span>
                   </li>
                 </ul>
               </div>
@@ -1209,7 +1209,7 @@
       </b-form>
       <template #modal-footer="{}">
 
-        <div class="ml-auto" v-if="[1, 3].includes(currentUser.user_type)">
+        <div class="ml-auto" v-if="puedeVerPreciosExamenes">
           <span class="mr-2">Exámenes registrados: Q{{ totalExamenesRealizados }}</span>
           <span class="mr-2">Total: Q{{ TotalAPagar2 }}</span>
         </div>
@@ -1228,7 +1228,7 @@
             <tr>
               <th>Acciones</th>
               <th>Nombre</th>
-              <th>{{ [1, 3].includes(currentUser.user_type) ? 'Precio' : 'CUI' }}</th>
+              <th>{{ puedeVerPreciosExamenes ? 'Precio' : 'CUI' }}</th>
               <th>Examen Realizado</th>
               <th>Fecha y Hora</th>
             </tr>
@@ -1248,7 +1248,7 @@
                 >Eliminar estudio</b-button>
               </td>
               <td>{{ row.nombre }}</td>
-              <td>{{ [1, 3].includes(currentUser.user_type) ? ('Q' + row.total) : row.cui }}</td>
+              <td>{{ puedeVerPreciosExamenes ? ('Q' + row.total) : row.cui }}</td>
               <td>{{ row.nombre_examen }}</td>
               <td>{{ row.fecha_hora }}</td>
             </tr>
@@ -2355,6 +2355,16 @@ export default {
     totalExamenesRealizados () {
       return this.item_examenes.reduce((acc, e) => acc + parseFloat(e.total || 0), 0).toFixed(2)
     },
+    // Precios solo para roles 1-4 (gerencia/caja); el resto no ve ningún precio.
+    puedeVerPrecios () {
+      return [1, 2, 3, 4].includes(this.currentUser?.user_type)
+    },
+    puedeVerPreciosExamenes () {
+      return [1, 3].includes(this.currentUser?.user_type)
+    },
+    camposMedicamento1 () { return this.sinColumnasPrecio(this.fieldsConsumoInsumoMedicamento) },
+    camposQuirurgico1 () { return this.sinColumnasPrecio(this.fieldsConsumoInsumoQuirurgico) },
+    camposComun1 () { return this.sinColumnasPrecio(this.fieldsConsumoInsumo) },
     // Columnas de la tabla "INSUMOS SELECCIONADOS". La columna de cantidad
     // sugerida solo aparece cuando los consumos vienen de un paquete.
     camposInsumosSeleccionados () {
@@ -3740,6 +3750,9 @@ export default {
         this.alertErrorText = error.response?.data?.msg || 'No se pudo eliminar el consumo'
         this.showAlertError()
       }
+    },
+    sinColumnasPrecio (campos) {
+      return this.puedeVerPrecios ? campos : campos.filter(c => !['precio_venta', 'total'].includes(c.name))
     },
     refrescarConsumos () {
       const refs = ['vuetableConsumoInsumos', 'vuetableConsumoInsumosAnestesicos', 'vuetableConsumoQuirurgicos', 'vuetableConsumoComunes']
