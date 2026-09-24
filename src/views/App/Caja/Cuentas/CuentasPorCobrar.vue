@@ -380,6 +380,7 @@ import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
 import { mapGetters } from 'vuex'
 import JsPDF from 'jspdf'
+import logoHospital from '@/assets/images/logo.png'
 import 'jspdf-autotable'
 
 export default {
@@ -938,14 +939,16 @@ export default {
       doc.setFontSize(12)
       doc.setFont('times', 'normal')
 
+      const anchoPagina = doc.internal.pageSize.getWidth()
+      try { doc.addImage(logoHospital, 'PNG', 14, 8, 28, 28) } catch (e) { console.error('logo hoja emergencia:', e) }
       doc.setFont(undefined, 'bold')
-      doc.text('HOSPITAL DE ESPECIALIDADES', 20, 20)
-      doc.text('DE OCCIDENTE S.A. QUETZALTENANGO', 20, 27)
+      doc.text('HOSPITAL DE ESPECIALIDADES', 46, 18)
+      doc.text('DE OCCIDENTE S.A. QUETZALTENANGO', 46, 25)
       doc.setTextColor(255, 0, 0)
-      doc.text(`No. ${data.numeroHoja || ''}`, 160, 20)
+      doc.text(`No. ${data.numeroHoja || ''}`, 160, 18)
       doc.setTextColor(0, 0, 0)
       doc.setFontSize(14)
-      doc.text('HOJA DE EMERGENCIAS', 70, 35)
+      doc.text('HOJA DE EMERGENCIAS', anchoPagina / 2, 38, { align: 'center' })
       doc.setFontSize(12)
       doc.setFont(undefined, 'normal')
 
@@ -959,18 +962,28 @@ export default {
       doc.text(`EDAD: ${data.edad}`, 20, 65)
       doc.text(`TELÉFONO: ${data.telefono}`, 150, 65)
       doc.text(`DIRECCIÓN: ${data.direccion}`, 20, 75)
-      doc.text(`MOTIVO DE LA CONSULTA: ${data.motivo}`, 20, 85)
-      doc.text(`DIAGNÓSTICO: ${data.diagnostico}`, 20, 95)
-      doc.text(`TRATAMIENTO: ${data.tratamiento}`, 20, 105)
-      doc.text(`MÉDICO TRATANTE: ${data.medico}`, 20, 115)
-      doc.text(`SE HOSPITALIZA: ${data.seHospitaliza ? 'Sí' : 'No'}`, 130, 115)
+      let y = 85
+      const anchoTexto = anchoPagina - 40
+      const escribirLargo = (texto) => {
+        const lineas = doc.splitTextToSize(texto, anchoTexto)
+        doc.text(lineas, 20, y)
+        y += lineas.length * 7
+      }
+      escribirLargo(`MOTIVO DE LA CONSULTA: ${data.motivo || ''}`)
+      escribirLargo(`DIAGNÓSTICO: ${data.diagnostico || ''}`)
+      escribirLargo(`TRATAMIENTO: ${data.tratamiento || ''}`)
+      doc.text(`MÉDICO TRATANTE: ${data.medico}`, 20, y)
+      doc.text(`SE HOSPITALIZA: ${data.seHospitaliza ? 'Sí' : 'No'}`, 130, y)
+      y += 10
 
-      doc.text('EXÁMENES DE LABORATORIO:', 20, 125)
-      doc.text(data.examenes || '', 20, 132)
+      doc.text('EXÁMENES DE LABORATORIO:', 20, y)
+      y += 7
+      doc.text(data.examenes || '', 20, y)
+      y += 13
 
-      doc.text('MEDICINA Y MATERIAL MÉDICO QUIRÚRGICO:', 20, 145)
+      doc.text('MEDICINA Y MATERIAL MÉDICO QUIRÚRGICO:', 20, y)
 
-      let totalY = 145
+      let totalY = y
       doc.text('MEDICINA', 20, totalY += 7)
       doc.text('___________________________', 20, totalY += 1)
       doc.text(`Q. ${data.totalMedicamentos.toFixed(2)}`, 150, totalY -= 1)
