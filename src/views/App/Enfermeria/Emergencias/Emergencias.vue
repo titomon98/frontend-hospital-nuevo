@@ -33,13 +33,13 @@
             placeholder="Ingresar diagnóstico"
           ></b-form-input>
         </b-form-group>
-        <b-form-group label="Tratamiento sugerido:">
+        <b-form-group label="Tratamiento sugerido (opcional):">
           <b-form-input
             v-model.trim="egreso.tratamiento"
             placeholder="Ingresar tratamiento"
           ></b-form-input>
         </b-form-group>
-        <b-form-group label="Observaciones:">
+        <b-form-group label="Observaciones (opcional):">
           <b-form-input
             v-model.trim="egreso.observaciones"
             placeholder="Ingresar observaciones"
@@ -1335,6 +1335,16 @@
                       :disabled="!hasPermission([5])"
                   >
                       {{ ['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo) ? 'Agregar nota de ingreso' : 'Modificar nota de ingreso' }}
+                  </b-button>
+                  <b-button
+                      v-b-tooltip.top="['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo_egreso) ? 'Agregar nota de egreso' : 'Modificar nota de egreso'"
+                      @click="setData(props.rowData); $bvModal.show('modal-5-nota')"
+                      class="mb-2 mt-2 button-spacing"
+                      size="sm"
+                      variant="primary"
+                      :disabled="!hasPermission([5])"
+                  >
+                      {{ ['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo_egreso) ? 'Agregar nota de egreso' : 'Modificar nota de egreso' }}
                   </b-button>
                     <b-button
                     @click="generarReporteHojaEmergenciaPDF(props.rowData.id)"
@@ -4065,10 +4075,11 @@ export default {
         return
       }
 
-      if (!this.egreso.motivo || !this.egreso.diagnostico || !this.egreso.tratamiento) {
+      // Tratamiento y observaciones son opcionales en emergencia; solo motivo y diagnóstico obligatorios.
+      if (!this.egreso.motivo || !this.egreso.diagnostico) {
         this.alertVariant = 'danger'
         this.showAlertError()
-        this.alertErrorText = 'Por favor completa motivo, diagnóstico y tratamiento'
+        this.alertErrorText = 'Por favor completa motivo y diagnóstico'
         return
       }
 

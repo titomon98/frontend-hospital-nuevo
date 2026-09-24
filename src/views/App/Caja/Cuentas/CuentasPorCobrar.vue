@@ -915,7 +915,8 @@ export default {
     // Para pacientes de emergencia se muestra la Hoja de Emergencias; para el resto, el
     // detalle de hospitalización (cuenta total).
     verCuentaOHoja (rowData) {
-      if (rowData.tipo_paciente === 'Emergencia') {
+      const tipo = (rowData.tipo_paciente || '').toString().toLowerCase()
+      if (tipo.includes('emergencia')) {
         this.generarReporteHojaEmergenciaPDF(rowData.expediente.id)
       } else {
         this.generarReporteCuentaParcial(rowData.expediente.id, rowData.expediente.nombres, rowData.expediente.apellidos)
