@@ -10,7 +10,7 @@
     >
       <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
-    <b-modal id="modal-traslado" ref="modal-traslado" title="Trasladar paciente">
+    <b-modal id="modal-traslado" ref="modal-traslado" :title="tpModal('Trasladar paciente')">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -54,7 +54,7 @@
         >
       </template>
     </b-modal>
-    <b-modal size="lg" id="modal-add-receta" ref="modal-add-receta" title="Contenido de receta">
+    <b-modal size="lg" id="modal-add-receta" ref="modal-add-receta" :title="tpModal('Contenido de receta')">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -80,7 +80,7 @@
         >
       </template>
     </b-modal>
-    <b-modal size="lg" id="modal-add-evolucion" ref="modal-add-evolucion" title="Evolución de paciente">
+    <b-modal size="lg" id="modal-add-evolucion" ref="modal-add-evolucion" :title="tpModal('Evolución de paciente')">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -105,7 +105,7 @@
         >
       </template>
     </b-modal>
-    <b-modal size="lg" id="modal-add-orden" ref="modal-add-orden" title="Orden médica">
+    <b-modal size="lg" id="modal-add-orden" ref="modal-add-orden" :title="tpModal('Orden médica')">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -130,7 +130,7 @@
         >
       </template>
     </b-modal>
-    <b-modal size="lg" id="modal-add-notas-enfermeria" ref="modal-add-notas-enfermeria" title="Notas de enfermería">
+    <b-modal size="lg" id="modal-add-notas-enfermeria" ref="modal-add-notas-enfermeria" :title="tpModal('Notas de enfermería')">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -156,7 +156,7 @@
         >
       </template>
     </b-modal>
-    <b-modal size="lg" id="modal-ver-receta" ref="modal-ver-receta" :title="tituloVer">
+    <b-modal size="lg" id="modal-ver-receta" ref="modal-ver-receta" :title="tpModal(tituloVer)">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -192,7 +192,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-add-servicio" ref="modal-add-servicio" title="Añadir consumo de servicio">
+    <b-modal id="modal-add-servicio" ref="modal-add-servicio" :title="tpModal('Añadir consumo de servicio')">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -272,7 +272,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-ver-servicio" size="lg" ref="modal-ver-servicio" title="Ver servicio">
+    <b-modal id="modal-ver-servicio" size="lg" ref="modal-ver-servicio" :title="tpModal('Ver servicio')">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -307,7 +307,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-ver-servicio2" size="lg" ref="modal-ver-servicio2" title="Ver servicios">
+    <b-modal id="modal-ver-servicio2" size="lg" ref="modal-ver-servicio2" :title="tpModal('Ver servicios')">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -342,7 +342,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-add-honorarios" size="lg" ref="modal-add-honorarios" title="Agregar honorarios a medico">
+    <b-modal id="modal-add-honorarios" size="lg" ref="modal-add-honorarios" :title="tpModal('Agregar honorarios a medico')">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -393,7 +393,7 @@
           <b-button variant="danger" @click="closeModal('add-honorarios')">Cancelar</b-button>
         </template>
     </b-modal>
-    <b-modal id="modal-4-nota" ref="modal-4-nota" title="Agregar nota de ingreso" size="lg">
+    <b-modal id="modal-4-nota" ref="modal-4-nota" :title="tpModal('Agregar nota de ingreso')" size="lg">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -429,7 +429,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-5-nota" ref="modal-5-nota" title="Agregar nota de egreso" size="lg">
+    <b-modal id="modal-5-nota" ref="modal-5-nota" :title="tpModal('Agregar nota de egreso')" size="lg">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -465,7 +465,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-ver-honorarios" size="lg" ref="modal-ver-honorarios" title="Ver honorarios">
+    <b-modal id="modal-ver-honorarios" size="lg" ref="modal-ver-honorarios" :title="tpModal('Ver honorarios')">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -521,7 +521,7 @@
         <b-button variant="danger" @click="closeModal('ver-honorarios')">Cerrar</b-button>
       </template>
     </b-modal>
-    <b-modal size="lg" id="modal-ver-resultados" ref="modal-ver-resultados" title="Ver Resultados">
+    <b-modal size="lg" id="modal-ver-resultados" ref="modal-ver-resultados" :title="tpModal('Ver Resultados')">
       <template v-if="resultados">
         <b-table small striped hover :items="resultados" :fields="campos">
           <template #cell(fecha_hora)="data">
@@ -539,7 +539,7 @@
         <p class="text-center">No hay resultados para mostrar</p>
       </template>
     </b-modal>
-    <b-modal id="modal-1-movimiento" size="xl" ref="modal-1-movimiento" title="Agregar Consumo" @shown="openModal2">
+    <b-modal id="modal-1-movimiento" size="xl" ref="modal-1-movimiento" :title="tpModal('Agregar Consumo')" @shown="openModal2">
       <!-- Alerta -->
       <b-alert
         :show="alertCountDownError"
@@ -726,7 +726,7 @@
         <b-button variant="danger" @click="closeModal('save')">Cancelar</b-button>
       </template>
     </b-modal>
-    <b-modal id="modal-1-movimiento2" size="xl" ref="modal-1-movimiento2" title="Agregar Consumo" @shown="openModal2">
+    <b-modal id="modal-1-movimiento2" size="xl" ref="modal-1-movimiento2" :title="tpModal('Agregar Consumo')" @shown="openModal2">
       <!-- Alerta -->
       <b-alert
         :show="alertCountDownError"
@@ -897,7 +897,7 @@
         <b-button variant="danger" @click="closeModal('save2')">Cancelar</b-button>
       </template>
     </b-modal>
-    <b-modal id="reporteModal" title="Reporte de Cuenta Parcial" size="lg">
+    <b-modal id="reporteModal" :title="tpModal('Reporte de Cuenta Parcial')" size="lg">
       <div class="modal-body">
         <p><strong>Total uso de habitaciones:</strong> Q{{ reporte.UsoHabitaciones }}</p>
         <p><strong>Total consumo de servicios:</strong> Q{{ reporte.ConsumoTotal }}</p>
@@ -916,7 +916,7 @@
         <b-button variant="secondary" @click="$bvModal.hide('reporteModal')">Cerrar</b-button>
       </template>
     </b-modal>
-    <b-modal id="HistorialCuenta" title="Historial de las Cuentas" size="lg">
+    <b-modal id="HistorialCuenta" :title="tpModal('Historial de las Cuentas')" size="lg">
       <div class="modal-body">
         <p><strong>Total consumo de servicios:</strong> Q{{ reporteHisotiral.ConsumoTotal }}</p>
         <p><strong>Total consumo de materiales comunes:</strong> Q{{ reporteHisotiral.ConsumoComunTotal }}</p>
@@ -932,7 +932,7 @@
         <b-button variant="secondary" @click="$bvModal.hide('HistorialCuenta')">Cerrar</b-button>
       </template>
     </b-modal>
-    <b-modal id="modal_agregar" size="xl" ref="modal_agregar" title="Ingresar nuevo examen">
+    <b-modal id="modal_agregar" size="xl" ref="modal_agregar" :title="tpModal('Ingresar nuevo examen')">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -1404,6 +1404,7 @@ export default {
         motivo_egreso: ' '
       },
       servicio: null,
+      pacienteActual: '',
       personalOptions: [],
       selectedPersonal: [],
       oxigenoHoras: 0,
@@ -2109,6 +2110,7 @@ export default {
       this.consumosTemporales = this.consumosTemporales.filter(item => item.id !== id)
     },
     mostrarModalConsumos (idCuenta) {
+      this.setPaciente(idCuenta)
       if ([9, 10].includes(this.currentUser.user_type)) {
         this.showModal('modal-1-movimiento2')
       } else {
@@ -2118,6 +2120,7 @@ export default {
       this.obtenerIdCuenta(idCuenta)
     },
     mostrarVerServicio (id) {
+      this.setPaciente(id)
       if ([9, 10].includes(this.currentUser.user_type)) {
         this.$refs['modal-ver-servicio2'].show()
       } else {
@@ -2584,6 +2587,7 @@ export default {
       this.tituloVer = 'Ver notas de enfermería del paciente'
     },
     addServicio (id) {
+      this.setPaciente(id)
       this.$refs['modal-add-servicio'].show()
       this.form.id = id
     },
@@ -2889,6 +2893,7 @@ export default {
       this.getDataHonorarios(this.currentExpedienteId)
     },
     async obtenerIdCuenta (idExpediente) {
+      this.setPaciente(idExpediente)
       try {
         const response = await axios.get(apiUrl + `/cuentas/getSearch?search=${idExpediente}`)
         if (response.data && response.data.id) {
@@ -2903,6 +2908,7 @@ export default {
       }
     },
     async getDataHonorarios (idExpediente) {
+      this.setPaciente(idExpediente)
       try {
         this.currentExpedienteId = idExpediente
         const response = await axios.get(apiUrl + `/cuentas/getSearch?search=${idExpediente}`)
@@ -3019,6 +3025,17 @@ export default {
     sinColumnasPrecio (campos) {
       return this.puedeVerPrecios ? campos : campos.filter(c => !['precio_venta', 'total'].includes(c.name))
     },
+    tpModal (base) {
+      return this.pacienteActual ? `${base} - ${this.pacienteActual}` : base
+    },
+    nombreDe (o) {
+      return `${(o && o.nombres) || ''} ${(o && o.apellidos) || ''}`.trim()
+    },
+    setPaciente (id) {
+      const filas = (this.$refs.vuetable && this.$refs.vuetable.tableData) || []
+      const p = filas.find(r => r.id === id)
+      if (p) this.pacienteActual = this.nombreDe(p)
+    },
     quitarExamenSeleccionado (id) {
       this.selectedExamenes = this.selectedExamenes.filter(e => e.id !== id)
     },
@@ -3118,6 +3135,7 @@ export default {
       }
     },
     setData (data) {
+      this.pacienteActual = this.nombreDe(data)
       this.form.name = data.nombres + ' ' + data.apellidos
       this.form.apellidos = data.apellidos
       this.form.state = data.estado
@@ -3635,6 +3653,7 @@ export default {
       }
     },
     realizar_examen (id, nombre, apellido, cui, telefono, nacimiento) {
+      this.pacienteActual = this.nombreDe({ nombres: nombre, apellidos: apellido })
       this.formExamen.nombre = nombre + ' ' + apellido
       this.formExamen.cui = cui
       this.formExamen.whatsapp = telefono
@@ -3645,6 +3664,7 @@ export default {
       this.formExamen.NewExpediente = false
     },
     ver_examen_realizado (id) {
+      this.setPaciente(id)
       axios.get(apiUrl + `/Examenes_realizados/listId/${id}`
       ).then((response) => {
         this.item_examenes = response.data
