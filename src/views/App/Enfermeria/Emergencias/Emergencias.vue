@@ -1043,51 +1043,27 @@
               </v-select>
             </b-form-group>
           </b-col>
-          <b-col md="3">
-            <b-form-group label="Total:">
-              <b-form-input
-                disabled
-                v-model="formExamen.total"
-                placeholder="Ingresar el total"
-              ></b-form-input>
-            </b-form-group>
-          </b-col>
         </b-row>
         <b-row class="ml-2">
           <b-col md="6">
             <b-form-group label="Tipo de Examen:">
-              <Multiselect
+              <!-- v-select (como el de médico): el desplegable flota y no se encima con la tabla. -->
+              <v-select
                 v-model="selectedExamenes"
-                @keydown.native.delete.capture.stop="() => {}"
                 :options="examenes_almacenadosCache"
-                :multiple="true"
-                :close-on-select="false"
-                :clear-on-select="false"
-                :preserve-search="true"
-                placeholder="Seleccionar exámenes"
+                :filterable="false"
+                multiple
                 label="nombre"
-                track-by="id"
-                @search-change="onSearch_id_examenes_almacenados"
-                :pagination="true"
-                :page="currentPageExa"
-                @page-change="onPageChangeExa"
+                placeholder="Seleccione los exámenes"
+                @search="onSearch_id_examenes_almacenados"
               >
-                <!-- Personalización de las opciones mientras el usuario busca -->
-                <template v-slot:option="{ option }">
-                  <div class="custom-option">
-                    <strong>{{ option.nombre }}</strong> --
-                    <small> {{ option.tipo_examen }}</small> |
-                    <small v-if="puedeVerPreciosExamenes">Precio: Q{{ option.precio_normal }} |</small>
-                  </div>
+                <template v-slot:option="option">
+                  {{ option.nombre }} -- {{ option.tipo_examen }}<span v-if="puedeVerPreciosExamenes"> | Precio: Q{{ option.precio_normal }}</span>
                 </template>
-
-                <!-- Personalización de cómo se muestran los seleccionados -->
-                <template v-slot:selection="{ values, search, isOpen }">
-                  <span class="multiselect__single" v-if="values.length && !isOpen">
-                    {{ values.length }} exámenes seleccionados
-                  </span>
+                <template slot="selected-option" slot-scope="option">
+                  {{ option.nombre }}
                 </template>
-              </Multiselect>
+              </v-select>
               <!-- Exámenes seleccionados, en tabla (como los consumos) para que se vea claro qué se eligió -->
               <b-table
                 v-if="selectedExamenes.length > 0"
@@ -3926,7 +3902,6 @@ export default {
             }
           })
           this.examenes_almacenadosBuscar = nuevas
-          this.$refs.vuetableBuscar.setData(response.data)
         })
         .catch((error) => {
           console.error('Error al buscar exámenes:', error)
