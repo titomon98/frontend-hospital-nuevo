@@ -544,7 +544,7 @@
               <i class="ri-save-line"></i>
             </b-button>
           </div>
-          <span v-else-if="puedeVerPrecios">{{ row.item.total }}</span>
+          <span v-else>{{ row.item.total }}</span>
         </template>
         <template #cell(acciones)="row">
           <b-button
@@ -556,7 +556,7 @@
         </template>
       </b-table>
 
-      <h4 v-if="puedeVerPrecios">
+      <h4>
         Total de honorarios: {{ honorarios.reduce((acc, item) => acc + parseFloat(item.total || 0), 0).toFixed(2) }}
       </h4>
 
@@ -2148,7 +2148,7 @@ export default {
         { key: 'descripcion', label: 'Descripción' },
         { key: 'total', label: 'Total' },
         { key: 'createdAt', label: 'Fecha y Hora' },
-        { key: 'updated_by', label: 'Creado por' },
+        { key: 'created_by', label: 'Ingresado por' },
         { key: 'acciones', label: 'Acciones' }
       ],
       pagination: {
@@ -3557,7 +3557,7 @@ export default {
           descripcion: item.descripcion,
           total: item.total,
           createdAt: item.createdAt,
-          updated_by: item.updated_by
+          created_by: item.created_by || item.updated_by
         }
       })
       this.pagination.total = paginationData.total
