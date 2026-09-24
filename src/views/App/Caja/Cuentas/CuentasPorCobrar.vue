@@ -974,6 +974,8 @@ export default {
       escribirLargo(`TRATAMIENTO: ${data.tratamiento || ''}`)
       doc.text(`MÉDICO TRATANTE: ${data.medico}`, 20, y)
       doc.text(`SE HOSPITALIZA: ${data.seHospitaliza ? 'Sí' : 'No'}`, 130, y)
+      y += 7
+      doc.text(`MÉDICO INTERNO: ${data.medicoInterno || ''}`, 20, y)
       y += 10
 
       doc.text('EXÁMENES DE LABORATORIO:', 20, y)
