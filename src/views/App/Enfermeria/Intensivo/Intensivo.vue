@@ -539,7 +539,7 @@
         <p class="text-center">No hay resultados para mostrar</p>
       </template>
     </b-modal>
-    <b-modal id="modal-1-movimiento" size="xl" ref="modal-1-movimiento" :title="tpModal('Agregar Consumo')" @shown="openModal2">
+    <b-modal id="modal-1-movimiento" size="xl" ref="modal-1-movimiento" :title="tpModal('Agregar Consumo')" @shown="openModal2" @hidden="limpiarConsumosTemporales">
       <!-- Alerta -->
       <b-alert
         :show="alertCountDownError"
@@ -726,7 +726,7 @@
         <b-button variant="danger" @click="closeModal('save')">Cancelar</b-button>
       </template>
     </b-modal>
-    <b-modal id="modal-1-movimiento2" size="xl" ref="modal-1-movimiento2" :title="tpModal('Agregar Consumo')" @shown="openModal2">
+    <b-modal id="modal-1-movimiento2" size="xl" ref="modal-1-movimiento2" :title="tpModal('Agregar Consumo')" @shown="openModal2" @hidden="limpiarConsumosTemporales">
       <!-- Alerta -->
       <b-alert
         :show="alertCountDownError"
@@ -2105,6 +2105,9 @@ export default {
     openModal2 () {
       this.tipoInsumoActual = '0'
       this.cargarInsumos('0')
+    },
+    limpiarConsumosTemporales () {
+      this.consumosTemporales = []
     },
     eliminarDeLista (id) {
       this.consumosTemporales = this.consumosTemporales.filter(item => item.id !== id)
@@ -3706,7 +3709,7 @@ export default {
       const params = {
         search: search,
         page: this.currentPageExa,
-        perPage: this.$refs.vuetable.perPage
+        perPage: (this.$refs.vuetable && this.$refs.vuetable.perPage) || 20
       }
 
       axios.get(apiUrl + '/examenesAlmacenadosBuscar/getSearch', { params })
