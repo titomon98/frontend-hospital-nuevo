@@ -2512,12 +2512,16 @@ export default {
       // Validación de cantidades. En un paquete NO se valida existencia: el
       // backend cobra el excedente y descuenta solo lo disponible.
       for (const consumo of this.consumosTemporales) {
+        if (consumo.cantidad <= 0) {
+          this.alertErrorText = `Cantidad inválida para "${consumo.nombre}".`
+          this.alertCountDownError = 6
+          return
+        }
         const excedeExistencia = !this.paqueteSeleccionado &&
           consumo.cantidad > consumo.existencias && consumo.inventariado === 'INVENTARIADO'
-        if (consumo.cantidad <= 0 || excedeExistencia) {
-          this.alertVariant = 'danger'
-          this.alertText = `Cantidad inválida para ${consumo.nombre}`
-          this.showAlert()
+        if (excedeExistencia) {
+          this.alertErrorText = `No hay suficiente existencia de "${consumo.nombre}" (disponible: ${consumo.existencias}). Ajuste la cantidad.`
+          this.alertCountDownError = 6
           return
         }
       }

@@ -2304,8 +2304,15 @@ export default {
       try {
         // Validar cantidades antes de enviar.
         for (const consumo of this.consumosTemporales) {
-          if (consumo.cantidad <= 0 || (consumo.cantidad > consumo.existencias && consumo.inventariado === 'INVENTARIADO')) {
-            throw new Error(`Cantidad inválida para ${consumo.nombre}`)
+          if (consumo.cantidad <= 0) {
+            this.alertErrorText = `Cantidad inválida para "".`
+            this.alertCountDownError = 6
+            return
+          }
+          if (consumo.cantidad > consumo.existencias && consumo.inventariado === 'INVENTARIADO') {
+            this.alertErrorText = `No hay suficiente existencia de "" (disponible: ). Ajuste la cantidad.`
+            this.alertCountDownError = 6
+            return
           }
         }
         this.$refs['modal-1-movimiento'].hide()
