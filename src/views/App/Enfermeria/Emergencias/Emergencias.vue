@@ -580,7 +580,7 @@
           {{ row.item.medico }}
         </template>
         <template #cell(total)="row">
-          <div v-if="[1, 3].includes(currentUser.user_type)" class="d-flex align-items-center" style="gap:6px;">
+          <div v-if="[1, 3, 9].includes(currentUser.user_type)" class="d-flex align-items-center" style="gap:6px;">
             <b-form-input
               v-model="row.item.total"
               type="number"
@@ -2305,12 +2305,12 @@ export default {
         // Validar cantidades antes de enviar.
         for (const consumo of this.consumosTemporales) {
           if (consumo.cantidad <= 0) {
-            this.alertErrorText = `Cantidad inválida para "".`
+            this.alertErrorText = `Cantidad inválida para "${consumo.nombre}".`
             this.alertCountDownError = 6
             return
           }
           if (consumo.cantidad > consumo.existencias && consumo.inventariado === 'INVENTARIADO') {
-            this.alertErrorText = `No hay suficiente existencia de "" (disponible: ). Ajuste la cantidad.`
+            this.alertErrorText = `No hay suficiente existencia de "${consumo.nombre}" (disponible: ${consumo.existencias}). Ajuste la cantidad.`
             this.alertCountDownError = 6
             return
           }
@@ -3905,11 +3905,12 @@ export default {
       this.formExamen.NewExpediente = false
     },
     ver_examen_realizado (id) {
-      this.setPaciente(id)
-      // Limpiar antes de traer: si el paciente no tiene examenes (404) no deben quedar los del anterior.
+      // Limpiar antes de traer: si el paciente no tiene examenes no deben quedar los del anterior.
       this.item_examenes = []
       this.selectedExamenes = []
-      axios.get(apiUrl + `/Examenes_realizados/listId/`
+      if (!id) return
+      this.setPaciente(id)
+      axios.get(apiUrl + `/Examenes_realizados/listId/${id}`
       ).then((response) => {
         this.item_examenes = response.data
       }).catch(() => {
