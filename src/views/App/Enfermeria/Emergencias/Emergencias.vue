@@ -580,7 +580,7 @@
           {{ row.item.medico }}
         </template>
         <template #cell(total)="row">
-          <div v-if="[1, 3, 9].includes(currentUser.user_type)" class="d-flex align-items-center" style="gap:6px;">
+          <div v-if="[1, 3, 9, 11].includes(currentUser.user_type)" class="d-flex align-items-center" style="gap:6px;">
             <b-form-input
               v-model="row.item.total"
               type="number"
