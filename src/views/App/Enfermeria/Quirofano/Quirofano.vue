@@ -1135,7 +1135,7 @@
         <b-button variant="danger" @click="closeModal('save2')">Cancelar</b-button>
       </template>
     </b-modal>
-    <b-modal id="modal_agregar" size="xl" ref="modal_agregar" :title="tpModal('Ingresar nuevo examen')">
+    <b-modal id="modal_agregar" size="xl" ref="modal_agregar" :title="tpModal('Ingresar nuevo examen')" @hidden="limpiarExamenModal">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -2605,6 +2605,10 @@ export default {
       this.tipoInsumoActual = '0'
       this.cargarInsumos('0')
     },
+    limpiarExamenModal () {
+      this.item_examenes = []
+      this.selectedExamenes = []
+    },
     limpiarConsumosTemporales () {
       this.consumosTemporales = []
       this.paqueteSeleccionado = null
@@ -4016,9 +4020,14 @@ export default {
     },
     ver_examen_realizado (id) {
       this.setPaciente(id)
-      axios.get(apiUrl + `/Examenes_realizados/listId/${id}`
+      // Limpiar antes de traer: si el paciente no tiene examenes (404) no deben quedar los del anterior.
+      this.item_examenes = []
+      this.selectedExamenes = []
+      axios.get(apiUrl + `/Examenes_realizados/listId/`
       ).then((response) => {
         this.item_examenes = response.data
+      }).catch(() => {
+        this.item_examenes = []
       })
     },
     async eliminarExamenRealizado (row) {
