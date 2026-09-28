@@ -4052,22 +4052,11 @@ export default {
       }
     },
     onSearch_id_examenes_almacenados (search, loading) {
-      const params = {
-        search: search,
-        page: this.currentPageExa,
-        perPage: (this.$refs.vuetable && this.$refs.vuetable.perPage) || 20
-      }
-
-      axios.get(apiUrl + '/examenesAlmacenadosBuscar/getSearch', { params })
+      // Buscar por texto en el servidor y REEMPLAZAR las opciones (no acumular),
+      // para que el desplegable muestre solo lo que coincide con lo escrito.
+      axios.get(apiUrl + '/examenesAlmacenadosBuscar/getSearch', { params: { search: search, page: 1, perPage: 20 } })
         .then((response) => {
-          const nuevas = response.data.data
-          nuevas.forEach(opcion => {
-            const yaExiste = this.examenes_almacenadosCache.some(c => c.id === opcion.id)
-            if (!yaExiste) {
-              this.examenes_almacenadosCache.push(opcion)
-            }
-          })
-          this.examenes_almacenadosBuscar = nuevas
+          this.examenes_almacenadosCache = (response.data && response.data.data) || []
         })
         .catch((error) => {
           console.error('Error al buscar exámenes:', error)
