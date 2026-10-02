@@ -10,6 +10,29 @@
     >
       <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
+    <b-modal id="modal-recibo-factura" ref="modal-recibo-factura" title="Datos para la factura" no-close-on-backdrop hide-header-close>
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <p>El paciente no tiene datos de facturación. Ingréselos para generar el recibo provisional.</p>
+      <b-form @submit="$event.preventDefault()">
+        <b-form-group label="Factura a nombre de:">
+          <b-form-input v-model.trim="facturaRecibo.nombre_factura" placeholder="Nombre para la factura"></b-form-input>
+        </b-form-group>
+        <b-form-group label="NIT:">
+          <b-form-input v-model.trim="facturaRecibo.nit_factura" placeholder="NIT (o CF)"></b-form-input>
+        </b-form-group>
+      </b-form>
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click="confirmarFacturaRecibo()">Generar recibo</b-button>
+      </template>
+    </b-modal>
     <b-modal id="modal-1-traslado" ref="modal-1-traslado" title="Trasladar paciente">
       <b-alert
         :show="alertCountDownError"
@@ -311,9 +334,11 @@ import { required } from '@vuelidate/validators'
 import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
 import { mapGetters } from 'vuex'
+import reciboEmergenciaMixin from '../../../../mixins/reciboEmergenciaMixin'
 
 export default {
   name: 'Bank',
+  mixins: [reciboEmergenciaMixin],
   components: {
     vuetable: Vuetable,
     'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
@@ -583,6 +608,9 @@ export default {
             me.alertText = 'Se ha egresado el paciente ' + me.form.nombres + ' exitosamente'
             me.$refs.vuetable.refresh()
             me.$refs['modal-2-egreso'].hide()
+            // Mismo proceso que en emergencia: al egresar se descargan la hoja de
+            // emergencia y el recibo provisional.
+            me.generarReporteHojaEmergenciaPDF(me.form.id)
           })
           .catch((error) => {
             me.alertVariant = 'danger'
