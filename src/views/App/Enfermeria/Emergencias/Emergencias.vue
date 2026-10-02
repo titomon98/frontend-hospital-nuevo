@@ -69,6 +69,29 @@
         >
       </template>
     </b-modal>
+    <b-modal id="modal-recibo-factura" ref="modal-recibo-factura" :title="tpModal('Datos para la factura')" no-close-on-backdrop hide-header-close>
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <p>El paciente no tiene datos de facturación. Ingréselos para generar el recibo provisional.</p>
+      <b-form @submit="$event.preventDefault()">
+        <b-form-group label="Factura a nombre de:">
+          <b-form-input v-model.trim="facturaRecibo.nombre_factura" placeholder="Nombre para la factura"></b-form-input>
+        </b-form-group>
+        <b-form-group label="NIT:">
+          <b-form-input v-model.trim="facturaRecibo.nit_factura" placeholder="NIT (o CF)"></b-form-input>
+        </b-form-group>
+      </b-form>
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click="confirmarFacturaRecibo()">Generar recibo</b-button>
+      </template>
+    </b-modal>
     <b-modal id="modal-editar-paciente" ref="modal-editar-paciente" :title="tpModal('Editar datos del paciente')" size="lg">
       <b-form @submit="$event.preventDefault()">
         <b-row>
@@ -2123,6 +2146,13 @@ export default {
         diagnostico: null,
         tratamiento: null,
         observaciones: null
+      },
+      // Captura de datos de facturacion para el recibo provisional.
+      reciboData: null,
+      reciboExpedienteId: null,
+      facturaRecibo: {
+        nombre_factura: '',
+        nit_factura: ''
       }
     }
   },
@@ -3658,8 +3688,9 @@ export default {
         .then((response) => {
           this.dataPDFsumario = response.data
           this.generarHojaEmergenciaPDF(response.data)
-          // El recibo provisional se descarga junto a la hoja al dar el egreso.
-          this.generarReciboProvisionalPDF(response.data)
+          // El recibo provisional se descarga junto a la hoja. Si el paciente aun no
+          // tiene datos de facturacion, se piden en un modal antes de generarlo.
+          this.prepararReciboProvisional(response.data, id)
         })
         .catch((error) => {
           console.error('Error al generar la hoja de emergencia:', error)
@@ -3849,6 +3880,44 @@ export default {
       return `${palabras} ${moneda} CON ${String(centavos).padStart(2, '0')}/100`
     },
 
+    // Si el expediente ya tiene datos de facturacion genera el recibo; si no, abre
+    // el modal para capturarlos antes de generarlo.
+    prepararReciboProvisional (data, idExpediente) {
+      if (data.nombreFactura && data.nitFactura) {
+        this.generarReciboProvisionalPDF(data)
+        return
+      }
+      this.reciboData = data
+      this.reciboExpedienteId = idExpediente
+      this.facturaRecibo.nombre_factura = data.nombreFactura || ''
+      this.facturaRecibo.nit_factura = data.nitFactura || ''
+      this.$refs['modal-recibo-factura'].show()
+    },
+    confirmarFacturaRecibo () {
+      if (!this.facturaRecibo.nombre_factura || !this.facturaRecibo.nit_factura) {
+        this.alertErrorText = 'Ingrese el nombre y el NIT para la factura'
+        this.alertCountDownError = 5
+        return
+      }
+      const me = this
+      axios.put(apiUrl + '/expedientes/updateFactura', {
+        id: me.reciboExpedienteId,
+        nombre_factura: me.facturaRecibo.nombre_factura,
+        nit_factura: me.facturaRecibo.nit_factura,
+        user: me.currentUser.user
+      })
+        .then(() => {
+          me.reciboData.nombreFactura = me.facturaRecibo.nombre_factura
+          me.reciboData.nitFactura = me.facturaRecibo.nit_factura
+          me.generarReciboProvisionalPDF(me.reciboData)
+          me.$refs['modal-recibo-factura'].hide()
+        })
+        .catch((error) => {
+          me.alertErrorText = 'No se pudieron guardar los datos de facturación'
+          me.alertCountDownError = 5
+          console.error('Error updateFactura:', error)
+        })
+    },
     generarReciboProvisionalPDF (data) {
       const doc = new JsPDF()
       const anchoPagina = doc.internal.pageSize.getWidth()
@@ -3892,8 +3961,8 @@ export default {
         doc.text(lineasLetras, x, y); y += lineasLetras.length * 7 + 2
 
         doc.text('POR CONCEPTO DE: Emergencia', x, y); y += 9
-        doc.text('FACTURA A NOMBRE DE: ______________________________', x, y)
-        doc.text('NIT: __________________', anchoPagina - 70, y); y += 11
+        doc.text(`FACTURA A NOMBRE DE: ${data.nombreFactura || ''}`, x, y)
+        doc.text(`NIT: ${data.nitFactura || ''}`, anchoPagina - 70, y); y += 11
 
         doc.setFontSize(9)
         const nota = 'NOTA: ESTE ES UN DOCUMENTO PROVISIONAL PARA QUE EL DÍA HÁBIL SIGUIENTE PUEDA PASAR A CAJA A RECOGER SUS RESPECTIVAS FACTURAS PRESENTANDO ESTE COMPROBANTE'
