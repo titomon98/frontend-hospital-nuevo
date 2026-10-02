@@ -3658,6 +3658,8 @@ export default {
         .then((response) => {
           this.dataPDFsumario = response.data
           this.generarHojaEmergenciaPDF(response.data)
+          // El recibo provisional se descarga junto a la hoja al dar el egreso.
+          this.generarReciboProvisionalPDF(response.data)
         })
         .catch((error) => {
           console.error('Error al generar la hoja de emergencia:', error)
@@ -3798,6 +3800,116 @@ export default {
 
       this.TotalApagar = data.totalAPagar
       doc.save('hoja_emergencias.pdf')
+    },
+
+    // Convierte un monto en quetzales a su cantidad en letras (para el recibo provisional).
+    numeroALetras (valor) {
+      const num = Math.abs(Number(valor) || 0)
+      const entero = Math.floor(num)
+      const centavos = Math.round((num - entero) * 100)
+
+      const unidades = ['', 'UNO', 'DOS', 'TRES', 'CUATRO', 'CINCO', 'SEIS', 'SIETE', 'OCHO', 'NUEVE']
+      const diez19 = ['DIEZ', 'ONCE', 'DOCE', 'TRECE', 'CATORCE', 'QUINCE', 'DIECISEIS', 'DIECISIETE', 'DIECIOCHO', 'DIECINUEVE']
+      const decenas = ['', '', 'VEINTI', 'TREINTA', 'CUARENTA', 'CINCUENTA', 'SESENTA', 'SETENTA', 'OCHENTA', 'NOVENTA']
+      const centenas = ['', 'CIENTO', 'DOSCIENTOS', 'TRESCIENTOS', 'CUATROCIENTOS', 'QUINIENTOS', 'SEISCIENTOS', 'SETECIENTOS', 'OCHOCIENTOS', 'NOVECIENTOS']
+
+      const aLetras = (x) => { // 0..999
+        if (x === 0) return 'CERO'
+        if (x === 100) return 'CIEN'
+        let txt = ''
+        const c = Math.floor(x / 100)
+        const resto = x % 100
+        if (c) txt += centenas[c] + ' '
+        if (resto > 0) {
+          if (resto < 10) txt += unidades[resto]
+          else if (resto < 20) txt += diez19[resto - 10]
+          else {
+            const d = Math.floor(resto / 10)
+            const u = resto % 10
+            if (resto < 30) txt += 'VEINTI' + unidades[u].toLowerCase()
+            else txt += decenas[d] + (u ? ' Y ' + unidades[u] : '')
+          }
+        }
+        return txt.trim().toUpperCase()
+      }
+
+      let palabras
+      if (entero < 1000) palabras = aLetras(entero)
+      else {
+        const miles = Math.floor(entero / 1000)
+        const resto = entero % 1000
+        const milesTxt = (miles === 1 ? 'MIL' : aLetras(miles).replace(/UNO$/, 'UN') + ' MIL')
+        palabras = milesTxt + (resto ? ' ' + aLetras(resto) : '')
+      }
+
+      // Apócope ante sustantivo masculino: UNO/VEINTIUNO -> UN/VEINTIUN quetzal(es)
+      palabras = palabras.replace(/UNO$/, 'UN')
+      const moneda = entero === 1 ? 'QUETZAL' : 'QUETZALES'
+      if (centavos === 0) return `${palabras} ${moneda} EXACTOS`
+      return `${palabras} ${moneda} CON ${String(centavos).padStart(2, '0')}/100`
+    },
+
+    generarReciboProvisionalPDF (data) {
+      const doc = new JsPDF()
+      const anchoPagina = doc.internal.pageSize.getWidth()
+      const total = Number(data.totalAPagar) || 0
+      const fechaEmision = new Date().toLocaleString('es-GT', {
+        timeZone: 'America/Guatemala',
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+      })
+
+      // Se imprimen dos copias en la misma hoja (paciente y hospital), separadas por una línea de corte.
+      const dibujarRecibo = (offsetY) => {
+        doc.setFont('times', 'normal')
+        doc.setFontSize(10)
+        doc.text(`Fecha de Emision:   ${fechaEmision}`, anchoPagina - 15, offsetY, { align: 'right' })
+
+        try { doc.addImage(logoHospital, 'PNG', 15, offsetY + 3, 22, 22) } catch (e) { console.error('logo recibo:', e) }
+
+        doc.setFont(undefined, 'bold')
+        doc.setFontSize(12)
+        doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A.', anchoPagina / 2, offsetY + 12, { align: 'center' })
+        doc.setFontSize(14)
+        doc.text('RECIBO PROVISIONAL', anchoPagina / 2, offsetY + 21, { align: 'center' })
+
+        doc.setFontSize(11)
+        doc.text(`ID EMERGENCIA: ${data.idEmergencia || ''}`, anchoPagina / 2, offsetY + 31, { align: 'center' })
+
+        doc.setFont(undefined, 'normal')
+        let y = offsetY + 41
+        const x = 20
+        doc.text(`NOMBRE DEL PACIENTE: ${data.nombre || ''}`, x, y); y += 9
+        doc.text(`TOTAL DE LA CUENTA A PAGAR: Q${total.toFixed(2)}`, x, y); y += 9
+
+        const letras = `CANTIDAD EN LETRAS: ${this.numeroALetras(total)}`
+        const lineasLetras = doc.splitTextToSize(letras, anchoPagina - 40)
+        doc.text(lineasLetras, x, y); y += lineasLetras.length * 7 + 2
+
+        doc.text('POR CONCEPTO DE: Emergencia', x, y); y += 9
+        doc.text('FACTURA A NOMBRE DE: ______________________________', x, y)
+        doc.text('NIT: __________________', anchoPagina - 70, y); y += 11
+
+        doc.setFontSize(9)
+        const nota = 'NOTA: ESTE ES UN DOCUMENTO PROVISIONAL PARA QUE EL DÍA HÁBIL SIGUIENTE PUEDA PASAR A CAJA A RECOGER SUS RESPECTIVAS FACTURAS PRESENTANDO ESTE COMPROBANTE'
+        const lineasNota = doc.splitTextToSize(nota, anchoPagina - 40)
+        doc.text(lineasNota, x, y); y += lineasNota.length * 5 + 4
+
+        // Línea de corte punteada
+        doc.setLineDashPattern([2, 2], 0)
+        doc.line(10, y, anchoPagina - 10, y)
+        doc.setLineDashPattern([], 0)
+      }
+
+      dibujarRecibo(12)
+      dibujarRecibo(doc.internal.pageSize.getHeight() / 2 + 6)
+
+      doc.save('recibo_provisional.pdf')
     },
 
     /* AREA DE EXAMENES DE LABORATORIO */
