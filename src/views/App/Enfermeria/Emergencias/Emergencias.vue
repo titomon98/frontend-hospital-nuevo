@@ -78,6 +78,12 @@
         >
       </template>
     </b-modal>
+    <b-modal id="modal-errores-egreso" ref="modal-errores-egreso" title="No se puede egresar" ok-only ok-title="Entendido" ok-variant="danger">
+      <p class="mb-2">Antes de egresar al paciente corrija lo siguiente:</p>
+      <ul class="mb-0">
+        <li v-for="(error, i) in erroresEgreso" :key="i" class="text-danger">{{ error }}</li>
+      </ul>
+    </b-modal>
     <b-modal id="modal-recibo-factura" ref="modal-recibo-factura" :title="tpModal('Datos para la factura')" no-close-on-backdrop hide-header-close>
       <b-alert
         :show="alertCountDownError"
@@ -2162,7 +2168,10 @@ export default {
       facturaRecibo: {
         nombre_factura: '',
         nit_factura: ''
-      }
+      },
+      // Errores que impiden el egreso (honorario, nota de ingreso, nota de egreso).
+      erroresEgreso: [],
+      erroresEgresoTimer: null
     }
   },
   validations () {
@@ -4262,14 +4271,34 @@ export default {
           console.error('Error!', error)
         })
     },
+    mostrarErroresEgreso (errores) {
+      this.erroresEgreso = errores
+      this.$refs['modal-errores-egreso'].show()
+      // Modal temporal: se cierra solo luego de unos segundos.
+      clearTimeout(this.erroresEgresoTimer)
+      this.erroresEgresoTimer = setTimeout(() => {
+        if (this.$refs['modal-errores-egreso']) this.$refs['modal-errores-egreso'].hide()
+      }, 8000)
+    },
     egresoEmergencia (data) {
       this.pacienteActual = this.nombreDe(data)
-      // Exigir al menos un honorario médico activo antes de egresar (detalle_honorarios ya viene filtrado por estado 1).
-      const honorarios = data.cuentas && data.cuentas[0] && data.cuentas[0].detalle_honorarios
+      // Antes de egresar se exigen: honorario médico activo, nota de ingreso y nota
+      // de egreso. Se juntan todos los faltantes y se muestran en un modal temporal.
+      const cuenta = data.cuentas && data.cuentas[0]
+      const vacio = (v) => ['PENDIENTE', ' ', null, undefined, ''].includes(v)
+      const errores = []
+      const honorarios = cuenta && cuenta.detalle_honorarios
       if (!honorarios || honorarios.length === 0) {
-        this.alertVariant = 'danger'
-        this.showAlertError()
-        this.alertErrorText = 'Debe registrar al menos un honorario médico antes de egresar al paciente'
+        errores.push('Debe registrar al menos un honorario médico')
+      }
+      if (!cuenta || vacio(cuenta.motivo)) {
+        errores.push('Debe registrar la nota de ingreso')
+      }
+      if (!cuenta || vacio(cuenta.motivo_egreso)) {
+        errores.push('Debe registrar la nota de egreso')
+      }
+      if (errores.length) {
+        this.mostrarErroresEgreso(errores)
         return
       }
       this.form.id = data.id
