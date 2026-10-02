@@ -10,6 +10,15 @@
     >
       <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
+    <b-alert
+      :show="alertCountDownError"
+      dismissible
+      fade
+      @dismissed="alertCountDownError=0"
+      class="text-white bg-danger"
+    >
+      <div class="iq-alert-text">{{ alertErrorText }}</div>
+    </b-alert>
     <b-modal id="modal-egreso" ref="modal-egreso" :title="tpModal('Egreso de paciente')">
       <b-alert
         :show="alertCountDownError"
