@@ -78,8 +78,8 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-errores-egreso" ref="modal-errores-egreso" title="No se puede egresar" ok-only ok-title="Entendido" ok-variant="danger">
-      <p class="mb-2">Antes de egresar al paciente corrija lo siguiente:</p>
+    <b-modal id="modal-errores-egreso" ref="modal-errores-egreso" :title="'No se puede egresar a ' + pacienteActual" ok-only ok-title="Entendido" ok-variant="danger">
+      <p class="mb-2">No se puede egresar a {{ pacienteActual }} por {{ erroresEgreso.length === 1 ? 'el siguiente motivo:' : 'los siguientes motivos:' }}</p>
       <ul class="mb-0">
         <li v-for="(error, i) in erroresEgreso" :key="i" class="text-danger">{{ error }}</li>
       </ul>
