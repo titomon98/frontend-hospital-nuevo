@@ -50,6 +50,7 @@ const QuirofanoParent = () => import('../views/App/Enfermeria/Quirofano/Quirofan
 const CobrosHabitacion = () => import('../views/App/Enfermeria/Habitaciones/CobrosHabitacion.vue')
 const Habitaciones = () => import('../views/App/Enfermeria/Habitaciones/Habitaciones')
 const Servicios = () => import('../views/App/Enfermeria/Servicios/Servicios.vue')
+const ControlServicios = () => import('../views/App/Enfermeria/ControlServicios/ControlServicios.vue')
 const CategoriaSalaOperaciones = () => import('../views/App/Enfermeria/CategoriaSalaOperaciones/CategoriaSalaOperaciones.vue')
 const IngresosEnfermeria = () => import('../views/App/Enfermeria/Ingresos/IngresosEnfermeria.vue')
 const IngresosEmergencia = () => import('../views/App/Enfermeria/Ingresos/IngresosEmergencia.vue')
@@ -158,6 +159,7 @@ const EnfermeriaRoutes = (prop) => [
   { path: 'cobro_habitacion', name: `${prop}.cobro_habitacion`, meta: { auth: true, name: 'cobro_habitacion', roles: [1, 3] }, component: CobrosHabitacion },
   { path: 'habitaciones', name: `${prop}.habitaciones`, meta: { auth: true, name: 'habitaciones', roles: [1, 3, 5, 9] }, component: Habitaciones },
   { path: 'servicios', name: `${prop}.servicios`, meta: { auth: true, name: 'servicios', roles: [1, 3, 5, 9] }, component: Servicios },
+  { path: 'controlServicios', name: `${prop}.controlServicios`, meta: { auth: true, name: 'controlServicios', roles: [1, 3] }, component: ControlServicios },
   { path: 'CategoriaSalaOperaciones', name: `${prop}.CategoriaSalaOperaciones`, meta: { auth: true, name: 'CategoriaSalaOperaciones', roles: [1, 3, 5, 9] }, component: CategoriaSalaOperaciones },
   { path: 'ingresos', name: `${prop}.ingresos`, meta: { auth: true, name: 'ingresos', roles: [1, 3, 9, 10, 11] }, component: IngresosEnfermeria },
   { path: 'ingresosemergencia', name: `${prop}.ingresosemergencia`, meta: { auth: true, name: 'ingresosemergencia', roles: [1, 3, 9, 10, 11] }, component: IngresosEmergencia },
