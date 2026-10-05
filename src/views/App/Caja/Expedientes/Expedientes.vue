@@ -311,9 +311,6 @@
                     :class="{'is-invalid': $v.form.cui_encargado.$error}"
                     placeholder="Ingresar el CUI"
                   ></b-form-input>
-                  <div v-if="$v.form.cui_encargado.required.$invalid" class="invalid-feedback">
-                    Debe ingresar el CUI del encargado
-                  </div>
                   <div v-if="$v.form.cui_encargado.$error" class="invalid-feedback">
                     El valor del CUI debe ser numerico.
                   </div>
@@ -915,7 +912,7 @@ export default {
           numeric
         },
         cui_encargado: {
-          required, numeric
+          numeric
         },
         telefono_conyuge: {
           numeric
