@@ -26,14 +26,17 @@ export default {
     }
   },
   methods: {
-    generarReporteHojaEmergenciaPDF (id) {
+    // conRecibo=true solo al EGRESAR: ademas de la hoja genera el recibo provisional
+    // (y pide factura/NIT si faltan). El boton "Hoja de Emergencia" la llama sin
+    // recibo, para no pedir datos de factura al solo imprimir la hoja.
+    generarReporteHojaEmergenciaPDF (id, conRecibo = false) {
       axios.get(apiUrl + `/consumos/hojaEmergencia/${id}`)
         .then((response) => {
           this.dataPDFsumario = response.data
           this.generarHojaEmergenciaPDF(response.data)
-          // El recibo provisional se descarga junto a la hoja. Si el paciente aun no
-          // tiene datos de facturacion, se piden en un modal antes de generarlo.
-          this.prepararReciboProvisional(response.data, id)
+          if (conRecibo) {
+            this.prepararReciboProvisional(response.data, id)
+          }
         })
         .catch((error) => {
           console.error('Error al generar la hoja de emergencia:', error)

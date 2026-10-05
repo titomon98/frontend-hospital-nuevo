@@ -610,7 +610,7 @@ export default {
             me.$refs['modal-2-egreso'].hide()
             // Mismo proceso que en emergencia: al egresar se descargan la hoja de
             // emergencia y el recibo provisional.
-            me.generarReporteHojaEmergenciaPDF(me.form.id)
+            me.generarReporteHojaEmergenciaPDF(me.form.id, true)
           })
           .catch((error) => {
             me.alertVariant = 'danger'

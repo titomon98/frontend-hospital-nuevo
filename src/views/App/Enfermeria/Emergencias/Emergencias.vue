@@ -4070,7 +4070,7 @@ export default {
           me.alertText = 'Se ha egresado al paciente exitosamente'
           me.$refs.vuetable.refresh()
           // Al egresar se descarga automáticamente la hoja de emergencia.
-          me.generarReporteHojaEmergenciaPDF(me.form.id)
+          me.generarReporteHojaEmergenciaPDF(me.form.id, true)
           me.closeModal('egreso')
         })
         .catch((error) => {
