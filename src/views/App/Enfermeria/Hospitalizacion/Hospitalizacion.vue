@@ -634,7 +634,9 @@
               type="number"
               v-model="row.item.cantidad"
               :min="1"
+              :max="row.item.inventariado === 'INVENTARIADO' ? row.item.existencias : null"
               placeholder="Cantidad"
+              @input="limitarCantidad(row.item)"
             ></b-form-input>
           </template>
 
@@ -826,7 +828,9 @@
               type="number"
               v-model="row.item.cantidad"
               :min="1"
+              :max="row.item.inventariado === 'INVENTARIADO' ? row.item.existencias : null"
               placeholder="Cantidad"
+              @input="limitarCantidad(row.item)"
             ></b-form-input>
           </template>
 
@@ -2183,6 +2187,18 @@ export default {
     limpiarExamenModal () {
       this.item_examenes = []
       this.selectedExamenes = []
+    },
+    limitarCantidad (item) {
+      // Insumos INVENTARIADOS: no se permite capturar mas cantidad que la
+      // existencia disponible; se recorta y se avisa, para no intentar cobrar de mas.
+      if (item.inventariado !== 'INVENTARIADO') return
+      const max = parseInt(item.existencias)
+      const n = parseInt(item.cantidad)
+      if (!isNaN(n) && !isNaN(max) && n > max) {
+        item.cantidad = max
+        this.alertErrorText = `Solo hay ${max} de "${item.nombre}" en existencia.`
+        this.alertCountDownError = 5
+      }
     },
     limpiarConsumosTemporales () {
       this.consumosTemporales = []
