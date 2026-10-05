@@ -1048,7 +1048,8 @@ export default {
       doc.text(data.observaciones || '', 20, totalY += 7)
       doc.text('NOMBRE Y FIRMA MÉDICO INTERNO:', 20, totalY += 50)
 
-      doc.save('hoja_emergencias.pdf')
+      const nombreArchivo = (data.nombre || 'paciente').trim().replace(/\s+/g, '_').replace(/[\\/:*?"<>|]/g, '')
+      doc.save(`hoja_emergencia_${nombreArchivo}.pdf`)
     },
     generarReporteCuentaParcial (id, nombres, apellidos) {
       axios.get(apiUrl + `/consumos/cuentaParcial/${id}`)

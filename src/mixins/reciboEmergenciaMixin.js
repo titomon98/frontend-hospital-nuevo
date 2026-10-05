@@ -175,7 +175,8 @@ export default {
       doc.text('NOMBRE Y FIRMA MÉDICO INTERNO:', 20, totalY += 50)
 
       this.TotalApagar = data.totalAPagar
-      doc.save('hoja_emergencias.pdf')
+      const nombreArchivo = (data.nombre || 'paciente').trim().replace(/\s+/g, '_').replace(/[\\/:*?"<>|]/g, '')
+      doc.save(`hoja_emergencia_${nombreArchivo}.pdf`)
     },
 
     // Convierte un monto en quetzales a su cantidad en letras (para el recibo provisional).
