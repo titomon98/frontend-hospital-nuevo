@@ -392,7 +392,8 @@ export default {
         if (p.pagos_seguros.length) {
           y = this.tabla(doc, y, [['Aseguradora', 'Póliza', 'Total', 'Pagado', 'Por pagar']], p.pagos_seguros.map(s => [s.aseguradora, s.poliza, s.total, s.pagado, s.por_pagar]))
         }
-        doc.save('Cuenta_detallada_' + p.cuenta.numero + '.pdf')
+        const nombrePaciente = ((p.paciente && p.paciente.nombre) || '').trim().replace(/\s+/g, '_').replace(/[\\/:*?"<>|]/g, '')
+        doc.save('Cuenta_detallada_' + p.cuenta.numero + (nombrePaciente ? '_' + nombrePaciente : '') + '.pdf')
       } catch (e) { this.error(e, 'Error al generar la cuenta detallada') }
     },
     /* ---- Ingresos por fechas (caja) ---- */

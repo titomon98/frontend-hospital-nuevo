@@ -1046,9 +1046,16 @@ export default {
       doc.setFontSize(12)
 
       const datos = this.dataPDF_Historial
+      const nombrePaciente = (datos && datos.nombrePaciente) || ''
+      const nombreArchivo = nombrePaciente.trim().replace(/\s+/g, '_').replace(/[\\/:*?"<>|]/g, '')
+      const archivoHistorial = nombreArchivo ? `historial_cuenta_${nombreArchivo}.pdf` : 'historial_cuenta.pdf'
+      if (nombrePaciente) {
+        doc.text(`Paciente: ${nombrePaciente}`, 14, y)
+        y += 8
+      }
       if (!datos) {
         doc.text('No hay datos disponibles.', 14, y)
-        doc.save('historial_cuenta.pdf')
+        doc.save(archivoHistorial)
         return
       }
 
@@ -1105,7 +1112,7 @@ export default {
       }
 
       doc.text(`Total general: Q${this.reporteHisotiral.TotalDeuda}`, 14, y)
-      doc.save('historial_cuenta.pdf')
+      doc.save(archivoHistorial)
     }
   }
 }
