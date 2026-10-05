@@ -1383,7 +1383,7 @@
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="primary"
-                    :disabled="hasPermission([1, 3])"
+                    :disabled="hasPermission([1, 3, 11])"
                    >Egreso de paciente</b-button>
                 </div>
                 <!-- Tipo de paciente-->
