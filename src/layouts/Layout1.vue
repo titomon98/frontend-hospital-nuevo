@@ -25,6 +25,7 @@
                         <h5 class="mb-0 text-white line-height">{{ currentUser.user }}</h5>
                       </div>
                       <div class="d-inline-block w-100 text-center p-3">
+                        <a class="iq-bg-primary iq-sign-btn mb-2 d-block" href="javascript:void(0)" @click="abrirCambiarPassword" role="button">Cambiar contraseña<i class="ri-lock-password-line ml-2"></i></a>
                         <a class="iq-bg-danger iq-sign-btn" href="javascript:void(0)" @click="logout" role="button">{{ $t('nav.user.signout') }}<i class="ri-login-box-line ml-2"></i></a>
                       </div>
                     </div>
@@ -35,6 +36,25 @@
           </template>
         </NavBarStyle1>
         <!-- TOP Nav Bar END -->
+        <b-modal id="modal-cambiar-password" ref="modal-cambiar-password" title="Cambiar contraseña" no-close-on-backdrop @hidden="limpiarCambioPassword">
+          <b-alert :show="!!passwordError" variant="danger" class="text-white bg-danger">{{ passwordError }}</b-alert>
+          <b-alert :show="!!passwordOk" variant="success">{{ passwordOk }}</b-alert>
+          <b-form @submit.prevent="cambiarPassword">
+            <b-form-group label="Contraseña actual:">
+              <b-form-input v-model="passwordForm.actual" type="password" autocomplete="current-password"></b-form-input>
+            </b-form-group>
+            <b-form-group label="Nueva contraseña:" description="Mínimo 6 caracteres.">
+              <b-form-input v-model="passwordForm.nueva" type="password" autocomplete="new-password"></b-form-input>
+            </b-form-group>
+            <b-form-group label="Confirmar nueva contraseña:">
+              <b-form-input v-model="passwordForm.confirmar" type="password" autocomplete="new-password"></b-form-input>
+            </b-form-group>
+          </b-form>
+          <template #modal-footer="{}">
+            <b-button variant="primary" :disabled="guardandoPassword" @click="cambiarPassword">Guardar</b-button>
+            <b-button variant="danger" @click="$bvModal.hide('modal-cambiar-password')">Cancelar</b-button>
+          </template>
+        </b-modal>
         <transition name="router-anim" :enter-active-class="`animated ${animated.enter}`" mode="out-in"
                     :leave-active-class="`animated ${animated.exit}`">
           <router-view/>
@@ -63,6 +83,8 @@ import profile from '../assets/images/user/1.jpg'
 import loader from '../assets/images/logo.png'
 import { xray } from '../config/pluginInit'
 import { mapGetters, mapActions } from 'vuex'
+import axios from 'axios'
+import { apiUrl } from '../config/constant'
 
 export default {
   name: 'Layout1',
@@ -100,7 +122,11 @@ export default {
       filteredVerticalMenu: [],
       userProfile: profile,
       logo: loader,
-      rtl: false
+      rtl: false,
+      passwordForm: { actual: '', nueva: '', confirmar: '' },
+      passwordError: '',
+      passwordOk: '',
+      guardandoPassword: false
     }
   },
   methods: {
@@ -137,6 +163,45 @@ export default {
       this.changeColor({ primary: '#827af3', primaryLight: '#b47af3', bodyBgLight: '#efeefd', bodyBgDark: '#1d203f' })
       this.animated = { enter: 'zoomIn', exit: 'zoomOut' }
       this.light()
+    },
+    abrirCambiarPassword () {
+      this.limpiarCambioPassword()
+      this.$bvModal.show('modal-cambiar-password')
+    },
+    limpiarCambioPassword () {
+      this.passwordForm = { actual: '', nueva: '', confirmar: '' }
+      this.passwordError = ''
+      this.passwordOk = ''
+      this.guardandoPassword = false
+    },
+    cambiarPassword () {
+      const f = this.passwordForm
+      this.passwordError = ''
+      this.passwordOk = ''
+      if (!f.actual || !f.nueva || !f.confirmar) {
+        this.passwordError = 'Complete todos los campos'
+        return
+      }
+      if (f.nueva.length < 6) {
+        this.passwordError = 'La nueva contraseña debe tener al menos 6 caracteres'
+        return
+      }
+      if (f.nueva !== f.confirmar) {
+        this.passwordError = 'La confirmación no coincide con la nueva contraseña'
+        return
+      }
+      this.guardandoPassword = true
+      axios.post(apiUrl + '/cambiarPassword', { actual: f.actual, nueva: f.nueva })
+        .then((response) => {
+          this.passwordForm = { actual: '', nueva: '', confirmar: '' }
+          this.passwordOk = response.data.msg || 'Contraseña actualizada correctamente'
+          setTimeout(() => this.$bvModal.hide('modal-cambiar-password'), 1500)
+        })
+        .catch((error) => {
+          this.passwordError = (error.response && error.response.data && error.response.data.msg) ||
+            'No se pudo cambiar la contraseña, intente de nuevo'
+        })
+        .finally(() => { this.guardandoPassword = false })
     },
     logout () {
       localStorage.removeItem('user')
