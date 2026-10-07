@@ -3101,8 +3101,12 @@ export default {
     // backend y recalcula los totales mostrados. area: 1=medicamento/anestesico, 2=comun, 3=quirurgico.
     async eliminarConsumoRealizado (rowData, area) {
       const nombre = rowData.medicamento?.nombre || rowData.quirurgico?.nombre || rowData.comune?.nombre || 'este insumo'
+      // La fila de un paquete se elimina con todos los consumos de esa aplicacion.
+      const esPaquete = rowData.id_paquete && !rowData.id_quirurgico
       const confirmado = await this.$bvModal.msgBoxConfirm(
-        `¿Eliminar el consumo "${nombre}"? Se repondrá al inventario.`,
+        esPaquete
+          ? `¿Eliminar "${rowData.descripcion || 'el paquete'}"? Se eliminarán también todos los consumos que generó este paquete (solo los de esta aplicación) y se repondrán al inventario.`
+          : `¿Eliminar el consumo "${nombre}"? Se repondrá al inventario.`,
         { title: 'Confirmar eliminación', okVariant: 'danger', okTitle: 'Eliminar', cancelTitle: 'Cancelar' }
       )
       if (!confirmado) return
