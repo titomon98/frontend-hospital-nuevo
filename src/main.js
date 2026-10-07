@@ -13,6 +13,7 @@ import Raphael from 'raphael/raphael'
 import './plugins'
 import './registerServiceWorker'
 import i18n from './i18n'
+import { sesionExpirada } from './Utils/sesion'
 
 global.Raphael = Raphael
 Vue.config.productionTip = false
@@ -93,6 +94,19 @@ axios.interceptors.response.use(
     return Promise.reject(error)
   }
 )
+
+// Sesion expirada: el middleware de auth del backend responde con estos textos
+// exactos (otros endpoints usan 401 para otras cosas, por eso no basta el status).
+const MENSAJES_SESION = ['Token vencido o inválido', 'No está autenticado, vuelva a iniciar sesión']
+const detectarSesionExpirada = error => {
+  const r = error && error.response
+  if (r && [401, 403].includes(r.status) && MENSAJES_SESION.includes(r.data)) {
+    sesionExpirada()
+  }
+  return Promise.reject(error)
+}
+axios.interceptors.response.use(r => r, detectarSesionExpirada)
+vuetableAxios.interceptors.response.use(r => r, detectarSesionExpirada)
 
 // v-anti-doble: deshabilita el elemento 1.5s al hacer click.
 Vue.directive('anti-doble', {

@@ -4,6 +4,7 @@ import VueRouter from 'vue-router'
 // Layouts (static — siempre necesarios)
 import Layout1 from '../layouts/Layout1'
 import AuthLayout1 from '../layouts/AuthLayouts/AuthLayout1'
+import { sesionExpirada, tokenVencido } from '../Utils/sesion'
 
 Vue.use(VueRouter)
 
@@ -363,6 +364,18 @@ router.beforeEach((to, from, next) => {
   // Sin sesión → login
   if (requiresAuth && !user) {
     return to.name !== 'auth1.sign-in1' ? next({ name: 'auth1.sign-in1' }) : next()
+  }
+
+  // Token vencido → aviso de sesión expirada (el modal lleva al login)
+  if (requiresAuth && user && tokenVencido(user.token)) {
+    if (!window.vm) {
+      // Carga inicial de la pagina: todavia no hay app para mostrar el modal.
+      localStorage.removeItem('user')
+      localStorage.removeItem('access_token')
+      return next({ name: 'auth1.sign-in1' })
+    }
+    sesionExpirada()
+    return next(false)
   }
 
   // Sin permiso de rol → login

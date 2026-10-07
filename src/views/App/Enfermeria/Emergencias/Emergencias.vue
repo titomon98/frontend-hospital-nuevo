@@ -1284,7 +1284,7 @@
                       @click="setData(props.rowData); $bvModal.show('modal-4-nota')"
                       class="mb-2 mt-2 button-spacing"
                       size="sm"
-                      variant="primary"
+                      :variant="['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo) ? 'primary' : 'warning'"
                       :disabled="!hasPermission([5])"
                   >
                       {{ ['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo) ? 'Agregar nota de ingreso' : 'Modificar nota de ingreso' }}
@@ -1294,7 +1294,7 @@
                       @click="setData(props.rowData); $bvModal.show('modal-5-nota')"
                       class="mb-2 mt-2 button-spacing"
                       size="sm"
-                      variant="primary"
+                      :variant="['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo_egreso) ? 'primary' : 'warning'"
                       :disabled="!hasPermission([5])"
                   >
                       {{ ['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo_egreso) ? 'Agregar nota de egreso' : 'Modificar nota de egreso' }}
