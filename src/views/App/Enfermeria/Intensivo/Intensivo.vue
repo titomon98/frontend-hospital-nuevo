@@ -3117,7 +3117,7 @@ export default {
     },
     descargarExcelCuentaParcial () {
       cargarDetalle(this.idExpedienteDetalle, false)
-        .then(d => excelDetalle(d, 'CUENTA PARCIAL DETALLADA', 'cuenta_parcial'))
+        .then(d => excelDetalle(d, 'CUENTA DE HOSPITALIZACIÓN DETALLADA', 'cuenta_parcial'))
         .catch(() => {
           this.alertErrorText = 'No se pudo generar el Excel de la cuenta parcial. Intente de nuevo.'
           this.showAlertError()

@@ -1,41 +1,53 @@
 // Detalle completo de la cuenta (GET /consumos/detalleCompleto): todo lo cargado,
 // una fila por cargo con fecha y hora. Lo usan la cuenta parcial (Excel) y el
-// historial de cuenta (Excel y PDF).
+// historial de cuenta (Excel y PDF). Formato por secciones, como la "cuenta de
+// hospitalizacion detallada" que usaba caja.
 import axios from 'axios'
 import ExcelJS from 'exceljs'
 import JsPDF from 'jspdf'
 import 'jspdf-autotable'
 import { apiUrl } from '../config/constant'
 
-export const ORDEN_CATEGORIAS = [
-  'HABITACIÓN', 'INTENSIVO', 'SALA DE OPERACIONES', 'MEDICAMENTOS', 'MATERIAL MÉDICO QUIRÚRGICO',
-  'ANESTÉSICOS', 'MATERIAL COMÚN', 'OXÍGENO', 'SERVICIOS', 'EMERGENCIAS MÉDICO INTERNO', 'HONORARIOS', 'LABORATORIO'
+const PRODUCTO = [['FECHA', 'fecha'], ['NOMBRE', 'descripcion'], ['CLASE', 'clase'], ['CANTIDAD', 'cantidad'], ['IMPORTE', 'total']]
+
+// Secciones en el orden de la cuenta; cada una con sus categorias y columnas [titulo, campo].
+export const SECCIONES = [
+  { titulo: 'USO DE HABITACIÓN', cats: ['HABITACIÓN', 'INTENSIVO'], cols: [['ENTRADA', 'entrada'], ['SALIDA', 'salida'], ['TIPO', 'tipo'], ['NÚMERO', 'numero'], ['ESTANCIA', 'nota'], ['IMPORTE', 'total']] },
+  { titulo: 'HONORARIOS MÉDICOS', cats: ['HONORARIOS', 'EMERGENCIAS MÉDICO INTERNO'], cols: [['FECHA', 'fecha'], ['MÉDICO TRATANTE', 'descripcion'], ['IMPORTE', 'total']] },
+  { titulo: 'SALA DE OPERACIONES', cats: ['SALA DE OPERACIONES'], cols: [['FECHA', 'fecha'], ['SALA', 'sala'], ['DURACIÓN', 'duracion'], ['IMPORTE', 'total']] },
+  { titulo: 'EXÁMENES DE LABORATORIO', cats: ['LABORATORIO'], cols: [['FECHA', 'fecha'], ['NO. ORDEN', 'orden'], ['NOMBRE EXAMEN', 'descripcion'], ['IMPORTE', 'total']] },
+  { titulo: 'MEDICAMENTOS SUMINISTRADOS', cats: ['MEDICAMENTOS'], cols: PRODUCTO },
+  { titulo: 'ANESTÉSICOS SUMINISTRADOS', cats: ['ANESTÉSICOS'], cols: PRODUCTO },
+  { titulo: 'MATERIAL MÉDICO QUIRÚRGICO', cats: ['MATERIAL MÉDICO QUIRÚRGICO'], cols: PRODUCTO },
+  { titulo: 'MATERIAL COMÚN', cats: ['MATERIAL COMÚN'], cols: PRODUCTO },
+  { titulo: 'OXÍGENO', cats: ['OXÍGENO'], cols: [['FECHA', 'fecha'], ['NOMBRE', 'descripcion'], ['CANTIDAD', 'cantidad'], ['IMPORTE', 'total']] },
+  { titulo: 'PERSONAL DE SALA DE OPERACIONES', cats: ['PERSONAL DE SALA DE OPERACIONES'], cols: [['FECHA', 'fecha'], ['DESCRIPCIÓN', 'descripcion'], ['IMPORTE', 'total']] },
+  { titulo: 'OTROS SERVICIOS', cats: ['OTROS SERVICIOS'], cols: [['FECHA', 'fecha'], ['NOMBRE', 'descripcion'], ['CANTIDAD', 'cantidad'], ['IMPORTE', 'total']] }
 ]
 
 export const cargarDetalle = (idExpediente, todas) =>
   axios.get(apiUrl + `/consumos/detalleCompleto/${idExpediente}${todas ? '?todas=1' : ''}`).then(r => r.data)
 
-const q = (n) => `Q${(Number(n) || 0).toFixed(2)}`
+const q = (n) => `Q${(Number(n) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+const suma = (items) => items.reduce((a, i) => a + (Number(i.total) || 0), 0)
 // 'DD/MM/YYYY HH:mm' -> 'YYYYMMDDHHmm' para ordenar.
 const clave = (f) => (f || '').replace(/^(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2})$/, '$3$2$1$4$5')
 
-// Agrupa por categoría (en el orden de la cuenta) y, dentro, por fecha.
-const agrupar = (items) => ORDEN_CATEGORIAS
-  .map(cat => ({
-    categoria: cat,
-    items: items.filter(i => i.categoria === cat).sort((a, b) => clave(a.fecha).localeCompare(clave(b.fecha)))
-  }))
-  .filter(g => g.items.length)
+const seccionesDe = (items, todas) => SECCIONES
+  .map(s => ({ ...s, items: items.filter(i => s.cats.includes(i.categoria)).sort((a, b) => clave(a.fecha).localeCompare(clave(b.fecha))) }))
+  .filter(s => todas || s.items.length)
 
-// Bloques a imprimir: uno por cuenta del hospital y uno de laboratorio.
+// Bloques a imprimir. Una sola cuenta (cuenta parcial): un bloque con todas las
+// secciones, laboratorio incluido. Varias (historial): un bloque por cuenta y
+// el laboratorio aparte, solo con las secciones que tienen cargos.
 const bloques = (data) => {
-  const multi = data.cuentas.length > 1
+  if (data.cuentas.length <= 1) {
+    const c = data.cuentas[0] || { items: [], estado: '', ingreso: '', egreso: '' }
+    return [{ titulo: null, secciones: seccionesDe([...c.items, ...data.examenes], true), pie: [] }]
+  }
   const res = data.cuentas.map((c, i) => ({
-    titulo: multi
-      ? `CUENTA ${i + 1} de ${data.cuentas.length} - ${c.estado} - ingreso ${c.ingreso || '-'}${c.egreso ? ' - egreso ' + c.egreso : ''}`
-      : `CUENTA - ${c.estado} - ingreso ${c.ingreso || '-'}${c.egreso ? ' - egreso ' + c.egreso : ''}`,
-    grupos: agrupar(c.items),
-    total: c.total,
+    titulo: `CUENTA ${i + 1} de ${data.cuentas.length} - ${c.estado} - ingreso ${c.ingreso || '-'}${c.egreso ? ' - egreso ' + c.egreso : ''}`,
+    secciones: seccionesDe(c.items, false),
     pie: [
       ['TOTAL CONSUMIDO EN ESTA CUENTA', c.total],
       ...(c.totalRegistrado && Math.abs(c.totalRegistrado - c.total) >= 0.01 ? [['TOTAL REGISTRADO EN CAJA', c.totalRegistrado]] : []),
@@ -43,80 +55,81 @@ const bloques = (data) => {
     ]
   }))
   if (data.examenes.length) {
-    res.push({ titulo: 'LABORATORIO', grupos: agrupar(data.examenes), pie: [['TOTAL LABORATORIO', data.totalLab]] })
+    res.push({ titulo: 'LABORATORIO', secciones: seccionesDe(data.examenes, false), pie: [] })
   }
   return res
 }
 
 export const resumenPorCategoria = (data) => {
   const todos = [...data.cuentas.flatMap(c => c.items), ...data.examenes]
-  return ORDEN_CATEGORIAS
-    .map(cat => ({ categoria: cat, total: todos.filter(i => i.categoria === cat).reduce((a, i) => a + i.total, 0) }))
+  return SECCIONES
+    .map(s => ({ categoria: s.titulo, total: suma(todos.filter(i => s.cats.includes(i.categoria))) }))
     .filter(r => r.total)
 }
 
 const encabezado = (data, titulo) => [
-  'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO',
+  'HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A.',
   titulo,
-  `PACIENTE: ${data.paciente.nombre}    EXPEDIENTE: ${data.paciente.expediente}`,
+  `NOMBRE DEL PACIENTE: ${data.paciente.nombre}`,
+  `No. EXPEDIENTE: ${data.paciente.expediente}    MD TRATANTE: ${data.paciente.medico || ''}`,
   `SITUACIÓN: ${data.paciente.situacion}${data.paciente.egreso ? ' - egreso ' + data.paciente.egreso : ''}`,
   `GENERADO: ${data.generado}`
+]
+
+const piesGenerales = (data) => [
+  ['SUBTOTAL=', data.totalGeneral],
+  ['TOTAL=', data.totalGeneral],
+  ...(data.totalPagado ? [['TOTAL PAGADO=', data.totalPagado]] : [])
 ]
 
 const nombreArchivo = (prefijo, data, ext) => `${prefijo}_${data.paciente.nombre.replace(/\s+/g, '_')}.${ext}`
 
 export async function excelDetalle (data, titulo, prefijo) {
   const wb = new ExcelJS.Workbook()
-  const ws = wb.addWorksheet('Detalle')
-  ws.columns = [{ width: 18 }, { width: 28 }, { width: 70 }, { width: 10 }, { width: 16 }, { width: 16 }]
+  const ws = wb.addWorksheet('Cuenta detallada')
+  ws.columns = [{ width: 20 }, { width: 46 }, { width: 22 }, { width: 14 }, { width: 22 }, { width: 14 }]
   const moneda = '"Q"#,##0.00'
+  const fila = (valores, opciones = {}) => {
+    const r = ws.addRow(valores)
+    if (opciones.bold) r.font = { bold: true }
+    if (opciones.merge) ws.mergeCells(r.number, 1, r.number, 6)
+    if (opciones.fondo) r.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: opciones.fondo } }
+    return r
+  }
 
   encabezado(data, titulo).forEach((t, i) => {
-    const r = ws.addRow([t])
-    ws.mergeCells(r.number, 1, r.number, 6)
-    r.font = { bold: i < 2 }
+    const r = fila([t], { merge: true, bold: i < 2 })
+    if (i < 2) r.alignment = { horizontal: 'center' }
   })
 
   for (const b of bloques(data)) {
-    ws.addRow([])
-    const t = ws.addRow([b.titulo])
-    ws.mergeCells(t.number, 1, t.number, 6)
-    t.font = { bold: true }
-    t.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD9E1F2' } }
-    const h = ws.addRow(['FECHA Y HORA', 'RUBRO', 'DESCRIPCIÓN', 'CANTIDAD', 'PRECIO UNITARIO', 'TOTAL'])
-    h.font = { bold: true }
-    for (const g of b.grupos) {
-      for (const i of g.items) {
-        const r = ws.addRow([i.fecha, i.categoria, i.descripcion, i.cantidad, i.precio, i.total])
-        r.getCell(5).numFmt = moneda
-        r.getCell(6).numFmt = moneda
-      }
-      const s = ws.addRow(['', '', `SUBTOTAL ${g.categoria}`, '', '', g.items.reduce((a, i) => a + i.total, 0)])
-      s.font = { bold: true }
-      s.getCell(6).numFmt = moneda
+    if (b.titulo) {
+      fila([])
+      fila([b.titulo], { merge: true, bold: true, fondo: 'FFD9E1F2' })
     }
-    if (!b.grupos.length) ws.addRow(['', '', 'Sin cargos registrados'])
+    for (const s of b.secciones) {
+      fila([])
+      fila([s.titulo], { merge: true, bold: true, fondo: 'FFEDEDED' })
+      fila(s.cols.map(c => c[0]), { bold: true })
+      for (const i of s.items) {
+        const r = fila(s.cols.map(c => i[c[1]] ?? ''))
+        r.getCell(s.cols.length).numFmt = moneda
+      }
+      fila([`TOTAL: ${q(suma(s.items))}`], { bold: true })
+    }
+    if (!b.secciones.length) fila(['Sin cargos registrados'])
     for (const [etq, val] of b.pie) {
-      const r = ws.addRow(['', '', etq, '', '', val])
-      r.font = { bold: true }
+      const r = fila(['', '', '', '', etq, val], { bold: true })
       r.getCell(6).numFmt = moneda
     }
   }
 
-  ws.addRow([])
-  const rt = ws.addRow(['RESUMEN POR RUBRO'])
-  rt.font = { bold: true }
-  for (const r of resumenPorCategoria(data)) {
-    ws.addRow(['', r.categoria, '', '', '', r.total]).getCell(6).numFmt = moneda
+  fila([])
+  for (const [etq, val] of piesGenerales(data)) {
+    const r = fila(['', '', '', '', etq, val], { bold: true })
+    r.getCell(6).numFmt = moneda
   }
-  const tg = ws.addRow(['', 'TOTAL GENERAL', '', '', '', data.totalGeneral])
-  tg.font = { bold: true }
-  tg.getCell(6).numFmt = moneda
-  if (data.totalPagado) {
-    const tp = ws.addRow(['', 'TOTAL PAGADO', '', '', '', data.totalPagado])
-    tp.getCell(6).numFmt = moneda
-  }
-  ws.getColumn(3).alignment = { wrapText: true, vertical: 'top' }
+  ws.getColumn(2).alignment = { wrapText: true, vertical: 'top' }
 
   const buffer = await wb.xlsx.writeBuffer()
   const url = window.URL.createObjectURL(new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }))
@@ -130,46 +143,54 @@ export async function excelDetalle (data, titulo, prefijo) {
 }
 
 export function pdfDetalle (data, titulo, prefijo) {
-  const doc = new JsPDF({ orientation: 'landscape' })
+  const doc = new JsPDF()
   let y = 12
   encabezado(data, titulo).forEach((t, i) => {
     doc.setFontSize(i < 2 ? 12 : 9).setFont(undefined, i < 2 ? 'bold' : 'normal')
-    doc.text(t, 14, y)
+    doc.text(t, i < 2 ? 105 : 14, y, i < 2 ? { align: 'center' } : undefined)
     y += i < 2 ? 6 : 5
   })
+  const celda = (i, campo) => (campo === 'total' ? q(i.total) : String(i[campo] ?? ''))
 
   for (const b of bloques(data)) {
-    const body = []
-    for (const g of b.grupos) {
-      g.items.forEach(i => body.push([i.fecha, i.categoria, i.descripcion, i.cantidad, q(i.precio), q(i.total)]))
-      body.push([{ content: `SUBTOTAL ${g.categoria}`, colSpan: 5, styles: { halign: 'right', fontStyle: 'bold' } }, { content: q(g.items.reduce((a, i) => a + i.total, 0)), styles: { fontStyle: 'bold' } }])
+    if (b.titulo) {
+      doc.setFontSize(10).setFont(undefined, 'bold')
+      doc.text(b.titulo, 14, y + 6)
+      y += 8
     }
-    if (!b.grupos.length) body.push([{ content: 'Sin cargos registrados', colSpan: 6 }])
-    b.pie.forEach(([etq, val]) => body.push([{ content: etq, colSpan: 5, styles: { halign: 'right', fontStyle: 'bold' } }, { content: q(val), styles: { fontStyle: 'bold' } }]))
-    doc.autoTable({
-      startY: y + 2,
-      head: [[{ content: b.titulo, colSpan: 6 }], ['FECHA Y HORA', 'RUBRO', 'DESCRIPCIÓN', 'CANT.', 'P. UNITARIO', 'TOTAL']],
-      body,
-      theme: 'grid',
-      styles: { fontSize: 8, cellPadding: 1.5, textColor: [0, 0, 0] },
-      headStyles: { fillColor: [229, 31, 45], textColor: [255, 255, 255] },
-      columnStyles: { 0: { cellWidth: 28 }, 1: { cellWidth: 42 }, 3: { cellWidth: 14 }, 4: { cellWidth: 24 }, 5: { cellWidth: 24 } }
-    })
-    y = doc.lastAutoTable.finalY + 4
+    for (const s of b.secciones) {
+      const n = s.cols.length
+      doc.autoTable({
+        startY: y + 2,
+        head: [[{ content: s.titulo, colSpan: n }], s.cols.map(c => c[0])],
+        body: s.items.map(i => s.cols.map(c => celda(i, c[1]))),
+        foot: [[{ content: `TOTAL: ${q(suma(s.items))}`, colSpan: n }]],
+        theme: 'grid',
+        styles: { fontSize: 8, cellPadding: 1.5, textColor: [0, 0, 0] },
+        headStyles: { fillColor: [229, 31, 45], textColor: [255, 255, 255] },
+        footStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: 'bold' },
+        columnStyles: { [n - 1]: { halign: 'right', cellWidth: 24 } }
+      })
+      y = doc.lastAutoTable.finalY + 2
+    }
+    if (b.pie.length) {
+      doc.autoTable({
+        startY: y + 1,
+        body: b.pie.map(([etq, val]) => [etq, q(val)]),
+        theme: 'plain',
+        styles: { fontSize: 9, fontStyle: 'bold' },
+        margin: { left: 100 }
+      })
+      y = doc.lastAutoTable.finalY + 2
+    }
   }
 
   doc.autoTable({
-    startY: y + 2,
-    head: [['RESUMEN POR RUBRO', 'TOTAL']],
-    body: [
-      ...resumenPorCategoria(data).map(r => [r.categoria, q(r.total)]),
-      [{ content: 'TOTAL GENERAL', styles: { fontStyle: 'bold' } }, { content: q(data.totalGeneral), styles: { fontStyle: 'bold' } }],
-      ...(data.totalPagado ? [['TOTAL PAGADO', q(data.totalPagado)]] : [])
-    ],
-    theme: 'grid',
-    tableWidth: 120,
-    styles: { fontSize: 9, textColor: [0, 0, 0] },
-    headStyles: { fillColor: [229, 31, 45], textColor: [255, 255, 255] }
+    startY: y + 4,
+    body: piesGenerales(data).map(([etq, val]) => [etq, q(val)]),
+    theme: 'plain',
+    styles: { fontSize: 10, fontStyle: 'bold' },
+    margin: { left: 120 }
   })
   doc.save(nombreArchivo(prefijo, data, 'pdf'))
 }
