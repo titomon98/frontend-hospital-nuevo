@@ -189,7 +189,7 @@
         >
       </template>
     </b-modal>
-    <b-modal size="lg" id="modal-add-receta" ref="modal-add-receta" :title="tpModal('Contenido de receta')">
+    <b-modal size="lg" id="modal-add-receta" ref="modal-add-receta" :title="tpModal('Contenido de receta')" @hidden="avisoModal = ''">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -199,6 +199,7 @@
       >
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
+      <b-alert :show="!!avisoModal" variant="success" dismissible @dismissed="avisoModal = ''">{{ avisoModal }}</b-alert>
       <label class="mb-1">Contenido:</label>
       <b-form-textarea
         v-model="form.receta"
@@ -206,101 +207,7 @@
         max-rows="12"
         placeholder="Ingresar detalle de receta"
       ></b-form-textarea>
-      <template #modal-footer="{}">
-        <b-button variant="primary" @click="saveReceta()"
-          >Guardar</b-button
-        >
-        <b-button variant="danger" @click="closeModal('add-receta')"
-          >Cancelar</b-button
-        >
-      </template>
-    </b-modal>
-    <b-modal size="lg" id="modal-add-evolucion" ref="modal-add-evolucion" :title="tpModal('Evolución de paciente')">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
-      >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
-      </b-alert>
-      <b-form-textarea
-        v-model="form.evolucion"
-        rows="6"
-        max-rows="12"
-        placeholder="Ingresar evolución de paciente"
-      ></b-form-textarea>
-      <template #modal-footer="{}">
-        <b-button variant="primary" @click="saveEvolucion()"
-          >Guardar</b-button
-        >
-        <b-button variant="danger" @click="closeModal('add-evolucion')"
-          >Cancelar</b-button
-        >
-      </template>
-    </b-modal>
-    <b-modal size="lg" id="modal-add-orden" ref="modal-add-orden" :title="tpModal('Orden médica')">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
-      >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
-      </b-alert>
-      <b-form-textarea
-        v-model="form.orden"
-        rows="6"
-        max-rows="12"
-        placeholder="Agregar órden médica"
-      ></b-form-textarea>
-      <template #modal-footer="{}">
-        <b-button variant="primary" @click="saveOrden()"
-          >Guardar</b-button
-        >
-        <b-button variant="danger" @click="closeModal('add-orden')"
-          >Cancelar</b-button
-        >
-      </template>
-    </b-modal>
-    <b-modal size="lg" id="modal-add-notas-enfermeria" ref="modal-add-notas-enfermeria" :title="tpModal('Notas de enfermería')">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
-      >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
-      </b-alert>
-      <label class="mb-1">Contenido:</label>
-      <b-form-textarea
-        v-model="form.notas"
-        rows="6"
-        max-rows="12"
-        placeholder="Indicar nota de enfermería"
-      ></b-form-textarea>
-      <template #modal-footer="{}">
-        <b-button variant="primary" @click="saveNotas()"
-          >Guardar</b-button
-        >
-        <b-button variant="danger" @click="closeModal('add-notas-enfermeria')"
-          >Cancelar</b-button
-        >
-      </template>
-    </b-modal>
-    <b-modal size="lg" id="modal-ver-receta" ref="modal-ver-receta" :title="tpModal(tituloVer)">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
-      >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
-      </b-alert>
+      <h5 class="mt-4">RECETAS REGISTRADAS</h5>
       <vuetable
           ref="vuetableRecetas"
           class="table-divided table-responsive order-with-arrow"
@@ -319,15 +226,15 @@
           @vuetable-pagination:change-page="onChangePageReceta"
         />
       <template #modal-footer="{}">
-        <b-button variant="primary" @click="onValidate('ver-receta')"
+        <b-button variant="primary" @click="saveReceta()"
           >Guardar</b-button
         >
-        <b-button variant="danger" @click="closeModal('ver-receta')"
-          >Cancelar</b-button
+        <b-button variant="danger" @click="closeModal('add-receta')"
+          >Cerrar</b-button
         >
       </template>
     </b-modal>
-    <b-modal id="modal-add-servicio" ref="modal-add-servicio" :title="tpModal('Añadir consumo de servicio')">
+    <b-modal size="lg" id="modal-add-evolucion" ref="modal-add-evolucion" :title="tpModal('Evolución de paciente')" @hidden="avisoModal = ''">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -337,6 +244,140 @@
       >
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
+      <b-alert :show="!!avisoModal" variant="success" dismissible @dismissed="avisoModal = ''">{{ avisoModal }}</b-alert>
+      <b-form-textarea
+        v-model="form.evolucion"
+        rows="6"
+        max-rows="12"
+        placeholder="Ingresar evolución de paciente"
+      ></b-form-textarea>
+      <h5 class="mt-4">EVOLUCIONES REGISTRADAS</h5>
+      <vuetable
+          ref="vuetableRecetas"
+          class="table-divided table-responsive order-with-arrow"
+          :api-url="apiBaseReceta"
+          :query-params="makeQueryParamsReceta"
+          :per-page="perPage"
+          :reactive-api-url="true"
+          :fields="fieldsReceta"
+          pagination-path
+          @vuetable:pagination-data="onPaginationDataReceta"
+          :row-class="tituloVer === 'Ver notas de enfermería del paciente' ? getRowClass : () => ''"
+        >
+        </vuetable>
+        <vuetable-pagination-bootstrap
+          ref="paginationReceta"
+          @vuetable-pagination:change-page="onChangePageReceta"
+        />
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click="saveEvolucion()"
+          >Guardar</b-button
+        >
+        <b-button variant="danger" @click="closeModal('add-evolucion')"
+          >Cerrar</b-button
+        >
+      </template>
+    </b-modal>
+    <b-modal size="lg" id="modal-add-orden" ref="modal-add-orden" :title="tpModal('Orden médica')" @hidden="avisoModal = ''">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <b-alert :show="!!avisoModal" variant="success" dismissible @dismissed="avisoModal = ''">{{ avisoModal }}</b-alert>
+      <b-form-textarea
+        v-model="form.orden"
+        rows="6"
+        max-rows="12"
+        placeholder="Agregar órden médica"
+      ></b-form-textarea>
+      <h5 class="mt-4">ÓRDENES MÉDICAS REGISTRADAS</h5>
+      <vuetable
+          ref="vuetableRecetas"
+          class="table-divided table-responsive order-with-arrow"
+          :api-url="apiBaseReceta"
+          :query-params="makeQueryParamsReceta"
+          :per-page="perPage"
+          :reactive-api-url="true"
+          :fields="fieldsReceta"
+          pagination-path
+          @vuetable:pagination-data="onPaginationDataReceta"
+          :row-class="tituloVer === 'Ver notas de enfermería del paciente' ? getRowClass : () => ''"
+        >
+        </vuetable>
+        <vuetable-pagination-bootstrap
+          ref="paginationReceta"
+          @vuetable-pagination:change-page="onChangePageReceta"
+        />
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click="saveOrden()"
+          >Guardar</b-button
+        >
+        <b-button variant="danger" @click="closeModal('add-orden')"
+          >Cerrar</b-button
+        >
+      </template>
+    </b-modal>
+    <b-modal size="lg" id="modal-add-notas-enfermeria" ref="modal-add-notas-enfermeria" :title="tpModal('Notas de enfermería')" @hidden="avisoModal = ''">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <b-alert :show="!!avisoModal" variant="success" dismissible @dismissed="avisoModal = ''">{{ avisoModal }}</b-alert>
+      <label class="mb-1">Contenido:</label>
+      <b-form-textarea
+        v-model="form.notas"
+        rows="6"
+        max-rows="12"
+        placeholder="Indicar nota de enfermería"
+      ></b-form-textarea>
+      <h5 class="mt-4">NOTAS DE ENFERMERÍA REGISTRADAS</h5>
+      <vuetable
+          ref="vuetableRecetas"
+          class="table-divided table-responsive order-with-arrow"
+          :api-url="apiBaseReceta"
+          :query-params="makeQueryParamsReceta"
+          :per-page="perPage"
+          :reactive-api-url="true"
+          :fields="fieldsReceta"
+          pagination-path
+          @vuetable:pagination-data="onPaginationDataReceta"
+          :row-class="tituloVer === 'Ver notas de enfermería del paciente' ? getRowClass : () => ''"
+        >
+        </vuetable>
+        <vuetable-pagination-bootstrap
+          ref="paginationReceta"
+          @vuetable-pagination:change-page="onChangePageReceta"
+        />
+      <template #modal-footer="{}">
+        <b-button variant="primary" @click="saveNotas()"
+          >Guardar</b-button
+        >
+        <b-button variant="danger" @click="closeModal('add-notas-enfermeria')"
+          >Cerrar</b-button
+        >
+      </template>
+    </b-modal>
+    <b-modal size="lg" id="modal-add-servicio" ref="modal-add-servicio" :title="tpModal('Añadir consumo de servicio')" @hidden="avisoModal = ''">
+      <b-alert
+        :show="alertCountDownError"
+        dismissible
+        fade
+        @dismissed="alertCountDownError=0"
+        class="text-white bg-danger"
+      >
+        <div class="iq-alert-text">{{ alertErrorText }}</div>
+      </b-alert>
+      <b-alert :show="!!avisoModal" variant="success" dismissible @dismissed="avisoModal = ''">{{ avisoModal }}</b-alert>
       <b-form @submit="$event.preventDefault()">
         <b-form-group label="Servicio a agregar:">
           <v-select
@@ -400,82 +441,29 @@
           </Multiselect>
         </b-form-group>
       </b-form>
+      <h5 class="mt-4">SERVICIOS REGISTRADOS</h5>
+      <vuetable
+          ref="vuetableConsumos"
+          class="table-divided table-responsive order-with-arrow"
+          :api-url="apiBaseConsumo"
+          :query-params="makeQueryParamsConsumo"
+          :per-page="perPage"
+          :reactive-api-url="true"
+          :fields="[9, 10].includes(currentUser.user_type) ? fieldsConsumo2 : fieldsConsumo"
+          pagination-path
+          @vuetable:pagination-data="onPaginationDataConsumo"
+        >
+        </vuetable>
+        <vuetable-pagination-bootstrap
+          ref="paginationConsumo"
+          @vuetable-pagination:change-page="onChangePageConsumo"
+        />
       <template #modal-footer="{}">
         <b-button variant="primary" @click="saveServicio('add-servicio')"
           >Guardar</b-button
         >
         <b-button variant="danger" @click="closeModal('add-servicio')"
-          >Cancelar</b-button
-        >
-      </template>
-    </b-modal>
-    <b-modal id="modal-ver-servicio" size="lg" ref="modal-ver-servicio" :title="tpModal('Ver servicio')">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
-      >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
-      </b-alert>
-      <vuetable
-          ref="vuetableConsumos"
-          class="table-divided table-responsive order-with-arrow"
-          :api-url="apiBaseConsumo"
-          :query-params="makeQueryParamsConsumo"
-          :per-page="perPage"
-          :reactive-api-url="true"
-          :fields="fieldsConsumo"
-          pagination-path
-          @vuetable:pagination-data="onPaginationDataConsumo"
-        >
-        </vuetable>
-        <vuetable-pagination-bootstrap
-          ref="paginationConsumo"
-          @vuetable-pagination:change-page="onChangePageConsumo"
-        />
-      <template #modal-footer="{}">
-        <b-button variant="primary" @click="onValidate('ver-servicio')"
-          >Guardar</b-button
-        >
-        <b-button variant="danger" @click="closeModal('ver-servicio')"
-          >Cancelar</b-button
-        >
-      </template>
-    </b-modal>
-    <b-modal id="modal-ver-servicio2" size="lg" ref="modal-ver-servicio2" :title="tpModal('Ver servicios')">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
-      >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
-      </b-alert>
-      <vuetable
-          ref="vuetableConsumos"
-          class="table-divided table-responsive order-with-arrow"
-          :api-url="apiBaseConsumo"
-          :query-params="makeQueryParamsConsumo"
-          :per-page="perPage"
-          :reactive-api-url="true"
-          :fields="fieldsConsumo2"
-          pagination-path
-          @vuetable:pagination-data="onPaginationDataConsumo"
-        >
-        </vuetable>
-        <vuetable-pagination-bootstrap
-          ref="paginationConsumo"
-          @vuetable-pagination:change-page="onChangePageConsumo"
-        />
-      <template #modal-footer="{}">
-        <b-button variant="primary" @click="onValidate('ver-servicio2')"
-          >Guardar</b-button
-        >
-        <b-button variant="danger" @click="closeModal('ver-servicio2')"
-          >Cancelar</b-button
+          >Cerrar</b-button
         >
       </template>
     </b-modal>
@@ -491,6 +479,7 @@
       >
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
+      <b-alert :show="!!avisoModal" variant="success" dismissible @dismissed="avisoModal = ''">{{ avisoModal }}</b-alert>
       <b-alert :show="!!honorarioOk" variant="success" dismissible @dismissed="honorarioOk = ''">{{ honorarioOk }}</b-alert>
       <b-form  @submit="$event.preventDefault()">
         <b-form-group label="Seleccionar Medico">
@@ -528,9 +517,50 @@
           ></b-form-input>
         </b-form-group>
       </b-form>
-        <template #modal-footer>
+        <h5 class="mt-4">HONORARIOS REGISTRADOS</h5>
+      <b-table striped hover :items="honorarios" :fields="fieldsHonorarios">
+        <template #cell(medico)="row">
+          {{ row.item.medico }}
+        </template>
+        <template #cell(total)="row">
+          <div v-if="[1, 3, 9, 11].includes(currentUser.user_type)" class="d-flex align-items-center" style="gap:6px;">
+            <b-form-input
+              v-model="row.item.total"
+              type="number"
+              size="sm"
+              style="width:110px;"
+              @keyup.enter="updateHonorarioTotal(row.item)"
+            />
+            <b-button size="sm" variant="primary" @click="updateHonorarioTotal(row.item)">
+              <i class="ri-save-line"></i>
+            </b-button>
+          </div>
+          <span v-else>{{ row.item.total }}</span>
+        </template>
+        <template #cell(acciones)="row">
+          <b-button
+            v-if="[1, 3].includes(currentUser.user_type)"
+            size="sm"
+            variant="danger"
+            @click="eliminarHonorario(row.item)"
+          >Eliminar</b-button>
+        </template>
+      </b-table>
+
+      <h4>
+        Total de honorarios: {{ honorarios.reduce((acc, item) => acc + parseFloat(item.total || 0), 0).toFixed(2) }}
+      </h4>
+
+      <b-pagination
+        v-if="pagination.total > 0"
+        v-model="pagination.currentPage"
+        :total-rows="pagination.total"
+        :per-page="pagination.perPage"
+        @change="onChangePageHonorario"
+      ></b-pagination>
+      <template #modal-footer>
           <b-button variant="primary" @click="agregarHonorario()">Guardar</b-button>
-          <b-button variant="danger" @click="closeModal('add-honorarios')">Cancelar</b-button>
+          <b-button variant="danger" @click="closeModal('add-honorarios')">Cerrar</b-button>
         </template>
     </b-modal>
     <b-modal id="modal-4-nota" ref="modal-4-nota" :title="tpModal('Agregar nota de ingreso')" size="lg">
@@ -605,62 +635,6 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-ver-honorarios" size="lg" ref="modal-ver-honorarios" :title="tpModal('Ver honorarios')">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
-      >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
-      </b-alert>
-
-      <b-table striped hover :items="honorarios" :fields="fieldsHonorarios">
-        <template #cell(medico)="row">
-          {{ row.item.medico }}
-        </template>
-        <template #cell(total)="row">
-          <div v-if="[1, 3, 9, 11].includes(currentUser.user_type)" class="d-flex align-items-center" style="gap:6px;">
-            <b-form-input
-              v-model="row.item.total"
-              type="number"
-              size="sm"
-              style="width:110px;"
-              @keyup.enter="updateHonorarioTotal(row.item)"
-            />
-            <b-button size="sm" variant="primary" @click="updateHonorarioTotal(row.item)">
-              <i class="ri-save-line"></i>
-            </b-button>
-          </div>
-          <span v-else>{{ row.item.total }}</span>
-        </template>
-        <template #cell(acciones)="row">
-          <b-button
-            v-if="[1, 3].includes(currentUser.user_type)"
-            size="sm"
-            variant="danger"
-            @click="eliminarHonorario(row.item)"
-          >Eliminar</b-button>
-        </template>
-      </b-table>
-
-      <h4>
-        Total de honorarios: {{ honorarios.reduce((acc, item) => acc + parseFloat(item.total || 0), 0).toFixed(2) }}
-      </h4>
-
-      <b-pagination
-        v-if="pagination.total > 0"
-        v-model="pagination.currentPage"
-        :total-rows="pagination.total"
-        :per-page="pagination.perPage"
-        @change="onChangePageHonorario"
-      ></b-pagination>
-
-      <template #modal-footer>
-        <b-button variant="danger" @click="closeModal('ver-honorarios')">Cerrar</b-button>
-      </template>
-    </b-modal>
     <b-modal size="lg" id="modal-ver-resultados" ref="modal-ver-resultados" :title="tpModal('Ver Resultados')">
       <template v-if="resultados">
         <b-table small striped hover :items="resultados" :fields="campos">
@@ -690,6 +664,7 @@
       >
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
+      <b-alert :show="!!avisoModal" variant="success" dismissible @dismissed="avisoModal = ''">{{ avisoModal }}</b-alert>
 
       <b-form @submit.prevent>
         <!-- Selección de tipo de insumo -->
@@ -865,7 +840,7 @@
           </div>
         </div>
         <b-button variant="primary" @click="onSave">Guardar</b-button>
-        <b-button variant="danger" @click="closeModal('save')">Cancelar</b-button>
+        <b-button variant="danger" @click="closeModal('save')">Cerrar</b-button>
       </template>
     </b-modal>
     <b-modal id="modal-1-movimiento2" size="xl" ref="modal-1-movimiento2" :title="tpModal('Agregar Consumo')" @shown="openModal2" @hidden="limpiarConsumosTemporales">
@@ -879,6 +854,7 @@
       >
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
+      <b-alert :show="!!avisoModal" variant="success" dismissible @dismissed="avisoModal = ''">{{ avisoModal }}</b-alert>
 
       <b-form @submit.prevent>
         <!-- Selección de tipo de insumo -->
@@ -1038,7 +1014,7 @@
           </div>
         </div>
         <b-button variant="primary" @click="onSave">Guardar</b-button>
-        <b-button variant="danger" @click="closeModal('save2')">Cancelar</b-button>
+        <b-button variant="danger" @click="closeModal('save2')">Cerrar</b-button>
       </template>
     </b-modal>
     <HistorialCuentaModal ref="historialCuenta" />
@@ -1248,29 +1224,19 @@
                     variant="dark"
                     >Trasladar</b-button>
                   <b-button
-                    @click="addReceta(props.rowData.id)"
+                    @click="abrirModalCombinado('receta', props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm" variant="success"
-                  >Agregar receta</b-button>
-                  <b-button
-                    @click="verReceta(props.rowData.id)"
-                    class="mb-2 button-spacing"
-                    size="sm" variant="dark"
-                  >Ver recetas</b-button>
-                  <b-button @click="addServicio(props.rowData.id)" class="mb-2 button-spacing" size="sm" variant="success">Agregar
-                    servicios</b-button>
-                  <b-button @click="mostrarVerServicio(props.rowData.id)" class="mb-2 button-spacing" size="sm" variant="dark">Ver
-                    servicios</b-button>
-                  <b-button @click="showModal('modal-add-honorarios'); obtenerIdCuenta(props.rowData.id)" class="mb-2 button-spacing"
-                    size="sm" variant="success">Agregar honorarios</b-button>
-                  <b-button @click="showModal('modal-ver-honorarios'); getDataHonorarios(props.rowData.id)"
-                    class="mb-2 button-spacing" size="sm" variant="dark">Ver honorarios</b-button>
+                  >Recetas</b-button>
+                  <b-button @click="abrirModalCombinado('servicio', props.rowData.id)" class="mb-2 button-spacing" size="sm" variant="dark">Servicios</b-button>
+                  <b-button @click="abrirModalCombinado('honorarios', props.rowData.id)" class="mb-2 button-spacing"
+                    size="sm" variant="success">Honorarios</b-button>
 
                     <b-button
                     @click="showModal('modal_agregar'); ver_examen_realizado(props.rowData.id); realizar_examen(props.rowData.id, props.rowData.nombres, props.rowData.apellidos, props.rowData.cui, props.rowData.telefono, props.rowData.nacimiento)"
                     class="mb-2 button-spacing"
                     size="sm"
-                    variant="success"
+                    variant="dark"
                    >Agregar Examen</b-button>
 
                   <b-button
@@ -1278,7 +1244,7 @@
                     @click="mostrarModalConsumos(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
-                    variant="dark"
+                    variant="success"
                    >Consumos</b-button>
 
                    <b-button
@@ -1290,48 +1256,29 @@
                    >Historial Cuenta</b-button>
 
                    <b-button
-                    @click="addEvolucion(props.rowData.id)"
+                    @click="abrirModalCombinado('evolucion', props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="success"
                     :disabled="!hasPermission([10])"
-                  >Agregar evolución</b-button>
+                  >Evolución</b-button>
 
                   <b-button
-                    @click="verEvolucion(props.rowData.id)"
-                    class="mb-2 button-spacing"
-                    size="sm"
-                    variant="dark"
-                  >Ver evolución</b-button>
-
-                  <b-button
-                    @click="addOrdenes(props.rowData.id)"
-                    class="mb-2 button-spacing"
-                    size="sm"
-                    variant="success"
-                    :disabled="!hasPermission([10])"
-                  >Agregar orden médica</b-button>
-
-                  <b-button
-                    @click="verOrden(props.rowData.id)"
-                    class="mb-2 button-spacing"
-                    size="sm"
-                    variant="dark"
-                  >Ver órdenes médicas</b-button>
-                  <b-button
-                    @click="addNotasEnfermeria(props.rowData.id)"
+                    @click="abrirModalCombinado('orden', props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="dark"
                     :disabled="!hasPermission([10])"
-                  >Agregar notas de enfermería</b-button>
+                  >Órdenes médicas</b-button>
 
                   <b-button
-                    @click="verNotasEnfermeria(props.rowData.id)"
+                    @click="abrirModalCombinado('notas', props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="success"
-                  >Ver notas de enfermería</b-button>
+                    :disabled="!hasPermission([10])"
+                  >Notas de enfermería</b-button>
+
                   <b-button
                       v-b-tooltip.top="['PENDIENTE', ' ', null].includes(props.rowData.cuentas[0].motivo) ? 'Agregar nota de ingreso' : 'Modificar nota de ingreso'"
                       @click="setData(props.rowData); $bvModal.show('modal-4-nota')"
@@ -2024,6 +1971,8 @@ export default {
       ],
       servicios: [],
       honorarioOk: '',
+      avisoModal: '',
+      expedienteConsumos: null,
       honorario: {
         medico: null,
         lugar: 'Emergencia',
@@ -2351,7 +2300,6 @@ export default {
             return
           }
         }
-        this.$refs['modal-1-movimiento'].hide()
         // Un solo request: todos los consumos en una transaccion.
         await axios.post(apiUrl + '/detalle_consumos/batch', {
           form: {
@@ -2374,6 +2322,10 @@ export default {
         this.showAlert()
         // Resetear y cerrar
         this.consumosTemporales = []
+        // Queda abierto: se refrescan los consumos realizados y los totales.
+        this.avisoModal = 'Consumos registrados exitosamente.'
+        this.refrescarConsumos()
+        if (this.expedienteConsumos) this.getConsumoMedicamentos(this.expedienteConsumos)
       } catch (error) {
         this.alertVariant = 'danger'
         this.alertText = 'Error al guardar consumos'
@@ -2408,6 +2360,7 @@ export default {
       this.consumosTemporales = this.consumosTemporales.filter(item => item.id !== id)
     },
     mostrarModalConsumos (idCuenta) {
+      this.expedienteConsumos = idCuenta
       this.setPaciente(idCuenta)
       if ([9, 10].includes(this.currentUser.user_type)) {
         this.showModal('modal-1-movimiento2')
@@ -2416,16 +2369,6 @@ export default {
       }
       this.getConsumoMedicamentos(idCuenta)
       this.obtenerIdCuenta(idCuenta)
-    },
-    mostrarVerServicio (id) {
-      this.setPaciente(id)
-      if ([9, 10].includes(this.currentUser.user_type)) {
-        this.$refs['modal-ver-servicio2'].show()
-      } else {
-        this.$refs['modal-ver-servicio'].show()
-      }
-      this.getDataConsumos(id)
-      this.form.id_consumo = id
     },
     hasPermission (blockedRoles = []) {
       return !blockedRoles.includes(this.currentUser.user_type)
@@ -2517,15 +2460,6 @@ export default {
           this.form.selected_insumo = '0'
           break
         }
-        case 'ver-receta': {
-          this.$v.$reset()
-          this.$refs['modal-ver-receta'].hide()
-          this.form.id = 0
-          this.form.name = ''
-          this.form.state = 1
-          this.form.id_receta = null
-          break
-        }
         case 'add-servicio': {
           this.$v.$reset()
           this.$refs['modal-add-servicio'].hide()
@@ -2535,46 +2469,6 @@ export default {
           this.form.cantidad = null
           this.servicio = null
           this.form.servicio = null
-          break
-        }
-        case 'ver-servicio': {
-          this.$v.$reset()
-          this.$refs['modal-ver-servicio'].hide()
-          this.form.id = 0
-          this.form.name = ''
-          this.form.state = 1
-          this.honorarios = []
-          this.pagination.currentPage = 1
-          this.pagination.total = 0
-          this.honorario = {
-            medico: null,
-            descripcion: '',
-            total: null
-          }
-          break
-        }
-        case 'ver-servicio2': {
-          this.$v.$reset()
-          this.$refs['modal-ver-servicio2'].hide()
-          this.form.id = 0
-          this.form.name = ''
-          this.form.state = 1
-          this.honorarios = []
-          this.pagination.currentPage = 1
-          this.pagination.total = 0
-          this.honorario = {
-            medico: null,
-            descripcion: '',
-            total: null
-          }
-          break
-        }
-        case 'ver-honorarios': {
-          this.$v.$reset()
-          this.$refs['modal-ver-honorarios'].hide()
-          this.form.id = 0
-          this.form.name = ''
-          this.form.state = 1
           break
         }
         case 'add-honorarios': {
@@ -2790,22 +2684,35 @@ export default {
           console.error('Error!', error)
         })
     },
-    addReceta (id) {
-      this.$refs['modal-add-receta'].show()
-      this.form.id = id
+    // Modales combinados (como Consumos): arriba se agrega y abajo se ve lo ya
+    // registrado. Guardar no cierra el modal; solo Cerrar o la X.
+    abrirModalCombinado (tipo, id) {
+      this.setPaciente(id)
+      this.avisoModal = ''
+      const notas = {
+        receta: ['modal-add-receta', 'getDataRecetas', 'Ver receta'],
+        evolucion: ['modal-add-evolucion', 'getDataEvoluciones', 'Ver evolución del paciente'],
+        orden: ['modal-add-orden', 'getDataOrdenes', 'Ver órdenes del paciente'],
+        notas: ['modal-add-notas-enfermeria', 'getDataNotas', 'Ver notas de enfermería del paciente']
+      }
+      if (notas[tipo]) {
+        const [modal, cargar, titulo] = notas[tipo]
+        this.tituloVer = titulo
+        this.form.id_receta = id
+        this[cargar](id)
+        this.$refs[modal].show()
+      } else if (tipo === 'servicio') {
+        this.getDataConsumos(id)
+        this.form.id_consumo = id
+        this.addServicio(id)
+      } else if (tipo === 'honorarios') {
+        this.pagination.currentPage = 1
+        this.obtenerIdCuenta(id)
+        this.getDataHonorarios(id)
+        this.showModal('modal-add-honorarios')
+      }
     },
-    addEvolucion (id) {
-      this.$refs['modal-add-evolucion'].show()
-      this.form.id = id
-    },
-    addOrdenes (id) {
-      this.$refs['modal-add-orden'].show()
-      this.form.id = id
-    },
-    addNotasEnfermeria (id) {
-      this.$refs['modal-add-notas-enfermeria'].show()
-      this.form.id = id
-    },
+
     saveReceta () {
       const me = this
       if (me.form.receta !== null) {
@@ -2816,8 +2723,10 @@ export default {
             me.showAlert()
             me.alertText = 'Se ha creado la receta exitosamente'
             me.$refs.vuetable.refresh()
-            me.closeModal('add-receta')
-            me.form.id = 0
+            // Queda abierto: se limpia el campo y se refresca la lista de abajo.
+            me.form.receta = null
+            me.avisoModal = 'Guardado correctamente.'
+            if (me.$refs.vuetableRecetas) me.$refs.vuetableRecetas.refresh()
           })
           .catch((error) => {
             me.alertVariant = 'danger'
@@ -2837,8 +2746,10 @@ export default {
             me.showAlert()
             me.alertText = 'Se ha creado la nota de evolución exitosamente'
             me.$refs.vuetable.refresh()
-            me.closeModal('add-evolucion')
-            me.form.id = 0
+            // Queda abierto: se limpia el campo y se refresca la lista de abajo.
+            me.form.evolucion = null
+            me.avisoModal = 'Guardado correctamente.'
+            if (me.$refs.vuetableRecetas) me.$refs.vuetableRecetas.refresh()
           })
           .catch((error) => {
             me.alertVariant = 'danger'
@@ -2858,8 +2769,10 @@ export default {
             me.showAlert()
             me.alertText = 'Se ha creado la orden médica exitosamente'
             me.$refs.vuetable.refresh()
-            me.closeModal('add-orden')
-            me.form.id = 0
+            // Queda abierto: se limpia el campo y se refresca la lista de abajo.
+            me.form.orden = null
+            me.avisoModal = 'Guardado correctamente.'
+            if (me.$refs.vuetableRecetas) me.$refs.vuetableRecetas.refresh()
           })
           .catch((error) => {
             me.alertVariant = 'danger'
@@ -2879,8 +2792,10 @@ export default {
             me.showAlert()
             me.alertText = 'Se ha creado la nota de enfermería exitosamente'
             me.$refs.vuetable.refresh()
-            me.closeModal('add-notas-enfermeria')
-            me.form.id = 0
+            // Queda abierto: se limpia el campo y se refresca la lista de abajo.
+            me.form.notas = null
+            me.avisoModal = 'Guardado correctamente.'
+            if (me.$refs.vuetableRecetas) me.$refs.vuetableRecetas.refresh()
           })
           .catch((error) => {
             me.alertVariant = 'danger'
@@ -2889,30 +2804,6 @@ export default {
             console.error('Error!', error)
           })
       }
-    },
-    verReceta (id) {
-      this.$refs['modal-ver-receta'].show()
-      this.getDataRecetas(id)
-      this.form.id_receta = id
-      this.tituloVer = 'Ver receta'
-    },
-    verEvolucion (id) {
-      this.$refs['modal-ver-receta'].show()
-      this.getDataEvoluciones(id)
-      this.form.id_receta = id
-      this.tituloVer = 'Ver evolución del paciente'
-    },
-    verOrden (id) {
-      this.$refs['modal-ver-receta'].show()
-      this.getDataOrdenes(id)
-      this.form.id_receta = id
-      this.tituloVer = 'Ver órdenes del paciente'
-    },
-    verNotasEnfermeria (id) {
-      this.$refs['modal-ver-receta'].show()
-      this.getDataNotas(id)
-      this.form.id_receta = id
-      this.tituloVer = 'Ver notas de enfermería del paciente'
     },
     addServicio (id) {
       this.setPaciente(id)
@@ -2946,8 +2837,12 @@ export default {
             me.showAlert()
             me.alertText = 'Se ha creado el consumo de un servicio exitosamente'
             me.$refs.vuetable.refresh()
-            me.closeModal('add-servicio')
-            me.form.id = 0
+            // Queda abierto: se limpia el formulario y se refresca la lista de abajo.
+            me.form.cantidad = null
+            me.servicio = null
+            me.form.servicio = null
+            me.avisoModal = 'Servicio agregado correctamente.'
+            if (me.$refs.vuetableConsumos) me.$refs.vuetableConsumos.refresh()
             me.selectedPersonal = []
             me.oxigenoHoras = 0
             me.oxigenoMinutos = 0
@@ -2989,6 +2884,7 @@ export default {
         .then(() => {
           me.honorarioOk = `Honorario de ${me.honorario.medico.nombre} por Q${parseFloat(me.honorario.total).toFixed(2)} agregado. Puede agregar otro.`
           me.honorario = { medico: null, descripcion: '', total: null }
+          me.getDataHonorarios(me.currentExpedienteId)
           me.$refs.vuetable.refresh()
         })
         .catch((error) => {
@@ -3000,13 +2896,11 @@ export default {
     limpiarHonorario () {
       this.honorario = { medico: null, descripcion: '', total: null }
       this.honorarioOk = ''
+      this.honorarios = []
+      this.pagination.total = 0
     },
     showModal (modalId) {
       this.$bvModal.show(modalId)
-    },
-    verHonorarios (id) {
-      this.obtenerIdCuenta(id)
-      this.$refs['modal-ver-honorarios'].show()
     },
     /* Guardar */
     onUpdate () {
