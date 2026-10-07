@@ -84,6 +84,18 @@ const piesGenerales = (data) => [
 
 const nombreArchivo = (prefijo, data, ext) => `${prefijo}_${data.paciente.nombre.replace(/\s+/g, '_')}.${ext}`
 
+// En el Excel, material quirurgico y material comun van como filas seguidas debajo
+// de los medicamentos (una sola tabla), para que puedan presentarse como una sola
+// categoria o borrar filas sueltas.
+const UNIDAS = ['MEDICAMENTOS SUMINISTRADOS', 'MATERIAL MÉDICO QUIRÚRGICO', 'MATERIAL COMÚN']
+const unirMateriales = (secciones) => {
+  const partes = UNIDAS.map(t => secciones.find(s => s.titulo === t)).filter(Boolean)
+  if (!partes.length) return secciones
+  const unida = { ...partes[0], titulo: 'MEDICAMENTOS SUMINISTRADOS', cols: PRODUCTO, items: partes.flatMap(s => s.items) }
+  const primera = secciones.find(s => UNIDAS.includes(s.titulo))
+  return secciones.filter(s => !UNIDAS.includes(s.titulo) || s === primera).map(s => (s === primera ? unida : s))
+}
+
 export async function excelDetalle (data, titulo, prefijo) {
   const wb = new ExcelJS.Workbook()
   const ws = wb.addWorksheet('Cuenta detallada')
@@ -96,37 +108,65 @@ export async function excelDetalle (data, titulo, prefijo) {
     if (opciones.fondo) r.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: opciones.fondo } }
     return r
   }
+  // El importe siempre va en la columna F; las demas columnas de la seccion, de A en adelante.
+  const enF = (valores) => [...valores.slice(0, -1), ...Array(6 - valores.length).fill(''), valores[valores.length - 1]]
+  // Totales con formulas: si borran una fila, Excel recalcula seccion, subtotal y total.
+  const total = (r, refs, valor) => {
+    const c = r.getCell(6)
+    c.value = refs.length ? { formula: refs.length === 1 && refs[0].includes(':') ? `SUM(${refs[0]})` : `SUM(${refs.join(',')})`, result: valor } : 0
+    c.numFmt = moneda
+  }
 
   encabezado(data, titulo).forEach((t, i) => {
     const r = fila([t], { merge: true, bold: i < 2 })
     if (i < 2) r.alignment = { horizontal: 'center' }
   })
 
+  const refsGenerales = []
   for (const b of bloques(data)) {
     if (b.titulo) {
       fila([])
       fila([b.titulo], { merge: true, bold: true, fondo: 'FFD9E1F2' })
     }
-    for (const s of b.secciones) {
+    const refsBloque = []
+    for (const s of unirMateriales(b.secciones)) {
       fila([])
       fila([s.titulo], { merge: true, bold: true, fondo: 'FFEDEDED' })
-      fila(s.cols.map(c => c[0]), { bold: true })
+      fila(enF(s.cols.map(c => c[0])), { bold: true })
+      let desde = null
+      let hasta = null
       for (const i of s.items) {
-        const r = fila(s.cols.map(c => i[c[1]] ?? ''))
-        r.getCell(s.cols.length).numFmt = moneda
+        const r = fila(enF(s.cols.map(c => i[c[1]] ?? '')))
+        r.getCell(6).numFmt = moneda
+        desde = desde || r.number
+        hasta = r.number
       }
-      fila([`TOTAL: ${q(suma(s.items))}`], { bold: true })
+      const rt = fila(['TOTAL:'], { bold: true })
+      total(rt, desde ? [`F${desde}:F${hasta}`] : [], suma(s.items))
+      refsBloque.push(`F${rt.number}`)
     }
     if (!b.secciones.length) fila(['Sin cargos registrados'])
-    for (const [etq, val] of b.pie) {
-      const r = fila(['', '', '', '', etq, val], { bold: true })
-      r.getCell(6).numFmt = moneda
+    if (b.pie.length) {
+      const [[etq, val], ...resto] = b.pie
+      const r = fila(['', '', '', '', etq], { bold: true })
+      total(r, refsBloque, val)
+      refsGenerales.push(`F${r.number}`)
+      for (const [e, v] of resto) {
+        const x = fila(['', '', '', '', e, v], { bold: true })
+        x.getCell(6).numFmt = moneda
+      }
+    } else {
+      refsGenerales.push(...refsBloque)
     }
   }
 
   fila([])
-  for (const [etq, val] of piesGenerales(data)) {
-    const r = fila(['', '', '', '', etq, val], { bold: true })
+  const sub = fila(['', '', '', '', 'SUBTOTAL='], { bold: true })
+  total(sub, refsGenerales, data.totalGeneral)
+  const tot = fila(['', '', '', '', 'TOTAL='], { bold: true })
+  total(tot, [`F${sub.number}`], data.totalGeneral)
+  if (data.totalPagado) {
+    const r = fila(['', '', '', '', 'TOTAL PAGADO=', data.totalPagado], { bold: true })
     r.getCell(6).numFmt = moneda
   }
   ws.getColumn(2).alignment = { wrapText: true, vertical: 'top' }
