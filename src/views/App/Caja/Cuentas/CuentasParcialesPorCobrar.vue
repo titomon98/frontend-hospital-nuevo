@@ -267,6 +267,7 @@ import { apiUrl } from '../../../../config/constant'
 import { mapGetters } from 'vuex'
 import JsPDF from 'jspdf'
 import 'jspdf-autotable'
+import { totalOxigeno } from '../../../../Utils/oxigeno'
 
 export default {
   name: 'CuentasPorCobrarHospital',
@@ -671,6 +672,7 @@ export default {
 
       try {
         const ConsumoTotal = data.consumos.reduce((acc, item) => acc + parseFloat(item.subtotal), 0)
+        const OxigenoTotal = totalOxigeno(data.consumos)
         const ConsumoComunTotal = data.consumosComunes.reduce((acc, item) => acc + parseFloat(item.total), 0)
         const ConsumoMedicamentosTotal = data.consumosMedicamentos.reduce((acc, item) => acc + parseFloat(item.total), 0)
         const ConsumoQuirurgicosTotal = data.consumosQuirurgicos.reduce((acc, item) => acc + parseFloat(item.total), 0)
@@ -734,7 +736,8 @@ export default {
             ['MATERIAL MEDICO QUIRÚRGICO', `Q${ConsumoQuirurgicosTotal.toFixed(2)}`],
             ['ANESTESICOS', ''],
             ['MATERIAL COMÚN', `Q${ConsumoComunTotal.toFixed(2)}`],
-            ['SERVICIOS', `Q${ConsumoTotal.toFixed(2)}`],
+            ['OXÍGENO', `Q${OxigenoTotal.toFixed(2)}`],
+            ['SERVICIOS', `Q${(ConsumoTotal - OxigenoTotal).toFixed(2)}`],
             ['RECUPERACION', ''],
             ['INTENSIVO', `Q 0.00`],
             ['EMERGENCIAS  Medico Interno', ''],
@@ -753,7 +756,7 @@ export default {
           didParseCell: function (data) {
             const rowIndex = data.row.index
             const colIndex = data.column.index
-            if (rowIndex >= 11 && colIndex === 0) {
+            if (rowIndex >= 12 && colIndex === 0) {
               data.cell.styles.halign = 'right'
             }
           }

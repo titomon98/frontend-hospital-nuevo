@@ -382,6 +382,7 @@ import { mapGetters } from 'vuex'
 import JsPDF from 'jspdf'
 import logoHospital from '@/assets/images/logo.png'
 import 'jspdf-autotable'
+import { totalOxigeno } from '../../../../Utils/oxigeno'
 
 export default {
   name: 'CuentasPorCobrarHospital',
@@ -999,13 +1000,20 @@ export default {
       doc.text('_________________', 150, totalY += 1)
       totalY -= 1
 
+      const totalOxigeno = parseFloat(data.totalOxigeno) || 0
+      doc.text('OXÍGENO', 20, totalY += 7)
+      doc.text('___________________________', 20, totalY += 1)
+      doc.text(`Q. ${totalOxigeno.toFixed(2)}`, 150, totalY -= 1)
+      doc.text('_________________', 150, totalY += 1)
+      totalY -= 1
+
       doc.text('OTROS', 20, totalY += 7)
       doc.text('___________________________', 20, totalY += 1)
       doc.text(`Q. ${data.totalOtros.toFixed(2)}`, 150, totalY -= 1)
       doc.text('_________________', 150, totalY += 1)
       totalY -= 1
 
-      const subtotalConsumos = data.totalMedicamentos + data.totalQuirurgico + data.totalAnestesicos + data.totalComun + data.totalOtros
+      const subtotalConsumos = data.totalMedicamentos + data.totalQuirurgico + data.totalAnestesicos + data.totalComun + totalOxigeno + data.totalOtros
 
       doc.text('TOTAL ............................................................................................................', 20, totalY += 7)
       doc.text(`Q. ${subtotalConsumos.toFixed(2)}`, 150, totalY -= 1)
@@ -1088,7 +1096,8 @@ export default {
         const ConsumoAnestesicosTotal = (data.consumosAnestesicos || []).reduce((acc, item) => acc + parseFloat(item.total), 0)
         const ConsumoQuirurgicosTotal = data.consumosQuirurgicos.reduce((acc, item) => acc + parseFloat(item.total), 0)
         // Los servicios se muestran sumados dentro de material médico quirúrgico.
-        const MaterialQuirurgicoConServicios = ConsumoQuirurgicosTotal + ConsumoTotal
+        const OxigenoTotal = totalOxigeno(data.consumos)
+        const MaterialQuirurgicoConServicios = ConsumoQuirurgicosTotal + ConsumoTotal - OxigenoTotal
         const ExamenesTotal = data.examenes.reduce((acc, item) => acc + parseFloat(item.total), 0)
         const ServicioSalaOperacionesTotal = data.salaOperaciones.reduce((acc, item) => acc + parseFloat(item.total), 0)
         const TotalHonorarios = data.honorarios.reduce((acc, item) => acc + parseFloat(item.total), 0)
@@ -1150,6 +1159,7 @@ export default {
             ['MATERIAL MEDICO QUIRÚRGICO', `Q${MaterialQuirurgicoConServicios.toFixed(2)}`],
             ['ANESTESICOS', `Q${ConsumoAnestesicosTotal.toFixed(2)}`],
             ['MATERIAL COMÚN', `Q${ConsumoComunTotal.toFixed(2)}`],
+            ['OXÍGENO', `Q${OxigenoTotal.toFixed(2)}`],
             ['RECUPERACION', ''],
             ['INTENSIVO', `Q 0.00`],
             ['EMERGENCIAS  Medico Interno', ''],
@@ -1168,7 +1178,7 @@ export default {
           didParseCell: function (data) {
             const rowIndex = data.row.index
             const colIndex = data.column.index
-            if (rowIndex >= 11 && colIndex === 0) {
+            if (rowIndex >= 12 && colIndex === 0) {
               data.cell.styles.halign = 'right'
             }
           }

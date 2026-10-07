@@ -125,13 +125,20 @@ export default {
       doc.text('_________________', 150, totalY += 1)
       totalY -= 1
 
+      const totalOxigeno = parseFloat(data.totalOxigeno) || 0
+      doc.text('OXÍGENO', 20, totalY += 7)
+      doc.text('___________________________', 20, totalY += 1)
+      doc.text(`Q. ${totalOxigeno.toFixed(2)}`, 150, totalY -= 1)
+      doc.text('_________________', 150, totalY += 1)
+      totalY -= 1
+
       doc.text('OTROS', 20, totalY += 7)
       doc.text('___________________________', 20, totalY += 1)
       doc.text(`Q. ${data.totalOtros.toFixed(2)}`, 150, totalY -= 1)
       doc.text('_________________', 150, totalY += 1)
       totalY -= 1
 
-      const subtotalConsumos = data.totalMedicamentos + data.totalQuirurgico + data.totalAnestesicos + data.totalComun + data.totalOtros
+      const subtotalConsumos = data.totalMedicamentos + data.totalQuirurgico + data.totalAnestesicos + data.totalComun + totalOxigeno + data.totalOtros
 
       doc.text('TOTAL ............................................................................................................', 20, totalY += 7)
       doc.text(`Q. ${subtotalConsumos.toFixed(2)}`, 150, totalY -= 1)

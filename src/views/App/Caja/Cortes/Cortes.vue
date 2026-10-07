@@ -283,6 +283,7 @@ import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
 import JsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
+import { totalOxigeno } from '../../../../Utils/oxigeno'
 import { mapGetters } from 'vuex'
 import moment from 'moment'
 import logo from '../../../../../src/assets/images/logo.png'
@@ -624,7 +625,8 @@ export default {
         const ConsumoAnestesicosTotal = (data.consumosAnestesicos || []).reduce((acc, item) => acc + parseFloat(item.total), 0)
         const ConsumoQuirurgicosTotal = data.consumosQuirurgicos.reduce((acc, item) => acc + parseFloat(item.total), 0)
         // Los servicios se muestran sumados dentro de material médico quirúrgico.
-        const MaterialQuirurgicoConServicios = ConsumoQuirurgicosTotal + ConsumoTotal
+        const OxigenoTotal = totalOxigeno(data.consumos)
+        const MaterialQuirurgicoConServicios = ConsumoQuirurgicosTotal + ConsumoTotal - OxigenoTotal
         const ExamenesTotal = data.examenes.reduce((acc, item) => acc + parseFloat(item.total), 0)
         const ServicioSalaOperacionesTotal = data.salaOperaciones.reduce((acc, item) => acc + parseFloat(item.total), 0)
         const TotalHonorarios = data.honorarios.reduce((acc, item) => acc + parseFloat(item.total), 0)
@@ -658,6 +660,7 @@ export default {
             ['MATERIAL MEDICO QUIRÚRGICO', `Q${MaterialQuirurgicoConServicios.toFixed(2)}`],
             ['ANESTESICOS', `Q${ConsumoAnestesicosTotal.toFixed(2)}`],
             ['MATERIAL COMÚN', `Q${ConsumoComunTotal.toFixed(2)}`],
+            ['OXÍGENO', `Q${OxigenoTotal.toFixed(2)}`],
             ['INTENSIVO', 'Q 0.00'],
             ['EMERGENCIAS  Medico Interno', ''],
             ['OTROS', ''],

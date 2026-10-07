@@ -1545,6 +1545,7 @@ import moment from 'moment'
 import { mapGetters } from 'vuex'
 import JsPDF from 'jspdf'
 import 'jspdf-autotable'
+import { totalOxigeno } from '../../../../Utils/oxigeno'
 import Multiselect from 'vue-multiselect'
 import RevisarConsumos from '../../../../components/RevisarConsumos'
 import { claseFilaDiaNoche } from '../../../../config/fechas'
@@ -4335,7 +4336,9 @@ export default {
         doc.text(`${data.nombremedico}`, 36, 34)
         doc.text('______________________________________________________________________________________________________', 36, 35)
 
-        ConsumoQuirurgicosTotal = parseFloat(ConsumoQuirurgicosTotal) + parseFloat(ConsumoTotal)
+        // Los servicios van dentro de material quirúrgico, salvo el oxígeno que tiene su propio rubro.
+        const OxigenoTotal = totalOxigeno(data.consumos)
+        ConsumoQuirurgicosTotal = parseFloat(ConsumoQuirurgicosTotal) + parseFloat(ConsumoTotal) - OxigenoTotal
         doc.autoTable({
           body: [
             ['HOSPITALIZACION', `Q${UsoHabitaciones.toFixed(2)}`],
@@ -4344,6 +4347,7 @@ export default {
             ['MATERIAL MEDICO QUIRÚRGICO', `Q${ConsumoQuirurgicosTotal.toFixed(2)}`],
             ['ANESTESICOS', `Q${ConsumoAnestesicosTotal.toFixed(2)}`],
             ['MATERIAL COMÚN', `Q${ConsumoComunTotal.toFixed(2)}`],
+            ['OXÍGENO', `Q${OxigenoTotal.toFixed(2)}`],
             ['RECUPERACION', ''],
             ['INTENSIVO', `Q${UsoIntensivo.toFixed(2)}`],
             ['EMERGENCIAS  Medico Interno', `Q${EmergenciasMedicoInterno.toFixed(2)}`],
@@ -4362,7 +4366,7 @@ export default {
           didParseCell: function (data) {
             const rowIndex = data.row.index
             const colIndex = data.column.index
-            if (rowIndex >= 10 && colIndex === 0) {
+            if (rowIndex >= 11 && colIndex === 0) {
               data.cell.styles.halign = 'right'
             }
           }
