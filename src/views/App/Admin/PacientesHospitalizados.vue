@@ -288,22 +288,7 @@
       </template>
     </b-modal>
 
-    <!-- Historial de cuentas (resumen de montos), reutilizado tal cual -->
-    <b-modal id="HistorialCuenta" title="Historial de las Cuentas" size="lg">
-      <div class="modal-body">
-        <p><strong>Total consumo de servicios:</strong> Q{{ reporteHisotiral.ConsumoTotal }}</p>
-        <p><strong>Total consumo de materiales comunes:</strong> Q{{ reporteHisotiral.ConsumoComunTotal }}</p>
-        <p><strong>Total consumo de medicamentos:</strong> Q{{ reporteHisotiral.ConsumoMedicamentosTotal }}</p>
-        <p><strong>Total consumo de materiales quirúrgicos:</strong> Q{{ reporteHisotiral.ConsumoQuirurgicosTotal }}</p>
-        <p><strong>Total de exámenes realizados:</strong> Q{{ reporteHisotiral.ExamenesTotal }}</p>
-        <p><strong>Total de servicios en sala de operaciones:</strong> Q{{ reporteHisotiral.ServicioSalaOperacionesTotal }}</p>
-        <hr />
-      </div>
-      <template #modal-footer>
-        <b-button variant="primary" @click="generarPDF_Historial">Generar PDF</b-button>
-        <b-button variant="secondary" @click="$bvModal.hide('HistorialCuenta')">Cerrar</b-button>
-      </template>
-    </b-modal>
+    <HistorialCuentaModal ref="historialCuenta" />
 
     <b-row>
       <b-col md="12">
@@ -416,13 +401,14 @@ import axios from 'axios'
 import { apiUrl } from '../../../config/constant'
 import moment from 'moment'
 import { mapGetters } from 'vuex'
-import JsPDF from 'jspdf'
 import 'jspdf-autotable'
 import { claseFilaDiaNoche } from '../../../config/fechas'
+import HistorialCuentaModal from '../../../components/HistorialCuentaModal'
 
 export default {
   name: 'PacientesHospitalizados',
   components: {
+    HistorialCuentaModal,
     vuetable: Vuetable,
     'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
     'datatable-heading': DatatableHeading
@@ -474,16 +460,6 @@ export default {
       alertText: '',
       alertErrorText: '',
       alertVariant: '',
-      dataPDF_Historial: null,
-      reporteHisotiral: {
-        ConsumoTotal: '0.00',
-        ConsumoComunTotal: '0.00',
-        ConsumoMedicamentosTotal: '0.00',
-        ConsumoQuirurgicosTotal: '0.00',
-        ExamenesTotal: '0.00',
-        ServicioSalaOperacionesTotal: '0.00',
-        TotalDeuda: '0.00'
-      },
       fields: [
         {
           name: '__slot:actions',
@@ -999,120 +975,8 @@ export default {
         limit: this.perPage
       }
     },
-    /* HISTORIAL DE CUENTAS (resumen de montos), reutilizado tal cual */
     generarHistorialCuentas (id) {
-      axios.get(apiUrl + `/consumos/historial/${id}`)
-        .then((response) => {
-          const historial = response.data
-          this.dataPDF_Historial = response.data
-          this.mostrarHistorial(historial)
-        })
-        .catch((error) => {
-          console.error('Error al generar el reporte de cuenta:', error)
-          this.alertErrorText = 'Hubo un problema al generar el reporte. Por favor, intente nuevamente.'
-          this.showAlertError()
-        })
-    },
-    mostrarHistorial (historial) {
-      let totalDeuda = 0
-
-      const ConsumoTotal = historial.Consumo.reduce((acc, item) => acc + (parseFloat(item.subtotal) || 0), 0)
-      const ConsumoComunTotal = historial['Consumo Comun'].reduce((acc, item) => acc + (parseFloat(item.total) || 0), 0)
-      const ConsumoMedicamentosTotal = historial['Consumo Medicamentos'].reduce((acc, item) => acc + (parseFloat(item.total) || 0), 0)
-      const ConsumoQuirurgicosTotal = historial['Consumo Quirurgicos'].reduce((acc, item) => acc + (parseFloat(item.total) || 0), 0)
-      const ExamenesTotal = historial.Examenes.reduce((acc, item) => acc + (parseFloat(item.total) || 0), 0)
-      const ServicioSalaOperacionesTotal = historial.ServicioSalaOperaciones.reduce((acc, item) => acc + (parseFloat(item.total) || 0), 0)
-
-      totalDeuda = parseFloat(ConsumoTotal) + parseFloat(ConsumoComunTotal) + parseFloat(ConsumoMedicamentosTotal) + parseFloat(ConsumoQuirurgicosTotal) + parseFloat(ExamenesTotal) + parseFloat(ServicioSalaOperacionesTotal)
-
-      this.reporteHisotiral = {
-        ConsumoTotal: this.formatearMonto(ConsumoTotal),
-        ConsumoComunTotal: this.formatearMonto(ConsumoComunTotal),
-        ConsumoMedicamentosTotal: this.formatearMonto(ConsumoMedicamentosTotal),
-        ConsumoQuirurgicosTotal: this.formatearMonto(ConsumoQuirurgicosTotal),
-        ExamenesTotal: this.formatearMonto(ExamenesTotal),
-        ServicioSalaOperacionesTotal: this.formatearMonto(ServicioSalaOperacionesTotal),
-        TotalDeuda: this.formatearMonto(totalDeuda)
-      }
-
-      this.$bvModal.show('HistorialCuenta')
-    },
-    generarPDF_Historial () {
-      const doc = new JsPDF()
-      let y = 20
-      doc.setFontSize(18)
-      doc.text('Reporte de Historial de Cuenta', 14, y)
-      y += 10
-      doc.setFontSize(12)
-
-      const datos = this.dataPDF_Historial
-      const nombrePaciente = (datos && datos.nombrePaciente) || ''
-      const nombreArchivo = nombrePaciente.trim().replace(/\s+/g, '_').replace(/[\\/:*?"<>|]/g, '')
-      const archivoHistorial = nombreArchivo ? `historial_cuenta_${nombreArchivo}.pdf` : 'historial_cuenta.pdf'
-      if (nombrePaciente) {
-        doc.text(`Paciente: ${nombrePaciente}`, 14, y)
-        y += 8
-      }
-      if (!datos) {
-        doc.text('No hay datos disponibles.', 14, y)
-        doc.save(archivoHistorial)
-        return
-      }
-
-      if (datos.Consumo && datos.Consumo.length > 0) {
-        const consumosData = datos.Consumo.map(consumo => ([
-          consumo.descripcion || '',
-          consumo.subtotal || '0.00',
-          consumo.createdAt ? moment(consumo.createdAt).format('DD/MM/YYYY HH:mm') : ''
-        ]))
-        doc.text('Consumo de Servicios', 14, y)
-        y += 4
-        doc.autoTable({ startY: y, head: [['Descripción', 'Subtotal', 'Fecha']], body: consumosData })
-        y = doc.lastAutoTable.finalY + 10
-      }
-
-      if (datos['Consumo Comun'] && datos['Consumo Comun'].length > 0) {
-        const data = datos['Consumo Comun'].map(c => ([c.descripcion || '', c.total || '0.00']))
-        doc.text('Consumo de Material Común', 14, y)
-        y += 4
-        doc.autoTable({ startY: y, head: [['Descripción', 'Total']], body: data })
-        y = doc.lastAutoTable.finalY + 10
-      }
-
-      if (datos['Consumo Medicamentos'] && datos['Consumo Medicamentos'].length > 0) {
-        const data = datos['Consumo Medicamentos'].map(c => ([c.descripcion || '', c.total || '0.00']))
-        doc.text('Consumo de Medicamentos', 14, y)
-        y += 4
-        doc.autoTable({ startY: y, head: [['Descripción', 'Total']], body: data })
-        y = doc.lastAutoTable.finalY + 10
-      }
-
-      if (datos['Consumo Quirurgicos'] && datos['Consumo Quirurgicos'].length > 0) {
-        const data = datos['Consumo Quirurgicos'].map(c => ([c.descripcion || '', c.total || '0.00']))
-        doc.text('Consumo de Material Quirúrgico', 14, y)
-        y += 4
-        doc.autoTable({ startY: y, head: [['Descripción', 'Total']], body: data })
-        y = doc.lastAutoTable.finalY + 10
-      }
-
-      if (datos.Examenes && datos.Examenes.length > 0) {
-        const data = datos.Examenes.map(e => ([e.expediente || '', e.total || '0.00']))
-        doc.text('Exámenes Realizados', 14, y)
-        y += 4
-        doc.autoTable({ startY: y, head: [['Examen', 'Total']], body: data })
-        y = doc.lastAutoTable.finalY + 10
-      }
-
-      if (datos.ServicioSalaOperaciones && datos.ServicioSalaOperaciones.length > 0) {
-        const data = datos.ServicioSalaOperaciones.map(s => ([s.descripcion || '', s.total || '0.00']))
-        doc.text('Servicios en Sala de Operaciones', 14, y)
-        y += 4
-        doc.autoTable({ startY: y, head: [['Descripción', 'Total']], body: data })
-        y = doc.lastAutoTable.finalY + 10
-      }
-
-      doc.text(`Total general: Q${this.reporteHisotiral.TotalDeuda}`, 14, y)
-      doc.save(archivoHistorial)
+      this.$refs.historialCuenta.abrir(id)
     }
   }
 }

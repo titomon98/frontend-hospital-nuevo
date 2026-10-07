@@ -1038,22 +1038,7 @@
         <b-button variant="danger" @click="closeModal('save2')">Cancelar</b-button>
       </template>
     </b-modal>
-    <b-modal id="HistorialCuenta" :title="tpModal('Historial de las Cuentas')" size="lg">
-      <div class="modal-body">
-        <p><strong>Total consumo de servicios:</strong> Q{{ reporteHisotiral.ConsumoTotal }}</p>
-        <p><strong>Total consumo de materiales comunes:</strong> Q{{ reporteHisotiral.ConsumoComunTotal }}</p>
-        <p><strong>Total consumo de medicamentos:</strong> Q{{ reporteHisotiral.ConsumoMedicamentosTotal }}</p>
-        <p><strong>Total consumo de materiales quirúrgicos:</strong> Q{{ reporteHisotiral.ConsumoQuirurgicosTotal }}</p>
-        <p><strong>Total de exámenes realizados:</strong> Q{{ reporteHisotiral.ExamenesTotal }}</p>
-        <p><strong>Total de servicios en sala de operaciones:</strong> Q{{ reporteHisotiral.ServicioSalaOperacionesTotal }}</p>
-        <hr />
-
-      </div>
-      <template #modal-footer>
-        <b-button variant="primary" @click="generarPDF_Historial">Generar PDF</b-button>
-        <b-button variant="secondary" @click="$bvModal.hide('HistorialCuenta')">Cerrar</b-button>
-      </template>
-    </b-modal>
+    <HistorialCuentaModal ref="historialCuenta" />
     <b-modal id="modal_agregar" size="xl" ref="modal_agregar" :title="tpModal('Ingresar nuevo examen')" @hidden="limpiarExamenModal">
       <b-alert
         :show="alertCountDownError"
@@ -1446,16 +1431,17 @@ import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
 import moment from 'moment'
 import { mapGetters } from 'vuex'
-import JsPDF from 'jspdf'
 import 'jspdf-autotable'
 import Multiselect from 'vue-multiselect'
 import RevisarConsumos from '../../../../components/RevisarConsumos'
 import { claseFilaDiaNoche } from '../../../../config/fechas'
+import HistorialCuentaModal from '../../../../components/HistorialCuentaModal'
 
 export default {
   mixins: [revisionConsumosMixin, reciboEmergenciaMixin],
   name: 'Emergencias',
   components: {
+    HistorialCuentaModal,
     vuetable: Vuetable,
     'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
     'datatable-heading': DatatableHeading,
@@ -2150,16 +2136,6 @@ export default {
       nombrePaciente: null,
       nacimientoPaciente: null,
       fechaIngreso: null,
-      dataPDF_Historial: null,
-      reporteHisotiral: {
-        ConsumoTotal: '0.00',
-        ConsumoComunTotal: '0.00',
-        ConsumoMedicamentosTotal: '0.00',
-        ConsumoQuirurgicosTotal: '0.00',
-        ExamenesTotal: '0.00',
-        ServicioSalaOperacionesTotal: '0.00',
-        TotalDeuda: '0.00'
-      },
       egreso: {
         motivo: null,
         diagnostico: null,
@@ -3570,157 +3546,7 @@ export default {
 
     /* HISTORIAL DE LAS CUENTAS DEL EXPEDIENTE */
     generarHistorialCuentas (id) {
-      axios.get(apiUrl + `/consumos/historial/${id}`)
-        .then((response) => {
-          const historial = response.data
-          this.dataPDF_Historial = response.data
-          this.mostrarHistorial(historial)
-        })
-        .catch((error) => {
-          console.error('Error al generar el reporte de cuenta:', error)
-          this.alertErrorText = 'Hubo un problema al generar el reporte. Por favor, intente nuevamente.'
-          this.showAlertError()
-        })
-    },
-
-    mostrarHistorial (historial) {
-      let totalDeuda = 0
-
-      const ConsumoTotal = historial.Consumo.reduce((acc, item) => {
-        return acc + (parseFloat(item.subtotal) || 0)
-      }, 0)
-
-      const ConsumoComunTotal = historial['Consumo Comun'].reduce((acc, item) => {
-        return acc + (parseFloat(item.total) || 0)
-      }, 0)
-
-      const ConsumoMedicamentosTotal = historial['Consumo Medicamentos'].reduce((acc, item) => {
-        return acc + (parseFloat(item.total) || 0)
-      }, 0)
-
-      const ConsumoQuirurgicosTotal = historial['Consumo Quirurgicos'].reduce((acc, item) => {
-        return acc + (parseFloat(item.total) || 0)
-      }, 0)
-
-      const ExamenesTotal = historial.Examenes.reduce((acc, item) => {
-        return acc + (parseFloat(item.total) || 0)
-      }, 0)
-
-      const ServicioSalaOperacionesTotal = historial.ServicioSalaOperaciones.reduce((acc, item) => {
-        return acc + (parseFloat(item.total) || 0)
-      }, 0)
-
-      totalDeuda = parseFloat(ConsumoTotal) + parseFloat(ConsumoComunTotal) + parseFloat(ConsumoMedicamentosTotal) + parseFloat(ConsumoQuirurgicosTotal) + parseFloat(ExamenesTotal) + parseFloat(ServicioSalaOperacionesTotal)
-      this.reporteHisotiral = {
-        ConsumoTotal: this.formatearMonto(ConsumoTotal),
-        ConsumoComunTotal: this.formatearMonto(ConsumoComunTotal),
-        ConsumoMedicamentosTotal: this.formatearMonto(ConsumoMedicamentosTotal),
-        ConsumoQuirurgicosTotal: this.formatearMonto(ConsumoQuirurgicosTotal),
-        ExamenesTotal: this.formatearMonto(ExamenesTotal),
-        ServicioSalaOperacionesTotal: this.formatearMonto(ServicioSalaOperacionesTotal),
-        TotalDeuda: this.formatearMonto(totalDeuda)
-      }
-
-      this.$bvModal.show('HistorialCuenta')
-    },
-
-    generarPDF_Historial () {
-      const doc = new JsPDF()
-      let y = 20
-      doc.setFontSize(18)
-      doc.text('Reporte de Historial de Cuenta', 14, y)
-      y += 10
-
-      const agregarTabla = (title, data) => {
-        doc.setFontSize(14)
-        doc.text(title, 14, y)
-        y += 10
-
-        const headers = ['Descripción', 'Cantidad', 'Precio Unitario', 'Subtotal']
-        doc.autoTable({
-          startY: y,
-          head: [headers],
-          body: data.map(item => [
-            item.descripcion,
-            item.cantidad.toString(),
-            item.precio_unitario.toString(),
-            item.subtotal.toString()
-          ]),
-          theme: 'striped',
-          margin: { top: 10 },
-          styles: { halign: 'center', fontSize: 10 },
-          headStyles: {
-            fillColor: [229, 31, 45], // Color de fondo para el encabezado (Azul en este caso)
-            textColor: [255, 255, 255] // Color de texto para el encabezado (Blanco en este caso)
-          }
-        })
-        y = doc.lastAutoTable.finalY + 10
-      }
-
-      // Agregar tabla para cada categoría
-      if (this.dataPDF_Historial.Consumo && this.dataPDF_Historial.Consumo.length > 0) {
-        const consumosData = this.dataPDF_Historial.Consumo.map(consumo => ({
-          descripcion: consumo.servicio.descripcion || '',
-          cantidad: consumo.cantidad || 0,
-          precio_unitario: consumo.servicio.precio || 0,
-          subtotal: consumo.subtotal || 0
-        }))
-        agregarTabla('Consumo de Servicios', consumosData)
-      }
-
-      if (this.dataPDF_Historial['Consumo Comun'] && this.dataPDF_Historial['Consumo Comun'].length > 0) {
-        const consumosComunesData = this.dataPDF_Historial['Consumo Comun'].map(consumo => ({
-          descripcion: consumo.comune.nombre || '',
-          cantidad: consumo.cantidad || 0,
-          precio_unitario: consumo.precio_venta || 0,
-          subtotal: consumo.total || 0
-        }))
-        agregarTabla('Consumo de Materiales Comunes', consumosComunesData)
-      }
-
-      if (this.dataPDF_Historial['Consumo Medicamentos'] && this.dataPDF_Historial['Consumo Medicamentos'].length > 0) {
-        const consumosMedicamentosData = this.dataPDF_Historial['Consumo Medicamentos'].map(consumo => ({
-          descripcion: consumo.medicamento.nombre || '',
-          cantidad: consumo.cantidad || 0,
-          precio_unitario: consumo.precio_venta || 0,
-          subtotal: consumo.total || 0
-        }))
-        agregarTabla('Consumo de Medicamentos', consumosMedicamentosData)
-      }
-
-      if (this.dataPDF_Historial['Consumo Quirurgicos'] && this.dataPDF_Historial['Consumo Quirurgicos'].length > 0) {
-        const consumosQuirurgicosData = this.dataPDF_Historial['Consumo Quirurgicos'].map(consumo => ({
-          descripcion: consumo.quirurgico.nombre || '',
-          cantidad: consumo.cantidad || 0,
-          precio_unitario: consumo.precio_venta || 0,
-          subtotal: consumo.total || 0
-        }))
-        agregarTabla('Consumo de Material Quirúrgico', consumosQuirurgicosData)
-      }
-
-      if (this.dataPDF_Historial.Examenes && this.dataPDF_Historial.Examenes.length > 0) {
-        const examenesData = this.dataPDF_Historial.Examenes.map(examen => ({
-          descripcion: examen.examenes_almacenado.nombre || '',
-          cantidad: 1,
-          precio_unitario: examen.total || 0,
-          subtotal: examen.total || 0
-        }))
-        agregarTabla('Exámenes Realizados', examenesData)
-      }
-
-      if (this.dataPDF_Historial.ServicioSalaOperaciones && this.dataPDF_Historial.ServicioSalaOperaciones.length > 0) {
-        const serviciosData = this.dataPDF_Historial.ServicioSalaOperaciones.map(servicio => ({
-          descripcion: servicio.descripcion || '',
-          cantidad: 1,
-          precio_unitario: servicio.total || 0,
-          subtotal: servicio.total || 0
-        }))
-        agregarTabla('Servicios en Sala de Operaciones', serviciosData)
-      }
-      y += 10
-
-      // Guardar el PDF
-      doc.save('reporte_historial.pdf')
+      this.$refs.historialCuenta.abrir(id)
     },
 
     /* AREA DE EXAMENES DE LABORATORIO */
