@@ -393,7 +393,9 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-add-honorarios" size="lg" ref="modal-add-honorarios" :title="tpModal('Agregar honorarios a medico')">
+    <!-- Queda abierto al guardar; con datos escritos solo se cierra con Cancelar o la X. -->
+    <b-modal id="modal-add-honorarios" size="lg" ref="modal-add-honorarios" :title="tpModal('Agregar honorarios a medico')"
+      :no-close-on-backdrop="honorarioConDatos" :no-close-on-esc="honorarioConDatos" @hidden="limpiarHonorario">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -403,6 +405,7 @@
       >
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
+      <b-alert :show="!!honorarioOk" variant="success" dismissible @dismissed="honorarioOk = ''">{{ honorarioOk }}</b-alert>
       <b-form  @submit="$event.preventDefault()">
         <b-form-group label="Seleccionar Medico">
           <v-select
@@ -2097,6 +2100,7 @@ export default {
         }
       ],
       servicios: [],
+      honorarioOk: '',
       honorario: {
         medico: null,
         lugar: 'Quirófano',
@@ -2325,6 +2329,10 @@ export default {
     }
   },
   computed: {
+    honorarioConDatos () {
+      const h = this.honorario || {}
+      return !!(h.medico || h.descripcion || h.total)
+    },
     // Rubro de la pestaña de consumos activa, para filtrar la revisión de consumos.
     rubroConsumoActivo () { return ['medicamento', 'anestesico', 'quirurgico', 'comun'][this.consumoTabIndex] || 'medicamento' },
     puedeEliminarEstudio () {
@@ -3233,26 +3241,35 @@ export default {
       this.$refs['modal-add-honorarios'].show()
     },
     agregarHonorario () {
-      try {
-        axios.post(apiUrl + '/detalle_honorarios/created', {
-          id_medico: this.honorario.medico.id,
-          id_cuenta: this.idCuentaSeleccionada,
-          descripcion: this.honorario.descripcion,
-          total: this.honorario.total,
-          lugar: 'Quirófano',
-          user: this.currentUser.user
-        })
-        this.$refs['modal-add-honorarios'].hide()
-        this.honorario = {
-          medico: null,
-          descripcion: '',
-          total: null
-        }
-      } catch (error) {
-        console.error(error)
-        this.alertErrorText = 'Error al agregar honorarios'
-        this.showAlertError()
+      const me = this
+      me.honorarioOk = ''
+      if (!me.honorario.medico || !me.honorario.total) {
+        me.alertErrorText = 'Seleccione el médico e ingrese el total del honorario'
+        me.showAlertError()
+        return
       }
+      // El modal se queda abierto para poder agregar otro honorario.
+      axios.post(apiUrl + '/detalle_honorarios/created', {
+        id_medico: me.honorario.medico.id,
+        id_cuenta: me.idCuentaSeleccionada,
+        descripcion: me.honorario.descripcion,
+        total: me.honorario.total,
+        lugar: 'Quirófano',
+        user: me.currentUser.user
+      })
+        .then(() => {
+          me.honorarioOk = `Honorario de ${me.honorario.medico.nombre} por Q${parseFloat(me.honorario.total).toFixed(2)} agregado. Puede agregar otro.`
+          me.honorario = { medico: null, descripcion: '', total: null }
+        })
+        .catch((error) => {
+          console.error(error)
+          me.alertErrorText = 'Error al agregar honorarios'
+          me.showAlertError()
+        })
+    },
+    limpiarHonorario () {
+      this.honorario = { medico: null, descripcion: '', total: null }
+      this.honorarioOk = ''
     },
     addSalaOperaciones () {
       let totalHoras = this.salaOperaciones.horas
