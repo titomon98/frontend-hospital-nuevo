@@ -242,6 +242,8 @@
               :perPage="perPage"
             >
             </datatable-heading>
+            <!-- Scroll horizontal: la tabla no se sale de la pantalla -->
+            <div style="overflow-x: auto; max-width: 100%;">
             <vuetable
               ref="vuetable"
               class="table-divided order-with-arrow"
@@ -369,6 +371,7 @@
               </template>
               <!-- Paginacion -->
             </vuetable>
+            </div>
             <vuetable-pagination-bootstrap
                 ref="pagination"
                 @vuetable-pagination:change-page="onChangePage"
