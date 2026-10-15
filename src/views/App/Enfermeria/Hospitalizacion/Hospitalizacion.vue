@@ -3402,9 +3402,10 @@ export default {
         doc.autoTable({
           body: [
             ['TOTAL HOSPITALIZACION', `Q${TotalGeneral2.toFixed(2)}`],
-            ['TOTAL LAB. BIOMEDICO E.O. S.A. (SE PAGA EN LABORATORIO)', `Q${ExamenesTotal.toFixed(2)}`],
+            ['TOTAL LAB. BIOMEDICO E.O. S.A.', `Q${ExamenesTotal.toFixed(2)}`],
             ['TOTAL HONORARIOS MEDICOS Y OTROS SERVICIOS', `Q${TotalHonorarios.toFixed(2)}`],
-            ['TOTAL A PAGAR =', `Q${TotalApagar.toFixed(2)}`]
+            // Liquidacion para el paciente: incluye laboratorio (lo que se guarda en la cuenta, TotalApagar, no).
+            ['TOTAL A PAGAR =', `Q${(TotalApagar + ExamenesTotal).toFixed(2)}`]
           ],
           startY: nextTableStartY2 + 5,
           theme: 'grid',

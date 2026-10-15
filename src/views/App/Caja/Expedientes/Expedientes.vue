@@ -2074,7 +2074,7 @@ ANTE MI
         sheet.getCell(`B${row}`).alignment = { horizontal: 'left' }
 
         row++
-        sheet.getCell(`A${row}`).value = 'TOTAL LAB. BIOMEDICO E.O. S.A. (SE PAGA EN LABORATORIO) ='
+        sheet.getCell(`A${row}`).value = 'TOTAL LAB. BIOMEDICO E.O. S.A. ='
         sheet.getCell(`B${row}`).value = `Q${(Number(ExamenesTotal) || 0).toFixed(2)}`
         sheet.getCell(`A${row}`).alignment = { horizontal: 'right' }
         sheet.getCell(`B${row}`).alignment = { horizontal: 'left' }
@@ -2087,7 +2087,8 @@ ANTE MI
 
         row++
         sheet.getCell(`A${row}`).value = 'TOTAL A PAGAR ='
-        sheet.getCell(`B${row}`).value = `Q${(Number(TotalApagar) || 0).toFixed(2)}`
+        // Liquidacion para el paciente: incluye laboratorio.
+        sheet.getCell(`B${row}`).value = `Q${((Number(TotalApagar) || 0) + (Number(ExamenesTotal) || 0)).toFixed(2)}`
         sheet.getCell(`A${row}`).alignment = { horizontal: 'right' }
         sheet.getCell(`B${row}`).alignment = { horizontal: 'left' }
         sheet.getCell(`A${row}`).font = { bold: true }
