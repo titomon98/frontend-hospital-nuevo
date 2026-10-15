@@ -271,6 +271,11 @@
                   </div>
                 </template>
               </div>
+              <!-- Ingreso / Egreso -->
+              <div slot="ingresoEgreso" slot-scope="props" style="white-space: nowrap;">
+                <div><small class="text-muted">Ingreso:</small> {{ fechaHora(props.rowData.fecha_ingreso || (props.rowData.expediente && props.rowData.expediente.fecha_ingreso_reciente), props.rowData.hora_ingreso || (props.rowData.expediente && props.rowData.expediente.hora_ingreso_reciente)) }}</div>
+                <div><small class="text-muted">Egreso:</small> {{ props.rowData.fecha_egreso ? fechaHora(props.rowData.fecha_egreso, props.rowData.hora_egreso) : 'Sin egreso' }}</div>
+              </div>
               <!-- Estado -->
               <div slot="estado" slot-scope="props">
                 <h5 v-if="props.rowData.estado === 1 || props.rowData.estado === 10">
@@ -514,6 +519,12 @@ export default {
           dataClass: 'text-muted'
         },
         {
+          name: '__slot:ingresoEgreso',
+          title: 'Ingreso / Egreso',
+          titleClass: '',
+          dataClass: 'text-muted'
+        },
+        {
           name: '__slot:estado',
           title: 'Estado',
           titleClass: '',
@@ -555,6 +566,16 @@ export default {
     }
   },
   methods: {
+    // 'AAAA-MM-DD' + 'HH:MM[:SS]' (hora GT) -> 'DD/MM/AAAA hh:mm a. m.'
+    fechaHora (fecha, hora) {
+      if (!fecha) return '—'
+      const [a, m, d] = String(fecha).slice(0, 10).split('-')
+      if (!hora) return `${d}/${m}/${a}`
+      const [h, min] = String(hora).split(':').map(Number)
+      const ampm = h >= 12 ? 'p. m.' : 'a. m.'
+      const h12 = h % 12 === 0 ? 12 : h % 12
+      return `${d}/${m}/${a} ${h12}:${String(min).padStart(2, '0')} ${ampm}`
+    },
     onRowSelected (items) {
       this.selectedAccount = items[0].id
       this.totalPayment = items[0].pendiente_de_pago
