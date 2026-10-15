@@ -92,18 +92,23 @@
               >
               </b-table>
               <div v-if="desgloseCobro" class="mb-3">
-                <h6>Cobro por categoría</h6>
-                <p class="text-muted mb-2">Se cobra parte por parte. El paciente queda solvente cuando Hospital, Honorarios y Laboratorio llegan a cero.</p>
+                <h6>Cobro de hospital y honorarios</h6>
+                <p class="text-muted mb-2">El laboratorio se cobra en la caja del laboratorio. La cuenta se cierra cuando hospital, honorarios y laboratorio están pagados.</p>
                 <b-table small bordered :items="filasDesglose" :fields="fieldsDesglose"></b-table>
-                <b-form-group label="¿A qué categoría abonar?">
-                  <b-form-radio-group v-model="categoriaCobro">
-                    <b-form-radio value="hospital" :disabled="desgloseCobro.hospital.pendiente <= 0">Hospital</b-form-radio>
-                    <b-form-radio value="honorarios" :disabled="desgloseCobro.honorarios.pendiente <= 0">Honorarios</b-form-radio>
-                    <b-form-radio value="laboratorio" :disabled="desgloseCobro.laboratorio.pendiente <= 0">Laboratorio</b-form-radio>
-                  </b-form-radio-group>
+                <p class="mb-2">
+                  <strong>Laboratorio:</strong>
+                  <b-badge v-if="desgloseCobro.laboratorio.pendiente > 0" variant="info">PENDIENTE Q{{ desgloseCobro.laboratorio.pendiente.toFixed(2) }} (caja del laboratorio)</b-badge>
+                  <b-badge v-else variant="success">{{ desgloseCobro.laboratorio.total > 0 ? 'PAGADO' : 'SIN EXÁMENES' }}</b-badge>
+                </p>
+                <b-form-group label="¿A qué abonar?">
+                  <b-form-checkbox-group v-model="categoriasCobro">
+                    <b-form-checkbox value="hospital" :disabled="desgloseCobro.hospital.pendiente <= 0">Hospital</b-form-checkbox>
+                    <b-form-checkbox value="honorarios" :disabled="desgloseCobro.honorarios.pendiente <= 0">Honorarios</b-form-checkbox>
+                  </b-form-checkbox-group>
                 </b-form-group>
-                <div v-if="categoriaCobro" class="mb-2">
-                  <strong>Pendiente de {{ categoriaCobro }}: Q{{ pendienteCategoriaSeleccionada.toFixed(2) }}</strong>
+                <div v-if="categoriasCobro.length" class="mb-2">
+                  <strong>Pendiente seleccionado: Q{{ pendienteCategoriaSeleccionada.toFixed(2) }}</strong>
+                  <small v-if="categoriasCobro.length > 1" class="d-block text-muted">El abono se aplica primero a hospital y el resto a honorarios.</small>
                 </div>
               </div>
               <b-form-group label="Seleccione métodos para pagar:" v-slot="{ ariaDescribedby }">
@@ -152,7 +157,7 @@
                 <strong> TOTAL INGRESADO: {{ parseFloat(this.paymentType.Efectivo) + parseFloat(this.paymentType.Tarjeta) + parseFloat(this.paymentType.Recargo*this.paymentType.Tarjeta) + parseFloat(this.paymentType.Deposito) + parseFloat(this.paymentType.Cheque) + parseFloat(this.paymentType.Seguro) + parseFloat(this.paymentType.Transferencia) }}</strong>
               </div>
               <div>
-                <strong> TOTAL A PAGAR: {{ this.totalPayment }}</strong>
+                <strong> TOTAL A PAGAR: {{ desgloseCobro ? (desgloseCobro.hospital.pendiente + desgloseCobro.honorarios.pendiente).toFixed(2) : totalPayment }}</strong>
               </div>
             </b-card-body>
             <div>
@@ -162,8 +167,8 @@
         </div>
       </template>
       <template #modal-footer="{}">
-        <b-button variant="primary" :disabled="!categoriaCobro" @click="onAbonarCategoria()"
-          >Abonar a categoría</b-button
+        <b-button variant="primary" :disabled="!categoriasCobro.length" @click="onAbonarCategoria()"
+          >Abonar</b-button
         >
         <b-button variant="danger" @click="$bvModal.hide('modal-2-account')"
           >Cancelar</b-button
@@ -268,7 +273,14 @@
             >
               <!-- Estado -->
               <div slot="estado" slot-scope="props">
-                <h5 v-if="props.rowData.estado === 1 || props.rowData.estado === 10">
+                <!-- Que falta pagar: la cuenta solo se cierra cuando hospital, honorarios y laboratorio estan pagados. -->
+                <div v-if="(props.rowData.estado === 1 || props.rowData.estado === 10) && props.rowData.pendientes_pago">
+                  <h6 v-for="p in props.rowData.pendientes_pago" :key="p" class="mb-1">
+                    <b-badge :variant="p === 'laboratorio' ? 'info' : 'warning'">PENDIENTE DE PAGO DE {{ p.toUpperCase() }}</b-badge>
+                  </h6>
+                  <h6 v-if="!props.rowData.pendientes_pago.length"><b-badge variant="success">PAGADO</b-badge></h6>
+                </div>
+                <h5 v-else-if="props.rowData.estado === 1 || props.rowData.estado === 10">
                   <b-badge variant="light"
                     ><h6 class="success"><strong>PENDIENTE DE PAGO</strong></h6></b-badge
                   >
@@ -409,13 +421,12 @@ export default {
       const d = this.desgloseCobro
       return [
         { categoria: 'Hospital', total: d.hospital.total, pagado: d.hospital.pagado, pendiente: d.hospital.pendiente },
-        { categoria: 'Honorarios', total: d.honorarios.total, pagado: d.honorarios.pagado, pendiente: d.honorarios.pendiente },
-        { categoria: 'Laboratorio', total: d.laboratorio.total, pagado: d.laboratorio.pagado, pendiente: d.laboratorio.pendiente }
+        { categoria: 'Honorarios', total: d.honorarios.total, pagado: d.honorarios.pagado, pendiente: d.honorarios.pendiente }
       ]
     },
     pendienteCategoriaSeleccionada () {
-      if (!this.desgloseCobro || !this.categoriaCobro) return 0
-      return this.desgloseCobro[this.categoriaCobro].pendiente
+      if (!this.desgloseCobro) return 0
+      return this.categoriasCobro.reduce((a, c) => a + this.desgloseCobro[c].pendiente, 0)
     }
   },
   data () {
@@ -466,9 +477,9 @@ export default {
         Transferencia: 0
       },
       paymentSum: 0,
-      // Cobro separado por categoría (Hospital / Honorarios / Laboratorio)
+      // Cobro separado: hospital y honorarios (el laboratorio se cobra en su caja)
       desgloseCobro: null,
-      categoriaCobro: null,
+      categoriasCobro: [],
       fieldsDesglose: [
         { key: 'categoria', label: 'Categoría' },
         { key: 'total', label: 'Total' },
@@ -578,7 +589,7 @@ export default {
       try {
         const { data } = await axios.get(apiUrl + `/cuentas/desgloseCobro/${idCuenta}`)
         this.desgloseCobro = data
-        this.categoriaCobro = null
+        this.categoriasCobro = []
       } catch (error) {
         console.error('Error al cargar el desglose de cobro:', error)
         this.desgloseCobro = null
@@ -596,8 +607,8 @@ export default {
       this.selectAssurance = null
     },
     async onAbonarCategoria () {
-      if (!this.categoriaCobro) {
-        this.alertErrorText = 'Seleccioná una categoría para abonar'
+      if (!this.categoriasCobro.length) {
+        this.alertErrorText = 'Seleccione hospital y/o honorarios para abonar'
         this.showAlertError()
         return
       }
@@ -608,20 +619,20 @@ export default {
         parseFloat(this.paymentType.Seguro || 0) +
         parseFloat(this.paymentType.Transferencia || 0)
       if (!(paymentSum > 0)) {
-        this.alertErrorText = 'Ingresá un monto a abonar mayor a cero'
+        this.alertErrorText = 'Ingrese un monto a abonar mayor a cero'
         this.showAlertError()
         return
       }
       const pendiente = this.pendienteCategoriaSeleccionada
       if (paymentSum > pendiente + 0.001) {
-        this.alertErrorText = `El abono (Q${paymentSum.toFixed(2)}) excede lo pendiente de ${this.categoriaCobro} (Q${pendiente.toFixed(2)})`
+        this.alertErrorText = `El abono (Q${paymentSum.toFixed(2)}) excede lo pendiente (Q${pendiente.toFixed(2)})`
         this.showAlertError()
         return
       }
       try {
         const { data } = await axios.put(apiUrl + '/cuentas/cobrarCategoria', {
           id: this.selectedAccount,
-          categoria: this.categoriaCobro,
+          categorias: this.categoriasCobro,
           monto: paymentSum,
           efectivo: this.paymentType.Efectivo,
           tarjeta: this.paymentType.Tarjeta,
@@ -635,14 +646,15 @@ export default {
         })
         this.resetPaymentInputs()
         if (data.desglose) {
-          this.desgloseCobro = { ...data.desglose, solvente: data.solvente }
+          this.desgloseCobro = data.desglose
         }
-        this.categoriaCobro = null
+        this.categoriasCobro = []
         this.alertVariant = data.solvente ? 'info' : 'primary'
         this.showAlert()
+        const faltan = (data.desglose && data.desglose.pendientes) || []
         this.alertText = data.solvente
           ? 'La cuenta quedó solventada por completo'
-          : 'Abono registrado correctamente'
+          : `Abono registrado. Pendiente de pago de: ${faltan.join(', ')}`
         this.$refs.vuetable.refresh()
         if (data.solvente) {
           this.$refs['modal-2-account'].hide()
