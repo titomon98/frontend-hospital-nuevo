@@ -407,7 +407,7 @@ export default {
       selectedAccount: null,
       totalPayment: 0,
       cuentas: [],
-      selectedQuitOption: 0,
+      selectedQuitOption: 7,
       optionsQuit: [
         { text: 'Fallecido', value: 0 },
         { text: 'Egreso normal', value: 7 },
@@ -588,18 +588,21 @@ export default {
       if (this.motivoEgresoEmergencia === '') {
         this.alertErrorText = 'No se ingresó una nota de egreso'
         this.showAlertError()
+      } else if (!this.form.fecha || !this.form.hora) {
+        this.alertErrorText = 'Ingrese la fecha y la hora de egreso'
+        this.showAlertError()
       } else {
         let me = this
+        // Mismo egreso que en Enfermería > Emergencias: calcula el derecho de
+        // emergencia, cierra la habitacion y guarda fecha/hora de egreso.
         axios
-          .put(apiUrl + '/expedientes/changeState', {
+          .put(apiUrl + '/expedientes/egresoEmergencia', {
             id: this.form.id,
             estado: this.selectedQuitOption,
-            estado_anterior: 4,
-            motivo: this.motivoEgresoEmergencia,
-            form: this.form,
+            fecha: this.form.fecha,
+            hora: this.form.hora,
             user: me.currentUser.user,
-            fecha: null,
-            hora: null
+            egreso: { observaciones: this.motivoEgresoEmergencia }
           })
           .then((response) => {
             this.motivoEgresoEmergencia = ''
