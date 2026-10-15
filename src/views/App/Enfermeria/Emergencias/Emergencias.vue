@@ -3413,7 +3413,6 @@ export default {
                   parseFloat(ConsumoMedicamentosTotal) +
                   parseFloat(ConsumoAnestesicosTotal) +
                   parseFloat(ConsumoQuirurgicosTotal) +
-                  parseFloat(ExamenesTotal) +
                   parseFloat(ServicioSalaOperacionesTotal)
 
       this.reporte = {

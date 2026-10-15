@@ -1915,7 +1915,6 @@ ANTE MI
           ConsumoMedicamentosTotal +
           ConsumoAnestesicosTotal +
           ConsumoQuirurgicosTotal +
-          ExamenesTotal +
           ServicioSalaOperacionesTotal +
           hospitalizacion
 
@@ -1928,7 +1927,7 @@ ANTE MI
           ServicioSalaOperacionesTotal +
           hospitalizacion
 
-        const TotalApagar = TotalGeneral2 + TotalHonorarios + ExamenesTotal
+        const TotalApagar = TotalGeneral2 + TotalHonorarios
 
         const workbook = new ExcelJS.Workbook()
         const sheet = workbook.addWorksheet('Resumen')
@@ -2024,7 +2023,7 @@ ANTE MI
         sheet.getCell(`A${row2}`).alignment = { horizontal: 'right', vertical: 'middle' }
         sheet.getCell(`B${row2}`).value = `Q${TotalGeneral2.toFixed(2)}`
         row2++
-        sheet.getCell(`A${row2}`).value = 'TOTAL LAB. BIOMEDICO E.O. S.A. ='
+        sheet.getCell(`A${row2}`).value = 'TOTAL LAB. BIOMEDICO E.O. S.A. (SE PAGA EN LABORATORIO) ='
         sheet.getCell(`A${row2}`).alignment = { horizontal: 'right', vertical: 'middle' }
         sheet.getCell(`B${row2}`).value = `Q${ExamenesTotal.toFixed(2)}`
         row2++
@@ -2071,7 +2070,7 @@ ANTE MI
         sheet.getCell(`B${row}`).alignment = { horizontal: 'left' }
 
         row++
-        sheet.getCell(`A${row}`).value = 'TOTAL LAB. BIOMEDICO E.O. S.A. ='
+        sheet.getCell(`A${row}`).value = 'TOTAL LAB. BIOMEDICO E.O. S.A. (SE PAGA EN LABORATORIO) ='
         sheet.getCell(`B${row}`).value = `Q${(Number(ExamenesTotal) || 0).toFixed(2)}`
         sheet.getCell(`A${row}`).alignment = { horizontal: 'right' }
         sheet.getCell(`B${row}`).alignment = { horizontal: 'left' }

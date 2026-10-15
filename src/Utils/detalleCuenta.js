@@ -76,10 +76,13 @@ const encabezado = (data, titulo) => [
   `GENERADO: ${data.generado}`
 ]
 
+// Totales del hospital; el laboratorio va aparte porque se paga en su caja.
+const LAB_APARTE = 'LABORATORIO (SE PAGA EN CAJA DEL LABORATORIO)='
 const piesGenerales = (data) => [
   ['SUBTOTAL=', data.totalGeneral],
   ['TOTAL=', data.totalGeneral],
-  ...(data.totalPagado ? [['TOTAL PAGADO=', data.totalPagado]] : [])
+  ...(data.totalPagado ? [['TOTAL PAGADO=', data.totalPagado]] : []),
+  ...(data.totalLab ? [[LAB_APARTE, data.totalLab]] : [])
 ]
 
 const nombreArchivo = (prefijo, data, ext) => `${prefijo}_${data.paciente.nombre.replace(/\s+/g, '_')}.${ext}`
@@ -143,7 +146,7 @@ export async function excelDetalle (data, titulo, prefijo) {
       }
       const rt = fila(['TOTAL:'], { bold: true })
       total(rt, desde ? [`F${desde}:F${hasta}`] : [], suma(s.items))
-      refsBloque.push(`F${rt.number}`)
+      if (!s.cats.includes('LABORATORIO')) refsBloque.push(`F${rt.number}`) // el lab no suma al hospital
     }
     if (!b.secciones.length) fila(['Sin cargos registrados'])
     if (b.pie.length) {
@@ -167,6 +170,11 @@ export async function excelDetalle (data, titulo, prefijo) {
   total(tot, [`F${sub.number}`], data.totalGeneral)
   if (data.totalPagado) {
     const r = fila(['', '', '', '', 'TOTAL PAGADO=', data.totalPagado], { bold: true })
+    r.getCell(6).numFmt = moneda
+  }
+  if (data.totalLab) {
+    fila([])
+    const r = fila(['', '', '', '', LAB_APARTE, data.totalLab], { bold: true })
     r.getCell(6).numFmt = moneda
   }
   ws.getColumn(2).alignment = { wrapText: true, vertical: 'top' }

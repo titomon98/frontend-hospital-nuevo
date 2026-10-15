@@ -12,7 +12,8 @@
       <b-table small bordered :items="resumen" :fields="[{ key: 'categoria', label: 'Rubro' }, { key: 'total', label: 'Total' }]">
         <template #cell(total)="row">Q{{ row.item.total.toFixed(2) }}</template>
       </b-table>
-      <p class="mb-1"><strong><u>Total consumido:</u> Q{{ data.totalGeneral.toFixed(2) }}</strong></p>
+      <p class="mb-1"><strong><u>Total del hospital:</u> Q{{ data.totalGeneral.toFixed(2) }}</strong></p>
+      <p v-if="data.totalLab" class="mb-1"><strong>Laboratorio:</strong> Q{{ data.totalLab.toFixed(2) }} <small class="text-muted">(se paga en la caja del laboratorio)</small></p>
       <p v-if="data.totalPagado" class="mb-1"><strong>Total pagado:</strong> Q{{ data.totalPagado.toFixed(2) }}</p>
       <small class="text-muted">El detalle de cada cargo, con fecha y hora, está en el Excel y en el PDF.</small>
     </div>

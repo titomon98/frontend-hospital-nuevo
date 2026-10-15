@@ -150,12 +150,13 @@ export default {
       doc.text('_________________', 150, totalY += 1)
       totalY -= 1
 
-      doc.text('LABORATORIOS ...........................................................................................', 20, totalY += 7)
+      // El laboratorio se informa pero se paga en la caja del laboratorio: no suma al hospital.
+      doc.text('LABORATORIOS (SE PAGA EN LABORATORIO) .........................................', 20, totalY += 7)
       doc.text(`Q. ${data.totalExamenes.toFixed(2)}`, 150, totalY -= 1)
       doc.text('_________________', 150, totalY += 1)
       totalY -= 1
 
-      const subtotal = subtotalConsumos + data.totalDerechoEmergencia + data.totalExamenes
+      const subtotal = subtotalConsumos + data.totalDerechoEmergencia
 
       doc.text('SUBTOTAL ....................................................................................................', 20, totalY += 7)
       doc.text(`Q. ${subtotal.toFixed(2)}`, 150, totalY -= 1)

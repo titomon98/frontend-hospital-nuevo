@@ -1037,12 +1037,13 @@ export default {
       doc.text('_________________', 150, totalY += 1)
       totalY -= 1
 
-      doc.text('LABORATORIOS ...........................................................................................', 20, totalY += 7)
+      // El laboratorio se informa pero se paga en la caja del laboratorio: no suma al hospital.
+      doc.text('LABORATORIOS (SE PAGA EN LABORATORIO) .........................................', 20, totalY += 7)
       doc.text(`Q. ${data.totalExamenes.toFixed(2)}`, 150, totalY -= 1)
       doc.text('_________________', 150, totalY += 1)
       totalY -= 1
 
-      const subtotal = subtotalConsumos + data.totalDerechoEmergencia + data.totalExamenes
+      const subtotal = subtotalConsumos + data.totalDerechoEmergencia
 
       doc.text('SUBTOTAL ....................................................................................................', 20, totalY += 7)
       doc.text(`Q. ${subtotal.toFixed(2)}`, 150, totalY -= 1)
@@ -1122,7 +1123,6 @@ export default {
           ConsumoMedicamentosTotal +
           ConsumoAnestesicosTotal +
           ConsumoQuirurgicosTotal +
-          ExamenesTotal +
           ServicioSalaOperacionesTotal +
           hospitalizacion
 
@@ -1135,7 +1135,7 @@ export default {
           ServicioSalaOperacionesTotal +
           hospitalizacion
 
-        const TotalApagar = TotalGeneral2 + TotalHonorarios + ExamenesTotal
+        const TotalApagar = TotalGeneral2 + TotalHonorarios
         const doc = new JsPDF()
 
         doc.setFontSize(10).setFont(undefined, 'bold')
@@ -1178,7 +1178,7 @@ export default {
             ['EMERGENCIAS  Medico Interno', ''],
             ['OTROS', ''],
             ['TOTAL HOSPITALIZACION =', `Q${TotalGeneral2.toFixed(2)}`],
-            ['TOTAL LAB. BIOMEDICO E.O. S.A. =', `Q${ExamenesTotal.toFixed(2)}`],
+            ['TOTAL LAB. BIOMEDICO E.O. S.A. (SE PAGA EN LABORATORIO) =', `Q${ExamenesTotal.toFixed(2)}`],
             ['TOTAL MENOS DESCUENTO =', `Q${TotalGeneral.toFixed(2)}`]
           ],
           startY: 41,
@@ -1230,7 +1230,7 @@ export default {
         doc.autoTable({
           body: [
             ['TOTAL HOSPITALIZACION', `Q${TotalGeneral2.toFixed(2)}`],
-            ['TOTAL LAB. BIOMEDICO E.O. S.A.', `Q${ExamenesTotal.toFixed(2)}`],
+            ['TOTAL LAB. BIOMEDICO E.O. S.A. (SE PAGA EN LABORATORIO)', `Q${ExamenesTotal.toFixed(2)}`],
             ['TOTAL HONORARIOS MEDICOS Y OTROS SERVICIOS', `Q${TotalHonorarios.toFixed(2)}`],
             ['TOTAL A PAGAR =', `Q${TotalApagar.toFixed(2)}`]
           ],

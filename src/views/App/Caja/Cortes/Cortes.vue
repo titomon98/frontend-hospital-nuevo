@@ -643,9 +643,9 @@ export default {
         const TotalHonorarios = data.honorarios.reduce((acc, item) => acc + parseFloat(item.total), 0)
         const medicosOrdenados = data.honorarios.sort((a, b) => b.total - a.total)
 
-        const TotalGeneral = ConsumoTotal + ConsumoComunTotal + ConsumoMedicamentosTotal + ConsumoAnestesicosTotal + ConsumoQuirurgicosTotal + ExamenesTotal + ServicioSalaOperacionesTotal + hospitalizacion
+        const TotalGeneral = ConsumoTotal + ConsumoComunTotal + ConsumoMedicamentosTotal + ConsumoAnestesicosTotal + ConsumoQuirurgicosTotal + ServicioSalaOperacionesTotal + hospitalizacion
         const TotalGeneral2 = ConsumoTotal + ConsumoComunTotal + ConsumoMedicamentosTotal + ConsumoAnestesicosTotal + ConsumoQuirurgicosTotal + ServicioSalaOperacionesTotal + hospitalizacion
-        const TotalApagar = TotalGeneral2 + TotalHonorarios + ExamenesTotal
+        const TotalApagar = TotalGeneral2 + TotalHonorarios
         const doc = new JsPDF()
 
         doc.setFontSize(10).setFont(undefined, 'bold')
@@ -676,7 +676,7 @@ export default {
             ['EMERGENCIAS  Medico Interno', ''],
             ['OTROS', ''],
             ['TOTAL HOSPITALIZACION =', `Q${TotalGeneral2.toFixed(2)}`],
-            ['TOTAL LAB. BIOMEDICO E.O. S.A. =', `Q${ExamenesTotal.toFixed(2)}`],
+            ['TOTAL LAB. BIOMEDICO E.O. S.A. (SE PAGA EN LABORATORIO) =', `Q${ExamenesTotal.toFixed(2)}`],
             ['TOTAL MENOS DESCUENTO =', `Q${TotalGeneral.toFixed(2)}`]
           ],
           startY: 41,
@@ -713,7 +713,7 @@ export default {
         autoTable(doc, {
           body: [
             ['TOTAL HOSPITALIZACION', `Q${TotalGeneral2.toFixed(2)}`],
-            ['TOTAL LAB. BIOMEDICO E.O. S.A.', `Q${ExamenesTotal.toFixed(2)}`],
+            ['TOTAL LAB. BIOMEDICO E.O. S.A. (SE PAGA EN LABORATORIO)', `Q${ExamenesTotal.toFixed(2)}`],
             ['TOTAL HONORARIOS MEDICOS Y OTROS SERVICIOS', `Q${TotalHonorarios.toFixed(2)}`],
             ['TOTAL A PAGAR =', `Q${TotalApagar.toFixed(2)}`]
           ],
