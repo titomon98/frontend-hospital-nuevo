@@ -76,15 +76,6 @@
           </v-select>
         </b-form-group>
 
-        <!-- Nuevo campo de fecha, solo visible si ya se seleccionó un médico -->
-        <b-form-group v-if="medicoYaSeleccionado" label="Filtrar por fecha:">
-            <b-form-input
-                type="date"
-                v-model="fechaFiltro"
-                @change="buscarPacientesPorFecha"
-            ></b-form-input>
-        </b-form-group>
-
         <b-form-group label="Cantidad:">
           <b-form-input
             disabled
@@ -127,25 +118,37 @@
           <div class="mt-2"><strong>Total entregado: Q{{ totalEntregado.toFixed(2) }}</strong></div>
         </b-form-group>
 
-        <!-- Tabla de pacientes antes de generar el PDF -->
-        <b-table
-          striped hover bordered
-          :items="pacientes"
-          :fields="[
-            { key: 'paciente', label: 'Nombre del Paciente' },
-            { key: 'expediente', label: 'No. Expediente' },
-            { key: 'tipoPago', label: 'Tipo de Pago' },
-            { key: 'fecha', label: 'Fecha' },
-            { key: 'total', label: 'Honorarios' }
-          ]"
-        >
-          <template #cell(fecha)="data">
-            {{ new Date(data.item.fecha).toLocaleDateString() }}
-          </template>
-          <template #cell(total)="data">
-            Q{{ data.item.total.toFixed(2) }}
-          </template>
-        </b-table>
+        <!-- Honorarios pendientes del medico (de cualquier fecha): se eligen los que se pagan hoy. -->
+        <b-form-group v-if="medicoYaSeleccionado" label="Honorarios pendientes (marque los que se pagan):">
+          <b-table
+            small striped hover bordered
+            :items="pacientes"
+            :fields="[
+              { key: 'sel', label: '' },
+              { key: 'paciente', label: 'Nombre del Paciente' },
+              { key: 'expediente', label: 'No. Expediente' },
+              { key: 'lugar', label: 'Lugar' },
+              { key: 'tipoPago', label: 'Tipo de Pago' },
+              { key: 'fecha', label: 'Fecha' },
+              { key: 'total', label: 'Honorarios' }
+            ]"
+            show-empty
+            empty-text="El médico no tiene honorarios pendientes"
+          >
+            <template #head(sel)>
+              <b-form-checkbox :checked="pacientes.length > 0 && honorariosElegidos.length === pacientes.length" @change="v => (honorariosElegidos = v ? pacientes.map(p => p.id) : [])"></b-form-checkbox>
+            </template>
+            <template #cell(sel)="data">
+              <b-form-checkbox v-model="honorariosElegidos" :value="data.item.id"></b-form-checkbox>
+            </template>
+            <template #cell(fecha)="data">
+              {{ new Date(data.item.fecha).toLocaleDateString('es-GT') }}
+            </template>
+            <template #cell(total)="data">
+              Q{{ data.item.total.toFixed(2) }}
+            </template>
+          </b-table>
+        </b-form-group>
 
       </b-form>
 
@@ -450,6 +453,7 @@ export default {
       selectedMedico: null,
       medicos: [],
       pacientes: [],
+      honorariosElegidos: [],
       formVoucher: {
         id_paciente: null,
         medico: null,
@@ -464,6 +468,11 @@ export default {
     }
   },
   watch: {
+    honorariosElegidos (ids) {
+      const elegidos = this.pacientes.filter(p => ids.includes(p.id))
+      this.formVoucher.id_paciente = elegidos.map(p => p.id)
+      this.formVoucher.cantidad = +elegidos.reduce((a, p) => a + p.total, 0).toFixed(2)
+    },
     selectedMedico (newValue) {
       if (newValue) {
         this.formVoucher.medico = newValue
@@ -471,6 +480,7 @@ export default {
         // No llames a agregarPacientes, ya maneja esto
       } else {
         this.pacientes = []
+        this.honorariosElegidos = []
         this.formVoucher.cantidad = 0
         this.formVoucher.medico = null
       }
@@ -603,7 +613,8 @@ export default {
         })
     },
     generarPDF_CuentaParcial (data, nombrePaciente, FechaIngreso) {
-      const fechaActual = new Date()
+      // Fecha del informe: la del egreso (hora GT); si aun no egresa, la de hoy.
+      const fechaActual = data.fechaEgreso ? new Date(`${data.fechaEgreso}T${data.horaEgreso || '00:00:00'}`) : new Date()
       const fechaFormateada = fechaActual.toLocaleDateString('es-ES')
       const opcionesHora = { hour: '2-digit', minute: '2-digit', hour12: true }
       const horaFormateada = fechaActual.toLocaleTimeString('es-ES', opcionesHora)
@@ -1160,8 +1171,8 @@ export default {
         })
     },
     crearVoucher () {
-      if (!this.formVoucher.cantidad) {
-        alert('No hay honorarios en la fecha indicada.')
+      if (!this.honorariosElegidos.length || !this.formVoucher.cantidad) {
+        alert('Seleccione al menos un honorario a pagar.')
         return
       }
 
@@ -1184,7 +1195,7 @@ export default {
     },
     generarPDFMedicos3 () {
       const data = this.formVoucher
-      const Pacientes = this.pacientes
+      const Pacientes = this.pacientes.filter(p => this.honorariosElegidos.includes(p.id))
       const numero = this.numero_voucher
       const hoy = new Date()
       const dd = String(hoy.getDate()).padStart(2, '0')
@@ -1436,6 +1447,7 @@ export default {
       this.medicoYaSeleccionado = false
       this.selectedMedico = null
       this.pacientes = []
+      this.honorariosElegidos = []
       this.medicos = []
       this.formVoucher.cantidad = null
       this.formVoucher.medico = null
@@ -1460,12 +1472,11 @@ export default {
       axios.get(apiUrl + '/voucher/getPacientesHonorarios', {
         params: {
           idMedico: this.selectedMedico.id,
-          fecha: this.fechaFiltro
+          todos: 1
         }
       }).then((response) => {
         this.pacientes = response.data.pacientes
-        this.formVoucher.cantidad = response.data.Total
-        this.formVoucher.id_paciente = response.data.pacientes.map(p => p.id)
+        this.honorariosElegidos = []
       })
     }
   }

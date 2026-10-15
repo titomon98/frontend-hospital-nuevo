@@ -1870,7 +1870,8 @@ ANTE MI
     },
     async generarPDF_CuentaTotal (FechaIngreso) {
       const data = this.dataPDFsumario
-      const fechaActual = new Date()
+      // Fecha del informe: la del egreso (hora GT); si aun no egresa, la de hoy.
+      const fechaActual = data.fechaEgreso ? new Date(`${data.fechaEgreso}T${data.horaEgreso || '00:00:00'}`) : new Date()
       const fechaFormateada = fechaActual.toLocaleDateString('es-ES')
       const opcionesHora = { hour: '2-digit', minute: '2-digit', hour12: true }
       const horaFormateada = fechaActual.toLocaleTimeString('es-ES', opcionesHora)
