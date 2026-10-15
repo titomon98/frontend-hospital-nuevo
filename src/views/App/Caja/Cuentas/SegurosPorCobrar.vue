@@ -939,8 +939,9 @@ export default {
             ['EMERGENCIAS  Medico Interno', ''],
             ['OTROS', ''],
             ['TOTAL HOSPITALIZACION =', `Q${TotalGeneral2.toFixed(2)}`],
-            ['TOTAL LAB. BIOMEDICO E.O. S.A. (SE PAGA EN LABORATORIO) =', `Q${ExamenesTotal.toFixed(2)}`],
-            ['TOTAL MENOS DESCUENTO =', `Q${TotalGeneral.toFixed(2)}`]
+            // Descuento aprobado: solo si la cuenta lo tiene (el laboratorio va en su caja).
+            ...(Number(data.descuentoAplicado) > 0 ? [[`DESCUENTO APLICADO (${data.descuentoPorcentaje}%) =`, `-Q${Number(data.descuentoAplicado).toFixed(2)}`]] : []),
+            ['TOTAL MENOS DESCUENTO =', `Q${(TotalGeneral - (Number(data.descuentoAplicado) || 0)).toFixed(2)}`]
           ],
           startY: 41,
           theme: 'grid',

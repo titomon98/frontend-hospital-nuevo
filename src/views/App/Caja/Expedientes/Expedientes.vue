@@ -2022,14 +2022,18 @@ ANTE MI
         sheet.getCell(`A${row2}`).value = 'TOTAL HOSPITALIZACION ='
         sheet.getCell(`A${row2}`).alignment = { horizontal: 'right', vertical: 'middle' }
         sheet.getCell(`B${row2}`).value = `Q${TotalGeneral2.toFixed(2)}`
-        row2++
-        sheet.getCell(`A${row2}`).value = 'TOTAL LAB. BIOMEDICO E.O. S.A. (SE PAGA EN LABORATORIO) ='
-        sheet.getCell(`A${row2}`).alignment = { horizontal: 'right', vertical: 'middle' }
-        sheet.getCell(`B${row2}`).value = `Q${ExamenesTotal.toFixed(2)}`
+        // Descuento aprobado: solo si la cuenta lo tiene (el laboratorio va en su caja).
+        const descuentoAplicado = Number(data.descuentoAplicado) || 0
+        if (descuentoAplicado > 0) {
+          row2++
+          sheet.getCell(`A${row2}`).value = `DESCUENTO APLICADO (${data.descuentoPorcentaje}%) =`
+          sheet.getCell(`A${row2}`).alignment = { horizontal: 'right', vertical: 'middle' }
+          sheet.getCell(`B${row2}`).value = `-Q${descuentoAplicado.toFixed(2)}`
+        }
         row2++
         sheet.getCell(`A${row2}`).value = 'TOTAL MENOS DESCUENTO ='
         sheet.getCell(`A${row2}`).alignment = { horizontal: 'right', vertical: 'middle' }
-        sheet.getCell(`B${row2}`).value = `Q${TotalGeneral.toFixed(2)}`
+        sheet.getCell(`B${row2}`).value = `Q${(TotalGeneral - descuentoAplicado).toFixed(2)}`
 
         // Fecha y hora debajo de la tabla
         row2++
