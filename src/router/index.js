@@ -5,6 +5,7 @@ import VueRouter from 'vue-router'
 import Layout1 from '../layouts/Layout1'
 import AuthLayout1 from '../layouts/AuthLayouts/AuthLayout1'
 import { sesionExpirada, tokenVencido } from '../Utils/sesion'
+import { getCurrentUser, setCurrentUser } from '../Utils/index'
 
 Vue.use(VueRouter)
 
@@ -357,7 +358,7 @@ const router = new VueRouter({
 // ─── Navigation guard ─────────────────────────────────────────────────────────
 
 router.beforeEach((to, from, next) => {
-  const user = JSON.parse(localStorage.getItem('user'))
+  const user = getCurrentUser()
   const requiresAuth = to.matched.some(record => record.meta.auth)
   const routeRoles = to.meta?.roles || []
 
@@ -370,7 +371,7 @@ router.beforeEach((to, from, next) => {
   if (requiresAuth && user && tokenVencido(user.token)) {
     if (!window.vm) {
       // Carga inicial de la pagina: todavia no hay app para mostrar el modal.
-      localStorage.removeItem('user')
+      setCurrentUser(null)
       localStorage.removeItem('access_token')
       return next({ name: 'auth1.sign-in1' })
     }

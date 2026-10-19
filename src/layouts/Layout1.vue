@@ -204,7 +204,7 @@ export default {
         .finally(() => { this.guardandoPassword = false })
     },
     logout () {
-      localStorage.removeItem('user')
+      this.$store.dispatch('signOut')
       localStorage.removeItem('access_token')
       this.$router.push({ name: 'auth1.sign-in1' })
     },

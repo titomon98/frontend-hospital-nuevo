@@ -1,5 +1,7 @@
 // Aviso unico de sesion expirada: modal que solo se cierra con "Iniciar sesión",
 // borra la sesion local y manda al login.
+import { setCurrentUser } from './index'
+
 let mostrado = false
 
 export const sesionExpirada = () => {
@@ -13,7 +15,7 @@ export const sesionExpirada = () => {
     noCloseOnEsc: true,
     hideHeaderClose: true
   }).then(() => {
-    localStorage.removeItem('user')
+    setCurrentUser(null)
     localStorage.removeItem('access_token')
     mostrado = false
     window.vm.$router.push({ name: 'auth1.sign-in1' }).catch(() => {})

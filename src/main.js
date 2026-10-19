@@ -14,6 +14,7 @@ import './plugins'
 import './registerServiceWorker'
 import i18n from './i18n'
 import { sesionExpirada } from './Utils/sesion'
+import { getCurrentUser } from './Utils/index'
 
 global.Raphael = Raphael
 Vue.config.productionTip = false
@@ -22,7 +23,7 @@ Vue.config.productionTip = false
 // backend/middleware/auth.js: x-access-token, no Authorization.
 const agregarToken = config => {
   try {
-    const user = JSON.parse(localStorage.getItem('user'))
+    const user = getCurrentUser()
     if (user && user.token) {
       config.headers['x-access-token'] = user.token
     }
