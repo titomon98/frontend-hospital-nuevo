@@ -528,7 +528,7 @@ export default {
 
         this.pdf = new JsPDF({
           unit: 'cm',
-          format: [14, 21.5],
+          format: 'letter',
           orientation: 'landscape'
         })
         var ingreso = moment(ahora).format('DD/MM/YYYY')
@@ -580,7 +580,8 @@ export default {
               { header: 'Fecha', dataKey: 'fecha' }
             ],
             body: this.arrayDetalles,
-            margin: { top: 5 },
+            margin: { top: 5, left: 1.5, right: 1.5 },
+            styles: { fontSize: 11 },
             headStyles: {
               fillColor: [21, 21, 21],
               textColor: [225, 225, 225],
@@ -605,8 +606,9 @@ export default {
               .concat([{ metodo: 'Total métodos de pago', monto: 'Q' + totalMetodos.toFixed(2) }]),
             startY: y + 0.4,
             margin: { top: 5, left: 1.5 },
-            tableWidth: 8,
+            tableWidth: 10,
             theme: 'grid',
+            styles: { fontSize: 11 },
             headStyles: { fillColor: [21, 21, 21], textColor: [225, 225, 225], fontStyle: 'bold' },
             didParseCell: (d) => { if (d.row.index === campos.length) d.cell.styles.fontStyle = 'bold' }
           })

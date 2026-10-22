@@ -813,7 +813,7 @@ export default {
         this.alertText = 'No se encontraron métodos de pago en el día.'
         return
       }
-      const doc = new JsPDF({ unit: 'cm', format: [14, 21.5], orientation: 'landscape' })
+      const doc = new JsPDF({ unit: 'cm', format: 'letter', orientation: 'landscape' })
       let altura = 1
       doc.addImage(logo, 'PNG', 1.5, 0.2, 3, 3)
       doc.setFontSize(7).setFont(undefined, 'bold')
@@ -837,13 +837,13 @@ export default {
         ],
         body: medioDePago,
         startY: altura + 0.5,
-        margin: { top: 5 },
-        headStyles: { fontSize: 6, fillColor: [21, 21, 21], textColor: [225, 225, 225], fontStyle: 'bold' },
-        bodyStyles: { fontSize: 6 }
+        margin: { top: 5, left: 1.5, right: 1.5 },
+        headStyles: { fontSize: 10, fillColor: [21, 21, 21], textColor: [225, 225, 225], fontStyle: 'bold' },
+        bodyStyles: { fontSize: 10 }
       })
       let y = doc.lastAutoTable.finalY + 1
       const totalGeneral = campos.reduce((a, c) => a + totales[c], 0)
-      doc.setFontSize(9).setFont(undefined, 'bold')
+      doc.setFontSize(11).setFont(undefined, 'bold')
       campos.forEach(c => {
         doc.text(c.charAt(0).toUpperCase() + c.slice(1) + ': Q.' + totales[c].toFixed(2), 1.5, y)
         y += 0.6
