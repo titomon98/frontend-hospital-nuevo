@@ -1071,14 +1071,13 @@ export default {
             this.pdf.text(cat + ' — Q.' + subtotales[cat].toFixed(2), 1.5, finalY + 0.6)
             autoTable(this.pdf, {
               columns: [
-                { header: 'Factura', dataKey: 'factura' },
-                { header: 'Nombre', dataKey: 'nombres' },
-                { header: 'Apellido', dataKey: 'apellidos' },
+                { header: 'Nombre del paciente', dataKey: 'paciente' },
                 { header: 'Médico tratante', dataKey: 'medico' },
-                { header: 'Fecha', dataKey: 'fecha' },
-                { header: 'Total hospital', dataKey: 'totalPagado' }
+                { header: 'Factura', dataKey: 'factura' },
+                { header: 'Total de la factura', dataKey: 'totalPagado' },
+                { header: 'Fecha', dataKey: 'fecha' }
               ],
-              body: grupos[cat],
+              body: grupos[cat].map(i => ({ ...i, paciente: `${i.nombres || ''} ${i.apellidos || ''}`.trim() })),
               startY: finalY + 0.8,
               margin: { top: 5 },
               headStyles: { fontSize: 5, fillColor: [21, 21, 21], textColor: [225, 225, 225], fontStyle: 'bold' },
