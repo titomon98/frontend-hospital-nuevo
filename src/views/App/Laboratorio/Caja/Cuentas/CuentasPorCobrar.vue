@@ -68,20 +68,12 @@
       >
         <div class="iq-alert-text">{{ alertErrorText }}</div>
       </b-alert>
-      <h6>¿Desea dar egreso al paciente {{this.form.nombres}} {{this.form.apellidos}}?</h6>
+      <h6>Cobro de laboratorio de {{ form.nombres }} {{ form.apellidos }}</h6>
       <template>
         <div>
-          <h6>Cuentas activas para {{this.form.nombres}} {{this.form.apellidos}}</h6>
           <b-card>
             <b-card-body>
-              <b-table
-                hover
-                :items="detalle"
-                :fields="fieldsAccounts"
-                :select-mode="'single'"
-                selectable
-              >
-              </b-table>
+              <h5 class="mb-3">Total de laboratorio: <strong>Q{{ Number(totalPayment || 0).toFixed(2) }}</strong></h5>
               <b-form-group label="Seleccione métodos para pagar:" v-slot="{ ariaDescribedby }">
                 <b-form-checkbox-group
                   id="checkbox-group-1"
@@ -234,6 +226,13 @@
               pagination-path
               @vuetable:pagination-data="onPaginationData"
             >
+              <!-- Pendiente y desde cuando -->
+              <div slot="pendiente_de_pago" slot-scope="props">
+                <strong>Q{{ Number(props.rowData.pendiente_de_pago || 0).toFixed(2) }}</strong>
+                <div class="small text-muted">
+                  {{ props.rowData.pendiente_desde ? 'Desde ' + fechaCorta(props.rowData.pendiente_desde) : 'Paciente internado' }}
+                </div>
+              </div>
               <!-- Estado -->
               <div slot="estado" slot-scope="props">
                 <h5 v-if="props.rowData.estado == 1">
@@ -355,7 +354,6 @@ export default {
   },
   data () {
     return {
-      detalle: [],
       from: 0,
       to: 0,
       total: 0,
@@ -435,13 +433,7 @@ export default {
         {
           name: 'numero',
           sortField: 'numero',
-          title: 'Numero de Cuenta',
-          dataClass: 'list-item-heading'
-        },
-        {
-          name: 'motivo',
-          sortField: 'motivo',
-          title: 'Motivo',
+          title: 'Cuentas de laboratorio',
           dataClass: 'list-item-heading'
         },
         {
@@ -451,7 +443,7 @@ export default {
           dataClass: 'list-item-heading'
         },
         {
-          name: 'pendiente_de_pago',
+          name: '__slot:pendiente_de_pago',
           sortField: 'pendiente_de_pago',
           title: 'Pendiente de pago',
           dataClass: 'list-item-heading'
@@ -469,23 +461,6 @@ export default {
           titleClass: '',
           dataClass: 'text-muted',
           width: '25%'
-        }
-      ],
-      fieldsAccounts: [
-        {
-          key: 'Descripcion',
-          label: 'Descripcion',
-          sortable: true
-        },
-        {
-          key: 'total',
-          label: 'Total',
-          sortable: true
-        },
-        {
-          key: 'costo',
-          label: 'Costo',
-          sortable: true
         }
       ]
     }
@@ -545,6 +520,10 @@ export default {
       }
     },
     setData (data) {
+      // Cada apertura del cobro empieza en 0 (no arrastra la transaccion anterior).
+      this.limpiarPago()
+      this.form.id_expediente = data.id_expediente
+      this.form.nombres = data.expediente.nombres
       this.form.name = data.expediente.nombres
       this.form.apellidos = data.expediente.apellidos
       this.form.state = data.estado
@@ -558,17 +537,17 @@ export default {
       this.totalPayment = data.pendiente_de_pago
       this.totPagado = data.total_pagado
       this.onLoadAssurances(data.id_expediente)
-      this.getDetail(data.id)
-      // this.getCuentas(data.id)
     },
-    getDetail (num) {
-      axios.get(apiUrl + '/detalle/getByAccount', {
-        params: {
-          id_lab_cuenta: num
-        }
-      }).then((response) => {
-        this.detalle = response.data
-      })
+    limpiarPago () {
+      this.selectedPayment = []
+      this.paymentType = { Efectivo: 0, Tarjeta: 0, Deposito: 0, Cheque: 0, Seguro: 0, Transferencia: 0 }
+      this.paymentSum = 0
+      this.selectAssurance = null
+      this.discountAmount = 0
+    },
+    fechaCorta (fecha) {
+      const [a, m, d] = String(fecha).slice(0, 10).split('-')
+      return `${d}/${m}/${a}`
     },
     /* Guardar */
     onSave () {
@@ -662,7 +641,7 @@ export default {
       } else {
         axios.post(apiUrl + '/lab_cuentas/requestDiscount', {
           form: {
-            id: this.form.id,
+            id_expediente: this.form.id_expediente,
             solicitud_descuento: 2,
             descuento: parseFloat(this.discountAmount)
           }
@@ -679,51 +658,39 @@ export default {
       }
     },
     onPatientQuit () {
-      this.paymentSum = parseFloat(this.paymentType.Efectivo) + parseFloat(this.paymentType.Tarjeta) + parseFloat(this.paymentType.Deposito) + parseFloat(this.paymentType.Cheque) + parseFloat(this.paymentType.Seguro) + parseFloat(this.paymentType.Transferencia)
-      if (this.paymentSum !== parseFloat(this.totalPayment)) {
+      const num = v => parseFloat(v) || 0
+      this.paymentSum = num(this.paymentType.Efectivo) + num(this.paymentType.Tarjeta) + num(this.paymentType.Deposito) + num(this.paymentType.Cheque) + num(this.paymentType.Seguro) + num(this.paymentType.Transferencia)
+      if (Math.abs(this.paymentSum - num(this.totalPayment)) >= 0.01) {
         this.alertErrorText = 'El total a pagar no concuerda con el total ingresado'
         this.showAlertError()
-      } else {
-        let me = this
-
-        axios.put(apiUrl + '/lab_cuentas/deactivate',
-          {
-            id: this.selectedAccount,
-            total_pagado: parseFloat(this.totPagado) + parseFloat(this.paymentSum),
-            pendiente_de_pago: parseFloat(parseFloat(this.totalPayment) - parseFloat(this.paymentSum)),
-            efectivo: this.paymentType.Efectivo,
-            tarjeta: this.paymentType.Tarjeta,
-            deposito: this.paymentType.Deposito,
-            cheque: this.paymentType.Cheque,
-            seguro: this.paymentType.Seguro,
-            transferencia: this.paymentType.Transferencia,
-            total: this.paymentSum,
-            id_seguro: this.selectAssurance?.id || 0,
-            tipo: 'finiquito'
-          })
-          .then(
-            this.selectedAccount = null,
-            this.paymentType.Efectivo = 0,
-            this.paymentType.Tarjeta = 0,
-            this.paymentType.Deposito = 0,
-            this.paymentType.Cheque = 0,
-            this.paymentType.Seguro = 0,
-            this.paymentType.transferencia = 0,
-            this.paymentSum = 0,
-            this.selectAssurance = null
-          )
-          .catch((error) => {
-            me.alertVariant = 'danger'
-            me.showAlertError()
-            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-            console.error('There was an error!', error)
-          })
-        me.alertVariant = 'info'
-        me.showAlert()
-        me.alertText = 'Se ha egresado el paciente ' + me.form.nombres + ' exitosamente'
-        me.$refs.vuetable.refresh()
-        me.$refs['modal-2-account'].hide()
+        return
       }
+      const me = this
+      // Un solo cobro por paciente: liquida todas sus cuentas de laboratorio abiertas.
+      axios.put(apiUrl + '/lab_cuentas/cobrarPaciente', {
+        id_expediente: this.form.id_expediente,
+        efectivo: num(this.paymentType.Efectivo),
+        tarjeta: num(this.paymentType.Tarjeta),
+        deposito: num(this.paymentType.Deposito),
+        cheque: num(this.paymentType.Cheque),
+        seguro: num(this.paymentType.Seguro),
+        transferencia: num(this.paymentType.Transferencia),
+        id_seguro: this.selectAssurance?.id || 0,
+        user: me.currentUser.user
+      })
+        .then(() => {
+          me.limpiarPago()
+          me.alertVariant = 'info'
+          me.alertText = 'Se ha cobrado el laboratorio de ' + me.form.nombres + ' ' + me.form.apellidos
+          me.showAlert()
+          me.$refs.vuetable.refresh()
+          me.$refs['modal-2-account'].hide()
+        })
+        .catch((error) => {
+          me.alertErrorText = (error.response && error.response.data && error.response.data.msg) || 'Ha ocurrido un error, por favor intente más tarde'
+          me.showAlertError()
+          console.error('There was an error!', error)
+        })
     },
     makeQueryParams (sortOrder, currentPage, perPage) {
       return sortOrder[0]

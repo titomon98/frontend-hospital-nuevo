@@ -649,7 +649,7 @@ export default {
       } else {
         axios.post(apiUrl + '/lab_cuentas/requestDiscount', {
           form: {
-            id: this.form.id,
+            id_expediente: this.expediente,
             solicitud_descuento: 1,
             descuento: this.discountAmount
           }
@@ -668,7 +668,7 @@ export default {
     negateDiscount () {
       axios.post(apiUrl + '/lab_cuentas/requestDiscount', {
         form: {
-          id: this.form.id,
+          id_expediente: this.expediente,
           solicitud_descuento: 0,
           descuento: this.discountAmount
         }

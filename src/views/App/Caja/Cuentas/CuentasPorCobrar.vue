@@ -80,7 +80,7 @@
       </b-alert>
       <template>
         <div>
-          <h6>Cuentas activas para {{this.form.nombres}} {{this.form.apellidos}}</h6>
+          <h6>Cuentas activas para {{ form.nombres }} {{ form.apellidos }}</h6>
           <b-card>
             <b-card-body>
               <b-table
@@ -731,6 +731,9 @@ export default {
       }
     },
     setData (data) {
+      // Cada apertura del cobro empieza en 0 (no arrastra la transaccion anterior).
+      this.resetPaymentInputs()
+      this.form.nombres = data.expediente.nombres
       this.form.name = data.expediente.nombres
       this.form.apellidos = data.expediente.apellidos
       this.form.state = data.estado
