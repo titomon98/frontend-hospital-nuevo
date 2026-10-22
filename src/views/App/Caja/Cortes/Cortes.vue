@@ -120,9 +120,10 @@
 
         <!-- Honorarios pendientes del medico (de cualquier fecha): se eligen los que se pagan hoy. -->
         <b-form-group v-if="medicoYaSeleccionado" label="Honorarios pendientes (marque los que se pagan):">
+          <b-form-checkbox v-model="soloHonorariosHoy" class="mb-2">Solo honorarios del día</b-form-checkbox>
           <b-table
             small striped hover bordered
-            :items="pacientes"
+            :items="pacientesVisibles"
             :fields="[
               { key: 'sel', label: '' },
               { key: 'paciente', label: 'Nombre del Paciente' },
@@ -136,7 +137,7 @@
             empty-text="El médico no tiene honorarios pendientes"
           >
             <template #head(sel)>
-              <b-form-checkbox :checked="pacientes.length > 0 && honorariosElegidos.length === pacientes.length" @change="v => (honorariosElegidos = v ? pacientes.map(p => p.id) : [])"></b-form-checkbox>
+              <b-form-checkbox :checked="pacientesVisibles.length > 0 && honorariosElegidos.length === pacientesVisibles.length" @change="v => (honorariosElegidos = v ? pacientesVisibles.map(p => p.id) : [])"></b-form-checkbox>
             </template>
             <template #cell(sel)="data">
               <b-form-checkbox v-model="honorariosElegidos" :value="data.item.id"></b-form-checkbox>
@@ -315,6 +316,13 @@ export default {
     ...mapGetters([
       'currentUser'
     ]),
+    // Honorarios del voucher: todos los pendientes, o solo los registrados hoy (hora GT).
+    pacientesVisibles () {
+      if (!this.soloHonorariosHoy) return this.pacientes
+      const diaGT = d => new Date(d).toLocaleDateString('en-CA', { timeZone: 'America/Guatemala' })
+      const hoy = diaGT(new Date())
+      return this.pacientes.filter(p => diaGT(p.fecha) === hoy)
+    },
 
     selectedDateFormatted () {
       if (!this.selectedDate) return ''
@@ -454,6 +462,7 @@ export default {
       medicos: [],
       pacientes: [],
       honorariosElegidos: [],
+      soloHonorariosHoy: false,
       formVoucher: {
         id_paciente: null,
         medico: null,
@@ -468,6 +477,11 @@ export default {
     }
   },
   watch: {
+    // Al cambiar el filtro solo quedan elegidos los honorarios que se ven.
+    soloHonorariosHoy () {
+      const visibles = this.pacientesVisibles.map(p => p.id)
+      this.honorariosElegidos = this.honorariosElegidos.filter(id => visibles.includes(id))
+    },
     honorariosElegidos (ids) {
       const elegidos = this.pacientes.filter(p => ids.includes(p.id))
       this.formVoucher.id_paciente = elegidos.map(p => p.id)
@@ -1451,6 +1465,7 @@ export default {
       this.selectedMedico = null
       this.pacientes = []
       this.honorariosElegidos = []
+      this.soloHonorariosHoy = false
       this.medicos = []
       this.formVoucher.cantidad = null
       this.formVoucher.medico = null
