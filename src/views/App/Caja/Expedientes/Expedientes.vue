@@ -1886,6 +1886,8 @@ ANTE MI
         const diasDiferencia = Math.floor(diferenciaMs / (1000 * 60 * 60 * 24))
         mensajeDias = diasDiferencia
       }
+      // Dias cobrados por el backend (corte 2 PM): 46 horas son 2 dias, no 1 ni 3.
+      if (data && data.diasEstancia) mensajeDias = data.diasEstancia
 
       let hospitalizacion
 
