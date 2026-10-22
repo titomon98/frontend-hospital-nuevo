@@ -462,6 +462,7 @@ export default {
       medicos: [],
       pacientes: [],
       honorariosElegidos: [],
+      cortesDia: [],
       soloHonorariosHoy: false,
       formVoucher: {
         id_paciente: null,
@@ -754,6 +755,22 @@ export default {
         console.error('Error al generar el reporte:', error)
       }
     },
+    // Metodos de pago de la porcion `campo` (total_hospital o total_honorarios) de las
+    // cuentas del corte: cada pago se escala por la razon campo/total pagado de su cuenta.
+    metodosPagoPor (data, campo) {
+      const camposPago = ['efectivo', 'tarjeta', 'recargoTarjeta', 'deposito', 'cheque', 'seguro', 'transferencia']
+      const etiquetasPago = ['Efectivo', 'Tarjeta', 'RecargoTarjeta', 'Deposito', 'Cheque', 'Seguro', 'Transferencia']
+      const totalesPago = { efectivo: 0, tarjeta: 0, recargoTarjeta: 0, deposito: 0, cheque: 0, seguro: 0, transferencia: 0 }
+      ;(data || []).forEach(item => {
+        const pagado = parseFloat(item.total_pagado) || 0
+        const razon = pagado > 0 ? (parseFloat(item[campo]) || 0) / pagado : 0
+        ;(item.detalle_pago_cuentas || []).forEach(i => {
+          camposPago.forEach(c => { totalesPago[c] += (parseFloat(i[c]) || 0) * razon })
+        })
+      })
+      const totalMetodosPago = camposPago.reduce((a, c) => a + totalesPago[c], 0)
+      return { camposPago, etiquetasPago, totalesPago, totalMetodosPago }
+    },
     getReport () {
       axios.get(apiUrl + '/cuentas/listCortesPerDate', {
         params: {
@@ -1024,17 +1041,7 @@ export default {
           // Métodos de pago SOLO de la porción de hospital (los honorarios van en su
           // propio corte). Cada pago se escala por la razón hospital de su cuenta, así
           // el total de métodos de pago coincide con el total de hospital.
-          var camposPago = ['efectivo', 'tarjeta', 'recargoTarjeta', 'deposito', 'cheque', 'seguro', 'transferencia']
-          var etiquetasPago = ['Efectivo', 'Tarjeta', 'RecargoTarjeta', 'Deposito', 'Cheque', 'Seguro', 'Transferencia']
-          var totalesPago = { efectivo: 0, tarjeta: 0, recargoTarjeta: 0, deposito: 0, cheque: 0, seguro: 0, transferencia: 0 }
-          data.forEach(item => {
-            var pagado = parseFloat(item.total_pagado) || 0
-            var razon = pagado > 0 ? (parseFloat(item.total_hospital) || 0) / pagado : 0
-            ;(item.detalle_pago_cuentas || []).forEach(i => {
-              camposPago.forEach(c => { totalesPago[c] += (parseFloat(i[c]) || 0) * razon })
-            })
-          })
-          var totalMetodosPago = camposPago.reduce((a, c) => a + totalesPago[c], 0)
+          var { camposPago, etiquetasPago, totalesPago, totalMetodosPago } = this.metodosPagoPor(data, 'total_hospital')
           this.pdf.text('Corte del día ' + this.selectedDateFormatted, 5, altura)
           this.pdfName = 'Corte del día ' + this.selectedDateFormatted + '.pdf'
           altura = altura + 0.5
@@ -1424,6 +1431,23 @@ export default {
           columnStyles: { 0: { halign: 'left', fontStyle: 'bold' }, 1: { halign: 'right' } }
         })
 
+        // Desglose por metodo de pago de los honorarios cobrados hoy (como el corte de hospital).
+        const mp = this.metodosPagoPor(this.cortesDia, 'total_honorarios')
+        let yMp = doc.lastAutoTable.finalY + 12
+        if (yMp > doc.internal.pageSize.getHeight() - 60) { doc.addPage(); yMp = 20 }
+        doc.setFontSize(14).setFont(undefined, 'bold')
+        doc.text('Métodos de pago (honorarios cobrados)', 14, yMp)
+        doc.autoTable({
+          head: [['Método', 'Monto']],
+          body: mp.camposPago.map((c, idx) => [mp.etiquetasPago[idx], `Q${mp.totalesPago[c].toFixed(2)}`])
+            .concat([['Total métodos de pago', `Q${mp.totalMetodosPago.toFixed(2)}`]]),
+          startY: yMp + 5,
+          theme: 'grid',
+          styles: { fontSize: 10, cellPadding: 2, textColor: [0, 0, 0] },
+          headStyles: { fillColor: [21, 21, 21], textColor: 255, fontStyle: 'bold' },
+          columnStyles: { 0: { halign: 'left', fontStyle: 'bold' }, 1: { halign: 'right' } }
+        })
+
         // Guardar el PDF
         doc.save(`Corte_de_honorarios_${fechaInicio}_a_${fechaFin}.pdf`)
       } catch (error) {
@@ -1434,16 +1458,14 @@ export default {
     primerReporteMedicos () {
       const fechaInicio = this.selectedDate
       const fechaFin = this.selectedDate
-      axios.get(apiUrl + '/reporte/medicos/honorarios',
-        {
-          params: {
-            fechaInicio: fechaInicio,
-            fechaFin: fechaFin
-          }
-        }
-      )
-        .then((response) => {
+      Promise.all([
+        axios.get(apiUrl + '/reporte/medicos/honorarios', { params: { fechaInicio: fechaInicio, fechaFin: fechaFin } }),
+        // Cuentas cobradas del dia: de aqui sale el desglose por metodo de pago de honorarios.
+        axios.get(apiUrl + '/cuentas/listCortesPerDate', { params: { fecha_corte: this.selectedDate } })
+      ])
+        .then(([response, cortes]) => {
           this.dataMedicos = response.data
+          this.cortesDia = cortes.data
           this.generarPDFMedicos()
         })
         .catch((error) => {

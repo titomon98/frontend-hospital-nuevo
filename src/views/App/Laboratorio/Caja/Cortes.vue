@@ -372,7 +372,6 @@ export default {
         }
       }).then((response) => {
         this.detalle = response.data
-        this.medico = response.data[0].examenes_realizados[0].comision
         this.printSale(response.data, 2)
       })
     },
@@ -504,16 +503,22 @@ export default {
     },
     printSale (data, type) {
       this.arrayDetalles = type === 1 ? this.detalle
-        : data.map(item => ({
-          expediente: item.expediente.expediente,
-          nombres: item.expediente.nombres,
-          apellidos: item.expediente.apellidos,
-          numero: item.numero,
-          total: item.total,
-          fecha: item.createdAt,
-          id: item.id,
-          medico: this.medico
-        }))
+        : data.map(item => {
+          const examen = (item.examenes_realizados || [])[0] || {}
+          // Lo cobrado de verdad en la caja (sus pagos); si no hay pagos, el total de la cuenta.
+          const pagos = item.detalle_pago || []
+          const cobrado = pagos.length ? pagos.reduce((a, p) => a + (parseFloat(p.total) || 0), 0) : (parseFloat(item.total) || 0)
+          return {
+            paciente: `${item.expediente ? item.expediente.nombres : ''} ${item.expediente ? item.expediente.apellidos : ''}`.trim(),
+            medico: examen.comision || examen.referido || '',
+            factura: item.numero_factura || 'no hay numero de factura registrado',
+            cobrado,
+            total: 'Q' + cobrado.toFixed(2),
+            // fecha_corte se guarda como hora GT sobre UTC: se lee con utc.
+            fecha: (item.fecha_corte ? moment.utc(item.fecha_corte) : moment(item.createdAt)).format('DD/MM/YYYY'),
+            id: item.id
+          }
+        })
       if (this.arrayDetalles.length > 0) {
         this.$refs['modal-pdf'].show()
         var altura = 1
@@ -565,8 +570,15 @@ export default {
             }
           })
         } else {
+          // Mismo orden que el corte del hospital.
           autoTable(this.pdf, {
-            columns: [{ header: 'No.', dataKey: 'id' }, { header: 'Nombre', dataKey: 'nombres' }, { header: 'Apellido', dataKey: 'apellidos' }, { header: 'Fecha', dataKey: 'fecha' }, { header: 'Médico', dataKey: 'medico' }, { header: 'Total', dataKey: 'total' }],
+            columns: [
+              { header: 'Nombre del paciente', dataKey: 'paciente' },
+              { header: 'Médico tratante', dataKey: 'medico' },
+              { header: 'Factura', dataKey: 'factura' },
+              { header: 'Total de la factura', dataKey: 'total' },
+              { header: 'Fecha', dataKey: 'fecha' }
+            ],
             body: this.arrayDetalles,
             margin: { top: 5 },
             headStyles: {
@@ -574,6 +586,29 @@ export default {
               textColor: [225, 225, 225],
               fontStyle: 'bold'
             }
+          })
+          // Total del corte y desglose por metodo de pago.
+          const totalCorte = this.arrayDetalles.reduce((a, i) => a + i.cobrado, 0)
+          const campos = ['efectivo', 'tarjeta', 'deposito', 'cheque', 'seguro', 'transferencia']
+          const etiquetas = ['Efectivo', 'Tarjeta', 'Depósito', 'Cheque', 'Seguro', 'Transferencia']
+          const metodos = {}
+          campos.forEach(c => { metodos[c] = 0 })
+          data.forEach(item => (item.detalle_pago || []).forEach(p => campos.forEach(c => { metodos[c] += parseFloat(p[c]) || 0 })))
+          const totalMetodos = campos.reduce((a, c) => a + metodos[c], 0)
+          let y = this.pdf.lastAutoTable.finalY + 1
+          if (y > this.pdf.internal.pageSize.getHeight() - 4) { this.pdf.addPage(); y = 1.5 }
+          this.pdf.setFontSize(10).setFont(undefined, 'bold')
+          this.pdf.text('Total del corte: Q' + totalCorte.toFixed(2), 1.5, y)
+          autoTable(this.pdf, {
+            columns: [{ header: 'Método', dataKey: 'metodo' }, { header: 'Monto', dataKey: 'monto' }],
+            body: campos.map((c, i) => ({ metodo: etiquetas[i], monto: 'Q' + metodos[c].toFixed(2) }))
+              .concat([{ metodo: 'Total métodos de pago', monto: 'Q' + totalMetodos.toFixed(2) }]),
+            startY: y + 0.4,
+            margin: { top: 5, left: 1.5 },
+            tableWidth: 8,
+            theme: 'grid',
+            headStyles: { fillColor: [21, 21, 21], textColor: [225, 225, 225], fontStyle: 'bold' },
+            didParseCell: (d) => { if (d.row.index === campos.length) d.cell.styles.fontStyle = 'bold' }
           })
         }
         var pdfData = this.pdf.output('blob')
