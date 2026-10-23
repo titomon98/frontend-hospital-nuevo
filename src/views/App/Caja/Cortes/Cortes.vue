@@ -756,8 +756,10 @@ export default {
       }
     },
     // Metodos de pago de la porcion `campo` (total_hospital o total_honorarios) de las
-    // cuentas del corte: cada pago se escala por la razon campo/total pagado de su cuenta.
+    // cuentas del corte. Los pagos del cobro por categoria traen `categoria` y se toman
+    // exactos; los antiguos (sin categoria) se escalan por la razon campo/total pagado.
     metodosPagoPor (data, campo) {
+      const categoria = campo === 'total_honorarios' ? 'honorarios' : 'hospital'
       const camposPago = ['efectivo', 'tarjeta', 'recargoTarjeta', 'deposito', 'cheque', 'seguro', 'transferencia']
       const etiquetasPago = ['Efectivo', 'Tarjeta', 'RecargoTarjeta', 'Deposito', 'Cheque', 'Seguro', 'Transferencia']
       const totalesPago = { efectivo: 0, tarjeta: 0, recargoTarjeta: 0, deposito: 0, cheque: 0, seguro: 0, transferencia: 0 }
@@ -765,7 +767,8 @@ export default {
         const pagado = parseFloat(item.total_pagado) || 0
         const razon = pagado > 0 ? (parseFloat(item[campo]) || 0) / pagado : 0
         ;(item.detalle_pago_cuentas || []).forEach(i => {
-          camposPago.forEach(c => { totalesPago[c] += (parseFloat(i[c]) || 0) * razon })
+          const factor = i.categoria ? (i.categoria === categoria ? 1 : 0) : razon
+          camposPago.forEach(c => { totalesPago[c] += (parseFloat(i[c]) || 0) * factor })
         })
       })
       const totalMetodosPago = camposPago.reduce((a, c) => a + totalesPago[c], 0)
@@ -1334,9 +1337,9 @@ export default {
         const sinPagarOrdenados = sinPagar.sort((a, b) => b.total_honorario - a.total_honorario)
         const pagadoOrdenados = pagado.sort((a, b) => b.total_honorario - a.total_honorario)
 
-        const totalHonorarios =
-        data.sinPagar.reduce((acc, item) => acc + Number(item.total_honorario), 0) +
-        data.pagados.reduce((acc, item) => acc + Number(item.total_honorario), 0)
+        // Desglose por metodo de pago de los honorarios cobrados (como el corte de hospital).
+        // "Por total" es lo cobrado: asi coincide con el total de metodos de pago.
+        const mp = this.metodosPagoPor(this.cortesDia, 'total_honorarios')
 
         const doc = new JsPDF()
 
@@ -1347,110 +1350,95 @@ export default {
         doc.text('6ta. Calle 12-28 Zona 3 Quetzaltenango', 110, 26, { align: 'center' })
         doc.text('Tels: 7763-5225-7763-6167-7763-5226 Fax 7763-5223', 105, 32, { align: 'center' })
 
-        doc.setFontSize(16)
+        doc.setFontSize(16).setFont(undefined, 'bold')
         doc.text('Corte de Honorarios Medicos', 105, 50, { align: 'center' })
-        doc.setFontSize(12)
+        doc.setFontSize(12).setFont(undefined, 'normal')
         doc.text(`Del día: ${moment(fechaInicio).format('DD/MM/YYYY')}`, 105, 58, { align: 'center' })
-        doc.setFontSize(12)
-        doc.text(`Por total: Q${totalHonorarios.toFixed(2)}`, 105, 66, { align: 'center' })
-        // Sección "Sin pagar"
-        doc.setFontSize(14).setFont(undefined, 'bold')
-        doc.text('Honorarios Sin Pagar', 14, 72)
+        doc.setFontSize(12).setFont(undefined, 'bold')
+        doc.text(`Por total: Q${mp.totalMetodosPago.toFixed(2)}`, 14, 66)
+
+        // Cada seccion solo aparece si tiene informacion; se van apilando hacia abajo.
+        let y = 76
+        const seccion = (titulo, dibujar) => {
+          if (y > doc.internal.pageSize.getHeight() - 40) { doc.addPage(); y = 20 }
+          doc.setFontSize(14).setFont(undefined, 'bold')
+          doc.text(titulo, 14, y)
+          dibujar(y + 5)
+          y = doc.lastAutoTable.finalY + 15
+        }
+        const filas = (lista, estado) => lista.map((medico, index) => [
+          index + 1,
+          medico.paciente || 'Desconocido',
+          medico.nombre_medico,
+          medico.lugar,
+          medico.descripcion,
+          `Q${(Number(medico.total_honorario) || 0).toFixed(2)}`,
+          medico.fecha,
+          estado
+        ])
+        const cabecera = [['#', 'Nombre del Paciente', 'Nombre del Medico', 'Lugar', 'Descripción', 'Total Honorarios', 'Fecha', 'Estado']]
 
         if (sinPagarOrdenados.length > 0) {
-          const sinPagarRows = sinPagarOrdenados.map((medico, index) => [
-            index + 1,
-            medico.paciente || 'Desconocido',
-            medico.nombre_medico,
-            medico.lugar,
-            medico.descripcion,
-            `Q${medico.total_honorario.toFixed(2)}`,
-            medico.fecha,
-            'Sin Pagar'
-          ])
-
-          doc.autoTable({
-            head: [['#', 'Nombre del Paciente', 'Nombre del Medico', 'Lugar', 'Descripción', 'Total Honorarios', 'Fecha', 'Estado']],
-            body: sinPagarRows,
-            startY: 77,
+          seccion('Honorarios Sin Pagar', startY => doc.autoTable({
+            head: cabecera,
+            body: filas(sinPagarOrdenados, 'Sin Pagar'),
+            startY,
             theme: 'grid',
             styles: { fontSize: 10, cellPadding: 2 },
-            headStyles: { fillColor: [255, 99, 71], textColor: 255, fontStyle: 'bold' }, // Color de encabezado para "Sin pagar"
+            headStyles: { fillColor: [255, 99, 71], textColor: 255, fontStyle: 'bold' },
             alternateRowStyles: { fillColor: [240, 240, 240] }
-          })
-        } else {
-          doc.setFontSize(10)
-          doc.text('No hay honorarios pendientes de pago.', 14, 90)
+          }))
         }
-
-        // Sección "Pagado"
-        const startYPagado = doc.lastAutoTable ? doc.lastAutoTable.finalY + 20 : 120
-        doc.setFontSize(14).setFont(undefined, 'bold')
-        doc.text('Honorarios Pagados', 14, startYPagado)
 
         if (pagadoOrdenados.length > 0) {
-          const pagadoRows = pagadoOrdenados.map((medico, index) => [
-            index + 1,
-            medico.paciente || 'Desconocido',
-            medico.nombre_medico,
-            medico.lugar,
-            medico.descripcion,
-            `Q${medico.total_honorario.toFixed(2)}`,
-            medico.fecha,
-            'Pagado'
-          ])
-
-          doc.autoTable({
-            head: [['#', 'Nombre del Paciente', 'Nombre del Medico', 'Lugar', 'Descripción', 'Total Honorarios', 'Fecha', 'Estado']],
-            body: pagadoRows,
-            startY: startYPagado + 5,
+          seccion('Honorarios Pagados', startY => doc.autoTable({
+            head: cabecera,
+            body: filas(pagadoOrdenados, 'Pagado'),
+            startY,
             theme: 'grid',
             styles: { fontSize: 10, cellPadding: 2 },
-            headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' }, // Color de encabezado para "Pagado"
+            headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
             alternateRowStyles: { fillColor: [240, 240, 240] }
-          })
-        } else {
-          doc.setFontSize(10)
-          doc.text('No hay honorarios pagados.', 14, startYPagado + 10)
+          }))
         }
 
-        // Resumen de pagos del día (estilo corte de hospital)
+        // Resumen de pagos al medico del dia
         const resumen = data.resumenPagos || { efectivo: 0, transferenciaMedico: 0, totalPendiente: 0 }
         const efectivo = Number(resumen.efectivo) || 0
         const transferenciaMedico = Number(resumen.transferenciaMedico) || 0
         const totalPendiente = Number(resumen.totalPendiente) || 0
-        const startYResumen = doc.lastAutoTable ? doc.lastAutoTable.finalY + 15 : 200
-        doc.setFontSize(14).setFont(undefined, 'bold')
-        doc.text('Resumen de pagos del día', 14, startYResumen)
-        doc.autoTable({
-          body: [
-            ['Efectivo', `Q${efectivo.toFixed(2)}`],
-            ['Transferencia a médico', `Q${transferenciaMedico.toFixed(2)}`],
-            ['Total entregado', `Q${(efectivo + transferenciaMedico).toFixed(2)}`],
-            ['Total pendiente de pago', `Q${totalPendiente.toFixed(2)}`]
-          ],
-          startY: startYResumen + 5,
-          theme: 'grid',
-          styles: { fontSize: 10, cellPadding: 2, textColor: [0, 0, 0] },
-          columnStyles: { 0: { halign: 'left', fontStyle: 'bold' }, 1: { halign: 'right' } }
-        })
+        if (efectivo + transferenciaMedico + totalPendiente > 0) {
+          seccion('Resumen de pagos del día', startY => doc.autoTable({
+            body: [
+              ['Efectivo', `Q${efectivo.toFixed(2)}`],
+              ['Transferencia a médico', `Q${transferenciaMedico.toFixed(2)}`],
+              ['Total entregado', `Q${(efectivo + transferenciaMedico).toFixed(2)}`],
+              ['Total pendiente de pago', `Q${totalPendiente.toFixed(2)}`]
+            ],
+            startY,
+            theme: 'grid',
+            styles: { fontSize: 10, cellPadding: 2, textColor: [0, 0, 0] },
+            columnStyles: { 0: { halign: 'left', fontStyle: 'bold' }, 1: { halign: 'right' } }
+          }))
+        }
 
-        // Desglose por metodo de pago de los honorarios cobrados hoy (como el corte de hospital).
-        const mp = this.metodosPagoPor(this.cortesDia, 'total_honorarios')
-        let yMp = doc.lastAutoTable.finalY + 12
-        if (yMp > doc.internal.pageSize.getHeight() - 60) { doc.addPage(); yMp = 20 }
-        doc.setFontSize(14).setFont(undefined, 'bold')
-        doc.text('Métodos de pago (honorarios cobrados)', 14, yMp)
-        doc.autoTable({
-          head: [['Método', 'Monto']],
-          body: mp.camposPago.map((c, idx) => [mp.etiquetasPago[idx], `Q${mp.totalesPago[c].toFixed(2)}`])
-            .concat([['Total métodos de pago', `Q${mp.totalMetodosPago.toFixed(2)}`]]),
-          startY: yMp + 5,
-          theme: 'grid',
-          styles: { fontSize: 10, cellPadding: 2, textColor: [0, 0, 0] },
-          headStyles: { fillColor: [21, 21, 21], textColor: 255, fontStyle: 'bold' },
-          columnStyles: { 0: { halign: 'left', fontStyle: 'bold' }, 1: { halign: 'right' } }
-        })
+        if (mp.totalMetodosPago > 0) {
+          seccion('Métodos de pago (honorarios cobrados)', startY => doc.autoTable({
+            head: [['Método', 'Monto']],
+            body: mp.camposPago.map((c, idx) => [mp.etiquetasPago[idx], `Q${mp.totalesPago[c].toFixed(2)}`])
+              .concat([['Total métodos de pago', `Q${mp.totalMetodosPago.toFixed(2)}`]]),
+            startY,
+            theme: 'grid',
+            styles: { fontSize: 10, cellPadding: 2, textColor: [0, 0, 0] },
+            headStyles: { fillColor: [21, 21, 21], textColor: 255, fontStyle: 'bold' },
+            columnStyles: { 0: { halign: 'left', fontStyle: 'bold' }, 1: { halign: 'right' } }
+          }))
+        }
+
+        if (!sinPagarOrdenados.length && !pagadoOrdenados.length && mp.totalMetodosPago <= 0) {
+          doc.setFontSize(11).setFont(undefined, 'normal')
+          doc.text('No hay honorarios registrados en este día.', 14, y)
+        }
 
         // Guardar el PDF
         doc.save(`Corte_de_honorarios_${fechaInicio}_a_${fechaFin}.pdf`)
