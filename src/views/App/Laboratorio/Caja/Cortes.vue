@@ -528,8 +528,7 @@ export default {
 
         this.pdf = new JsPDF({
           unit: 'cm',
-          format: 'letter',
-          orientation: 'landscape'
+          format: 'letter'
         })
         var ingreso = moment(ahora).format('DD/MM/YYYY')
         var imgData = logoLab
@@ -581,7 +580,7 @@ export default {
             ],
             body: this.arrayDetalles,
             margin: { top: 5, left: 1.5, right: 1.5 },
-            styles: { fontSize: 11 },
+            styles: { fontSize: 10 },
             headStyles: {
               fillColor: [21, 21, 21],
               textColor: [225, 225, 225],

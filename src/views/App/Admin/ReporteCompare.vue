@@ -913,8 +913,7 @@ export default {
       this.encabezado.fecha = new Date().toLocaleDateString('es-us', ahora)
       this.pdf = new JsPDF({
         unit: 'cm',
-        format: [14, 21.5],
-        orientation: 'landscape'
+        format: 'letter'
       })
       var ingreso = moment(ahora).format('DD/MM/YYYY')
       var imgData = logoLab
@@ -947,7 +946,8 @@ export default {
         this.pdf.autoTable(this.pdf, {
           columns: [{ header: 'Cuenta', dataKey: 'numero_cuenta' }, { header: 'total', dataKey: 'total' }, { header: 'expediente', dataKey: 'expediente.expediente' }],
           body: this.reportItems,
-          margin: { top: 5 },
+          margin: { top: 5, left: 1.5, right: 1.5 },
+          styles: { fontSize: 10 },
           headStyles: {
             fillColor: [21, 21, 21],
             textColor: [225, 225, 225],
@@ -958,7 +958,8 @@ export default {
         this.pdf.autoTable(this.pdf, {
           columns: [{ header: 'Expediente', dataKey: 'expediente' }, { header: 'Nombre', dataKey: 'nombres' }, { header: 'Apellido', dataKey: 'apellidos' }, { header: 'Cuenta número', dataKey: 'numero' }, { header: 'Total', dataKey: 'total' }],
           body: this.reportItems,
-          margin: { top: 5 },
+          margin: { top: 5, left: 1.5, right: 1.5 },
+          styles: { fontSize: 10 },
           headStyles: {
             fillColor: [21, 21, 21],
             textColor: [225, 225, 225],

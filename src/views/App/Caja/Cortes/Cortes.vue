@@ -813,7 +813,7 @@ export default {
         this.alertText = 'No se encontraron métodos de pago en el día.'
         return
       }
-      const doc = new JsPDF({ unit: 'cm', format: 'letter', orientation: 'landscape' })
+      const doc = new JsPDF({ unit: 'cm', format: 'letter' })
       let altura = 1
       doc.addImage(logo, 'PNG', 1.5, 0.2, 3, 3)
       doc.setFontSize(7).setFont(undefined, 'bold')
@@ -838,8 +838,8 @@ export default {
         body: medioDePago,
         startY: altura + 0.5,
         margin: { top: 5, left: 1.5, right: 1.5 },
-        headStyles: { fontSize: 10, fillColor: [21, 21, 21], textColor: [225, 225, 225], fontStyle: 'bold' },
-        bodyStyles: { fontSize: 10 }
+        headStyles: { fontSize: 9, fillColor: [21, 21, 21], textColor: [225, 225, 225], fontStyle: 'bold' },
+        bodyStyles: { fontSize: 9 }
       })
       let y = doc.lastAutoTable.finalY + 1
       const totalGeneral = campos.reduce((a, c) => a + totales[c], 0)
@@ -999,7 +999,7 @@ export default {
           totalLaboratorio: parseFloat(item.total_laboratorio) || 0,
           totalFull: parseFloat(item.total_pagado) || 0,
           categoria: item.categoria || 'Hospitalización',
-          fecha: item.createdAt,
+          fecha: moment(item.createdAt).format('DD/MM/YYYY'),
           tipo: item.tipo
         }))
       if (this.arrayDetalles.length > 0) {
@@ -1011,7 +1011,7 @@ export default {
 
         this.pdf = new JsPDF({
           unit: 'cm',
-          format: [14, 21.5]
+          format: 'letter'
         })
         var ingreso = moment(ahora).format('DD/MM/YYYY')
         var imgData = logo
@@ -1060,13 +1060,13 @@ export default {
             body: this.detalle,
             margin: { top: 5 },
             headStyles: {
-              fontSize: 5,
+              fontSize: 9,
               fillColor: [21, 21, 21],
               textColor: [225, 225, 225],
               fontStyle: 'bold'
             },
             bodyStyles: {
-              fontSize: 5
+              fontSize: 9
             }
           })
           autoTable(this.pdf, {
@@ -1074,13 +1074,13 @@ export default {
             body: this.pagoCuentas,
             margin: { top: 5 },
             headStyles: {
-              fontSize: 5,
+              fontSize: 9,
               fillColor: [21, 21, 21],
               textColor: [225, 225, 225],
               fontStyle: 'bold'
             },
             bodyStyles: {
-              fontSize: 5
+              fontSize: 9
             }
           })
         } else {
@@ -1088,7 +1088,7 @@ export default {
           var finalY = altura + 0.5
           categorias.forEach(cat => {
             if (grupos[cat].length === 0) return
-            this.pdf.setFontSize(9).setFont(undefined, 'bold')
+            this.pdf.setFontSize(11).setFont(undefined, 'bold')
             this.pdf.text(cat + ' — Q.' + subtotales[cat].toFixed(2), 1.5, finalY + 0.6)
             autoTable(this.pdf, {
               columns: [
@@ -1100,9 +1100,9 @@ export default {
               ],
               body: grupos[cat].map(i => ({ ...i, paciente: `${i.nombres || ''} ${i.apellidos || ''}`.trim() })),
               startY: finalY + 0.8,
-              margin: { top: 5 },
-              headStyles: { fontSize: 5, fillColor: [21, 21, 21], textColor: [225, 225, 225], fontStyle: 'bold' },
-              bodyStyles: { fontSize: 5 }
+              margin: { top: 5, left: 1.5, right: 1.5 },
+              headStyles: { fontSize: 9, fillColor: [21, 21, 21], textColor: [225, 225, 225], fontStyle: 'bold' },
+              bodyStyles: { fontSize: 9 }
             })
             finalY = this.pdf.lastAutoTable.finalY
           })
@@ -1111,7 +1111,7 @@ export default {
           var yTot = (this.pdf.lastAutoTable ? this.pdf.lastAutoTable.finalY : finalY) + 1
           var pageH = this.pdf.internal.pageSize.getHeight()
           if (yTot > pageH - 4) { this.pdf.addPage(); yTot = 1.5 }
-          this.pdf.setFontSize(9).setFont(undefined, 'bold')
+          this.pdf.setFontSize(11).setFont(undefined, 'bold')
           this.pdf.text('Total hospital: Q.' + totalHospitalCorte.toFixed(2), 1.5, yTot)
           yTot += 0.5
           this.pdf.setFontSize(9).setFont(undefined, 'normal')
@@ -1126,10 +1126,10 @@ export default {
               .concat([{ metodo: 'Total métodos de pago', monto: 'Q.' + totalMetodosPago.toFixed(2) }]),
             startY: yTot + 0.3,
             margin: { top: 5, left: 1.5 },
-            tableWidth: 8,
+            tableWidth: 10,
             theme: 'grid',
-            headStyles: { fontSize: 7, fillColor: [21, 21, 21], textColor: [225, 225, 225], fontStyle: 'bold' },
-            bodyStyles: { fontSize: 7 },
+            headStyles: { fontSize: 10, fillColor: [21, 21, 21], textColor: [225, 225, 225], fontStyle: 'bold' },
+            bodyStyles: { fontSize: 10 },
             didParseCell: (d) => {
               if (d.row.index === camposPago.length) { d.cell.styles.fontStyle = 'bold' }
             }

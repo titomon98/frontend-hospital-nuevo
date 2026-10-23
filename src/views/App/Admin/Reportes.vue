@@ -1061,8 +1061,7 @@ export default {
       this.encabezado.fecha = new Date().toLocaleDateString('es-us', ahora)
       this.pdf = new JsPDF({
         unit: 'cm',
-        format: [14, 21.5],
-        orientation: 'landscape'
+        format: 'letter'
       })
       var ingreso = moment(ahora).format('DD/MM/YYYY')
       var imgData = logoLab
@@ -1123,7 +1122,8 @@ export default {
           autoTable(this.pdf, {
             columns: [{ header: 'Cuenta', dataKey: 'numero_cuenta' }, { header: 'Total', dataKey: 'total' }, { header: 'Total pagado', dataKey: 'total_pagado' }, { header: 'Expediente', dataKey: 'expediente' }],
             body: transformedData,
-            margin: { top: 5 },
+            margin: { top: 5, left: 1.5, right: 1.5 },
+            styles: { fontSize: 10 },
             headStyles: {
               fillColor: [21, 21, 21],
               textColor: [225, 225, 225],
@@ -1145,7 +1145,8 @@ export default {
               { tipo: 'Cheque', monto: this.walletItems[0].cheque },
               { tipo: 'Transferencia', monto: this.walletItems[0].transferencia }
             ],
-            margin: { top: 5 },
+            margin: { top: 5, left: 1.5, right: 1.5 },
+            styles: { fontSize: 10 },
             headStyles: {
               fillColor: [21, 21, 21],
               textColor: [225, 225, 225],
