@@ -520,8 +520,9 @@ export default {
       }
     },
     onPatientQuit () {
-      this.paymentSum = parseFloat(this.paymentType.Efectivo) + parseFloat(this.paymentType.Tarjeta) + parseFloat(this.paymentType.Deposito) + parseFloat(this.paymentType.Cheque) + parseFloat(this.paymentType.Seguro) + parseFloat(this.paymentType.Transferencia)
-      if (this.paymentSum !== parseFloat(this.totalPayment)) {
+      const num = v => parseFloat(v) || 0
+      this.paymentSum = num(this.paymentType.Efectivo) + num(this.paymentType.Tarjeta) + num(this.paymentType.Deposito) + num(this.paymentType.Cheque) + num(this.paymentType.Seguro) + num(this.paymentType.Transferencia)
+      if (Math.abs(this.paymentSum - num(this.totalPayment)) >= 0.01) {
         this.alertErrorText = 'El total a pagar neto no concuerda con el total ingresado'
         this.showAlertError()
       } else {
@@ -543,32 +544,21 @@ export default {
             id_expediente: this.expediente,
             tipo: 'finiquito'
           })
-          .then(
-            this.selectedAccount = null,
-            this.paymentType.Efectivo = 0,
-            this.paymentType.Tarjeta = 0,
-            this.paymentType.Recargo = 0,
-            this.paymentType.Deposito = 0,
-            this.paymentType.Cheque = 0,
-            this.paymentType.Seguro = 0,
-            this.paymentType.transferencia = 0,
-            this.paymentSum = 0,
-            this.selectAssurance = null
-          )
-          .catch((error) => {
-            console.error(error)
+          .then(() => {
+            me.selectedAccount = null
+            me.paymentType = { Efectivo: 0, Tarjeta: 0, Recargo: 0, Deposito: 0, Cheque: 0, Seguro: 0, Transferencia: 0 }
+            me.paymentSum = 0
+            me.selectAssurance = null
+            me.alertVariant = 'info'
+            me.alertText = 'Se ha pagado la cuenta parcial del paciente ' + me.form.nombres + ' exitosamente'
+            me.showAlert()
+            me.$refs.vuetable.refresh()
+            me.$refs['modal-2-account'].hide()
           })
-        me.alertVariant = 'info'
-        me.showAlert()
-        me.alertText = 'Se ha pagado la cuenta parcial del paciente ' + me.form.nombres + ' exitosamente'
-        me.$refs.vuetable.refresh()
-        me.$refs['modal-2-account'].hide()
-
           .catch((error) => {
-            me.alertVariant = 'danger'
+            me.alertErrorText = (error.response && error.response.data && error.response.data.msg) || 'Ha ocurrido un error, por favor intente más tarde'
             me.showAlertError()
-            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-            console.error('There was an error!', error)
+            console.error(error)
           })
       }
     },
