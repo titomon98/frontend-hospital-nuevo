@@ -3111,6 +3111,9 @@ export default {
         ServicioSalaOperacionesTotal: this.formatearMonto(ServicioSalaOperacionesTotal),
         TotalDeuda: this.formatearMonto(totalDeuda)
       }
+      // Total que se manda a cuenta parcial (hospital + honorarios, sin laboratorio). Antes
+      // solo se calculaba al generar el PDF y, sin el, se mandaba Q0.
+      this.TotalApagar = totalDeuda
 
       this.$bvModal.show('reporteModal')
     },
@@ -3131,9 +3134,13 @@ export default {
           this.$refs.vuetable.refresh()
           this.idCuentaParcial = null
           this.$bvModal.hide('reporteModal')
+          this.$bvModal.msgBoxOk((response.data && response.data.msg === 'La cuenta ya está en cuenta parcial')
+            ? 'Esta cuenta ya estaba enviada a cuenta parcial. Se cobra en Caja → Cuentas parciales por cobrar.'
+            : 'La cuenta parcial se envió a caja. Se cobra en Caja → Cuentas parciales por cobrar.', { title: 'Cuenta parcial', centered: true })
         })
         .catch((error) => {
           console.error(error)
+          this.$bvModal.msgBoxOk((error.response && error.response.data && error.response.data.msg) || 'No se pudo enviar la cuenta parcial. Intente de nuevo.', { title: 'Cuenta parcial', centered: true })
         })
     },
     async generarPDF_CuentaParcial () {
