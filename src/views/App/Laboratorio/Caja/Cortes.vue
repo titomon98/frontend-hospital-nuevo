@@ -561,7 +561,7 @@ export default {
           autoTable(this.pdf, {
             columns: [{ header: 'Descripción', dataKey: 'Descripcion' }, { header: 'Costo', dataKey: 'costo' }, { header: 'Fecha', dataKey: 'createdAt' }],
             body: this.detalle,
-            margin: { top: 5 },
+            margin: { top: 5, bottom: 2.5 },
             headStyles: {
               fillColor: [21, 21, 21],
               textColor: [225, 225, 225],
@@ -579,7 +579,7 @@ export default {
               { header: 'Fecha', dataKey: 'fecha' }
             ],
             body: this.arrayDetalles,
-            margin: { top: 5, left: 1.5, right: 1.5 },
+            margin: { top: 5, bottom: 2.5, left: 1.5, right: 1.5 },
             styles: { fontSize: 10 },
             headStyles: {
               fillColor: [21, 21, 21],
@@ -596,7 +596,7 @@ export default {
           data.forEach(item => (item.detalle_pago || []).forEach(p => campos.forEach(c => { metodos[c] += parseFloat(p[c]) || 0 })))
           const totalMetodos = campos.reduce((a, c) => a + metodos[c], 0)
           let y = this.pdf.lastAutoTable.finalY + 1
-          if (y > this.pdf.internal.pageSize.getHeight() - 4) { this.pdf.addPage(); y = 1.5 }
+          if (y > this.pdf.internal.pageSize.getHeight() - 9) { this.pdf.addPage(); y = 1.5 }
           this.pdf.setFontSize(10).setFont(undefined, 'bold')
           this.pdf.text('Total del corte: Q' + totalCorte.toFixed(2), 1.5, y)
           autoTable(this.pdf, {
@@ -604,7 +604,7 @@ export default {
             body: campos.map((c, i) => ({ metodo: etiquetas[i], monto: 'Q' + metodos[c].toFixed(2) }))
               .concat([{ metodo: 'Total métodos de pago', monto: 'Q' + totalMetodos.toFixed(2) }]),
             startY: y + 0.4,
-            margin: { top: 5, left: 1.5 },
+            margin: { top: 5, bottom: 2.5, left: 1.5 },
             tableWidth: 10,
             theme: 'grid',
             styles: { fontSize: 11 },

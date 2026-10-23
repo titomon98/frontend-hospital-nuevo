@@ -663,7 +663,7 @@ export default {
         const TotalGeneral = ConsumoTotal + ConsumoComunTotal + ConsumoMedicamentosTotal + ConsumoAnestesicosTotal + ConsumoQuirurgicosTotal + ServicioSalaOperacionesTotal + hospitalizacion
         const TotalGeneral2 = ConsumoTotal + ConsumoComunTotal + ConsumoMedicamentosTotal + ConsumoAnestesicosTotal + ConsumoQuirurgicosTotal + ServicioSalaOperacionesTotal + hospitalizacion
         const TotalApagar = TotalGeneral2 + TotalHonorarios
-        const doc = new JsPDF()
+        const doc = new JsPDF({ format: 'letter' })
 
         doc.setFontSize(10).setFont(undefined, 'bold')
         doc.text('HOSPITAL DE ESPECIALIDADES DE OCCIDENTE S.A. QUETZALTENANGO', 110, 10, { align: 'center' })
@@ -698,6 +698,7 @@ export default {
             ['TOTAL MENOS DESCUENTO =', `Q${(TotalGeneral - (Number(data.descuentoAplicado) || 0)).toFixed(2)}`]
           ],
           startY: 41,
+          margin: { bottom: 25 }, // margen inferior en carta
           theme: 'grid',
           styles: { fontSize: 10, cellPadding: 2, textColor: [0, 0, 0] },
           columnStyles: { 0: { halign: 'left' }, 1: { halign: 'left' } }
@@ -719,6 +720,7 @@ export default {
           head: [['#', 'MEDICO', 'DESCRIPCION', 'VALOR']],
           body: tableRows,
           startY: nextTableStartY + 20,
+          margin: { bottom: 25 }, // margen inferior en carta
           theme: 'grid',
           styles: { fontSize: 10, cellPadding: 2, textColor: [0, 0, 0] },
           headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], fontStyle: 'bold' },
@@ -737,6 +739,7 @@ export default {
             ['TOTAL A PAGAR =', `Q${(TotalApagar + ExamenesTotal).toFixed(2)}`]
           ],
           startY: nextTableStartY2 + 5,
+          margin: { bottom: 25 }, // margen inferior en carta
           theme: 'grid',
           styles: { fontSize: 10, cellPadding: 2, textColor: [0, 0, 0] },
           columnStyles: { 0: { halign: 'left' }, 1: { halign: 'left' } }
@@ -840,7 +843,7 @@ export default {
         ],
         body: medioDePago,
         startY: altura + 0.5,
-        margin: { top: 5, left: 1.5, right: 1.5 },
+        margin: { top: 5, bottom: 2.5, left: 1.5, right: 1.5 },
         headStyles: { fontSize: 9, fillColor: [21, 21, 21], textColor: [225, 225, 225], fontStyle: 'bold' },
         bodyStyles: { fontSize: 9 }
       })
@@ -1061,7 +1064,7 @@ export default {
           autoTable(this.pdf, {
             columns: [{ header: 'Descripción', dataKey: 'Descripcion' }, { header: 'Costo', dataKey: 'costo' }, { header: 'Fecha', dataKey: 'createdAt' }],
             body: (this.detalle || []).map(d => ({ ...d, costo: 'Q' + (parseFloat(d.costo) || 0).toFixed(2) })),
-            margin: { top: 5 },
+            margin: { top: 5, bottom: 2.5 },
             headStyles: {
               fontSize: 9,
               fillColor: [21, 21, 21],
@@ -1079,7 +1082,7 @@ export default {
               ;['efectivo', 'tarjeta', 'recargoTarjeta', 'deposito', 'cheque', 'seguro', 'transferencia'].forEach(c => { fila[c] = 'Q' + (parseFloat(p[c]) || 0).toFixed(2) })
               return fila
             }),
-            margin: { top: 5 },
+            margin: { top: 5, bottom: 2.5 },
             headStyles: {
               fontSize: 9,
               fillColor: [21, 21, 21],
@@ -1107,7 +1110,7 @@ export default {
               ],
               body: grupos[cat].map(i => ({ ...i, paciente: `${i.nombres || ''} ${i.apellidos || ''}`.trim() })),
               startY: finalY + 0.8,
-              margin: { top: 5, left: 1.5, right: 1.5 },
+              margin: { top: 5, bottom: 2.5, left: 1.5, right: 1.5 },
               headStyles: { fontSize: 9, fillColor: [21, 21, 21], textColor: [225, 225, 225], fontStyle: 'bold' },
               bodyStyles: { fontSize: 9 }
             })
@@ -1117,7 +1120,7 @@ export default {
           // gran total combinado). Debajo de la última tabla, sin solaparse.
           var yTot = (this.pdf.lastAutoTable ? this.pdf.lastAutoTable.finalY : finalY) + 1
           var pageH = this.pdf.internal.pageSize.getHeight()
-          if (yTot > pageH - 4) { this.pdf.addPage(); yTot = 1.5 }
+          if (yTot > pageH - 9) { this.pdf.addPage(); yTot = 1.5 }
           this.pdf.setFontSize(11).setFont(undefined, 'bold')
           this.pdf.text('Total hospital: Q.' + totalHospitalCorte.toFixed(2), 1.5, yTot)
           yTot += 0.5
@@ -1132,7 +1135,7 @@ export default {
             body: camposPago.map((c, idx) => ({ metodo: etiquetasPago[idx], monto: 'Q.' + totalesPago[c].toFixed(2) }))
               .concat([{ metodo: 'Total métodos de pago', monto: 'Q.' + totalMetodosPago.toFixed(2) }]),
             startY: yTot + 0.3,
-            margin: { top: 5, left: 1.5 },
+            margin: { top: 5, bottom: 2.5, left: 1.5 },
             tableWidth: 10,
             theme: 'grid',
             headStyles: { fontSize: 10, fillColor: [21, 21, 21], textColor: [225, 225, 225], fontStyle: 'bold' },
@@ -1235,7 +1238,7 @@ export default {
       const fechaInicio = `${dd}/${mm}/${yyyy}`
 
       try {
-        const doc = new JsPDF()
+        const doc = new JsPDF({ format: 'letter' })
 
         doc.addImage(logo, 'JPEG', 14, 10, 30, 25)
         doc.setFontSize(16)
@@ -1265,6 +1268,7 @@ export default {
           head: [['#', 'Nombre del Paciente', 'No. Expediente', 'Tipo pago', 'Fecha', 'Honorarios']],
           body: tableRows,
           startY: currentY + 5,
+          margin: { bottom: 25 }, // margen inferior en carta
           theme: 'grid',
           styles: { fontSize: 10, cellPadding: 2 },
           headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
@@ -1290,6 +1294,7 @@ export default {
               [{ content: `${data.observaciones}`, styles: { halign: 'left' } }]
             ],
             startY: currentY + 28,
+            margin: { bottom: 25 }, // margen inferior en carta
             theme: 'grid',
             styles: { fontSize: 10, cellPadding: 2, textColor: [0, 0, 0] }
           })
@@ -1312,6 +1317,7 @@ export default {
               ['Total entregado', `Q${(ef + th + tp).toFixed(2)}`]
             ],
             startY: currentY + 10,
+            margin: { bottom: 25 }, // margen inferior en carta
             theme: 'grid',
             styles: { fontSize: 10, cellPadding: 2, textColor: [0, 0, 0] },
             headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' }
@@ -1341,7 +1347,7 @@ export default {
         // "Por total" es lo cobrado: asi coincide con el total de metodos de pago.
         const mp = this.metodosPagoPor(this.cortesDia, 'total_honorarios')
 
-        const doc = new JsPDF()
+        const doc = new JsPDF({ format: 'letter' })
 
         doc.addImage(logo, 'JPEG', 14, 20, 30, 25)
         doc.setFontSize(14).setFont(undefined, 'bold')
@@ -1360,7 +1366,7 @@ export default {
         // Cada seccion solo aparece si tiene informacion; se van apilando hacia abajo.
         let y = 76
         const seccion = (titulo, dibujar) => {
-          if (y > doc.internal.pageSize.getHeight() - 40) { doc.addPage(); y = 20 }
+          if (y > doc.internal.pageSize.getHeight() - 70) { doc.addPage(); y = 20 }
           doc.setFontSize(14).setFont(undefined, 'bold')
           doc.text(titulo, 14, y)
           dibujar(y + 5)
@@ -1383,6 +1389,7 @@ export default {
             head: cabecera,
             body: filas(sinPagarOrdenados, 'Sin Pagar'),
             startY,
+            margin: { bottom: 25 }, // margen inferior en carta
             theme: 'grid',
             styles: { fontSize: 10, cellPadding: 2 },
             headStyles: { fillColor: [255, 99, 71], textColor: 255, fontStyle: 'bold' },
@@ -1395,6 +1402,7 @@ export default {
             head: cabecera,
             body: filas(pagadoOrdenados, 'Pagado'),
             startY,
+            margin: { bottom: 25 }, // margen inferior en carta
             theme: 'grid',
             styles: { fontSize: 10, cellPadding: 2 },
             headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
@@ -1416,6 +1424,7 @@ export default {
               ['Total pendiente de pago', `Q${totalPendiente.toFixed(2)}`]
             ],
             startY,
+            margin: { bottom: 25 }, // margen inferior en carta
             theme: 'grid',
             styles: { fontSize: 10, cellPadding: 2, textColor: [0, 0, 0] },
             columnStyles: { 0: { halign: 'left', fontStyle: 'bold' }, 1: { halign: 'right' } }
@@ -1428,6 +1437,7 @@ export default {
             body: mp.camposPago.map((c, idx) => [mp.etiquetasPago[idx], `Q${mp.totalesPago[c].toFixed(2)}`])
               .concat([['Total métodos de pago', `Q${mp.totalMetodosPago.toFixed(2)}`]]),
             startY,
+            margin: { bottom: 25 }, // margen inferior en carta
             theme: 'grid',
             styles: { fontSize: 10, cellPadding: 2, textColor: [0, 0, 0] },
             headStyles: { fillColor: [21, 21, 21], textColor: 255, fontStyle: 'bold' },
