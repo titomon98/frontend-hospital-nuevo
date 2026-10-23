@@ -183,7 +183,7 @@
                   <b-form-group label="Sexo:">
                     <v-select
                       name="type"
-                      v-model="form.genero"
+                      v-model="form.generos"
                       :options="generos"
                       placeholder="Seleccione el sexo"
                     />
@@ -1001,7 +1001,7 @@ export default {
       this.form.nacionalidad = data.nacionalidad
       this.form.telefono = data.telefono
       this.form.direccion = data.direccion
-      this.form.genero = data.genero
+      this.form.generos = data.genero
       this.form.nombre_encargado = data.nombre_encargado
       this.form.contacto_encargado = data.contacto_encargado
       if (data.parentesco_encargado && !this.parentescos.includes(data.parentesco_encargado)) {
