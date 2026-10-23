@@ -3244,8 +3244,8 @@ export default {
           this.idCuentaParcial = null
           this.$bvModal.hide('reporteModal')
           this.$bvModal.msgBoxOk((response.data && response.data.msg === 'La cuenta ya está en cuenta parcial')
-            ? 'Esta cuenta ya estaba enviada a cuenta parcial. Se cobra en Caja → Cuentas parciales por cobrar.'
-            : 'La cuenta parcial se envió a caja. Se cobra en Caja → Cuentas parciales por cobrar.', { title: 'Cuenta parcial', centered: true })
+            ? 'Esta cuenta parcial ya se había generado. Se cobra en Caja → Cuentas parciales por cobrar.'
+            : 'Se generó la cuenta parcial con lo consumido hasta ahora; se cobra en Caja → Cuentas parciales por cobrar. El paciente continúa aquí con una cuenta nueva.', { title: 'Cuenta parcial', centered: true })
         })
         .catch((error) => {
           console.error(error)
