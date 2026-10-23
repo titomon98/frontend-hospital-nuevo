@@ -802,7 +802,7 @@ export default {
           campos.forEach(c => {
             const v = parseFloat(i[c]) || 0
             totales[c] += v
-            fila[c] = v.toFixed(2)
+            fila[c] = 'Q' + v.toFixed(2)
           })
           medioDePago.push(fila)
         })
@@ -993,7 +993,7 @@ export default {
           medico: item.expediente.medico ? item.expediente.medico.nombre : '',
           numero: item.numero,
           total: item.total_hospital,
-          totalPagado: item.total_hospital,
+          totalPagado: 'Q' + (parseFloat(item.total_hospital) || 0).toFixed(2),
           totalHospital: parseFloat(item.total_hospital) || 0,
           totalHonorarios: parseFloat(item.total_honorarios) || 0,
           totalLaboratorio: parseFloat(item.total_laboratorio) || 0,
@@ -1023,7 +1023,7 @@ export default {
           this.pdf.text('Detalle de cuenta ' + data.numero + ' - Paciente: ' + data.expediente.nombres + ' ' + data.expediente.apellidos, 5, altura)
           this.pdfName = 'DetalleCuenta' + data.id + '.pdf'
           altura = altura + 0.5
-          this.pdf.text('Total ingresado: ' + data.total_pagado, 5, altura)
+          this.pdf.text('Total ingresado: Q' + (parseFloat(data.total_pagado) || 0).toFixed(2), 5, altura)
           altura = altura + 0.5
         } else {
           // Agrupar por categoría de paciente (5 categorías) y calcular los 4 totales.
@@ -1057,7 +1057,7 @@ export default {
         if (type === 1) {
           autoTable(this.pdf, {
             columns: [{ header: 'Descripción', dataKey: 'Descripcion' }, { header: 'Costo', dataKey: 'costo' }, { header: 'Fecha', dataKey: 'createdAt' }],
-            body: this.detalle,
+            body: (this.detalle || []).map(d => ({ ...d, costo: 'Q' + (parseFloat(d.costo) || 0).toFixed(2) })),
             margin: { top: 5 },
             headStyles: {
               fontSize: 9,
@@ -1071,7 +1071,11 @@ export default {
           })
           autoTable(this.pdf, {
             columns: [{ header: 'Efectivo', dataKey: 'efectivo' }, { header: 'Tarjeta', dataKey: 'tarjeta' }, { header: 'Recargo', dataKey: 'recargoTarjeta' }, { header: 'Depósito', dataKey: 'deposito' }, { header: 'Cheque', dataKey: 'cheque' }, { header: 'Seguro', dataKey: 'seguro' }, { header: 'Transferencia', dataKey: 'transferencia' }],
-            body: this.pagoCuentas,
+            body: (this.pagoCuentas || []).map(p => {
+              const fila = { ...p }
+              ;['efectivo', 'tarjeta', 'recargoTarjeta', 'deposito', 'cheque', 'seguro', 'transferencia'].forEach(c => { fila[c] = 'Q' + (parseFloat(p[c]) || 0).toFixed(2) })
+              return fila
+            }),
             margin: { top: 5 },
             headStyles: {
               fontSize: 9,
@@ -1251,7 +1255,7 @@ export default {
           paciente.expediente,
           paciente.tipoPago,
           new Date(paciente.fecha).toLocaleDateString(),
-          `Q${paciente.total}`
+          `Q${(Number(paciente.total) || 0).toFixed(2)}`
         ])
 
         doc.autoTable({
@@ -1267,7 +1271,7 @@ export default {
         currentY = doc.lastAutoTable.finalY + 10
 
         doc.setFontSize(10).setFont(undefined, 'bold')
-        doc.text(`TOTAL:             Q${data.cantidad}`, 143, currentY - 5)
+        doc.text(`TOTAL:             Q${(Number(data.cantidad) || 0).toFixed(2)}`, 143, currentY - 5)
         doc.text('__________________________', 143, currentY - 4)
         doc.text('__________________________', 143, currentY - 3)
 
@@ -1348,7 +1352,7 @@ export default {
         doc.setFontSize(12)
         doc.text(`Del día: ${moment(fechaInicio).format('DD/MM/YYYY')}`, 105, 58, { align: 'center' })
         doc.setFontSize(12)
-        doc.text(`Por total: ` + totalHonorarios.toFixed(2), 105, 66, { align: 'center' })
+        doc.text(`Por total: Q${totalHonorarios.toFixed(2)}`, 105, 66, { align: 'center' })
         // Sección "Sin pagar"
         doc.setFontSize(14).setFont(undefined, 'bold')
         doc.text('Honorarios Sin Pagar', 14, 72)
