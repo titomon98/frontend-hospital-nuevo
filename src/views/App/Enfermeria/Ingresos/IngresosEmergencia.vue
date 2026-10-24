@@ -73,10 +73,20 @@
                 </b-col>
 
                 <b-col md="2">
+                  <!-- Con fecha, la edad se calcula sola; sin fecha, se escribe a mano. Ninguna es obligatoria. -->
                   <b-form-group label="Edad:">
                     <b-form-input
+                      v-if="form.nacimiento"
                       :value="calcularEdad"
                       disabled
+                    ></b-form-input>
+                    <b-form-input
+                      v-else
+                      type="number"
+                      min="0"
+                      max="120"
+                      v-model.number="edadManual"
+                      placeholder="Años"
                     ></b-form-input>
                   </b-form-group>
                 </b-col>
@@ -251,6 +261,7 @@ export default {
   },
   data () {
     return {
+      edadManual: null,
       hours: Array.from({ length: 24 }, (_, index) => index),
       editorOption: {
         placeholder: '',
@@ -364,6 +375,18 @@ export default {
     /* Guardar */
     onSave () {
       const me = this
+      // Sin fecha pero con edad: el expediente no tiene campo de edad, asi que se guarda una
+      // fecha de nacimiento con la que hoy tiene exactamente esa edad (hoy menos N años).
+      const edad = parseInt(this.edadManual, 10)
+      if (!this.form.nacimiento && edad >= 0 && edad <= 120) {
+        const hoy = new Date()
+        const pad = n => String(n).padStart(2, '0')
+        const anio = hoy.getFullYear() - edad
+        // 29 de febrero en un año no bisiesto -> 28 de febrero (sigue cumpliendo la edad hoy).
+        const bisiesto = (anio % 4 === 0 && anio % 100 !== 0) || anio % 400 === 0
+        const dia = hoy.getMonth() === 1 && hoy.getDate() === 29 && !bisiesto ? 28 : hoy.getDate()
+        this.form.nacimiento = `${anio}-${pad(hoy.getMonth() + 1)}-${pad(dia)}`
+      }
       switch (this.form.selectedOption) {
         case 'emergencia':
           this.form.selectedOption = 'emergencia'
