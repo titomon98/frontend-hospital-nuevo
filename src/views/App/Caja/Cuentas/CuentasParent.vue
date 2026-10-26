@@ -19,6 +19,7 @@
           <template v-slot:body>
             <b-tabs>
               <b-tab title="Cuentas por cobrar" lazy><CuentasPorCobrar/></b-tab>
+              <b-tab title="Emergencias" lazy><CuentasPorCobrar emergencia/></b-tab>
               <b-tab title="Seguros por cobrar" lazy><SegurosPorCobrar/></b-tab>
               <b-tab title="Cuentas parciales por cobrar" lazy><CuentasParcialesPorCobrar/></b-tab>
             </b-tabs>

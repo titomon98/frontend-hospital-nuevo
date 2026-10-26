@@ -406,6 +406,7 @@ import { totalOxigeno } from '../../../../Utils/oxigeno'
 
 export default {
   name: 'CuentasPorCobrarHospital',
+  props: { emergencia: { type: Boolean, default: false } },
   components: {
     vuetable: Vuetable,
     'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
@@ -506,7 +507,7 @@ export default {
         { text: 'Hospitalización', value: 1 },
         { text: 'Intensivos', value: 4 }
       ],
-      apiBase: apiUrl + '/cuentas/debtList',
+      apiBase: apiUrl + '/cuentas/debtList' + (this.emergencia ? '?emergencia=1' : ''),
       fields: [
         {
           name: '__slot:actions',
