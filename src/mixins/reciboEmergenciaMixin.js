@@ -150,13 +150,14 @@ export default {
       doc.text('_________________', 150, totalY += 1)
       totalY -= 1
 
-      // El laboratorio se informa pero se paga en la caja del laboratorio: no suma al hospital.
+      // El laboratorio suma en la hoja y el recibo, pero se cobra en la caja del laboratorio
+      // (TotalApagar, lo que cobra la caja de hospital, no lo incluye).
       doc.text('LABORATORIOS (SE PAGA EN LABORATORIO) .........................................', 20, totalY += 7)
       doc.text(`Q. ${data.totalExamenes.toFixed(2)}`, 150, totalY -= 1)
       doc.text('_________________', 150, totalY += 1)
       totalY -= 1
 
-      const subtotal = subtotalConsumos + data.totalDerechoEmergencia
+      const subtotal = subtotalConsumos + data.totalDerechoEmergencia + (Number(data.totalExamenes) || 0)
 
       doc.text('SUBTOTAL ....................................................................................................', 20, totalY += 7)
       doc.text(`Q. ${subtotal.toFixed(2)}`, 150, totalY -= 1)
@@ -174,7 +175,7 @@ export default {
       totalY -= 1
 
       doc.text('TOTAL A PAGAR: .........................................................................................', 20, totalY += 7)
-      doc.text(`Q. ${data.totalAPagar.toFixed(2)}`, 150, totalY -= 1)
+      doc.text(`Q. ${((Number(data.totalAPagar) || 0) + (Number(data.totalExamenes) || 0)).toFixed(2)}`, 150, totalY -= 1)
       doc.text('_________________', 150, totalY += 1)
       totalY -= 1
 
@@ -275,7 +276,7 @@ export default {
     generarReciboProvisionalPDF (data) {
       const doc = new JsPDF()
       const anchoPagina = doc.internal.pageSize.getWidth()
-      const total = Number(data.totalAPagar) || 0
+      const total = (Number(data.totalAPagar) || 0) + (Number(data.totalExamenes) || 0)
       const fechaEmision = new Date().toLocaleString('es-GT', {
         timeZone: 'America/Guatemala',
         year: 'numeric',
