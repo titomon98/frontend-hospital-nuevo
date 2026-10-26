@@ -152,7 +152,7 @@ export default {
 
       // El laboratorio suma en la hoja y el recibo, pero se cobra en la caja del laboratorio
       // (TotalApagar, lo que cobra la caja de hospital, no lo incluye).
-      doc.text('LABORATORIOS (SE PAGA EN LABORATORIO) .........................................', 20, totalY += 7)
+      doc.text('LABORATORIOS ....................................................................................', 20, totalY += 7)
       doc.text(`Q. ${data.totalExamenes.toFixed(2)}`, 150, totalY -= 1)
       doc.text('_________________', 150, totalY += 1)
       totalY -= 1
