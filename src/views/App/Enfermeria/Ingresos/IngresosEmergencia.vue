@@ -387,6 +387,8 @@ export default {
         const dia = hoy.getMonth() === 1 && hoy.getDate() === 29 && !bisiesto ? 28 : hoy.getDate()
         this.form.nacimiento = `${anio}-${pad(hoy.getMonth() + 1)}-${pad(dia)}`
       }
+      // "Nombre en factura" se captura en nombre_encargado; el recibo lee nombre_factura.
+      this.form.nombre_factura = this.form.nombre_encargado
       switch (this.form.selectedOption) {
         case 'emergencia':
           this.form.selectedOption = 'emergencia'
