@@ -302,6 +302,15 @@
                 <a class="search-link" href="#"><i class="ri-search-line"></i></a>
               </b-form>
             </div>
+            <b-form-radio-group
+              v-model="filtroTipo"
+              :options="[{ value: '', text: 'TODOS' }, { value: 'hospitalizados', text: 'HOSPITALIZADOS' }, { value: 'ambulatorios', text: 'AMBULATORIOS' }]"
+              buttons
+              button-variant="outline-primary"
+              size="sm"
+              class="mt-2 mb-2"
+              @change="$nextTick(() => $refs.vuetable.refresh())"
+            ></b-form-radio-group>
           </template>
           <template v-slot:body>
             <datatable-heading
@@ -441,6 +450,7 @@ export default {
       total: 0,
       perPage: 25,
       search: '',
+      filtroTipo: '',
       tituloVer: '',
       resultados: null,
       campos: [
@@ -794,7 +804,8 @@ export default {
         order: sortOrder[0] ? sortOrder[0].direction : 'desc',
         page: currentPage,
         limit: this.perPage,
-        search: this.search
+        search: this.search,
+        tipo: this.filtroTipo
       }
     },
     changePageSizes (perPage) {
