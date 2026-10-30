@@ -353,11 +353,11 @@
                    >Consumos</b-button>
 
                   <b-button
-                    @click="generarHistorialCuentas(props.rowData.id)"
+                    @click="generarReporteCuentaParcial(props.rowData.id, props.rowData.nombres, props.rowData.apellidos)"
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="dark"
-                   >Historial Cuenta</b-button>
+                   >Cuenta parcial</b-button>
 
                   <b-button
                     @click="verEvolucion(props.rowData.id)"
@@ -405,8 +405,10 @@ import 'jspdf-autotable'
 import { claseFilaDiaNoche } from '../../../config/fechas'
 import HistorialCuentaModal from '../../../components/HistorialCuentaModal'
 
+import cuentaParcialPdfMixin from '../../../mixins/cuentaParcialPdfMixin'
 export default {
   name: 'PacientesHospitalizados',
+  mixins: [cuentaParcialPdfMixin],
   components: {
     HistorialCuentaModal,
     vuetable: Vuetable,

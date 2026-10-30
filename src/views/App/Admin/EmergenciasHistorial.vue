@@ -353,11 +353,11 @@
                    >Consumos</b-button>
 
                   <b-button
-                    @click="generarHistorialCuentas(props.rowData.id)"
+                    @click="generarReporteHojaEmergenciaPDF(props.rowData.id)"
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="dark"
-                   >Historial Cuenta</b-button>
+                   >Hoja de emergencia</b-button>
 
                   <b-button
                     @click="verEvolucion(props.rowData.id)"
@@ -405,8 +405,10 @@ import 'jspdf-autotable'
 import { claseFilaDiaNoche } from '../../../config/fechas'
 import HistorialCuentaModal from '../../../components/HistorialCuentaModal'
 
+import reciboEmergenciaMixin from '../../../mixins/reciboEmergenciaMixin'
 export default {
   name: 'EmergenciasHistorial',
+  mixins: [reciboEmergenciaMixin],
   components: {
     HistorialCuentaModal,
     vuetable: Vuetable,
