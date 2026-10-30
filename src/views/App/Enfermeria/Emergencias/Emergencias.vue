@@ -3434,6 +3434,11 @@ export default {
       this.$bvModal.show('reporteModal')
     },
     async pagar_CuentaParcial () {
+      const ok = await this.$bvModal.msgBoxConfirm(
+        `¿Enviar la cuenta parcial (Q${this.reporte.TotalDeuda}) a Caja → Cuentas parciales por cobrar? Se congela lo consumido hasta ahora y el paciente continúa aquí con una cuenta nueva.`,
+        { title: 'Confirmar cuenta parcial', okTitle: 'Sí, enviar', cancelTitle: 'No', okVariant: 'danger', centered: true }
+      )
+      if (!ok) return
       const idCuentaParcial = this.idCuentaParcial
       axios.patch(apiUrl + `/cuentas/${idCuentaParcial}/ingresoParcialPago`, {
         TotalApagar: this.TotalApagar
