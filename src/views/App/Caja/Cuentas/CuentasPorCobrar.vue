@@ -349,6 +349,16 @@
                       size="sm"
                       variant="dark"
                     >Cobrar</b-button>
+                    <b-button
+                      v-if="props.rowData.solicitud_descuento != 1"
+                      @click="
+                        setData(props.rowData)
+                        $bvModal.show('modal-3-discount')
+                      "
+                      class="mb-2 button-spacing"
+                      size="sm"
+                      variant="success"
+                    >Solicitar descuento</b-button>
 
                     <b-button
                     @click="verCuentaOHoja(props.rowData)"
@@ -373,6 +383,16 @@
                       size="sm"
                       variant="dark"
                     >Cobrar</b-button>
+                    <b-button
+                      v-if="props.rowData.solicitud_descuento != 1"
+                      @click="
+                        setData(props.rowData)
+                        $bvModal.show('modal-3-discount')
+                      "
+                      class="mb-2 button-spacing"
+                      size="sm"
+                      variant="success"
+                    >Solicitar descuento</b-button>
                   </div>
                 </div>
               </template>
@@ -802,8 +822,8 @@ export default {
       if (this.discountAmount <= 0) {
         this.alertErrorText = 'El descuento debe ser mayor a 0.00'
         this.showAlertError()
-      } else if (this.discountAmount > this.totalPayment) {
-        this.alertErrorText = `El descuento debe ser menor a ${this.totalPayment}`
+      } else if (this.discountAmount > 100) {
+        this.alertErrorText = 'El descuento es un porcentaje: debe ser 100 o menos'
         this.showAlertError()
       } else {
         axios.post(apiUrl + '/cuentas/requestDiscount', {
