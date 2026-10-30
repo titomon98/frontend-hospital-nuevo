@@ -289,7 +289,7 @@
     </b-modal>
 
     <HistorialCuentaModal ref="historialCuenta" />
-    <DetalleManejoModal ref="detalleManejo" />
+    <DetalleManejoModal ref="detalleManejo" @cuenta-detallada="generarHistorialCuentas" />
 
     <b-row>
       <b-col md="12">
@@ -346,7 +346,7 @@
                    >Ver Examen</b-button>
 
                   <b-button
-                    @click="$refs.detalleManejo.abrir(props.rowData.id)"
+                    @click="$refs.detalleManejo.abrir(props.rowData)"
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="primary"

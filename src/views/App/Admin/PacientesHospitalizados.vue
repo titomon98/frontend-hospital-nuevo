@@ -289,7 +289,7 @@
     </b-modal>
 
     <HistorialCuentaModal ref="historialCuenta" />
-    <DetalleManejoModal ref="detalleManejo" />
+    <DetalleManejoModal ref="detalleManejo" @cuenta-detallada="generarHistorialCuentas" />
 
     <b-row>
       <b-col md="12">
@@ -346,7 +346,7 @@
                    >Ver Examen</b-button>
 
                   <b-button
-                    @click="$refs.detalleManejo.abrir(props.rowData.id)"
+                    @click="$refs.detalleManejo.abrir(props.rowData)"
                     class="mb-2 button-spacing"
                     size="sm"
                     variant="primary"
@@ -994,25 +994,8 @@ export default {
         limit: this.perPage
       }
     },
-    // Igual que "Pagar cuenta parcial" de las areas, con confirmacion. El total lo calcula
-    // el backend (cuenta total sin laboratorio).
     async enviarCuentaParcial (row) {
-      const nombre = `${row.nombres || ''} ${row.apellidos || ''}`.trim()
-      const ok = await this.$bvModal.msgBoxConfirm(
-        `¿Enviar la cuenta parcial de ${nombre} a Caja → Cuentas parciales por cobrar? Se congela lo consumido hasta ahora y el paciente continúa en su área con una cuenta nueva.`,
-        { title: 'Confirmar cuenta parcial', okTitle: 'Sí, enviar', cancelTitle: 'No', okVariant: 'danger', centered: true }
-      )
-      if (!ok) return
-      try {
-        const { data } = await axios.patch(apiUrl + `/cuentas/${row.id}/ingresoParcialPago`, {})
-        this.$refs.vuetable.refresh()
-        this.$bvModal.msgBoxOk(data && data.msg === 'La cuenta ya está en cuenta parcial'
-          ? 'Esta cuenta parcial ya se había generado. Se cobra en Caja → Cuentas parciales por cobrar.'
-          : 'Se generó la cuenta parcial; se cobra en Caja → Cuentas parciales por cobrar.', { title: 'Cuenta parcial', centered: true })
-      } catch (error) {
-        console.error(error)
-        this.$bvModal.msgBoxOk((error.response && error.response.data && error.response.data.msg) || 'No se pudo enviar la cuenta parcial. Intente de nuevo.', { title: 'Cuenta parcial', centered: true })
-      }
+      if (await this.$refs.detalleManejo.enviarCuentaParcial(row)) this.$refs.vuetable.refresh()
     },
     generarHistorialCuentas (id) {
       this.$refs.historialCuenta.abrir(id)
