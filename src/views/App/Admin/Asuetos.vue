@@ -24,6 +24,19 @@
           </b-form-invalid-feedback>
         </div>
         <div class="col-md-12 mb-3">
+          <b-form-checkbox v-model="perpetuoAsueto">Se repite cada año (mismo día y mes)</b-form-checkbox>
+        </div>
+        <div v-if="perpetuoAsueto" class="col-md-12 mb-3">
+          <label>Día y mes del Asueto</label>
+          <b-row>
+            <b-col cols="5"><b-form-select v-model="diaAsueto" :options="dias" :state="fechaAsuetoState"></b-form-select></b-col>
+            <b-col cols="7"><b-form-select v-model="mesAsueto" :options="meses" :state="fechaAsuetoState"></b-form-select></b-col>
+          </b-row>
+          <b-form-invalid-feedback :state="fechaAsuetoState">
+            Por favor, seleccione un día válido para ese mes.
+          </b-form-invalid-feedback>
+        </div>
+        <div v-else class="col-md-12 mb-3">
           <label for="fechaAsueto">Fecha del Asueto</label>
           <b-form-datepicker
             id="fechaAsueto"
@@ -34,9 +47,6 @@
           <b-form-invalid-feedback :state="fechaAsuetoState">
             Por favor, seleccione una fecha válida.
           </b-form-invalid-feedback>
-        </div>
-        <div class="col-md-12 mb-3">
-          <b-form-checkbox v-model="perpetuoAsueto">Se repite cada año (mismo día y mes)</b-form-checkbox>
         </div>
       </form>
       <template #modal-footer>
@@ -88,6 +98,10 @@ export default {
       nombreAsueto: '',
       fechaAsueto: '',
       perpetuoAsueto: false,
+      diaAsueto: null,
+      mesAsueto: null,
+      dias: [{ value: null, text: 'Día' }].concat(Array.from({ length: 31 }, (_, i) => i + 1)),
+      meses: [{ value: null, text: 'Mes' }].concat(['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'].map((text, i) => ({ value: i + 1, text }))),
       asuetos: [],
       fieldsAsuetos: [
         { key: 'nombre', label: 'Nombre', sortable: true },
@@ -102,7 +116,14 @@ export default {
       return this.nombreAsueto.trim() !== ''
     },
     fechaAsuetoState () {
-      return this.fechaAsueto !== ''
+      if (!this.perpetuoAsueto) return this.fechaAsueto !== ''
+      // 2000 es bisiesto: permite el 29 de febrero y rechaza 31 de abril, etc.
+      return !!this.diaAsueto && !!this.mesAsueto && new Date(2000, this.mesAsueto - 1, this.diaAsueto).getMonth() === this.mesAsueto - 1
+    },
+    // Perpetuo: el año se ignora al buscar; se guarda 2000 solo para tener una fecha valida.
+    fechaGuardar () {
+      const pad = n => String(n).padStart(2, '0')
+      return this.perpetuoAsueto ? `2000-${pad(this.mesAsueto)}-${pad(this.diaAsueto)}` : this.fechaAsueto
     }
   },
   mounted () {
@@ -113,6 +134,8 @@ export default {
       this.nombreAsueto = ''
       this.fechaAsueto = ''
       this.perpetuoAsueto = false
+      this.diaAsueto = null
+      this.mesAsueto = null
       this.$refs['modal-asueto'].hide()
     },
 
@@ -131,7 +154,7 @@ export default {
       try {
         await axios.post(apiUrl + '/asuetos/create', {
           nombre: this.nombreAsueto,
-          fecha: this.fechaAsueto,
+          fecha: this.fechaGuardar,
           perpetuo: this.perpetuoAsueto
         })
         this.closeModal()
