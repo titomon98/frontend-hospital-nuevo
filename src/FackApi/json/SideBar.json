@@ -38,12 +38,6 @@
         "name": "Panel de administración",
         "link": { "name": "gerencia.adminparent" },
         "rol": [1]
-      },
-      {
-        "title": "Reportes de Gerencia",
-        "name": "Reportes de Gerencia",
-        "link": { "name": "gerencia.reportesgerencia" },
-        "rol": [1]
       }
     ]
   },
