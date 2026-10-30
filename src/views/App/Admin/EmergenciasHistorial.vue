@@ -289,6 +289,7 @@
     </b-modal>
 
     <HistorialCuentaModal ref="historialCuenta" />
+    <DetalleManejoModal ref="detalleManejo" />
 
     <b-row>
       <b-col md="12">
@@ -343,6 +344,13 @@
                     size="sm"
                     variant="dark"
                    >Ver Examen</b-button>
+
+                  <b-button
+                    @click="$refs.detalleManejo.abrir(props.rowData.id)"
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    variant="primary"
+                   >Detalle completo</b-button>
 
                   <b-button
                     v-b-tooltip.top="'Ver consumos'"
@@ -404,6 +412,7 @@ import { mapGetters } from 'vuex'
 import 'jspdf-autotable'
 import { claseFilaDiaNoche } from '../../../config/fechas'
 import HistorialCuentaModal from '../../../components/HistorialCuentaModal'
+import DetalleManejoModal from '../../../components/DetalleManejoModal'
 
 import reciboEmergenciaMixin from '../../../mixins/reciboEmergenciaMixin'
 export default {
@@ -411,6 +420,7 @@ export default {
   mixins: [reciboEmergenciaMixin],
   components: {
     HistorialCuentaModal,
+    DetalleManejoModal,
     vuetable: Vuetable,
     'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
     'datatable-heading': DatatableHeading
