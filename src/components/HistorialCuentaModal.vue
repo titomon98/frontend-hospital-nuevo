@@ -5,7 +5,8 @@
     <div v-else-if="data">
       <p class="mb-1">
         <strong>Situación:</strong>
-        <b-badge :variant="data.paciente.situacion === 'DENTRO DEL HOSPITAL' ? 'success' : 'secondary'">{{ data.paciente.situacion }}</b-badge>
+        <b-badge :variant="data.paciente.egreso || data.paciente.situacion.startsWith('FUERA') ? 'secondary' : 'success'">{{ data.paciente.situacion }}</b-badge>
+        <span v-if="data.paciente.habitacion"> - habitación {{ data.paciente.habitacion }}</span>
         <span v-if="data.paciente.egreso"> - egreso {{ data.paciente.egreso }}</span>
       </p>
       <p class="mb-2"><strong>Cuentas:</strong> {{ data.cuentas.length }}</p>

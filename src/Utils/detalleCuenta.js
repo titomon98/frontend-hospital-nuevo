@@ -72,7 +72,7 @@ const encabezado = (data, titulo) => [
   titulo,
   `NOMBRE DEL PACIENTE: ${data.paciente.nombre}`,
   `No. EXPEDIENTE: ${data.paciente.expediente}    MD TRATANTE: ${data.paciente.medico || ''}`,
-  `SITUACIÓN: ${data.paciente.situacion}${data.paciente.egreso ? ' - egreso ' + data.paciente.egreso : ''}`,
+  `SITUACIÓN: ${data.paciente.situacion}${data.paciente.habitacion ? ' - habitación ' + data.paciente.habitacion : ''}${data.paciente.egreso ? ' - egreso ' + data.paciente.egreso : ''}`,
   `GENERADO: ${data.generado}`
 ]
 
