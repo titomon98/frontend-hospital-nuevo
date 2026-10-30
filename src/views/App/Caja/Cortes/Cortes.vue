@@ -1033,8 +1033,8 @@ export default {
           this.pdf.text('Total ingresado: Q' + (parseFloat(data.total_pagado) || 0).toFixed(2), 5, altura)
           altura = altura + 0.5
         } else {
-          // Agrupar por categoría de paciente (5 categorías) y calcular los 4 totales.
-          var categorias = ['Hospitalización', 'Emergencia', 'Quimioterapia', 'Estudio de sueño', 'Ambulatorio']
+          // Agrupar por categoría (5 de paciente + venta libre) y calcular los 4 totales.
+          var categorias = ['Hospitalización', 'Emergencia', 'Quimioterapia', 'Estudio de sueño', 'Ambulatorio', 'Venta libre']
           var grupos = {}
           var subtotales = {}
           categorias.forEach(cat => { grupos[cat] = []; subtotales[cat] = 0 })
