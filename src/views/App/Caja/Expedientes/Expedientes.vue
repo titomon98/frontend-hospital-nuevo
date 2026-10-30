@@ -2087,10 +2087,18 @@ ANTE MI
         sheet.getCell(`A${row}`).alignment = { horizontal: 'right' }
         sheet.getCell(`B${row}`).alignment = { horizontal: 'left' }
 
+        if (descuentoAplicado > 0) {
+          row++
+          sheet.getCell(`A${row}`).value = 'DESCUENTO VALIDADO ='
+          sheet.getCell(`B${row}`).value = `-Q${descuentoAplicado.toFixed(2)}`
+          sheet.getCell(`A${row}`).alignment = { horizontal: 'right' }
+          sheet.getCell(`B${row}`).alignment = { horizontal: 'left' }
+        }
+
         row++
         sheet.getCell(`A${row}`).value = 'TOTAL A PAGAR ='
-        // Liquidacion para el paciente: incluye laboratorio.
-        sheet.getCell(`B${row}`).value = `Q${((Number(TotalApagar) || 0) + (Number(ExamenesTotal) || 0)).toFixed(2)}`
+        // Liquidacion para el paciente: incluye laboratorio y resta el descuento validado.
+        sheet.getCell(`B${row}`).value = `Q${((Number(TotalApagar) || 0) + (Number(ExamenesTotal) || 0) - descuentoAplicado).toFixed(2)}`
         sheet.getCell(`A${row}`).alignment = { horizontal: 'right' }
         sheet.getCell(`B${row}`).alignment = { horizontal: 'left' }
         sheet.getCell(`A${row}`).font = { bold: true }

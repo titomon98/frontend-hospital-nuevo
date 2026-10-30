@@ -736,7 +736,8 @@ export default {
             ['TOTAL LAB. BIOMEDICO E.O. S.A.', `Q${ExamenesTotal.toFixed(2)}`],
             ['TOTAL HONORARIOS MEDICOS Y OTROS SERVICIOS', `Q${TotalHonorarios.toFixed(2)}`],
             // Liquidacion para el paciente: incluye laboratorio (lo que se guarda en la cuenta, TotalApagar, no).
-            ['TOTAL A PAGAR =', `Q${(TotalApagar + ExamenesTotal).toFixed(2)}`]
+            ...(Number(data.descuentoAplicado) > 0 ? [['DESCUENTO VALIDADO', `-Q${Number(data.descuentoAplicado).toFixed(2)}`]] : []),
+            ['TOTAL A PAGAR =', `Q${(TotalApagar + ExamenesTotal - (Number(data.descuentoAplicado) || 0)).toFixed(2)}`]
           ],
           startY: nextTableStartY2 + 5,
           margin: { bottom: 25 }, // margen inferior en carta

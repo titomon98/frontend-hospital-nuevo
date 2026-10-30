@@ -158,20 +158,11 @@
       <h6 class="my-4">
         ¿Desea validar un descuento para: {{ this.form.name }} {{this.form.apellidos}} ?
       </h6>
-      <div>
-        Descuento:
-        <b-input :type="'number'" id="discountAmount" ref="discountAmount" v-model="discountAmount" />
-      </div>
-      <div>
-        <h6>
-          Total: {{ this.form.total }}
-        </h6>
-      </div>
-      <div>
-        <h6>
-          Total pagado: {{ this.form.total_pagado }}
-        </h6>
-      </div>
+      <b-form-radio-group v-model="tipoDescuento" :options="tiposDescuento" class="mb-2"></b-form-radio-group>
+      <b-input type="number" id="discountAmount" ref="discountAmount" v-model="discountAmount" min="0" />
+      <h6 class="mt-3">Total de la cuenta: Q{{ (parseFloat(form.total) || 0).toFixed(2) }}</h6>
+      <h6>Pendiente de pago: Q{{ (parseFloat(form.pendiente_de_pago) || 0).toFixed(2) }}</h6>
+      <h6><strong>Descuento a aplicar: Q{{ montoDescuentoModal.toFixed(2) }}</strong></h6>
       <template #modal-footer="{}">
         <b-button
           type="submit"
@@ -273,12 +264,12 @@
                 </h5>
                 <h5 v-if="props.rowData.solicitud_descuento == 1">
                   <b-badge variant="light"
-                    ><h6 class="success"><strong>Q. {{props.rowData.descuento}}</strong></h6></b-badge
+                    ><h6 class="success"><strong>VALIDADO: -Q{{ (props.rowData.descuento_monto || 0).toFixed(2) }}</strong></h6></b-badge
                   >
                 </h5>
                 <h5 v-if="props.rowData.solicitud_descuento == 2">
                   <b-badge variant="light"
-                    ><h6 class="danger"><strong>PENDIENTE APROBACIÓN</strong></h6></b-badge
+                    ><h6 class="danger"><strong>PENDIENTE APROBACIÓN: {{ etiquetaDescuento(props.rowData.tipo_descuento, props.rowData.descuento) }}</strong></h6></b-badge
                   >
                 </h5>
                 <h5 v-if="props.rowData.solicitud_descuento == 0">
@@ -322,6 +313,7 @@ import useVuelidate from '@vuelidate/core'
 import { required } from '@vuelidate/validators'
 import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
+import { TIPOS_DESCUENTO, montoDescuento, errorDescuento, etiquetaDescuento } from '../../../../Utils/descuento'
 
 export default {
   name: 'CuentasPorCobrarHospital',
@@ -341,6 +333,9 @@ export default {
   },
   data () {
     return {
+      discountAmount: 0,
+      tipoDescuento: 0,
+      tiposDescuento: TIPOS_DESCUENTO,
       from: 0,
       to: 0,
       total: 0,
@@ -487,6 +482,11 @@ export default {
       }
     }
   },
+  computed: {
+    montoDescuentoModal () {
+      return montoDescuento(this.form.total, this.tipoDescuento, this.discountAmount)
+    }
+  },
   methods: {
     onRowSelected (items) {
       this.selectedAccount = items[0].id
@@ -535,7 +535,9 @@ export default {
       }
     },
     setData (data) {
-      this.discountAmount = data.descuento
+      // Solicitud de caja (2): se propone su tipo y valor; si no, vacio en porcentaje.
+      this.discountAmount = Number(data.solicitud_descuento) === 2 ? data.descuento : 0
+      this.tipoDescuento = Number(data.solicitud_descuento) === 2 ? (Number(data.tipo_descuento) || 0) : 0
       this.form.name = data.expediente.nombres
       this.form.apellidos = data.expediente.apellidos
       this.form.state = data.estado
@@ -638,31 +640,32 @@ export default {
         })
     },
     requestDiscount () {
-      if (this.discountAmount <= 0) {
-        this.alertErrorText = 'El descuento debe ser mayor a 0.00'
+      const error = errorDescuento(this.form.total, this.tipoDescuento, this.discountAmount)
+      if (error) {
+        this.alertErrorText = error
         this.showAlertError()
-      } else if (this.discountAmount > this.totalPayment) {
-        this.alertErrorText = `El descuento debe ser menor a ${this.totalPayment}`
-        this.showAlertError()
-      } else {
-        axios.post(apiUrl + '/cuentas/requestDiscount', {
-          form: {
-            id: this.form.id,
-            solicitud_descuento: 1,
-            descuento: this.discountAmount
-          }
-        })
-          .then((res) => {
-            this.discountAmount = 0
-            this.$bvModal.hide('modal-3-discount')
-            this.$refs.vuetable.refresh()
-          }
-          )
-          .catch((error) => {
-            console.error(error)
-          })
+        return
       }
+      axios.post(apiUrl + '/cuentas/requestDiscount', {
+        form: {
+          id: this.form.id,
+          solicitud_descuento: 1,
+          descuento: parseFloat(this.discountAmount),
+          tipo_descuento: this.tipoDescuento
+        }
+      })
+        .then(() => {
+          this.discountAmount = 0
+          this.$bvModal.hide('modal-3-discount')
+          this.$refs.vuetable.refresh()
+        })
+        .catch((error) => {
+          console.error(error)
+          this.alertErrorText = (error.response && error.response.data && error.response.data.msg) || 'No se pudo validar el descuento'
+          this.showAlertError()
+        })
     },
+    etiquetaDescuento,
     negateDiscount () {
       axios.post(apiUrl + '/cuentas/requestDiscount', {
         form: {

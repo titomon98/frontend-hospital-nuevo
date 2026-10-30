@@ -95,6 +95,10 @@
                 <h6>Cobro de hospital y honorarios</h6>
                 <p class="text-muted mb-2">El laboratorio se cobra en la caja del laboratorio. La cuenta se cierra cuando hospital, honorarios y laboratorio están pagados.</p>
                 <b-table small bordered :items="filasDesglose" :fields="fieldsDesglose"></b-table>
+                <p v-if="desgloseCobro.descuento > 0" class="mb-2">
+                  <strong>Descuento validado:</strong> <b-badge variant="success">-Q{{ desgloseCobro.descuento.toFixed(2) }}</b-badge>
+                  <small class="text-muted">(ya restado de hospital)</small>
+                </p>
                 <p class="mb-2">
                   <strong>Laboratorio:</strong>
                   <b-badge v-if="desgloseCobro.laboratorio.pendiente > 0" variant="info">PENDIENTE Q{{ desgloseCobro.laboratorio.pendiente.toFixed(2) }} (caja del laboratorio)</b-badge>
@@ -188,16 +192,17 @@
       <h6 class="my-4">
         ¿Desea solicitar un descuento para: {{ form.name }} {{ form.apellidos }} ?
       </h6>
-      <label for="discountAmount">Descuento (%):</label>
+      <b-form-radio-group v-model="tipoDescuento" :options="tiposDescuento" class="mb-2"></b-form-radio-group>
       <b-input
         type="number"
         id="discountAmount"
         ref="discountAmount"
         v-model="discountAmount"
         min="0"
-        max="100"
-        placeholder="Ingrese porcentaje de descuento"
+        :placeholder="tipoDescuento === 1 ? 'Monto del descuento en Q' : 'Porcentaje de descuento'"
       />
+      <h6 class="mt-3">Total de la cuenta: Q{{ (parseFloat(form.total) || 0).toFixed(2) }}</h6>
+      <h6><strong>Descuento solicitado: Q{{ montoDescuentoModal.toFixed(2) }}</strong></h6>
       <template #modal-footer="{}">
         <b-button
           type="submit"
@@ -307,12 +312,12 @@
                 </h5>
                 <h5 v-if="props.rowData.solicitud_descuento == 1">
                   <b-badge variant="light"
-                    ><h6 class="success"><strong>Q. {{props.rowData.descuento}}</strong></h6></b-badge
+                    ><h6 class="success"><strong>VALIDADO: -Q{{ (props.rowData.descuento_monto || 0).toFixed(2) }}</strong></h6></b-badge
                   >
                 </h5>
                 <h5 v-if="props.rowData.solicitud_descuento == 2">
                   <b-badge variant="light"
-                    ><h6 class="danger"><strong>PENDIENTE APROBACIÓN</strong></h6></b-badge
+                    ><h6 class="danger"><strong>PENDIENTE APROBACIÓN: {{ etiquetaDescuento(props.rowData.tipo_descuento, props.rowData.descuento) }}</strong></h6></b-badge
                   >
                 </h5>
                 <h5 v-if="props.rowData.solicitud_descuento == 0">
@@ -418,6 +423,7 @@ import useVuelidate from '@vuelidate/core'
 import { required } from '@vuelidate/validators'
 import axios from 'axios'
 import { apiUrl } from '../../../../config/constant'
+import { TIPOS_DESCUENTO, montoDescuento, errorDescuento, etiquetaDescuento } from '../../../../Utils/descuento'
 import { mapGetters } from 'vuex'
 import JsPDF from 'jspdf'
 import logoHospital from '@/assets/images/logo.png'
@@ -443,6 +449,9 @@ export default {
     xray.index()
   },
   computed: {
+    montoDescuentoModal () {
+      return montoDescuento(this.form.total, this.tipoDescuento, this.discountAmount)
+    },
     ...mapGetters([
       'currentUser'
     ]),
@@ -462,6 +471,8 @@ export default {
   data () {
     return {
       discountAmount: 0,
+      tipoDescuento: 0,
+      tiposDescuento: TIPOS_DESCUENTO,
       from: 0,
       to: 0,
       total: 0,
@@ -820,31 +831,33 @@ export default {
         })
     },
     requestDiscount () {
-      if (this.discountAmount <= 0) {
-        this.alertErrorText = 'El descuento debe ser mayor a 0.00'
+      const error = errorDescuento(this.form.total, this.tipoDescuento, this.discountAmount)
+      if (error) {
+        this.alertErrorText = error
         this.showAlertError()
-      } else if (this.discountAmount > 100) {
-        this.alertErrorText = 'El descuento es un porcentaje: debe ser 100 o menos'
-        this.showAlertError()
-      } else {
-        axios.post(apiUrl + '/cuentas/requestDiscount', {
-          form: {
-            id: this.form.id,
-            solicitud_descuento: 2,
-            descuento: parseFloat(this.discountAmount)
-          }
-        })
-          .then((tipo) => {
-            this.discountAmount = 0
-            this.$bvModal.hide('modal-3-discount')
-            this.$refs.vuetable.refresh()
-          }
-          )
-          .catch((error) => {
-            console.error(error)
-          })
+        return
       }
+      axios.post(apiUrl + '/cuentas/requestDiscount', {
+        form: {
+          id: this.form.id,
+          solicitud_descuento: 2,
+          descuento: parseFloat(this.discountAmount),
+          tipo_descuento: this.tipoDescuento
+        }
+      })
+        .then(() => {
+          this.discountAmount = 0
+          this.tipoDescuento = 0
+          this.$bvModal.hide('modal-3-discount')
+          this.$refs.vuetable.refresh()
+        })
+        .catch((error) => {
+          console.error(error)
+          this.alertErrorText = (error.response && error.response.data && error.response.data.msg) || 'No se pudo solicitar el descuento'
+          this.showAlertError()
+        })
     },
+    etiquetaDescuento,
     onPatientQuit () {
       this.paymentSum = parseFloat(this.paymentType.Efectivo) + parseFloat(this.paymentType.Tarjeta) + parseFloat(this.paymentType.Deposito) + parseFloat(this.paymentType.Cheque) + parseFloat(this.paymentType.Seguro) + parseFloat(this.paymentType.Transferencia)
       if (this.paymentSum !== parseFloat(this.totalPayment)) {
