@@ -26,6 +26,7 @@
               <b-tab title="Pacientes hospitalizados" lazy><PacientesHospitalizados/></b-tab>
               <b-tab title="Historial de emergencias" lazy><EmergenciasHistorial/></b-tab>
               <b-tab title="Historial de egresos en hospital" lazy><PacientesHistorial/></b-tab>
+              <b-tab title="Venta libre" lazy><VentaLibreLista/></b-tab>
               <b-tab title="Historial eliminaciones" lazy><EliminacionesHistorial/></b-tab>
               <b-tab title="Ajustes sala operaciones" lazy><AjustesSalaHistorial/></b-tab>
             </b-tabs>
@@ -46,6 +47,7 @@ import EmergenciasHistorial from './EmergenciasHistorial.vue'
 import PacientesHistorial from './PacientesHistorial.vue'
 import EliminacionesHistorial from './EliminacionesHistorial.vue'
 import AjustesSalaHistorial from './AjustesSalaHistorial.vue'
+import VentaLibreLista from '../../../components/VentaLibreLista.vue'
 
 /* import Efectivo from './Efectivo.vue' */
 import ValidarDescuentos from './Descuentos/ValidarDescuentos.vue'
@@ -61,7 +63,8 @@ export default {
     EmergenciasHistorial,
     PacientesHistorial,
     EliminacionesHistorial,
-    AjustesSalaHistorial
+    AjustesSalaHistorial,
+    VentaLibreLista
   },
   data () {
     return {

@@ -20,6 +20,7 @@
             <b-tabs>
               <b-tab title="Cuentas por cobrar" lazy><CuentasPorCobrar/></b-tab>
               <b-tab title="Emergencias" lazy><CuentasPorCobrar emergencia/></b-tab>
+              <b-tab title="Venta libre" lazy><VentaLibreLista caja/></b-tab>
               <b-tab title="Seguros por cobrar" lazy><SegurosPorCobrar/></b-tab>
               <b-tab title="Cuentas parciales por cobrar" lazy><CuentasParcialesPorCobrar/></b-tab>
             </b-tabs>
@@ -36,13 +37,15 @@ import { apiUrl } from '../../../../config/constant'
 import CuentasPorCobrar from './CuentasPorCobrar.vue'
 import CuentasParcialesPorCobrar from './CuentasParcialesPorCobrar.vue'
 import SegurosPorCobrar from './SegurosPorCobrar.vue'
+import VentaLibreLista from '../../../../components/VentaLibreLista.vue'
 
 export default {
   name: 'CuentasParent',
   components: {
     CuentasPorCobrar,
     SegurosPorCobrar,
-    CuentasParcialesPorCobrar
+    CuentasParcialesPorCobrar,
+    VentaLibreLista
   },
   data () {
     return {

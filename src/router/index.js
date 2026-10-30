@@ -57,6 +57,7 @@ const CategoriaSalaOperaciones = () => import('../views/App/Enfermeria/Categoria
 const IngresosEnfermeria = () => import('../views/App/Enfermeria/Ingresos/IngresosEnfermeria.vue')
 const IngresosEmergencia = () => import('../views/App/Enfermeria/Ingresos/IngresosEmergencia.vue')
 const AsignarHabitacion = () => import('../views/App/Enfermeria/AsignarHabitaciones/AsignarHabitaciones.vue')
+const VentaLibre = () => import('../views/App/Enfermeria/VentaLibre/VentaLibre.vue')
 
 // Farmacia
 const PedidosPendientesParent = () => import('../views/App/Farmacia/Pedidos/PedidosPendientesParent')
@@ -167,7 +168,8 @@ const EnfermeriaRoutes = (prop) => [
   { path: 'ingresosemergencia', name: `${prop}.ingresosemergencia`, meta: { auth: true, name: 'ingresosemergencia', roles: [1, 3, 9, 10, 11] }, component: IngresosEmergencia },
   { path: 'reingresos', name: `${prop}.reingresos`, meta: { auth: true, name: 'reingresos', roles: [1] }, component: Reingresos },
   { path: 'egresos', name: `${prop}.egresos`, meta: { auth: true, name: 'egresos', roles: [1, 3, 9, 10, 11] }, component: EgresosParent },
-  { path: 'AsignarHabitacion', name: `${prop}.AsignarHabitacion`, meta: { auth: true, name: 'AsignarHabitacion', roles: [1, 3, 9, 10, 11] }, component: AsignarHabitacion }
+  { path: 'AsignarHabitacion', name: `${prop}.AsignarHabitacion`, meta: { auth: true, name: 'AsignarHabitacion', roles: [1, 3, 9, 10, 11] }, component: AsignarHabitacion },
+  { path: 'VentaLibre', name: `${prop}.VentaLibre`, meta: { auth: true, name: 'VentaLibre', roles: [1, 3, 9, 10, 11] }, component: VentaLibre }
 ]
 
 const FarmaciaRoutes = (prop) => [

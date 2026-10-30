@@ -37,12 +37,16 @@
         "title": "Panel de administración",
         "name": "Panel de administración",
         "link": { "name": "gerencia.adminparent" },
+        "is_icon_class": true,
+        "icon": "ri-dashboard-line",
         "rol": [1]
       },
       {
         "title": "Reportes de Gerencia",
         "name": "Reportes de Gerencia",
         "link": { "name": "gerencia.reportesgerencia" },
+        "is_icon_class": true,
+        "icon": "ri-bar-chart-box-line",
         "rol": [1]
       }
     ]
@@ -381,6 +385,18 @@
         "class_name": "",
         "is_icon_class": true,
         "icon": "ri-hotel-bed-line",
+        "rol": [1, 3, 9, 10, 11]
+      },
+      {
+        "title": "Venta Libre",
+        "name": "Venta Libre",
+        "is_active": false,
+        "link": {
+          "name": "enfermeria.VentaLibre"
+        },
+        "class_name": "",
+        "is_icon_class": true,
+        "icon": "ri-shopping-cart-2-line",
         "rol": [1, 3, 9, 10, 11]
       }
     ]
