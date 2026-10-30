@@ -35,6 +35,9 @@
             Por favor, seleccione una fecha válida.
           </b-form-invalid-feedback>
         </div>
+        <div class="col-md-12 mb-3">
+          <b-form-checkbox v-model="perpetuoAsueto">Se repite cada año (mismo día y mes)</b-form-checkbox>
+        </div>
       </form>
       <template #modal-footer>
         <b-button variant="primary" @click="agregarAsueto">Guardar</b-button>
@@ -54,7 +57,10 @@
           <template v-slot:body>
             <b-table striped hover :items="asuetos" :fields="fieldsAsuetos">
               <template v-slot:cell(fecha)="data">
-                {{ data.item.fecha.split('-').reverse().join('/') }}
+                {{ data.item.perpetuo ? data.item.fecha.split('-').slice(1).reverse().join('/') : data.item.fecha.split('-').reverse().join('/') }}
+              </template>
+              <template v-slot:cell(perpetuo)="data">
+                {{ data.item.perpetuo ? 'Cada año' : 'Solo ese año' }}
               </template>
               <template v-slot:cell(acciones)="data">
                 <b-button size="sm" variant="outline-danger" @click="eliminarAsueto(data.item.id)">
@@ -81,10 +87,12 @@ export default {
       alertErrorText: '',
       nombreAsueto: '',
       fechaAsueto: '',
+      perpetuoAsueto: false,
       asuetos: [],
       fieldsAsuetos: [
         { key: 'nombre', label: 'Nombre', sortable: true },
         { key: 'fecha', label: 'Fecha', sortable: true },
+        { key: 'perpetuo', label: 'Repetición' },
         { key: 'acciones', label: 'Acciones' }
       ]
     }
@@ -104,6 +112,7 @@ export default {
     closeModal () {
       this.nombreAsueto = ''
       this.fechaAsueto = ''
+      this.perpetuoAsueto = false
       this.$refs['modal-asueto'].hide()
     },
 
@@ -122,7 +131,8 @@ export default {
       try {
         await axios.post(apiUrl + '/asuetos/create', {
           nombre: this.nombreAsueto,
-          fecha: this.fechaAsueto
+          fecha: this.fechaAsueto,
+          perpetuo: this.perpetuoAsueto
         })
         this.closeModal()
         this.cargarAsuetos()
