@@ -69,14 +69,8 @@
 import axios from 'axios'
 import { mapGetters } from 'vuex'
 import { apiUrl } from '../config/constant'
+import { TIPOS_ITEM, etiquetaTipo } from '../Utils/ventaLibre'
 
-const TIPOS_ITEM = [
-  { value: 'medicamento', text: 'Medicamento', url: '/medicamentos/list2' },
-  { value: 'anestesico', text: 'Anestésico', url: '/medicamentos/anestesicos' },
-  { value: 'quirurgico', text: 'Quirúrgico', url: '/quirurgico/list2' },
-  { value: 'comun', text: 'Uso común', url: '/comun/list2' },
-  { value: 'servicio', text: 'Oxígeno' }
-]
 const sinAcentos = (s) => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
 
 // Venta libre: comprador (uno solo) + consumos y oxígeno. Sin `venta` crea; con `venta` (de GET /venta_libre/:id) edita.
@@ -139,9 +133,7 @@ export default {
     if (this.venta) this.cargarVenta(this.venta)
   },
   methods: {
-    etiquetaTipo (tipo) {
-      return (TIPOS_ITEM.find(t => t.value === tipo) || {}).text || tipo
-    },
+    etiquetaTipo,
     subtotal (l) {
       return Math.round((Number(l.cantidad) || 0) * (Number(l.precio) || 0) * 100) / 100
     },

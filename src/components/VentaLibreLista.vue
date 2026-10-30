@@ -26,7 +26,7 @@
         </template>
       </template>
     </b-table>
-    <b-pagination v-if="total > limit" v-model="page" :total-rows="total" :per-page="limit" @input="cargar()"></b-pagination>
+    <b-pagination v-if="total > limit" v-model="page" :total-rows="total" :per-page="limit" @change="cargar($event)"></b-pagination>
 
     <b-modal :id="idModal" :title="tituloModal" size="xl" scrollable no-close-on-backdrop hide-footer @hidden="venta = null">
       <b-alert :show="!!error" variant="danger" class="text-white bg-danger" dismissible @dismissed="error = ''">{{ error }}</b-alert>
@@ -42,7 +42,7 @@
         <h4>Total: Q{{ Number(venta.total).toFixed(2) }}</h4>
         <div v-if="venta.estado === 2">
           <strong>Pago:</strong>
-          <span v-for="m in metodosPagados" :key="m" class="mr-3">{{ m }}: Q{{ Number(venta[m]).toFixed(2) }}</span>
+          <span v-for="m in metodosPagados" :key="m" class="mr-3">{{ m.charAt(0).toUpperCase() + m.slice(1) }}: Q{{ Number(venta[m]).toFixed(2) }}</span>
         </div>
         <div v-if="modo === 'cobro'" class="mt-3">
           <h5>Cobrar</h5>
@@ -67,6 +67,7 @@ import moment from 'moment'
 import { mapGetters } from 'vuex'
 import { apiUrl } from '../config/constant'
 import VentaLibreForm from './VentaLibreForm'
+import { etiquetaTipo } from '../Utils/ventaLibre'
 
 const METODOS = ['efectivo', 'tarjeta', 'deposito', 'cheque', 'transferencia']
 
@@ -98,7 +99,13 @@ export default {
         { key: 'estado', label: 'Estado' },
         { key: 'acciones', label: 'Acciones' }
       ],
-      camposDetalle: ['tipo', 'descripcion', 'cantidad', 'precio', 'total'],
+      camposDetalle: [
+        { key: 'tipo', label: 'Tipo', formatter: etiquetaTipo },
+        { key: 'descripcion', label: 'Descripción' },
+        { key: 'cantidad', label: 'Cantidad' },
+        { key: 'precio', label: 'Precio' },
+        { key: 'total', label: 'Subtotal' }
+      ],
       metodos: METODOS,
       idModal: `venta-libre-${this._uid}`,
       modo: 'detalle',
