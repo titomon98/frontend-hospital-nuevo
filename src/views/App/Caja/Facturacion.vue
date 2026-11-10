@@ -81,12 +81,12 @@
                 selectable
               >
               </b-table>
-              nit
-              <b-input id="nitFact" ref="nitFact" v-model="nitFact" />
+              Nombre de factura
+              <b-input id="nombreFact" ref="nombreFact" v-model="nombreFact" @input="nombreFact = $event.toUpperCase()" />
+              NIT
+              <b-input id="nitFact" ref="nitFact" v-model="nitFact" @input="nitFact = $event.toUpperCase()" />
               Número
               <b-input id="numeroFact" ref="numeroFact" v-model="numeroFact" />
-              Serie
-              <b-input id="serieFact" ref="serieFact" v-model="serieFact" />
               Referencia
               <b-input id="referenciaFact" ref="referenciaFact" v-model="referenciaFact" />
               <b-form-group label="File">
@@ -130,6 +130,12 @@
               >
               </b-table>
               <h6>
+                Nombre: {{nombreFact}}
+                <div v-if="nombreFact===''">
+                  <b-input id="nombreFact" ref="nombreFact" v-model="nombreFact" @input="nombreFact = $event.toUpperCase()" />
+                </div>
+              </h6>
+              <h6>
                 NIT: {{nitFact}}
                 <div v-if="nitFact===''">
                   <b-input id="nitFact" ref="nitFact" v-model="nitFact" />
@@ -139,12 +145,6 @@
                 Número: {{numeroFact}}
                 <div v-if="numeroFact===''">
                   <b-input id="numeroFact" ref="numeroFact" v-model="numeroFact" />
-                </div>
-              </h6>
-              <h6>
-                Serie: {{serieFact}}
-                <div v-if="serieFact===''">
-                  <b-input id="serieFact" ref="serieFact" v-model="serieFact" />
                 </div>
               </h6>
               <h6>
@@ -203,7 +203,7 @@
         "
           >Guardar factura</b-button
         >
-        <b-button v-if="HasFact===1 && (nitFact === '' || numeroFact === '' || serieFact === '' || referenciaFact === '' || emptyImage === 1)" variant="primary" @click="
+        <b-button v-if="HasFact===1 && (nombreFact === '' || nitFact === '' || numeroFact === '' || referenciaFact === '' || emptyImage === 1)" variant="primary" @click="
           updateFact()
         "
           >Guardar cambios</b-button
@@ -369,7 +369,7 @@ export default {
       emptyImage: 1,
       errorImage: null,
       referenciaFact: null,
-      serieFact: null,
+      nombreFact: null,
       numeroFact: null,
       nitFact: null,
       base64Images: [],
@@ -581,7 +581,7 @@ export default {
     setData (data) {
       this.nitFact = ''
       this.numeroFact = ''
-      this.serieFact = ''
+      this.nombreFact = ''
       this.referenciaFact = ''
       this.imagen = ''
       this.HasFact = 0
@@ -592,7 +592,7 @@ export default {
         this.HasFact = 1
         this.nitFact = elementFound.nit
         this.numeroFact = elementFound.numero
-        this.serieFact = elementFound.serie
+        this.nombreFact = elementFound.nombre || ''
         this.referenciaFact = elementFound.referencia_factura
         this.base64Images[0] = elementFound.imagen
         if (elementFound.imagen !== ' ') {
@@ -600,6 +600,12 @@ export default {
         }
       } else {
         this.HasFact = 0
+      }
+      // Factura nueva: nombre y NIT de factura del ingreso (expediente).
+      if (!this.HasFact) {
+        const exp = data.expediente || {}
+        this.nombreFact = (exp.nombre_factura || '').toUpperCase()
+        this.nitFact = (exp.nit_factura || '').toUpperCase()
       }
       this.form.name = data.nombres
       this.form.apellidos = data.apellidos
@@ -709,7 +715,7 @@ export default {
           id_cuenta_hospital: this.form.id,
           imagen: this.base64Images ? this.base64Images : ' ',
           numero: this.numeroFact,
-          serie: this.serieFact,
+          nombre: this.nombreFact,
           id_usuario: this.expediente,
           referencia_factura: this.referenciaFact
         })
@@ -746,7 +752,7 @@ export default {
           id_cuenta_hospital: this.form.id,
           imagen: this.base64Images ? this.base64Images : '',
           numero: this.numeroFact,
-          serie: this.serieFact,
+          nombre: this.nombreFact,
           referencia_factura: this.referenciaFact
         })
         .then(
