@@ -168,58 +168,6 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-3-equipo" ref="modal-3-equipo" title="Desactivar equipo">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
-      >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
-      </b-alert>
-      <h6 class="my-4">
-        ¿Desea desactivar el equipo: {{ form.nombre }} ?
-      </h6>
-      <template #modal-footer="{}">
-        <b-button
-          type="submit"
-          variant="primary"
-          @click="onState()
-                  $bvModal.hide('modal-3-equipo')"
-          >Desactivar</b-button
-        >
-        <b-button variant="danger" @click="$bvModal.hide('modal-3-equipo')"
-          >Cancelar</b-button
-        >
-      </template>
-    </b-modal>
-    <b-modal id="modal-4-equipo" ref="modal-4-equipo" title="Activar equipo">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
-      >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
-      </b-alert>
-      <h6 class="my-4">
-        ¿Desea activar al equipo: {{ form.nombre }} ?
-      </h6>
-      <template #modal-footer="{}">
-        <b-button
-          type="submit"
-          variant="primary"
-          @click="onState()
-                  $bvModal.hide('modal-4-equipo')"
-          >Activar</b-button
-        >
-        <b-button variant="danger" @click="$bvModal.hide('modal-4-equipo')"
-          >Cancelar</b-button
-        >
-      </template>
-    </b-modal>
     <b-modal id="modal-5-campos" ref="modal-5-campos" title="Campos" size="xl">
       <b-alert
         :show="alertCountDownError"
@@ -428,6 +376,13 @@
                     size="sm"
                     variant="success"
                   >Verificar campos</b-button>
+
+                  <b-button
+                    @click="cambiarEstado(props.rowData)"
+                    class="mb-2 button-spacing"
+                    size="sm"
+                    :variant="props.rowData.estado === 1 ? 'danger' : 'primary'"
+                  >{{ props.rowData.estado === 1 ? 'Desactivar' : 'Activar' }}</b-button>
                 </div>
               </template>
               <!-- Paginacion -->
@@ -564,6 +519,11 @@ export default {
           sortField: 'tipo_examen',
           title: 'Tipo',
           dataClass: 'list-item-heading'
+        },
+        {
+          name: '__slot:estado',
+          title: 'Estado',
+          titleClass: ''
         }
       ]
     }
@@ -581,68 +541,6 @@ export default {
     }
   },
   methods: {
-    openModal (modal, action) {
-      switch (modal) {
-        case 'save': {
-          this.$v.$reset()
-          this.form.id = 0
-          this.form.nombre = ''
-          this.form.cantidad_usos = 0
-          this.form.precio_publico = 0
-          this.form.precio_costo = 0
-          this.form.gasto_unico = 0
-          this.form.fecha_adquisicion = ''
-          this.form.existencia = 0
-          this.form.state = 1
-          break
-        }
-      }
-    },
-    closeModal (action) {
-      switch (action) {
-        case 'save': {
-          this.$v.$reset()
-          this.$refs['modal-1-createExamen'].hide()
-          this.form.id = 0
-          this.form.nombre = ''
-          this.form.cantidad_usos = 0
-          this.form.precio_publico = 0
-          this.form.precio_costo = 0
-          this.form.gasto_unico = 0
-          this.form.fecha_adquisicion = ''
-          this.form.existencia = 0
-          this.form.state = 1
-          break
-        }
-        case 'update': {
-          this.$v.$reset()
-          this.$refs['modal-2-equipo'].hide()
-          this.form.id = 0
-          this.form.nombre = ''
-          this.form.cantidad_usos = 0
-          this.form.precio_publico = 0
-          this.form.precio_costo = 0
-          this.form.gasto_unico = 0
-          this.form.fecha_adquisicion = ''
-          this.form.existencia = 0
-          this.form.state = 1
-          break
-        }
-      }
-    },
-    onValidate (action) {
-      this.$v.$touch()
-      if (this.$v.$error !== true) {
-        if (action === 'save') {
-          this.onSave()
-        } else if (action === 'update') {
-          this.onUpdate()
-        }
-      } else {
-        this.alertErrorText = 'Revisa que todos los campos requeridos esten llenos'
-        this.showAlertError()
-      }
-    },
     setData (data) {
       this.form.id = data.id
       this.form.nombreExamen = data.nombre
@@ -674,83 +572,23 @@ export default {
       this.varPrecioSobrecargo = data.precio_sobrecargo
       this.varTipo = data.tipo_examen
     },
-    /* Guardar */
-    onSave () {
-      const me = this
-      axios.post(apiUrl + '/equipos/create', {
-        form: me.form })
-        .then((response) => {
-          me.alertVariant = 'success'
-          me.showAlert()
-          me.alertText = 'Se ha creado el equipo ' + me.form.nombre + ' exitosamente'
-          me.$refs.vuetable.refresh()
-          me.closeModal('save')
-        })
-        .catch((error) => {
-          me.alertVariant = 'danger'
-          me.showAlertError()
-          me.alertErrorText = error.response.data.msg
-          console.error('Error!', error)
-        })
-    },
-    /* Guardar */
-    onUpdate () {
-      const me = this
-      // this.$refs["modalSave"].hide();
-      axios.put(apiUrl + '/equipos/update', {
-        form: me.form })
-        .then((response) => {
-          me.alertVariant = 'primary'
-          me.showAlert()
-          me.alertText = 'Se ha actualizado el equipo ' + me.form.nombre + ' exitosamente'
-          me.$refs.vuetable.refresh()
-          me.closeModal('update')
-        })
-        .catch((error) => {
-          me.alertVariant = 'danger'
-          me.showAlertError()
-          me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-          console.error('Error!', error)
-        })
-    },
-    onState () {
-      let me = this
-      if (this.form.state === 1) {
-        axios
-          .put(apiUrl + '/equipos/deactivate', {
-            id: this.form.id
-          })
-          .then((response) => {
-            me.alertVariant = 'warning'
-            me.showAlert()
-            me.alertText = 'Se ha desactivado el equipo ' + me.form.nombre + ' exitosamente'
-            me.$refs.vuetable.refresh()
-            me.$refs['modal-3-equipo'].hide()
-          })
-          .catch((error) => {
-            me.alertVariant = 'danger'
-            me.showAlertError()
-            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-            console.error('There was an error!', error)
-          })
-      } else {
-        axios
-          .put(apiUrl + '/equipos/activate', {
-            id: this.form.id
-          })
-          .then((response) => {
-            me.alertVariant = 'info'
-            me.showAlert()
-            me.alertText = 'Se ha activado el equipo ' + me.form.nombre + ' exitosamente'
-            me.$refs.vuetable.refresh()
-            me.$refs['modal-4-equipo'].hide()
-          })
-          .catch((error) => {
-            me.alertVariant = 'danger'
-            me.showAlertError()
-            me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-            console.error('There was an error!', error)
-          })
+    // Borrado lógico: inactivo ya no aparece al elegir exámenes, pero conserva su historial.
+    async cambiarEstado (examen) {
+      const activar = examen.estado !== 1
+      const ok = await this.$bvModal.msgBoxConfirm(
+        `¿Desea ${activar ? 'activar' : 'desactivar'} el examen ${examen.nombre}?`,
+        { title: activar ? 'Activar examen' : 'Desactivar examen', okTitle: activar ? 'Activar' : 'Desactivar', cancelTitle: 'Cancelar', okVariant: activar ? 'success' : 'danger', centered: true }
+      )
+      if (!ok) return
+      try {
+        await axios.put(apiUrl + `/laboratoriosAlmacenados/${activar ? 'activate' : 'deactivate'}`, { id: examen.id })
+        this.alertVariant = activar ? 'info' : 'warning'
+        this.alertText = `Se ha ${activar ? 'activado' : 'desactivado'} el examen ${examen.nombre}`
+        this.showAlert()
+        this.$refs.vuetable.refresh()
+      } catch (error) {
+        this.alertErrorText = (error.response && error.response.data && error.response.data.msg) || 'Ha ocurrido un error, por favor intente más tarde'
+        this.showAlertError()
       }
     },
     makeQueryParams (sortOrder, currentPage, perPage) {
