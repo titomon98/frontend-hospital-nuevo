@@ -24,6 +24,10 @@ body.laboratorio {
   @import "../css/light/typography";
   @import "../css/light/style";
   @import "../css/light/responsive";
+
+  // Texto en negro para que se lea bien (antes gris claro).
+  .text-muted, .text-secondary, .form-text { color: #000000 !important; }
+  .iq-sidebar-menu .iq-menu li ul li a { color: #000000; }
 }
 
 .iq-global-search>ul>li a, .slick-arrow, .breadcrumb-item>a{
