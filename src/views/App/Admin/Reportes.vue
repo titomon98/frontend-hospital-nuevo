@@ -57,11 +57,7 @@
         </b-form-group>
 
         <b-form-group label="Cantidad en letras:">
-          <b-form-input
-            type="text"
-            v-model="formVoucher.cantidadEscrita"
-            placeholder="Ingresar la Cantidad escrita con Inicial Mayúscula"
-          ></b-form-input>
+          <b-form-input disabled :value="cantidadEnLetras"></b-form-input>
         </b-form-group>
 
         <b-form-group label="Observaciones:">
@@ -390,6 +386,7 @@ import logoLab from '../../../assets/images/logo.png'
 import moment from 'moment'
 import ExcelJS from 'exceljs'
 import * as XLSX from 'xlsx'
+import { numeroALetras } from '../../../Utils/numeroALetras'
 // import { mapGetters } from 'vuex'
 
 export default {
@@ -937,6 +934,9 @@ export default {
     }
   },
   computed: {
+    cantidadEnLetras () {
+      return this.formVoucher.cantidad ? numeroALetras(this.formVoucher.cantidad) : ''
+    },
     fieldsToDisplay () {
       switch (this.selectedArea) {
         case 3:
@@ -4189,10 +4189,12 @@ export default {
         })
     },
     crearVoucher () {
-      if (!this.formVoucher.cantidadEscrita || this.formVoucher.cantidadEscrita.trim() === '') {
-        alert('Debe agregar la cantidad por escrito.')
+      // La cantidad en letras sale del número: así no pueden diferir.
+      if (this.formVoucher.cantidad >= 1000000) {
+        alert('La cantidad excede Q999,999.99; no se puede escribir en letras.')
         return
       }
+      this.formVoucher.cantidadEscrita = this.cantidadEnLetras
 
       axios.post(apiUrl + '/voucher/create', this.formVoucher)
         .then(response => {

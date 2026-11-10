@@ -85,11 +85,7 @@
         </b-form-group>
 
         <b-form-group label="Cantidad en letras:">
-          <b-form-input
-            type="text"
-            v-model="formVoucher.cantidadEscrita"
-            placeholder="Ingresar la Cantidad escrita con Inicial Mayúscula"
-          ></b-form-input>
+          <b-form-input disabled :value="cantidadEnLetras"></b-form-input>
         </b-form-group>
 
         <b-form-group label="Observaciones:">
@@ -291,6 +287,7 @@ import { totalOxigeno } from '../../../../Utils/oxigeno'
 import { mapGetters } from 'vuex'
 import moment from 'moment'
 import logo from '../../../../../src/assets/images/logo.png'
+import { numeroALetras } from '../../../../Utils/numeroALetras'
 
 export default {
   name: 'Bank',
@@ -313,6 +310,9 @@ export default {
     xray.index()
   },
   computed: {
+    cantidadEnLetras () {
+      return this.formVoucher.cantidad ? numeroALetras(this.formVoucher.cantidad) : ''
+    },
     ...mapGetters([
       'currentUser'
     ]),
@@ -1211,10 +1211,12 @@ export default {
         return
       }
 
-      if (!this.formVoucher.cantidadEscrita || this.formVoucher.cantidadEscrita.trim() === '') {
-        alert('Debe agregar la cantidad por escrito.')
+      // La cantidad en letras sale del número: así no pueden diferir.
+      if (this.formVoucher.cantidad >= 1000000) {
+        alert('La cantidad excede Q999,999.99; no se puede escribir en letras.')
         return
       }
+      this.formVoucher.cantidadEscrita = this.cantidadEnLetras
 
       // La cantidad entregada es la suma del desglose (efectivo + transferencias).
       this.formVoucher.total = this.totalEntregado
