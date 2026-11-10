@@ -58,7 +58,7 @@
         >
       </template>
     </b-modal>
-    <b-modal id="modal-2-account" ref="modal-2-account" title="Guardar Factura" size="xl">
+    <b-modal id="modal-2-account" ref="modal-2-account" :title="pacienteActual ? `Guardar Factura - ${pacienteActual}` : 'Guardar Factura'" size="xl">
       <b-alert
         :show="alertCountDownError"
         dismissible
@@ -369,6 +369,7 @@ export default {
       errorImage: null,
       referenciaFact: null,
       nombreFact: null,
+      pacienteActual: '',
       numeroFact: null,
       nitFact: null,
       base64Images: [],
@@ -578,6 +579,8 @@ export default {
       }
     },
     setData (data) {
+      const exp = data.expediente || {}
+      this.pacienteActual = `${exp.nombres || ''} ${exp.apellidos || ''}`.trim()
       this.nitFact = ''
       this.numeroFact = ''
       this.nombreFact = ''
@@ -602,7 +605,6 @@ export default {
       }
       // Factura nueva: nombre y NIT de factura del ingreso (expediente).
       if (!this.HasFact) {
-        const exp = data.expediente || {}
         this.nombreFact = (exp.nombre_factura || '').toUpperCase()
         this.nitFact = (exp.nit_factura || '').toUpperCase()
       }
