@@ -7,7 +7,7 @@
       <SideBarStyle1 :items="filteredVerticalMenu" :horizontal="horizontal" :logo="logo" @toggle="sidebarMini" />
       <div id="content-page" class="content-page" :class="horizontal ? 'ml-0' : ''">
         <!-- TOP Nav Bar -->
-        <NavBarStyle1 title="Dashboard" :homeURL="{ name: 'dashboard1.home' }" @toggle="sidebarMini" :logo="logo" :horizontal="horizontal" :items="horizontalMenu">
+        <NavBarStyle1 title="Dashboard" :homeURL="{ name: 'dashboard1.home' }" @toggle="sidebarMini" :logo="logo" :horizontal="horizontal" :items="horizontalMenu" :marca="esLaboratorio ? 'Laboratorio Biomédico' : 'HEO/LAB'">
 
           <template slot="right">
             <ul class="navbar-list">
@@ -95,6 +95,12 @@ export default {
   },
   mounted () {
     this.updateRadio()
+    document.body.classList.toggle('laboratorio', this.esLaboratorio)
+    document.title = this.esLaboratorio ? 'Laboratorio Biomédico' : 'Hospital de especialidades'
+  },
+  beforeDestroy () {
+    document.body.classList.remove('laboratorio')
+    document.title = 'Hospital de especialidades'
   },
   beforeMount () {
     var today = new Date()
@@ -108,7 +114,11 @@ export default {
       langsOptions: 'Setting/langOptionState',
       colors: 'Setting/colorState',
       currentUser: 'currentUser'
-    })
+    }),
+    // Tipos de usuario de laboratorio (tipo_usuarios): gerencia, administración, contabilidad, caja, químico, técnico.
+    esLaboratorio () {
+      return [2, 4, 6, 8, 12, 13].includes(Number(this.currentUser.user_type))
+    }
   },
   data () {
     return {

@@ -7,7 +7,7 @@
           <router-link :to="homeURL">
             <img :src="logo" class="img-fluid" alt="logo">
             <img :src="logo2" class="img-fluid" alt="logo">
-            <span>HEO/LAB</span>
+            <span>{{ marca }}</span>
           </router-link>
         </div>
       </div>
@@ -43,6 +43,7 @@ export default {
     logo: { type: String, default: require('../../../assets/images/logo.png') },
     logo2: { type: String, default: require('../../../assets/images/logoLab.jpg') },
     horizontal: { type: Boolean, default: false },
+    marca: { type: String, default: 'HEO/LAB' },
     items: { type: Array }
   },
   mounted () {

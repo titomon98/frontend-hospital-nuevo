@@ -3,6 +3,17 @@
 //@import "~bootstrap/scss/bootstrap-grid";
 
 
+// Primary de la app. Laboratorio (body.laboratorio) usa celeste.
+:root {
+  --heo-primary: #8C1F28;
+  --heo-primary-light: #D92525;
+}
+body.laboratorio {
+  --heo-primary: #22CCF2;
+  --heo-primary-light: #7FE3F8;
+  --iq-primary: #22CCF2;
+}
+
 // Animate css
 @import "~animate.css/animate.min.css";
 
