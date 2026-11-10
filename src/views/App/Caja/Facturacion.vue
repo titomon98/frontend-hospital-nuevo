@@ -1,299 +1,67 @@
 <template>
   <b-container fluid>
-    <b-alert
-      :variant="alertVariant"
-      :show="alertCountDown"
-      dismissible
-      fade
-      @dismissed="alertCountDown=0"
-      class="bg-white"
-    >
+    <b-alert :variant="alertVariant" :show="alertCountDown" dismissible fade @dismissed="alertCountDown = 0" class="bg-white">
       <div class="iq-alert-text">{{ alertText }}</div>
     </b-alert>
-    <b-modal id="modal-1-traslado" ref="modal-1-traslado" title="Trasladar paciente">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
-      >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
+    <b-modal id="modal-2-account" ref="modal-2-account" :title="pacienteActual ? `${factura ? 'Factura' : 'Guardar Factura'} - ${pacienteActual}` : 'Guardar Factura'" size="xl" @hidden="limpiar">
+      <b-alert :show="!!error" dismissible @dismissed="error = ''" class="text-white bg-danger">
+        <div class="iq-alert-text">{{ error }}</div>
       </b-alert>
-      <h6 class="my-4">
-        ¿Desea trasladar el paciente: {{ form.nombres }} ?
-      </h6>
-      <b-form @submit="$event.preventDefault()">
-        <b-col >
-          <b-form-group label="Área a la que desea trasladar:">
-            <b-form-radio-group
-                      id="radio-group-2"
-                      v-model="selectedTrasOption"
-                      :options="optionsTraslado"
-                      name="radio-options"
-                    ></b-form-radio-group>
-            <div v-if="selectedTrasOption==1 || selectedTrasOption==4">
-              Habitación
-              <v-select
-              ref="selectHab"
-              v-model="selectedHab"
-              :options="habitaciones"
-              label="numero"
-              value="id"></v-select>
-            </div>
-          </b-form-group>
-        </b-col>
-      </b-form>
-      <template #modal-footer="{}">
-        <b-button
-          type="submit"
-          variant="primary"
-          @click="onValidate()
-                  this.selectedHab = null
-          "
-          >Ingresar</b-button
-        >
-        <b-button variant="danger" @click="$bvModal.hide('modal-1-traslado')"
-          >Cancelar</b-button
-        >
-      </template>
-    </b-modal>
-    <b-modal id="modal-2-account" ref="modal-2-account" :title="pacienteActual ? `Guardar Factura - ${pacienteActual}` : 'Guardar Factura'" size="xl">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
-      >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
-      </b-alert>
-      <template>
-        <div v-if = "HasFact==0">
-          <h6>Generar factura</h6>
-          <b-card>
-            <b-card-body>
-              <b-table
-                hover
-                :items="cuentas"
-                :fields="fieldsAccounts"
-                :select-mode="'single'"
-                selectable
-              >
-              </b-table>
-              Nombre de factura
-              <b-input id="nombreFact" ref="nombreFact" v-model="nombreFact" @input="nombreFact = $event.toUpperCase()" />
-              NIT
-              <b-input id="nitFact" ref="nitFact" v-model="nitFact" @input="nitFact = $event.toUpperCase()" />
-              Número
-              <b-input id="numeroFact" ref="numeroFact" v-model="numeroFact" />
-              Referencia
-              <b-input id="referenciaFact" ref="referenciaFact" v-model="referenciaFact" />
-              <b-form-group label="File">
-                <b-form-file
-                  v-model="images"
-                  accept="*"
-                  multiple
-                  placeholder="Subir una imagen..."
-                  drop-placeholder="Suelta una imagen aquí..."></b-form-file>
-                  <b-alert variant="danger" v-if="errorImage" dismissible>{{ errorImage }}</b-alert>
-              </b-form-group>
-              <b-row>
-                <b-col cols="12" class="text-center">
-                  <div v-if="base64Images.length">
-                    <h5>Imagen:</h5>
-                    <iframe :src="base64Images" width="100%" height="600px"></iframe>
-                    <b-button variant="primary" @click="
-                      downloadBase64Pdf(base64Images[0])
-                    "
-                      >Descargar factura</b-button
-                    >
-                  </div>
-                </b-col>
-              </b-row>
-            </b-card-body>
-            <div>
-
-            </div>
-          </b-card>
-        </div>
-        <div v-if = "HasFact==1">
-          <h6>Verificar factura</h6>
-          <b-card>
-            <b-card-body>
-              <b-table
-                hover
-                :items="cuentas"
-                :fields="fieldsAccounts"
-                :select-mode="'single'"
-                selectable
-              >
-              </b-table>
-              <h6>
-                Nombre: {{nombreFact}}
-                <div v-if="nombreFact===''">
-                  <b-input id="nombreFact" ref="nombreFact" v-model="nombreFact" @input="nombreFact = $event.toUpperCase()" />
-                </div>
-              </h6>
-              <h6>
-                NIT: {{nitFact}}
-                <div v-if="nitFact===''">
-                  <b-input id="nitFact" ref="nitFact" v-model="nitFact" />
-                </div>
-              </h6>
-              <h6>
-                Número: {{numeroFact}}
-                <div v-if="numeroFact===''">
-                  <b-input id="numeroFact" ref="numeroFact" v-model="numeroFact" />
-                </div>
-              </h6>
-              <h6>
-                Referencia: {{referenciaFact}}
-                <div v-if="referenciaFact===''">
-                  <b-input id="referenciaFact" ref="referenciaFact" v-model="referenciaFact" />
-                </div>
-              </h6>
-              <b-row>
-                <b-col cols="12" class="text-center">
-                  <div v-if="emptyImage===0">
-                    <h6>Imagen:</h6>
-                    <iframe :src="base64Images" width="100%" height="600px"></iframe>
-                    <b-button variant="primary" @click="
-                      downloadBase64Pdf(base64Images[0])
-                    "
-                      >Descargar factura</b-button
-                    >
-                  </div>
-                  <div v-else>
-                    <b-form-group label="File">
-                      <b-form-file
-                        v-model="images"
-                        accept="image/*"
-                        multiple
-                        placeholder="Subir una imagen..."
-                        drop-placeholder="Suelta una imagen aquí..."></b-form-file>
-                        <b-alert variant="danger" v-if="errorImage" dismissible>{{ errorImage }}</b-alert>
-                    </b-form-group>
-                    <b-row>
-                      <b-col cols="12" class="text-center">
-                        <div v-if="base64Images.length">
-                          <h5>Imagen:</h5>
-                          <iframe :src="base64Images" width="100%" height="600px"></iframe>
-                          <b-button variant="primary" @click="
-                            downloadBase64Pdf(base64Images[0])
-                          "
-                            >Descargar factura</b-button
-                          >
-                        </div>
-                      </b-col>
-                    </b-row>
-                  </div>
-                </b-col>
-              </b-row>
-            </b-card-body>
-            <div>
-
-            </div>
-          </b-card>
+      <div v-if="cargando" class="text-center my-3"><b-spinner small></b-spinner> Cargando...</div>
+      <template v-else>
+        <h6>{{ factura ? 'Verificar factura' : 'Generar factura' }}</h6>
+        <b-table small hover :items="cuenta ? [cuenta] : []" :fields="fieldsAccounts"></b-table>
+        <b-row>
+          <b-col md="6">
+            <b-form-group label="Nombre de factura">
+              <b-input v-model="form.nombre" :disabled="bloqueado('nombre')" @input="form.nombre = $event.toUpperCase()" />
+            </b-form-group>
+          </b-col>
+          <b-col md="6">
+            <b-form-group label="NIT">
+              <b-input v-model="form.nit" :disabled="bloqueado('nit')" @input="form.nit = $event.toUpperCase()" />
+            </b-form-group>
+          </b-col>
+          <b-col md="6">
+            <b-form-group label="Número">
+              <b-input v-model="form.numero" :disabled="bloqueado('numero')" />
+            </b-form-group>
+          </b-col>
+          <b-col md="6">
+            <b-form-group label="Referencia">
+              <b-input v-model="form.referencia" :disabled="bloqueado('referencia_factura')" />
+            </b-form-group>
+          </b-col>
+        </b-row>
+        <b-form-group v-if="!imagenGuardada" label="Archivo de la factura (imagen o PDF, máximo 5MB)">
+          <b-form-file v-model="archivo" accept="image/*,application/pdf" placeholder="Subir un archivo..." drop-placeholder="Suelta el archivo aquí..."></b-form-file>
+        </b-form-group>
+        <div v-if="imagenVista" class="text-center">
+          <iframe :src="imagenVista" width="100%" height="600px"></iframe>
+          <b-button variant="primary" @click="descargar">Descargar factura</b-button>
         </div>
       </template>
-      <template #modal-footer="{}">
-        <b-button v-if="HasFact===0" variant="primary" @click="
-          createFact()
-        "
-          >Guardar factura</b-button
-        >
-        <b-button v-if="HasFact===1 && (nombreFact === '' || nitFact === '' || numeroFact === '' || referenciaFact === '' || emptyImage === 1)" variant="primary" @click="
-          updateFact()
-        "
-          >Guardar cambios</b-button
-        >
-        <b-button v-if="HasFact===1" variant="primary" @click="
-          deactivateFact()
-        "
-          >Cancelar factura</b-button
-        >
-        <b-button variant="danger" @click="$bvModal.hide('modal-2-account')"
-          >Cancelar</b-button
-        >
-      </template>
-    </b-modal>
-    <b-modal id="modal-3-bank" ref="modal-3-bank" title="Desactivar banco">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
-      >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
-      </b-alert>
-      <h6 class="my-4">
-        ¿Desea desactivar el banco: {{ form.name }} ?
-      </h6>
-      <template #modal-footer="{}">
-        <b-button
-          type="submit"
-          variant="primary"
-          @click="onState()
-                  $bvModal.hide('modal-3-bank')"
-          >Desactivar</b-button
-        >
-        <b-button variant="danger" @click="$bvModal.hide('modal-3-bank')"
-          >Cancelar</b-button
-        >
-      </template>
-    </b-modal>
-    <b-modal id="modal-4-bank" ref="modal-4-bank" title="Activar banco">
-      <b-alert
-        :show="alertCountDownError"
-        dismissible
-        fade
-        @dismissed="alertCountDownError=0"
-        class="text-white bg-danger"
-      >
-        <div class="iq-alert-text">{{ alertErrorText }}</div>
-      </b-alert>
-      <h6 class="my-4">
-        ¿Desea activar al banco: {{ form.name }} ?
-      </h6>
-      <template #modal-footer="{}">
-        <b-button
-          type="submit"
-          variant="primary"
-          @click="onState()
-                  $bvModal.hide('modal-4-bank')"
-          >Activar</b-button
-        >
-        <b-button variant="danger" @click="$bvModal.hide('modal-4-bank')"
-          >Cancelar</b-button
-        >
+      <template #modal-footer>
+        <b-button v-if="!factura" variant="primary" :disabled="guardando || cargando" @click="guardar">Guardar factura</b-button>
+        <b-button v-if="factura && hayEditable" variant="primary" :disabled="guardando" @click="guardar">Guardar cambios</b-button>
+        <b-button v-if="factura" variant="warning" :disabled="guardando" @click="cancelarFactura">Cancelar factura</b-button>
+        <b-button variant="danger" @click="$bvModal.hide('modal-2-account')">Cerrar</b-button>
       </template>
     </b-modal>
     <b-row>
       <b-col md="12">
         <iq-card>
-            <template v-slot:headerTitle>
-              <h4 class="card-title mt-3">Mostrar facturas</h4>
-               <div class="iq-search-bar mt-2">
-                <b-form action="#" class="searchbox">
-                    <b-input id="search" placeholder="Buscar..." @input="(val) => searchChange(val)" />
-                    <a class="search-link" href="#"><i class="ri-search-line"></i></a>
-                </b-form>
-              </div>
-            </template>
-            <template v-slot:headerAction>
+          <template v-slot:headerTitle>
+            <h4 class="card-title mt-3">Mostrar facturas</h4>
+            <div class="iq-search-bar mt-2">
+              <b-form action="#" class="searchbox" @submit.prevent>
+                <b-input id="search" placeholder="Buscar por nombre o número de cuenta..." debounce="400" @update="searchChange" />
+                <a class="search-link" href="#"><i class="ri-search-line"></i></a>
+              </b-form>
+            </div>
           </template>
           <template v-slot:body>
-            <datatable-heading
-              :changePageSize="changePageSizes"
-              :searchChange="searchChange"
-              :from="from"
-              :to="to"
-              :total="total"
-              :perPage="perPage"
-            >
-            </datatable-heading>
+            <datatable-heading :changePageSize="changePageSizes" :searchChange="searchChange" :from="from" :to="to" :total="total" :perPage="perPage"></datatable-heading>
             <vuetable
               ref="vuetable"
               class="table-divided order-with-arrow"
@@ -305,26 +73,15 @@
               pagination-path
               @vuetable:pagination-data="onPaginationData"
             >
-              <!-- Botones -->
               <template slot="actions" slot-scope="props">
-                  <div class="button-container">
-                  <b-button
-                    @click="
-                      setData(props.rowData)
-                      $bvModal.show('modal-2-account')
-                    "
-                    class="mb-2 button-spacing"
-                    size="sm"
-                    variant="dark"
-                  >Mostrar factura</b-button>
-                </div>
+                <b-button class="mb-2" size="sm" variant="dark" @click="abrir(props.rowData)">Mostrar factura</b-button>
               </template>
-              <!-- Paginacion -->
+              <template slot="factura" slot-scope="props">
+                <b-badge v-if="facturaDe(props.rowData.id)" variant="success">No. {{ facturaDe(props.rowData.id).numero }}</b-badge>
+                <b-badge v-else variant="light">Sin factura</b-badge>
+              </template>
             </vuetable>
-            <vuetable-pagination-bootstrap
-                ref="pagination"
-                @vuetable-pagination:change-page="onChangePage"
-              />
+            <vuetable-pagination-bootstrap ref="pagination" @vuetable-pagination:change-page="onChangePage" />
           </template>
         </iq-card>
       </b-col>
@@ -336,12 +93,14 @@ import { xray } from '../../../config/pluginInit'
 import DatatableHeading from '../../Tables/DatatableHeading'
 import Vuetable from 'vuetable-2/src/components/Vuetable'
 import VuetablePaginationBootstrap from '../../../components/common/VuetablePaginationBootstrap'
-import useVuelidate from '@vuelidate/core'
-import { required } from '@vuelidate/validators'
 import axios from 'axios'
 import { apiUrl } from '../../../config/constant'
 import { mapGetters } from 'vuex'
 
+const MAX_ARCHIVO = 5 * 1024 * 1024
+const formVacio = () => ({ nombre: '', nit: '', numero: '', referencia: '' })
+
+// Facturas de cuentas cerradas. laboratorio: cuentas del laboratorio (lab_cuentas) en vez de las del hospital.
 export default {
   name: 'Facturacion',
   components: {
@@ -349,557 +108,217 @@ export default {
     'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
     'datatable-heading': DatatableHeading
   },
-  setup () {
-    return { $v: useVuelidate() }
-  },
-  beforeMount () {
-    this.getHabitaciones(0)
-    this.getFacts()
-  },
-  mounted () {
-    xray.index()
-  },
-  computed: {
-    ...mapGetters([
-      'currentUser'
-    ])
-  },
+  props: { laboratorio: { type: Boolean, default: false } },
   data () {
     return {
-      emptyImage: 1,
-      errorImage: null,
-      referenciaFact: null,
-      nombreFact: null,
-      pacienteActual: '',
-      numeroFact: null,
-      nitFact: null,
-      base64Images: [],
-      images: [],
-      HasFact: 0,
-      factsList: [],
       from: 0,
       to: 0,
       total: 0,
       perPage: 5,
       search: '',
-      totPagado: 0,
-      assurances: [],
-      selectAssurance: null,
-      expediente: 0,
-      form: {
-        id: 0,
-        nombres: '',
-        apellidos: '',
-        expediente: '',
-        cui: '',
-        state: 1,
-        numero: 1,
-        total_pagado: 0,
-        pendiente_de_pago: 0,
-        total: 0
-      },
       alertSecs: 5,
       alertCountDown: 0,
-      alertCountDownError: 0,
       alertText: '',
-      alertErrorText: '',
-      selectedPayment: [], // Must be an array reference!
-      paymentOptions: [
-        { text: 'Efectivo', value: 1 },
-        { text: 'Tarjeta', value: 2 },
-        { text: 'Depósito', value: 3 },
-        { text: 'Cheque', value: 4 },
-        { text: 'Seguro', value: 5 },
-        { text: 'Transferencia', value: 6 }
-      ],
-      paymentType: {
-        Efectivo: 0,
-        Tarjeta: 0,
-        Deposito: 0,
-        Cheque: 0,
-        Seguro: 0,
-        Transferencia: 0
-      },
-      paymentSum: 0,
       alertVariant: '',
-      selectedHab: null,
-      habitaciones: [],
-      selectedAccount: null,
-      totalPayment: 0,
-      cuentas: [],
-      selectedTrasOption: 1,
-      optionsTraslado: [
-        { text: 'Quirófano', value: 3 },
-        { text: 'Hospitalización', value: 1 },
-        { text: 'Intensivos', value: 4 }
-      ],
-      apiBase: apiUrl + '/cuentas/paylist',
+      error: '',
+      cargando: false,
+      guardando: false,
+      factsList: [],
+      cuenta: null,
+      factura: null,
+      pacienteActual: '',
+      form: formVacio(),
+      archivo: null,
+      imagenNueva: '',
+      apiBase: apiUrl + (this.laboratorio ? '/lab_cuentas/payList' : '/cuentas/payList'),
       fields: [
-        {
-          name: '__slot:actions',
-          title: 'Acciones',
-          titleClass: '',
-          dataClass: 'text-muted'
-        },
-        {
-          name: 'expediente.nombres',
-          sortField: 'expediente.nombres',
-          title: 'Nombres',
-          dataClass: 'list-item-heading'
-        },
-        {
-          name: 'expediente.apellidos',
-          sortField: 'expediente.apellidos',
-          title: 'Apellidos',
-          dataClass: 'list-item-heading'
-        },
-        {
-          name: 'numero',
-          sortField: 'numero',
-          title: 'Numero de Cuenta',
-          dataClass: 'list-item-heading'
-        },
-        {
-          name: 'motivo',
-          sortField: 'motivo',
-          title: 'Motivo',
-          dataClass: 'list-item-heading'
-        },
-        {
-          name: 'total',
-          sortField: 'total',
-          title: 'Total',
-          dataClass: 'list-item-heading'
-        }
+        { name: '__slot:actions', title: 'Acciones', dataClass: 'text-muted' },
+        { name: 'expediente.nombres', sortField: 'expediente.nombres', title: 'Nombres', dataClass: 'list-item-heading' },
+        { name: 'expediente.apellidos', sortField: 'expediente.apellidos', title: 'Apellidos', dataClass: 'list-item-heading' },
+        { name: 'numero', sortField: 'numero', title: 'Número de cuenta', dataClass: 'list-item-heading' },
+        // Las cuentas del laboratorio no llevan motivo.
+        ...(this.laboratorio ? [] : [{ name: 'motivo', sortField: 'motivo', title: 'Motivo', dataClass: 'list-item-heading' }]),
+        { name: 'total', sortField: 'total', title: 'Total', dataClass: 'list-item-heading' },
+        { name: '__slot:factura', title: 'Factura', dataClass: 'list-item-heading' }
       ],
       fieldsAccounts: [
-        {
-          key: 'numero',
-          label: 'Numero',
-          sortable: true
-        },
-        {
-          key: 'motivo',
-          label: 'Motivo',
-          sortable: true
-        },
-        {
-          key: 'pendiente_de_pago',
-          label: 'Total a pagar',
-          sortable: true
-        },
-        {
-          key: 'total',
-          label: 'Total',
-          sortable: true
-        }
+        { key: 'numero', label: 'Número' },
+        ...(this.laboratorio ? [] : [{ key: 'motivo', label: 'Motivo' }]),
+        { key: 'total_pagado', label: 'Total pagado' },
+        { key: 'total', label: 'Total' }
       ]
     }
   },
-  watch: {
-    images (newVal) {
-      if (newVal && newVal.length) {
-        this.createBase64Image(newVal)
-      } else {
-        this.base64Images = []
-      }
+  computed: {
+    ...mapGetters(['currentUser']),
+    campoCuenta () {
+      return this.laboratorio ? 'id_cuenta_laboratorio' : 'id_cuenta_hospital'
+    },
+    imagenGuardada () {
+      const img = this.factura && this.factura.imagen
+      return img && img.trim() ? img : ''
+    },
+    imagenVista () {
+      return this.imagenGuardada || this.imagenNueva
+    },
+    // En una factura ya guardada solo se completa lo que quedó vacío.
+    hayEditable () {
+      return ['nombre', 'nit', 'numero', 'referencia_factura'].some(c => !this.bloqueado(c)) || !this.imagenGuardada
     }
   },
-  validations () {
-    return {
-      form: {
-        name: { required }
+  watch: {
+    archivo (file) {
+      this.imagenNueva = ''
+      if (!file) return
+      if (file.size > MAX_ARCHIVO) {
+        this.error = 'El tamaño máximo del archivo es de 5MB'
+        this.archivo = null
+        return
       }
+      const reader = new FileReader()
+      reader.onload = (e) => { this.imagenNueva = e.target.result }
+      reader.readAsDataURL(file)
     }
+  },
+  mounted () {
+    xray.index()
+    this.getFacts()
   },
   methods: {
-    createBase64Image (FileList) {
-      if (FileList.length > 1) {
-        // this.errorImage = 'Sólo puedes subir 1 imagen'
-        this.images = []
-      } else {
-        this.base64Images = []
-        // this.errorImage = null
-        Array.from(FileList).forEach(file => {
-          if (file.size > 5 * 1024 * 1024) {
-            this.errorImage = 'El tamaño máximo por imagen es de 5MB'
-            this.images = []
-            return
-          }
-          const reader = new FileReader()
-          reader.onload = (event) => {
-            this.base64Images.push(event.target.result)
-          }
-
-          reader.readAsDataURL(file)
-        })
-      }
+    facturaDe (idCuenta) {
+      return this.factsList.find(f => f[this.campoCuenta] === idCuenta && f.estado === 1)
     },
-    onRowSelected (items) {
-      this.selectedAccount = items[0].id
-      this.totalPayment = items[0].pendiente_de_pago
-      this.totPagado = items[0].total_pagado
+    bloqueado (campo) {
+      return !!(this.factura && this.factura[campo] && String(this.factura[campo]).trim())
     },
-    openModal (modal, action) {
-      switch (modal) {
-        case 'save': {
-          this.$v.$reset()
-          this.form.name = ''
-          this.form.state = 1
-          break
-        }
-      }
+    limpiar () {
+      this.cuenta = null
+      this.factura = null
+      this.form = formVacio()
+      this.archivo = null
+      this.imagenNueva = ''
+      this.error = ''
     },
-    closeModal (action) {
-      switch (action) {
-        case 'save': {
-          this.$v.$reset()
-          this.$refs['modal-1-traslado'].hide()
-          this.form.id = 0
-          this.form.name = ''
-          this.form.state = 1
-          break
-        }
-        case 'update': {
-          this.$v.$reset()
-          this.$refs['modal-2-account'].hide()
-          this.form.name = ''
-          this.form.state = 1
-          break
-        }
-      }
+    mensajeError (e) {
+      return (e.response && e.response.data && e.response.data.msg) || 'Ha ocurrido un error, por favor intente más tarde'
     },
-    onValidate (action) {
-      this.$v.$touch()
-      if (this.selectedHab === null && (this.selectedTrasOption === 1 || this.selectedTrasOption === 4)) {
-        this.alertErrorText = 'Revisa que todos los campos requeridos esten llenos'
-        this.showAlertError()
-      } else {
-        this.onState()
-        this.$bvModal.hide('modal-1-traslado')
-      }
-    },
-    setData (data) {
-      const exp = data.expediente || {}
+    async abrir (row) {
+      this.limpiar()
+      const exp = row.expediente || {}
       this.pacienteActual = `${exp.nombres || ''} ${exp.apellidos || ''}`.trim()
-      this.nitFact = ''
-      this.numeroFact = ''
-      this.nombreFact = ''
-      this.referenciaFact = ''
-      this.imagen = ''
-      this.HasFact = 0
-      this.base64Images = []
-      this.emptyImage = 1
-      if (this.factsList.find(e => e.id_cuenta_hospital === data.id && e.estado === 1)) {
-        const elementFound = this.factsList.find(e => e.id_cuenta_hospital === data.id)
-        this.HasFact = 1
-        this.nitFact = elementFound.nit
-        this.numeroFact = elementFound.numero
-        this.nombreFact = elementFound.nombre || ''
-        this.referenciaFact = elementFound.referencia_factura
-        this.base64Images[0] = elementFound.imagen
-        if (elementFound.imagen !== ' ') {
-          this.emptyImage = 0
+      this.cuenta = row
+      this.cargando = true
+      this.$bvModal.show('modal-2-account')
+      try {
+        const { data } = await axios.get(apiUrl + '/facturas/get', { params: { [this.campoCuenta]: row.id } })
+        this.factura = data || null
+        const f = this.factura
+        // Factura nueva: nombre y NIT de factura del ingreso (expediente).
+        this.form = f
+          ? { nombre: f.nombre || '', nit: f.nit || '', numero: f.numero || '', referencia: f.referencia_factura || '' }
+          : { ...formVacio(), nombre: (exp.nombre_factura || '').toUpperCase(), nit: (exp.nit_factura || '').toUpperCase() }
+      } catch (e) {
+        this.error = this.mensajeError(e)
+      } finally {
+        this.cargando = false
+      }
+    },
+    cuerpo () {
+      return {
+        id_cuenta_hospital: this.laboratorio ? 0 : this.cuenta.id,
+        id_cuenta_laboratoio: this.laboratorio ? this.cuenta.id : 0,
+        nombre: this.form.nombre,
+        nit: this.form.nit,
+        numero: this.form.numero,
+        referencia_factura: this.form.referencia,
+        imagen: this.imagenNueva || null
+      }
+    },
+    async guardar () {
+      const faltan = [['nombre', 'nombre'], ['nit', 'NIT'], ['numero', 'número']].filter(([c]) => !String(this.form[c] || '').trim()).map(([, t]) => t)
+      if (faltan.length) {
+        this.error = `Ingrese ${faltan.join(', ')} de la factura`
+        return
+      }
+      this.guardando = true
+      try {
+        if (this.factura) {
+          await axios.post(apiUrl + '/facturas/update', this.cuerpo())
+        } else {
+          await axios.post(apiUrl + '/facturas/create', { ...this.cuerpo(), total: this.cuenta.total_pagado, id_usuario: this.cuenta.id_expediente })
         }
-      } else {
-        this.HasFact = 0
+        this.terminar(this.factura ? 'Se han guardado los cambios de la factura' : 'Se ha guardado la factura exitosamente')
+      } catch (e) {
+        this.error = this.mensajeError(e)
+      } finally {
+        this.guardando = false
       }
-      // Factura nueva: nombre y NIT de factura del ingreso (expediente).
-      if (!this.HasFact) {
-        this.nombreFact = (exp.nombre_factura || '').toUpperCase()
-        this.nitFact = (exp.nit_factura || '').toUpperCase()
-      }
-      this.form.name = data.nombres
-      this.form.apellidos = data.apellidos
-      this.form.state = data.estado
-      this.form.id = data.id
-      this.form.numero = data.numero
-      this.form.total_pagado = data.total_pagado
-      this.form.pendiente_de_pago = data.pendiente_de_pago
-      this.form.total = data.total
-      this.cuentas[0] = data
-      this.selectedAccount = data.id
-      this.totalPayment = data.pendiente_de_pago
-      this.totPagado = data.total_pagado
-      this.expediente = data.id_expediente
-
-      // this.getCuentas(data.id)
     },
-    /* Guardar */
-    onSave () {
-      const me = this
-      axios.post(apiUrl + '/banco/create', {
-        form: me.form })
-        .then((response) => {
-          me.alertVariant = 'success'
-          me.showAlert()
-          me.alertText = 'Se ha creado el banco ' + me.form.name + ' exitosamente'
-          me.$refs.vuetable.refresh()
-          me.closeModal('save')
-        })
-        .catch((error) => {
-          me.alertVariant = 'danger'
-          me.showAlertError()
-          me.alertErrorText = error.response.data.msg
-          console.error('Error!', error)
-        })
-    },
-    /* Guardar */
-    onUpdate () {
-      const me = this
-      // this.$refs["modalSave"].hide();
-      axios.put(apiUrl + '/banco/update', {
-        form: me.form })
-        .then((response) => {
-          me.alertVariant = 'primary'
-          me.showAlert()
-          me.alertText = 'Se ha actualizado el banco ' + me.form.name + ' exitosamente'
-          me.$refs.vuetable.refresh()
-          me.closeModal('update')
-        })
-        .catch((error) => {
-          me.alertVariant = 'danger'
-          me.showAlertError()
-          me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-          console.error('Error!', error)
-        })
-    },
-    onState () {
-      let me = this
-      axios
-        .put(apiUrl + '/expedientes/changeState', {
-          id: this.form.id,
-          estado: this.selectedTrasOption,
-          user: me.currentUser.user,
-          fecha: null,
-          hora: null
-        })
-        .then((response) => {
-          me.alertVariant = 'info'
-          me.showAlert()
-          me.alertText = 'Se ha trasladado el paciente ' + me.form.nombres + ' exitosamente'
-          me.$refs.vuetable.refresh()
-          me.$refs['modal-1-traslado'].hide()
-          if (this.selectedTrasOption === 1 || this.selectedTrasOption === 4) {
-            axios
-              .put(apiUrl + '/habitaciones/inUse', {
-                id: this.selectedHab.id,
-                ocupante: this.form.id
-              })
-              .then((res) => {
-                this.selectedHab = null
-                this.getHabitaciones(0).then(me.$refs.selectHab.refresh())
-              })
-          }
-        })
-        .catch((error) => {
-          me.alertVariant = 'danger'
-          me.showAlertError()
-          me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-          console.error('There was an error!', error)
-        })
-    },
-    onLoadAssurances (data) {
-      axios.get(apiUrl + '/seguros/getByExp', {
-        params: { id_expediente: data }
+    async cancelarFactura () {
+      const ok = await this.$bvModal.msgBoxConfirm(`¿Cancelar la factura No. ${this.factura.numero} de ${this.pacienteActual}? Esta acción no se puede deshacer.`, {
+        title: 'Cancelar factura', okTitle: 'Sí, cancelar', cancelTitle: 'No', okVariant: 'danger', centered: true
       })
-        .then((resp) => {
-          this.assurances = resp.data
-        })
+      if (!ok) return
+      this.guardando = true
+      try {
+        await axios.post(apiUrl + '/facturas/deactivate', this.cuerpo())
+        this.terminar('Se ha cancelado la factura exitosamente')
+      } catch (e) {
+        this.error = this.mensajeError(e)
+      } finally {
+        this.guardando = false
+      }
     },
-    createFact () {
-      let me = this
-      axios.post(apiUrl + '/facturas/create',
-        {
-          nit: this.nitFact,
-          total: this.totPagado,
-          id_cuenta_laboratoio: 0,
-          id_cuenta_hospital: this.form.id,
-          imagen: this.base64Images ? this.base64Images : ' ',
-          numero: this.numeroFact,
-          nombre: this.nombreFact,
-          id_usuario: this.expediente,
-          referencia_factura: this.referenciaFact
-        })
-        .then(
-          this.selectedAccount = null,
-          this.paymentType.Efectivo = 0,
-          this.paymentType.Tarjeta = 0,
-          this.paymentType.Deposito = 0,
-          this.paymentType.Cheque = 0,
-          this.paymentType.Seguro = 0,
-          this.paymentType.transferencia = 0,
-          this.paymentSum = 0,
-          this.selectAssurance = null
-        )
-        .catch((error) => {
-          me.alertVariant = 'danger'
-          me.showAlertError()
-          me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-          console.error('There was an error!', error)
-        })
-      me.alertVariant = 'info'
-      me.showAlert()
-      me.alertText = 'Se ha guardado la factura exitosamente'
-      me.$refs.vuetable.refresh()
-      me.$refs['modal-2-account'].hide()
+    terminar (texto) {
+      this.alertVariant = 'info'
+      this.alertText = texto
+      this.alertCountDown = this.alertSecs
+      this.$bvModal.hide('modal-2-account')
       this.getFacts()
+      this.$refs.vuetable.refresh()
     },
-    updateFact () {
-      let me = this
-      axios.post(apiUrl + '/facturas/update',
-        {
-          nit: this.nitFact,
-          id_cuenta_laboratoio: 0,
-          id_cuenta_hospital: this.form.id,
-          imagen: this.base64Images ? this.base64Images : '',
-          numero: this.numeroFact,
-          nombre: this.nombreFact,
-          referencia_factura: this.referenciaFact
-        })
-        .then(
-          this.selectedAccount = null,
-          this.paymentType.Efectivo = 0,
-          this.paymentType.Tarjeta = 0,
-          this.paymentType.Deposito = 0,
-          this.paymentType.Cheque = 0,
-          this.paymentType.Seguro = 0,
-          this.paymentType.transferencia = 0,
-          this.paymentSum = 0,
-          this.selectAssurance = null
-        )
-        .catch((error) => {
-          me.alertVariant = 'danger'
-          me.showAlertError()
-          me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-          console.error('There was an error!', error)
-        })
-      me.alertVariant = 'info'
-      me.showAlert()
-      me.alertText = 'Se ha guardado la factura exitosamente'
-      me.$refs.vuetable.refresh()
-      this.getFacts()
-      me.$refs['modal-2-account'].hide()
+    async getFacts () {
+      try {
+        const { data } = await axios.get(apiUrl + '/facturas/getList')
+        this.factsList = data
+      } catch (e) {
+        console.error(e)
+      }
     },
-    deactivateFact () {
-      let me = this
-      axios.post(apiUrl + '/facturas/deactivate',
-        {
-          id_cuenta_laboratoio: 0,
-          id_cuenta_hospital: this.form.id
-        })
-        .then(
-          this.selectedAccount = null,
-          this.paymentType.Efectivo = 0,
-          this.paymentType.Tarjeta = 0,
-          this.paymentType.Deposito = 0,
-          this.paymentType.Cheque = 0,
-          this.paymentType.Seguro = 0,
-          this.paymentType.transferencia = 0,
-          this.paymentSum = 0,
-          this.selectAssurance = null
-        )
-        .catch((error) => {
-          me.alertVariant = 'danger'
-          me.showAlertError()
-          me.alertErrorText = 'Ha ocurrido un error, por favor intente más tarde'
-          console.error('There was an error!', error)
-        })
-      me.alertVariant = 'info'
-      me.showAlert()
-      me.alertText = 'Se ha cancelado la factura exitosamente'
-      me.$refs.vuetable.refresh()
-      this.getFacts()
-      me.$refs['modal-2-account'].hide()
-    },
-    getFacts () {
-      axios.get(apiUrl + '/facturas/getList')
-        .then(res => {
-          this.factsList = res.data
-        })
-    },
-    downloadBase64Pdf (base64WithHeader, filename = 'archivo.pdf') {
+    descargar () {
       const a = document.createElement('a')
-      a.href = base64WithHeader
-      a.download = filename
+      a.href = this.imagenVista
+      a.download = `factura-${this.form.numero || 'sin-numero'}`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
     },
-    makeQueryParams (sortOrder, currentPage, perPage) {
-      return sortOrder[0]
-        ? {
-          criterio: sortOrder[0] ? sortOrder[0].sortField : 'createdAt',
-          order: sortOrder[0] ? sortOrder[0].direction : 'desc',
-          page: currentPage,
-          limit: this.perPage,
-          search: this.search
-        }
-        : {
-          criterio: sortOrder[0] ? sortOrder[0].sortField : 'createdAt',
-          order: sortOrder[0] ? sortOrder[0].direction : 'desc',
-          page: currentPage,
-          limit: this.perPage,
-          search: this.search
-        }
+    makeQueryParams (sortOrder, currentPage) {
+      return {
+        criterio: sortOrder[0] ? sortOrder[0].sortField : 'createdAt',
+        order: sortOrder[0] ? sortOrder[0].direction : 'desc',
+        page: currentPage,
+        limit: this.perPage,
+        search: this.search
+      }
     },
     changePageSizes (perPage) {
       this.perPage = perPage
       this.$refs.vuetable.refresh()
     },
     searchChange (val) {
-      this.search = val.toLowerCase()
+      this.search = String(val || '').toLowerCase()
       this.$refs.vuetable.refresh()
     },
     onPaginationData (paginationData) {
       this.from = paginationData.from
       this.to = paginationData.to
       this.total = paginationData.total
-      this.lastPage = paginationData.last_page
-      this.items = paginationData.data
       this.$refs.pagination.setPaginationData(paginationData)
     },
     onChangePage (page) {
       this.$refs.vuetable.changePage(page)
-    },
-    showAlert () {
-      this.alertCountDown = this.alertSecs
-    },
-    showAlertError () {
-      this.alertCountDownError = this.alertSecs
-    },
-    getHabitaciones (num) {
-      axios.get(apiUrl + '/habitaciones/get', {
-        params: {
-          tipo: num
-        }
-      }).then((response) => {
-        this.habitaciones = response.data
-      })
-    },
-    getCuentas (num) {
-      axios.get(apiUrl + '/cuentas/getByExp', {
-        params: {
-          id: num
-        }
-      }).then((response) => {
-        this.cuentas = response.data
-      })
-    },
-    inputPaymentType (inptPay) {
-      this.paymentType = inptPay
     }
   }
 }
 </script>
-<style scoped>
-  .img-preview {
-    max-width: 100%;
-    max-height: 200px;
-    height: auto;
-    margin-top: 1rem;
-    border: 1px solid #dee2e6;
-    border-radius: .25rem;
-    transition: opacity 0.3s ease-in-out;
-  }
-</style>
