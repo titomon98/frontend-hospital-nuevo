@@ -2,8 +2,7 @@
   <div class="iq-sidebar">
     <div class="iq-sidebar-logo d-flex justify-content-between">
       <router-link :to="homeURL">
-        <img v-if="user === 2 || user === 4 || user === 6 || user === 8 || user === 12 || user === 13" :src="logo2" class="img-fluid" alt="logo">
-        <img v-else :src="logo" class="img-fluid" alt="logo">
+        <img :src="esLaboratorio ? logo2 : logo" class="img-fluid" alt="logo">
       </router-link>
       <div class="iq-menu-bt-sidebar" v-if="toggleButton">
         <div class="iq-menu-bt align-self-center">
@@ -27,6 +26,7 @@
 <script>
 import List from '../menus/ListStyle1'
 import { mapGetters } from 'vuex'
+import { esUsuarioLaboratorio } from '../../../Utils/auth.roles'
 export default {
   name: 'SideBarStyle1',
   props: {
@@ -35,19 +35,20 @@ export default {
     logo: { type: String, default: require('../../../assets/images/logo.png') },
     logo2: { type: String, default: require('../../../assets/images/logoLab.jpg') },
     horizontal: { type: Boolean },
-    toggleButton: { type: Boolean, default: true },
-    user: null
+    toggleButton: { type: Boolean, default: true }
   },
   computed: {
     ...mapGetters([
       'currentUser'
-    ])
+    ]),
+    esLaboratorio () {
+      return esUsuarioLaboratorio(this.currentUser)
+    }
   },
   components: {
     List
   },
   mounted () {
-    this.user = this.currentUser.user_type
     const element = document.querySelectorAll('.iq-sidebar-menu li a')
     Array.from(element, (elem) => {
       elem.addEventListener('click', (e) => {

@@ -7,7 +7,7 @@
       <SideBarStyle1 :items="filteredVerticalMenu" :horizontal="horizontal" :logo="logo" @toggle="sidebarMini" />
       <div id="content-page" class="content-page" :class="horizontal ? 'ml-0' : ''">
         <!-- TOP Nav Bar -->
-        <NavBarStyle1 title="Dashboard" :homeURL="{ name: 'dashboard.home-1' }" @toggle="sidebarMini" :logo="logo" :horizontal="horizontal" :items="horizontalMenu" :marca="esLaboratorio ? 'Laboratorio Biomédico' : 'HEO/LAB'">
+        <NavBarStyle1 title="Dashboard" :homeURL="{ name: 'dashboard.home-1' }" @toggle="sidebarMini" :logo="logo" :horizontal="horizontal" :items="horizontalMenu" :laboratorio="esLaboratorio" :marca="esLaboratorio ? 'Laboratorio Biomédico' : 'HEO/LAB'">
 
           <template slot="right">
             <ul class="navbar-list">

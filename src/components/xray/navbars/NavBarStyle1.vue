@@ -5,8 +5,7 @@
       <div class="iq-sidebar-logo">
         <div class="top-logo">
           <router-link :to="homeURL">
-            <img :src="logo" class="img-fluid" alt="logo">
-            <img :src="logo2" class="img-fluid" alt="logo">
+            <img :src="laboratorio ? logo2 : logo" class="img-fluid" alt="logo">
             <span>{{ marca }}</span>
           </router-link>
         </div>
@@ -44,6 +43,7 @@ export default {
     logo2: { type: String, default: require('../../../assets/images/logoLab.jpg') },
     horizontal: { type: Boolean, default: false },
     marca: { type: String, default: 'HEO/LAB' },
+    laboratorio: { type: Boolean, default: false },
     items: { type: Array }
   },
   mounted () {
