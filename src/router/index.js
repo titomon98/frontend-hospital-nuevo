@@ -6,6 +6,7 @@ import Layout1 from '../layouts/Layout1'
 import AuthLayout1 from '../layouts/AuthLayouts/AuthLayout1'
 import { sesionExpirada, tokenVencido } from '../Utils/sesion'
 import { getCurrentUser, setCurrentUser } from '../Utils/index'
+import { esUsuarioLaboratorio } from '../Utils/auth.roles'
 
 Vue.use(VueRouter)
 
@@ -390,7 +391,13 @@ router.beforeEach((to, from, next) => {
 
   // Ya logueado intentando ir al login → dashboard
   if (to.name === 'auth1.sign-in1' && user) {
-    return next({ name: 'dashboard.home-2' })
+    return next({ name: 'dashboard.home-1' })
+  }
+
+  // Cada área a su dashboard: hospital home-1, laboratorio home-2 (exámenes con resultado).
+  if (user && /\.home-[12]$/.test(to.name || '')) {
+    const home = esUsuarioLaboratorio(user) ? 'home-2' : 'home-1'
+    if (!to.name.endsWith(home)) return next({ name: to.name.replace(/home-[12]$/, home) })
   }
 
   return next()

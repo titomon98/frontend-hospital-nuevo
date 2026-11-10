@@ -7,7 +7,7 @@
       <SideBarStyle1 :items="filteredVerticalMenu" :horizontal="horizontal" :logo="logo" @toggle="sidebarMini" />
       <div id="content-page" class="content-page" :class="horizontal ? 'ml-0' : ''">
         <!-- TOP Nav Bar -->
-        <NavBarStyle1 title="Dashboard" :homeURL="{ name: 'dashboard1.home' }" @toggle="sidebarMini" :logo="logo" :horizontal="horizontal" :items="horizontalMenu" :marca="esLaboratorio ? 'Laboratorio Biomédico' : 'HEO/LAB'">
+        <NavBarStyle1 title="Dashboard" :homeURL="{ name: 'dashboard.home-1' }" @toggle="sidebarMini" :logo="logo" :horizontal="horizontal" :items="horizontalMenu" :marca="esLaboratorio ? 'Laboratorio Biomédico' : 'HEO/LAB'">
 
           <template slot="right">
             <ul class="navbar-list">
@@ -85,6 +85,7 @@ import { xray } from '../config/pluginInit'
 import { mapGetters, mapActions } from 'vuex'
 import axios from 'axios'
 import { apiUrl } from '../config/constant'
+import { esUsuarioLaboratorio } from '../Utils/auth.roles'
 
 export default {
   name: 'Layout1',
@@ -115,9 +116,8 @@ export default {
       colors: 'Setting/colorState',
       currentUser: 'currentUser'
     }),
-    // Tipos de usuario de laboratorio (tipo_usuarios): gerencia, administración, contabilidad, caja, químico, técnico.
     esLaboratorio () {
-      return [2, 4, 6, 8, 12, 13].includes(Number(this.currentUser.user_type))
+      return esUsuarioLaboratorio(this.currentUser)
     }
   },
   data () {

@@ -9,3 +9,6 @@ export const UserRole = {
   EnfermeraB: 8,
   Interno: 9
 }
+
+// Tipos de usuario de laboratorio (tipo_usuarios): gerencia, administración, contabilidad, caja, químico, técnico.
+export const esUsuarioLaboratorio = (user) => [2, 4, 6, 8, 12, 13].includes(Number(user && user.user_type))
