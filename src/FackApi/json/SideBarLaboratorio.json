@@ -84,8 +84,8 @@
     ]
   },
   {
-    "title": "Exámenes",
-    "name": "Exámenes",
+    "title": "Exámenes por cobrar",
+    "name": "Exámenes por cobrar",
     "is_heading": false,
     "is_active": false,
     "link": {
@@ -93,7 +93,33 @@
     },
     "class_name": "",
     "is_icon_class": true,
-    "icon": "ri-article-line",
+    "icon": "ri-wallet-3-line",
+    "rol": [2, 4, 6, 8, 12, 13]
+  },
+  {
+    "title": "Pendientes de resultado",
+    "name": "Pendientes de resultado",
+    "is_heading": false,
+    "is_active": false,
+    "link": {
+      "name": "laboratorio.examenesPendientes"
+    },
+    "class_name": "",
+    "is_icon_class": true,
+    "icon": "ri-timer-line",
+    "rol": [2, 4, 6, 8, 12, 13]
+  },
+  {
+    "title": "Exámenes con resultado",
+    "name": "Exámenes con resultado",
+    "is_heading": false,
+    "is_active": false,
+    "link": {
+      "name": "laboratorio.examenesResultados"
+    },
+    "class_name": "",
+    "is_icon_class": true,
+    "icon": "ri-file-chart-line",
     "rol": [2, 4, 6, 8, 12, 13]
   },
   {

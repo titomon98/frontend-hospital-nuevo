@@ -81,7 +81,7 @@ export default {
     currentUser (val) {
       if (val && val.uid) {
         setTimeout(() => {
-          this.$router.push({ name: 'dashboard.home-1' })
+          this.$router.push({ name: 'dashboard.home-1' }).catch(() => {}) // laboratorio se redirige a home-2
         }, 200)
       }
     },

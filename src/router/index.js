@@ -121,7 +121,10 @@ const LaboratorioRoutes = (prop) => [
   { path: 'cuentas', name: `${prop}.cuentas`, meta: { auth: true, name: 'cuentas', roles: [2, 4, 6, 8] }, component: CuentasParentLaboratorio },
   { path: 'descuentos', name: `${prop}.descuentos`, meta: { auth: true, name: 'descuentos', roles: [2, 4] }, component: ValDescuentos },
   { path: 'facturacion', name: `${prop}.facturacion`, meta: { auth: true, name: 'facturacion', roles: [2, 4, 6, 8] }, component: FacturacionLab },
-  { path: 'examenes', name: `${prop}.examenes`, meta: { auth: true, name: 'examenes', roles: [2, 4, 6, 8, 12, 13] }, component: Examenes },
+  // Exámenes en 3 secciones (misma vista): por cobrar, pendientes de resultado y con resultado.
+  { path: 'examenes', name: `${prop}.examenes`, meta: { auth: true, name: 'examenes', roles: [2, 4, 6, 8, 12, 13] }, component: Examenes, props: { seccion: 'pago' } },
+  { path: 'examenes/pendientes-resultado', name: `${prop}.examenesPendientes`, meta: { auth: true, name: 'examenesPendientes', roles: [2, 4, 6, 8, 12, 13] }, component: Examenes, props: { seccion: 'resultado' } },
+  { path: 'examenes/con-resultado', name: `${prop}.examenesResultados`, meta: { auth: true, name: 'examenesResultados', roles: [2, 4, 6, 8, 12, 13] }, component: Examenes, props: { seccion: 'finalizados' } },
   { path: 'examenesalmacenados', name: `${prop}.examenesalmacenados`, meta: { auth: true, name: 'examenesalmacenados', roles: [2, 4, 6, 12] }, component: ExamenesAlmacenados },
   { path: 'examenesinternos', name: `${prop}.examenesinternos`, meta: { auth: true, name: 'examenesinternos', roles: [2, 4, 6] }, component: ExamenesInternos },
   { path: 'incentivos', name: `${prop}.incentivos`, meta: { auth: true, name: 'incentivos', roles: [2, 4, 6] }, component: Incentivos },

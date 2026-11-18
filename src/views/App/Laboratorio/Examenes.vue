@@ -355,13 +355,14 @@
         <iq-card>
           <template v-slot:headerTitle>
             <div class="center-text">
-              <h3 class="card-title">AREA DE EXAMENES</h3>
+              <h3 class="card-title">{{ titulos[seccion] }}</h3>
             </div>
           </template>
           <template v-slot:headerAction>
-            <b-button variant="primary"  v-b-modal.modal_agregar>AGREGAR NUEVO</b-button>
+            <b-button v-if="seccion === 'pago'" variant="primary"  v-b-modal.modal_agregar>AGREGAR NUEVO</b-button>
           </template>
           <template v-slot:body>
+            <div v-if="seccion === 'pago'">
             <h4 class="card-title">EXAMENES SOLICITADOS  Y PENDIENTES DE PAGO</h4>
             <div class="row mb-3">
               <div class="col-md-4">
@@ -417,12 +418,8 @@
                 ref="pagination"
                 @vuetable-pagination:change-page="onChangePage"
               />
-          </template>
-        </iq-card>
-      </b-col>
-      <b-col sm="12">
-        <iq-card>
-          <template v-slot:body>
+            </div>
+            <div v-else-if="seccion === 'resultado'">
             <h4 class="card-title">EXAMENES PAGADOS Y PENDIENTES DE RESULTADO</h4>
             <div class="row mb-3">
               <div class="col-md-4">
@@ -478,12 +475,8 @@
                 ref="pagination2"
                 @vuetable-pagination:change-page="onChangePage2"
               />
-          </template>
-        </iq-card>
-      </b-col>
-      <b-col sm="12">
-        <iq-card>
-          <template v-slot:body>
+          </div>
+            <div v-else>
             <h4 class="card-title">EXAMENES REALIZADOS (FINALIZADOS)</h4>
             <div class="row mb-3">
               <div class="col-md-4">
@@ -545,6 +538,7 @@
                 ref="pagination3"
                 @vuetable-pagination:change-page="onChangePage3"
               />
+          </div>
           </template>
         </iq-card>
       </b-col>
@@ -568,6 +562,8 @@ import JsPDF from 'jspdf'
 import { mapGetters } from 'vuex'
 export default {
   name: 'Examenes',
+  // Seccion segun la ruta: pago (por cobrar), resultado (pagados sin resultado), finalizados.
+  props: { seccion: { type: String, default: 'pago' } },
   components: {
     vuetable: Vuetable,
     'vuetable-pagination-bootstrap': VuetablePaginationBootstrap,
@@ -589,6 +585,11 @@ export default {
   },
   data: () => {
     return {
+      titulos: {
+        pago: 'EXÁMENES POR COBRAR',
+        resultado: 'EXÁMENES PENDIENTES DE RESULTADO',
+        finalizados: 'EXÁMENES CON RESULTADO'
+      },
 
       editorOptions: {
         modules: {
@@ -975,6 +976,10 @@ export default {
     }
   },
   methods: {
+    // Solo existe la tabla de la seccion visible.
+    refrescar (ref) {
+      if (this.$refs[ref]) this.$refs[ref].refresh()
+    },
     hasPermission (blockedRoles = []) {
       return !blockedRoles.includes(this.currentUser.user_type)
     },
@@ -1065,7 +1070,7 @@ export default {
           me.alertVariant = 'success'
           me.showAlert()
           me.alertText = 'Se ha ANULADO el examen'
-          me.$refs.vuetable.refresh()
+          me.refrescar('vuetable')
         })
         .catch((error) => {
           me.alertVariant = 'danger'
@@ -1095,11 +1100,11 @@ export default {
           me.alertVariant = 'success'
           me.showAlert()
           me.alertText = 'Se ingresado al paciente ' + me.form.nombre + ' exitosamente'
-          me.$refs.vuetable.refresh()
-          me.$refs.vuetable2.refresh()
-          me.$refs.vuetable3.refresh()
+          me.refrescar('vuetable')
+          me.refrescar('vuetable2')
+          me.refrescar('vuetable3')
           me.closeModal('save')
-          this.$refs.vuetable.refresh()
+          this.refrescar('vuetable')
         })
         .catch((error) => {
           me.alertVariant = 'danger'
@@ -1163,7 +1168,7 @@ export default {
       const params = {
         search: search,
         page: this.currentPageExa,
-        perPage: this.$refs.vuetable.perPage
+        perPage: 20
       }
 
       axios.get(apiUrl + '/examenesAlmacenadosBuscar/getSearch', { params })
@@ -1206,7 +1211,7 @@ export default {
       this.alertCountDownError = this.alertSecs
     },
     realizarBusqueda () {
-      this.$refs.vuetable.refresh()
+      this.refrescar('vuetable')
       this.fechaDesde = null
       this.fechaHasta = null
     },
@@ -1223,11 +1228,11 @@ export default {
     },
     changePageSizes (perPage) {
       this.perPage = perPage
-      this.$refs.vuetable.refresh()
+      this.refrescar('vuetable')
     },
     searchChange (val) {
       this.search = val.toLowerCase()
-      this.$refs.vuetable.refresh()
+      this.refrescar('vuetable')
     },
     onPaginationData (paginationData) {
       this.from = paginationData.from
@@ -1259,11 +1264,11 @@ export default {
     },
     changePageSizes2 (perPage) {
       this.perPage2 = perPage
-      this.$refs.vuetable2.refresh()
+      this.refrescar('vuetable2')
     },
     searchChange2 (val) {
       this.search2 = val.toLowerCase()
-      this.$refs.vuetable2.refresh()
+      this.refrescar('vuetable2')
     },
     onPaginationData2 (paginationData) {
       this.from2 = paginationData.from
@@ -1294,11 +1299,11 @@ export default {
     },
     changePageSizes3 (perPage) {
       this.perPage3 = perPage
-      this.$refs.vuetable3.refresh()
+      this.refrescar('vuetable3')
     },
     searchChange3 (val) {
       this.search3 = val.toLowerCase()
-      this.$refs.vuetable3.refresh()
+      this.refrescar('vuetable3')
     },
     onPaginationData3 (paginationData) {
       this.from3 = paginationData.from
@@ -1371,8 +1376,8 @@ export default {
           me.alertVariant = 'success'
           me.showAlert()
           me.alertText = 'Se han ingresado los resultados de los exámenes exitosamente'
-          me.$refs.vuetable2.refresh()
-          me.$refs.vuetable3.refresh()
+          me.refrescar('vuetable2')
+          me.refrescar('vuetable3')
           me.closeModal('resultado')
         })
         .catch((error) => {
