@@ -151,8 +151,22 @@
       <h6 class="my-4">
         ¿Desea solicitar un descuento para: {{ form.name }} {{ form.apellidos }} ?
       </h6>
-      Descuento:
-      <b-input :type="'number'" id="discountAmount" ref="discountAmount" v-model="discountAmount" />
+      <p class="mb-2">Total pendiente: <strong>Q{{ Number(totalPayment || 0).toFixed(2) }}</strong></p>
+      <b-form-group label="Tipo de descuento:">
+        <b-form-radio-group v-model="tipoDescuento" buttons button-variant="outline-primary" :options="[
+          { value: 'monto', text: 'Por cantidad (Q)' },
+          { value: 'porcentaje', text: 'Por porcentaje (%)' }
+        ]" />
+      </b-form-group>
+      <b-form-group :label="tipoDescuento === 'porcentaje' ? 'Porcentaje de descuento (%):' : 'Cantidad de descuento (Q):'">
+        <b-input-group :prepend="tipoDescuento === 'porcentaje' ? '%' : 'Q'">
+          <b-form-input type="number" min="0" :max="tipoDescuento === 'porcentaje' ? 100 : totalPayment" step="0.01" v-model="discountAmount" />
+        </b-input-group>
+      </b-form-group>
+      <p v-if="montoDescuento > 0" class="mb-0">
+        Descuento a solicitar: <strong>Q{{ montoDescuento.toFixed(2) }}</strong><span v-if="tipoDescuento === 'porcentaje'"> ({{ Number(discountAmount) }}% de Q{{ Number(totalPayment || 0).toFixed(2) }})</span>.
+        El paciente pagaría <strong>Q{{ Math.max(0, Number(totalPayment || 0) - montoDescuento).toFixed(2) }}</strong>.
+      </p>
       <template #modal-footer="{}">
         <b-button
           type="submit"
@@ -350,7 +364,13 @@ export default {
   computed: {
     ...mapGetters([
       'currentUser'
-    ])
+    ]),
+    // Descuento en quetzales, sea que se ingrese como cantidad o como porcentaje del pendiente.
+    montoDescuento () {
+      const valor = Number(this.discountAmount) || 0
+      const monto = this.tipoDescuento === 'porcentaje' ? (Number(this.totalPayment) || 0) * valor / 100 : valor
+      return Math.round(monto * 100) / 100
+    }
   },
   data () {
     return {
@@ -363,6 +383,7 @@ export default {
       assurances: [],
       selectAssurance: null,
       discountAmount: 0,
+      tipoDescuento: 'monto',
       form: {
         id: 0,
         nombres: '',
@@ -544,6 +565,7 @@ export default {
       this.paymentSum = 0
       this.selectAssurance = null
       this.discountAmount = 0
+      this.tipoDescuento = 'monto'
     },
     fechaCorta (fecha) {
       const [a, m, d] = String(fecha).slice(0, 10).split('-')
@@ -632,18 +654,24 @@ export default {
         })
     },
     requestDiscount () {
-      if (this.discountAmount <= 0) {
-        this.alertErrorText = 'El descuento debe ser mayor a 0.00'
+      const valor = Number(this.discountAmount) || 0
+      const total = Number(this.totalPayment) || 0
+      if (valor <= 0) {
+        this.alertErrorText = 'El descuento debe ser mayor a 0'
         this.showAlertError()
-      } else if (this.discountAmount > this.totalPayment) {
-        this.alertErrorText = `El descuento debe ser menor a ${this.totalPayment}`
+      } else if (this.tipoDescuento === 'porcentaje' && valor > 100) {
+        this.alertErrorText = 'El porcentaje no puede ser mayor a 100%'
+        this.showAlertError()
+      } else if (this.montoDescuento > total) {
+        this.alertErrorText = `El descuento no puede ser mayor a Q${total.toFixed(2)}`
         this.showAlertError()
       } else {
         axios.post(apiUrl + '/lab_cuentas/requestDiscount', {
           form: {
             id_expediente: this.form.id_expediente,
             solicitud_descuento: 2,
-            descuento: parseFloat(this.discountAmount)
+            // El backend guarda el monto en quetzales; el porcentaje se convierte aquí.
+            descuento: this.montoDescuento
           }
         })
           .then((tipo) => {
@@ -653,7 +681,8 @@ export default {
           }
           )
           .catch((error) => {
-            console.error(error)
+            this.alertErrorText = (error.response && error.response.data && error.response.data.msg) || 'No se pudo solicitar el descuento'
+            this.showAlertError()
           })
       }
     },
