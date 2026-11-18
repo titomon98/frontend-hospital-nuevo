@@ -3,8 +3,8 @@
 export default {
   webBaseURL: process.env.MIX_APP_URL
 }
-// export const apiUrl = 'https://backendhospiespe.xyz'
-export const apiUrl = 'http://localhost:3000'
+// yarn build (producción) usa el backend publicado; yarn serve, el local.
+export const apiUrl = process.env.NODE_ENV === 'production' ? 'https://backendhospiespe.xyz' : 'http://localhost:3000'
 
 export const currentUser = {
   id: 1,
