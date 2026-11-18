@@ -130,7 +130,7 @@
               </v-select>
             </b-form-group>
           </b-col>
-          <b-col md="3">
+          <b-col v-if="verPrecios" md="3">
             <b-form-group label="Total:">
               <b-form-input
                 disabled
@@ -215,7 +215,7 @@
         </b-row>
         <b-row class="ml-2">
           <b-col md="12">
-            <b-form-group label="Tipo de Examen:">
+            <b-form-group label="Exámenes:">
               <div v-if="isLoading">
                 <p>Cargando...</p>
               </div>
@@ -237,9 +237,7 @@
                 <!-- Personalización de las opciones mientras el usuario busca -->
                 <template v-slot:option="{ option }">
                   <div class="custom-option">
-                    <strong>{{ option.nombre }}</strong> --
-                    <small>Tipo de Examen: {{ option.tipo_examen }}</small> |
-                    <small>Precio: Q{{ option.precio_normal }}</small> |
+                    <strong>{{ option.nombre }}</strong> - {{ option.tipo_examen }}<template v-if="verPrecios"> - Q{{ option.precio_normal }}</template>
                   </div>
                 </template>
 
@@ -254,7 +252,7 @@
               <div>
                 <ul class="selected-options-list" v-if="selectedExamenes.length > 0">
                   <li v-for="(examen, index) in selectedExamenes" :key="examen.id">
-                    {{ index + 1 }}. {{ examen.nombre }} - Precio: Q{{ examen.precio_normal }}
+                    {{ index + 1 }}. {{ examen.nombre }} - {{ examen.tipo_examen }}<template v-if="verPrecios"> - Q{{ examen.precio_normal }}</template>
                   </li>
                 </ul>
               </div>
@@ -264,7 +262,7 @@
       </b-form>
       <template #modal-footer="{}">
 
-        <div class="ml-auto"> <span class="mr-2">Total: Q{{ TotalAPagar }}</span></div>
+        <div class="ml-auto"> <span v-if="verPrecios" class="mr-2">Total: Q{{ TotalAPagar }}</span></div>
 
         <b-button variant="primary" @click="onValidate('save')"
           >Guardar</b-button
@@ -395,7 +393,7 @@
               :query-params="makeQueryParams"
               :per-page="perPage"
               :reactive-api-url="true"
-              :fields="fields"
+              :fields="fieldsVisibles"
               pagination-path
               @vuetable:pagination-data="onPaginationData"
             >
@@ -452,7 +450,7 @@
               :query-params="makeQueryParams2"
               :per-page="perPage2"
               :reactive-api-url="true"
-              :fields="fields2"
+              :fields="fields2Visibles"
               pagination-path
               @vuetable:pagination-data="onPaginationData2"
             >
@@ -560,6 +558,8 @@ import logo from '../../../../src/assets/images/logoLab.jpg'
 import Multiselect from 'vue-multiselect'
 import JsPDF from 'jspdf'
 import { mapGetters } from 'vuex'
+const CAMPOS_PRECIO = ['total', 'pagado', 'por_pagar']
+
 export default {
   name: 'Examenes',
   // Seccion segun la ruta: pago (por cobrar), resultado (pagados sin resultado), finalizados.
@@ -581,7 +581,17 @@ export default {
   computed: {
     ...mapGetters({
       currentUser: 'currentUser'
-    })
+    }),
+    // Precios solo para gerencia (2), administración (4) y caja (8) de laboratorio.
+    verPrecios () {
+      return [2, 4, 8].includes(Number(this.currentUser && this.currentUser.user_type))
+    },
+    fieldsVisibles () {
+      return this.verPrecios ? this.fields : this.fields.filter(f => !CAMPOS_PRECIO.includes(f.name))
+    },
+    fields2Visibles () {
+      return this.verPrecios ? this.fields2 : this.fields2.filter(f => !CAMPOS_PRECIO.includes(f.name))
+    }
   },
   data: () => {
     return {
