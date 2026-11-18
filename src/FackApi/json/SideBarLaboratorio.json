@@ -23,65 +23,56 @@
     "rol": [2]
   },
   {
-    "title": "Caja",
-    "name": "Caja",
+    "title": "Cortes de caja",
+    "name": "Cortes de caja",
     "is_heading": false,
     "is_active": false,
-    "link": {},
+    "link": {
+      "name": "laboratorio.cortes"
+    },
     "class_name": "",
     "is_icon_class": true,
-    "icon": "ri-briefcase-4-fill",
-    "rol": [2, 4, 6, 8],
-    "children": [
-      {
-        "title": "Cortes",
-        "name": "Cortes",
-        "is_active": false,
-        "link": {
-          "name": "laboratorio.cortes"
-        },
-        "class_name": "",
-        "is_icon_class": true,
-        "icon": "ri-scissors-fill",
-        "rol": [2, 4, 6, 8]
-      },
-      {
-        "title": "Cuentas por cobrar",
-        "name": "Cuentas por cobrar",
-        "is_active": false,
-        "link": {
-          "name": "laboratorio.cuentas"
-        },
-        "class_name": "",
-        "is_icon_class": true,
-        "icon": "ri-money-dollar-circle-fill",
-        "rol": [2, 4, 6, 8]
-      },
-      {
-        "title": "Facturación",
-        "name": "Facturación",
-        "is_active": false,
-        "link": {
-          "name": "laboratorio.facturacion"
-        },
-        "class_name": "",
-        "is_icon_class": true,
-        "icon": "ri-file-text-fill",
-        "rol": [2, 4, 6, 8]
-      },
-      {
-        "title": "Descuentos",
-        "name": "Descuentos",
-        "is_active": false,
-        "link": {
-          "name": "laboratorio.descuentos"
-        },
-        "class_name": "",
-        "is_icon_class": true,
-        "icon": "ri-price-tag-3-line",
-        "rol": [2, 4]
-      }
-    ]
+    "icon": "ri-scissors-fill",
+    "rol": [2, 4, 6, 8]
+  },
+  {
+    "title": "Cuentas por cobrar",
+    "name": "Cuentas por cobrar",
+    "is_heading": false,
+    "is_active": false,
+    "link": {
+      "name": "laboratorio.cuentas"
+    },
+    "class_name": "",
+    "is_icon_class": true,
+    "icon": "ri-money-dollar-circle-fill",
+    "rol": [2, 4, 6, 8]
+  },
+  {
+    "title": "Facturación",
+    "name": "Facturación",
+    "is_heading": false,
+    "is_active": false,
+    "link": {
+      "name": "laboratorio.facturacion"
+    },
+    "class_name": "",
+    "is_icon_class": true,
+    "icon": "ri-file-text-fill",
+    "rol": [2, 4, 6, 8]
+  },
+  {
+    "title": "Descuentos",
+    "name": "Descuentos",
+    "is_heading": false,
+    "is_active": false,
+    "link": {
+      "name": "laboratorio.descuentos"
+    },
+    "class_name": "",
+    "is_icon_class": true,
+    "icon": "ri-price-tag-3-line",
+    "rol": [2, 4]
   },
   {
     "title": "Exámenes por cobrar",
