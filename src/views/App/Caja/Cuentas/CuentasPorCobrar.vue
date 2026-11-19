@@ -104,16 +104,6 @@
                   <b-badge v-if="desgloseCobro.laboratorio.pendiente > 0" variant="info">PENDIENTE Q{{ desgloseCobro.laboratorio.pendiente.toFixed(2) }} (caja del laboratorio)</b-badge>
                   <b-badge v-else variant="success">{{ desgloseCobro.laboratorio.total > 0 ? 'PAGADO' : 'SIN EXÁMENES' }}</b-badge>
                 </p>
-                <b-form-group label="¿A qué abonar?">
-                  <b-form-checkbox-group v-model="categoriasCobro">
-                    <b-form-checkbox value="hospital" :disabled="desgloseCobro.hospital.pendiente <= 0">Hospital</b-form-checkbox>
-                    <b-form-checkbox value="honorarios" :disabled="desgloseCobro.honorarios.pendiente <= 0">Honorarios</b-form-checkbox>
-                  </b-form-checkbox-group>
-                </b-form-group>
-                <div v-if="categoriasCobro.length" class="mb-2">
-                  <strong>Pendiente seleccionado: Q{{ pendienteCategoriaSeleccionada.toFixed(2) }}</strong>
-                  <small v-if="categoriasCobro.length > 1" class="d-block text-muted">El abono se aplica primero a hospital y el resto a honorarios.</small>
-                </div>
               </div>
               <b-form-group label="Seleccione métodos para pagar:" v-slot="{ ariaDescribedby }">
                 <b-form-checkbox-group
@@ -171,8 +161,8 @@
         </div>
       </template>
       <template #modal-footer="{}">
-        <b-button variant="primary" :disabled="!categoriasCobro.length" @click="onAbonarCategoria()"
-          >Abonar</b-button
+        <b-button variant="primary" :disabled="!desgloseCobro" @click="onCobrarCuenta()"
+          >Cobrar</b-button
         >
         <b-button variant="danger" @click="$bvModal.hide('modal-2-account')"
           >Cancelar</b-button
@@ -462,10 +452,6 @@ export default {
         { categoria: 'Hospital', total: d.hospital.total, pagado: d.hospital.pagado, pendiente: d.hospital.pendiente },
         { categoria: 'Honorarios', total: d.honorarios.total, pagado: d.honorarios.pagado, pendiente: d.honorarios.pendiente }
       ]
-    },
-    pendienteCategoriaSeleccionada () {
-      if (!this.desgloseCobro) return 0
-      return this.categoriasCobro.reduce((a, c) => a + this.desgloseCobro[c].pendiente, 0)
     }
   },
   data () {
@@ -520,7 +506,6 @@ export default {
       paymentSum: 0,
       // Cobro separado: hospital y honorarios (el laboratorio se cobra en su caja)
       desgloseCobro: null,
-      categoriasCobro: [],
       fieldsDesglose: [
         { key: 'categoria', label: 'Categoría' },
         { key: 'total', label: 'Total' },
@@ -646,7 +631,6 @@ export default {
       try {
         const { data } = await axios.get(apiUrl + `/cuentas/desgloseCobro/${idCuenta}`)
         this.desgloseCobro = data
-        this.categoriasCobro = []
       } catch (error) {
         console.error('Error al cargar el desglose de cobro:', error)
         this.desgloseCobro = null
@@ -663,33 +647,23 @@ export default {
       this.paymentType.Transferencia = 0
       this.selectAssurance = null
     },
-    async onAbonarCategoria () {
-      if (!this.categoriasCobro.length) {
-        this.alertErrorText = 'Seleccione hospital y/o honorarios para abonar'
-        this.showAlertError()
-        return
-      }
+    async onCobrarCuenta () {
       const paymentSum = parseFloat(this.paymentType.Efectivo || 0) +
         parseFloat(this.paymentType.Tarjeta || 0) +
         parseFloat(this.paymentType.Deposito || 0) +
         parseFloat(this.paymentType.Cheque || 0) +
         parseFloat(this.paymentType.Seguro || 0) +
         parseFloat(this.paymentType.Transferencia || 0)
-      if (!(paymentSum > 0)) {
-        this.alertErrorText = 'Ingrese un monto a abonar mayor a cero'
-        this.showAlertError()
-        return
-      }
-      const pendiente = this.pendienteCategoriaSeleccionada
-      if (paymentSum > pendiente + 0.001) {
-        this.alertErrorText = `El abono (Q${paymentSum.toFixed(2)}) excede lo pendiente (Q${pendiente.toFixed(2)})`
+      // Sin abonos: se debe pagar todo lo pendiente de hospital + honorarios.
+      const pendiente = this.desgloseCobro.hospital.pendiente + this.desgloseCobro.honorarios.pendiente
+      if (Math.abs(paymentSum - pendiente) >= 0.01) {
+        this.alertErrorText = `El total ingresado (Q${paymentSum.toFixed(2)}) no concuerda con el total a pagar (Q${pendiente.toFixed(2)}). Se debe pagar todo.`
         this.showAlertError()
         return
       }
       try {
         const { data } = await axios.put(apiUrl + '/cuentas/cobrarCategoria', {
           id: this.selectedAccount,
-          categorias: this.categoriasCobro,
           monto: paymentSum,
           efectivo: this.paymentType.Efectivo,
           tarjeta: this.paymentType.Tarjeta,
@@ -705,20 +679,19 @@ export default {
         if (data.desglose) {
           this.desgloseCobro = data.desglose
         }
-        this.categoriasCobro = []
         this.alertVariant = data.solvente ? 'info' : 'primary'
         this.showAlert()
         const faltan = (data.desglose && data.desglose.pendientes) || []
         this.alertText = data.solvente
           ? 'La cuenta quedó solventada por completo'
-          : `Abono registrado. Pendiente de pago de: ${faltan.join(', ')}`
+          : `Pago registrado. Pendiente de pago de: ${faltan.join(', ')}`
         this.$refs.vuetable.refresh()
         if (data.solvente) {
           this.$refs['modal-2-account'].hide()
         }
       } catch (error) {
         this.alertErrorText = (error.response && error.response.data && error.response.data.msg) ||
-          'Ha ocurrido un error al registrar el abono'
+          'Ha ocurrido un error al registrar el pago'
         this.showAlertError()
       }
     },
